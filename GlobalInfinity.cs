@@ -68,7 +68,7 @@ namespace SPIC {
                     && (player.HeldItem.type == ItemID.WireCutter || player.HeldItem.type == ItemID.WireKite)){
                 item.stack=0;
             }
-            return base.OnPickup(item, player);
+            return true;
         }
 
     }
