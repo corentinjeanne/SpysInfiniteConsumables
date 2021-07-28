@@ -1,0 +1,34 @@
+DISCLAIMER: THE MOD WAS NOT TESTED IN MULTIPLAYER!
+
+A simple Quality of life Mod giving the ability to make almost every consumables and tiles endless when you have enought of them
+Also include a few commands to change the setting in game and other features
+Many values can be changed in the config
+
+CONFIG
+Negative values for items (ex Thrown weapons) means items, positive value means stacks (-5 = 5 items, 2 = 2 stacks)
+
+AVAILABLE COMMANDS
+/SPIC values: Prints all available cateogries
+        category: give the category of an item 
+        set : set the category of an item
+/ID: gives the id/name of an item
+
+---------------- Version History ----------------
+VERSION 1.3.1
+- Liquid buckets can now be infinite
+- Works with wires and actuators
+
+VERSION 1.3
+- Can now works with mods increasing max stacks and added related config items
+- Furniture will now have the right category
+
+VERSION 1.2
+- Prevents item dupliation for infinite consumables
+- Added new cateogries
+
+VERSION 1.1
+- Custom categories and values introduced
+- Added 'set', 'category' and 'values' commands
+
+VERSION 1.0
+- Most consumables can now be infinite

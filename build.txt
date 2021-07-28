@@ -1,0 +1,3 @@
+displayName = Spy's Infinite Consomables
+author = Spiky
+version = 1.3.1
