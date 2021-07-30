@@ -99,7 +99,7 @@ Buckets won't create empty or full buckets when used")]
         public int ammunitions;
         [Range(-999, 50), DefaultValue(1), Label("[i:75] Special ammunitions")]
         public int specialAmmunitions;
-        [Range(-999, 50), DefaultValue(-5), Label("[i:43] Boss & Event summoners")]
+        [Range(-999, 50), DefaultValue(-3), Label("[i:43] Boss & Event summoners")]
         public int summoning;
         [Range(-999, 50), DefaultValue(-10), Label("[i:2019] Criters & Baits ")]
         public int critters;
