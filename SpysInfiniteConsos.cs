@@ -13,16 +13,3 @@ namespace SPIC {
 		}
 	}
 }
-
-/*
-TODO:
-# custom values
-# ingame command & show category in game?
-# list cleaning
-# max stack increase
-# right category for furnitures
-# liquids
-- block/ammo? for placeble ammos
-- redo liquids & wiring
-- maybe redo dupping for critters & furnitures ?
-*/
