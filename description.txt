@@ -3,7 +3,7 @@ DISCLAIMER: THE MOD WAS NOT TESTED IN MULTIPLAYER!
 A simple Quality of life Mod giving the ability to make almost every consumable and tiles endless when you have enough of them
 Also include a few commands to change the setting in game and other features
 Many values can be changed in the config
-For more detailed infos, go to the GitHub.
+For more detailed infos, visit the homepage
 
 CONFIG
 Negative values for items (ex Thrown weapons) means items, positive value means stacks (-5 = 5 items, 2 = 2 stacks)

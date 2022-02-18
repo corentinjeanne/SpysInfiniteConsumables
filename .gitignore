@@ -3,4 +3,6 @@
 
 obj/
 bin/
-.vs code/
+
+.vs/
+*.user
