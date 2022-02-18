@@ -81,7 +81,7 @@ namespace SPIC.Config {
 		public bool InfiniteConsumables;
 		[Label("[i:3061] Infinite Tiles")]
 		public bool InfiniteTiles;
-		[Label("[i:398] Infinite Crafting"), Tooltip("Does nothing for now")]
+		[Label("[i:398] Infinite Crafting")]
 		public bool InfiniteCrafting;
 
 		[DefaultValue(true), Label("[i:1293] Prevent item duplication"), Tooltip(
@@ -99,52 +99,58 @@ Buckets won't create empty or full buckets when used")]
 
 		[Header("Consumables")]
 		[Range(-50, 999), DefaultValue(-1), Label("[i:279] Thrown weapons")]
-		public int thrown;
+		public int consumablesThrown;
 		[Range(-50, 999), DefaultValue(-4), Label("[i:40] Arrows and Bullets")]
-		public int ammos;
+		public int consumablesAmmos;
 		[Range(-50, 999), DefaultValue(-1), Label("[i:75] Other Ammunitions")]
-		public int specialAmmos;
+		public int consumablesSpecialAmmos;
 		[DefaultValue(-2), Label("[i:188] Recovery potions")]
-		public int recovery;
+		public int consumablesRecovery;
 		[Range(-50, 999), DefaultValue(-1), Label("[i:2347] Buff potions")]
-		public int buffPotions;
+		public int consumablesBuffPotions;
 		[Range(-50, 999), DefaultValue(5), Label("[i:29] Permanent Boosters")]
-		public int boosters;
+		public int consumablesBoosters;
 		[Range(-50, 999), DefaultValue(1), Label("[i:43] Boss and Event summoners")]
-		public int summoning;
+		public int consumablesSummoning;
 		[Range(-50, 999), DefaultValue(10), Label("[i:2019] Criters and Baits")]
-		public int critters;
+		public int consumablesCritters;
 		[Range(-50, 999), DefaultValue(3), Label("[i:3093] Crates and Bags")]
-		public int bags;
+		public int consumablesBags;
 		[Range(-50, 999), DefaultValue(-1), Label("[i:282] Miscellaneous")]
-		public int tools;
+		public int consumablesTools;
 
 
 		[Header("Tiles")]
 		[Range(-50, 999), DefaultValue(-1), Label("[i:3] Blocks")]
-		public int blocks;
+		public int tileBlocks;
 		[Range(-50, 999), DefaultValue(100), Label("[i:1104] Ores")]
-		public int ores;
+		public int tileOres;
 		[Range(-50, 999), DefaultValue(5), Label("[i:343] Containers")]
-		public int containers;
+		public int tileContainers;
 		[Range(-50, 999), DefaultValue(5), Label("[i:105] Light sources")]
-		public int lightSources;
+		public int tileLightSources;
 		[Range(-50, 999), DefaultValue(5), Label("[i:333] Furnitures")]
-		public int furnitures;
+		public int tilesFurnitures;
 		[Range(-50, 999), DefaultValue(10), Label("[i:3611] Wiring")]
-		public int wiring;
+		public int tileWiring;
 		[Range(-50, 999), DefaultValue(-1), Label("[i:132] Walls")]
-		public int walls;
+		public int tileWalls;
 		[Range(-50, 999), DefaultValue(5), Label("[i:27] Seeds")]
-		public int seeds;
+		public int tileSeeds;
 		[Range(-50, 999), DefaultValue(10), Label("[i:206] Liquids")]
-		public int liquids;
+		public int tileLiquids;
 
 		[Header("Crafting")]
-		[Range(0, 50), DefaultValue(1), Label("Not Stackable")]
-		public int single;
-		[Range(-50, 999), DefaultValue(-1), Label("Stackable")]
-		public int stack;
+		[Range(-50,999), DefaultValue(-1), Label("[i:9] Basic materials")]
+		public int craftingBasis;
+		[Range(-50,999), DefaultValue(100), Label("[i:177] Valuable Tiles"), Tooltip("Drops from tiles detected by a metal detector")]
+		public int craftingOres;
+		[Range(-50,999), DefaultValue(20), Label("[i:32] Furnitures")]
+		public int craftingFurnitures;
+		[Range(-50,999), DefaultValue(99), Label("[i:317] Materials only")]
+		public int craftingMaterials;
+		[Range(0,50), DefaultValue(0), Label("[i:54] Non Stackable items")]
+		public int craftingSingleStack;
 
 		[Header("Custom Categories and values")]
 		[Label("[i:1913] Custom categories")]

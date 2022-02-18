@@ -66,8 +66,8 @@ namespace SPIC.Categories {
 
 			if (!config.HasCustomInfinity(type, out int infinityCount)) {
 				infinityCount = category switch {
-					Category.BasicAmmo => config.InfinityRequirement(config.ammos, type, LargestStack(category)),
-					Category.SpecialAmmo => config.InfinityRequirement(config.specialAmmos, type, LargestStack(category)),
+					Category.BasicAmmo => config.InfinityRequirement(config.consumablesAmmos, type, LargestStack(category)),
+					Category.SpecialAmmo => config.InfinityRequirement(config.consumablesSpecialAmmos, type, LargestStack(category)),
 					_ => throw new System.NotImplementedException()
 				};
 			}

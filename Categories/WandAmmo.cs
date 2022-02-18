@@ -71,8 +71,8 @@ namespace SPIC.Categories {
 
 			if (!config.HasCustomInfinity(type, out int infinityCount)) {
 				infinityCount = category switch {
-					Category.Wiring => config.InfinityRequirement(config.wiring, type, LargestStack(category)),
-					Category.WandAmmo => config.InfinityRequirement(config.blocks, type, LargestStack(category)),
+					Category.Wiring => config.InfinityRequirement(config.tileWiring, type, LargestStack(category)),
+					Category.WandAmmo => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
 					_ => throw new System.NotImplementedException()
 				};
 			}

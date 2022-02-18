@@ -29,6 +29,14 @@ namespace SPIC {
 		}
 
 		public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;
+
+		public static int CountInContainer(Item[] container, int type) {
+			int total = 0;
+			foreach (Item i in container) {
+				if (i.type == type) total += i.stack;
+			}
+			return total;
+		}
 		public static void RemoveFromInventory(this Player player, Item item, int count = 1) => player.RemoveFromInventory(item.type, count);
 		public static void RemoveFromInventory(this Player player, int type, int count = 1) {
 			foreach (Item i in player.inventory) {
@@ -42,12 +50,18 @@ namespace SPIC {
 			}
 		}
 		public static int CountAllItems(this Player player, Item item) => player.CountAllItems(item.type);
-		public static int CountAllItems(this Player player, int type){
-			int total = 0;
-			foreach(Item i in player.inventory) {
-				if (i.type == type) total += i.stack;
-			}
-			return total;
+		public static int CountAllItems(this Player player, int type, bool includechest = false){
+			int total = CountInContainer(player.inventory, type);
+
+			if (!includechest) return total;
+			return total + player.chest switch {
+				-1 => 0,
+				-2 => CountInContainer(player.bank.item, type),
+				-3 => CountInContainer(player.bank.item, type),
+				-4 => CountInContainer(player.bank.item, type),
+				-5 => CountInContainer(player.bank.item, type),
+				_ =>  CountInContainer(Main.chest[player.chest].item, type)
+			};
 		}
 		public static bool BusyWithInvasion() {
 			return Main.invasionType != 0;

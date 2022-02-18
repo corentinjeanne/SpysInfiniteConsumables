@@ -61,8 +61,8 @@ namespace SPIC.Categories {
 
 			if (!config.HasCustomInfinity(type, out int infinityCount)) {
 					infinityCount = category switch {
-					Category.BossBag => config.InfinityRequirement(config.bags, type, LargestStack(category)),
-					Category.GrabBag => config.InfinityRequirement(config.bags, type, LargestStack(category), 2.5f),
+					Category.BossBag => config.InfinityRequirement(config.consumablesBags, type, LargestStack(category)),
+					Category.GrabBag => config.InfinityRequirement(config.consumablesBags, type, LargestStack(category), 2.5f),
 					_ => throw new System.NotImplementedException()
 				};
 			}

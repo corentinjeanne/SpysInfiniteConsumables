@@ -19,39 +19,50 @@ namespace SPIC.Categories {
 		public enum Category : uint {
 			NotConsumable = 0,
 
+			// Weapons
 			ThrownWeapon,
 
+			// Potions
 			Recovery, // Mushroom, leasser potions bottle water, ManaPotion
 			Buff, // ales
 
+			// Boosters
 			PlayerBooster,
 			WorldBooster,
 
+			// NPCs
 			Summoner,
 			Critter,
 
+			// Other consumables
 			Explosives,
 			Tool,
 
+			// Basic tiles
 			Block,
-			Torch,
 			Ore,
 			Platform,
 			Wall,
 
-			Bucket,
-			Seed,
-
-			MusicBox,
-			Container,
+			// Furnitures
+			Torch,
 			LightSource,
+			Functional,
+			CraftingStation,
 			Housing,
-			CraftingStation, // ?
-			Functional, // SmartCursor => true - 99
-			Wiring, // HitByWire => true - 999
-			Decoration, // default category - 99
+			Decoration,
+			Container,
+			MusicBox,
 
+			// Other placeables
+			Wiring,
+			Bucket,
+			Seed
 		}
+		public static bool IsTileCategory(Category category) => category >= Category.Block;
+		public static bool IsCommonBlockCategory(Category category) => Category.Block <= category && category <= Category.Wall;
+		public static bool IsFurnitureCategory(Category category) => Category.Torch <= category && category <= Category.MusicBox;
+
 		public static Category? CategoryFromConfigCategory(ConsumableConfig.Category category){
 			return category switch {
 				ConsumableConfig.Category.Blacklist => Category.NotConsumable,
@@ -103,10 +114,6 @@ namespace SPIC.Categories {
 			Item item = new(type);
 			return item.GetConsumableCategory();
 		}
-		public static bool IsTileCategory(Category category) {
-			return category > Category.Tool;
-		}
-
 		public static Category? GetConsumableCategory(this Item item) {
 
 			if (item == null) return null;
@@ -214,38 +221,38 @@ namespace SPIC.Categories {
 
 			if (!config.HasCustomInfinity(type, out int infinityCount)) {
 				infinityCount = category switch {
-					Category.ThrownWeapon => config.InfinityRequirement(config.thrown, type, LargestStack(category)),
+					Category.ThrownWeapon => config.InfinityRequirement(config.consumablesThrown, type, LargestStack(category)),
 
-					Category.Recovery => config.InfinityRequirement(config.recovery, type, LargestStack(category)),
-					Category.Buff => config.InfinityRequirement(config.buffPotions, type, LargestStack(category)),
-					Category.PlayerBooster => config.InfinityRequirement(config.boosters, type, LargestStack(category)),
-					Category.WorldBooster => config.InfinityRequirement(config.boosters, type, LargestStack(category)),
+					Category.Recovery => config.InfinityRequirement(config.consumablesRecovery, type, LargestStack(category)),
+					Category.Buff => config.InfinityRequirement(config.consumablesBuffPotions, type, LargestStack(category)),
+					Category.PlayerBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
+					Category.WorldBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
 
-					Category.Summoner => config.InfinityRequirement(config.summoning, type, LargestStack(category)),
-					Category.Critter => config.InfinityRequirement(config.critters, type, LargestStack(category)),
+					Category.Summoner => config.InfinityRequirement(config.consumablesSummoning, type, LargestStack(category)),
+					Category.Critter => config.InfinityRequirement(config.consumablesCritters, type, LargestStack(category)),
 
-					Category.Explosives => config.InfinityRequirement(config.tools, type, LargestStack(category)),
-					Category.Tool => config.InfinityRequirement(config.tools, type, LargestStack(category)),
+					Category.Explosives => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
+					Category.Tool => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
 
-					Category.Block => config.InfinityRequirement(config.blocks, type, LargestStack(category)),
-					Category.Wall => config.InfinityRequirement(config.walls, type, LargestStack(category)),
-					Category.Bucket => config.InfinityRequirement(config.liquids, type, LargestStack(category)),
-					Category.Torch => config.InfinityRequirement(config.lightSources, type, LargestStack(category)), // custom category ?
-					Category.Ore => config.InfinityRequirement(config.ores, type, LargestStack(category)),
-					Category.Platform => config.InfinityRequirement(config.blocks, type, LargestStack(category)),
-					Category.Seed => config.InfinityRequirement(config.seeds, type, LargestStack(category)),
-					Category.MusicBox => config.InfinityRequirement(config.furnitures, type, LargestStack(category)), // custom category ?
-					Category.Container => config.InfinityRequirement(config.containers, type, LargestStack(category)),
-					Category.LightSource => config.InfinityRequirement(config.lightSources, type, LargestStack(category)),
-					Category.Housing => config.InfinityRequirement(config.furnitures, type, LargestStack(category)),
-					Category.CraftingStation => config.InfinityRequirement(config.furnitures, type, LargestStack(category)),
-					Category.Functional => config.InfinityRequirement(config.furnitures, type, LargestStack(category)),
-					Category.Wiring => config.InfinityRequirement(config.wiring, type, LargestStack(category)),
-					Category.Decoration => config.InfinityRequirement(config.furnitures, type, LargestStack(category)),
+					Category.Block => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
+					Category.Wall => config.InfinityRequirement(config.tileWalls, type, LargestStack(category)),
+					Category.Bucket => config.InfinityRequirement(config.tileLiquids, type, LargestStack(category)),
+					Category.Torch => config.InfinityRequirement(config.tileLightSources, type, LargestStack(category)), // custom category ?
+					Category.Ore => config.InfinityRequirement(config.tileOres, type, LargestStack(category)),
+					Category.Platform => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
+					Category.Seed => config.InfinityRequirement(config.tileSeeds, type, LargestStack(category)),
+					Category.MusicBox => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)), // custom category ?
+					Category.Container => config.InfinityRequirement(config.tileContainers, type, LargestStack(category)),
+					Category.LightSource => config.InfinityRequirement(config.tileLightSources, type, LargestStack(category)),
+					Category.Housing => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
+					Category.CraftingStation => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
+					Category.Functional => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
+					Category.Wiring => config.InfinityRequirement(config.tileWiring, type, LargestStack(category)),
+					Category.Decoration => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
 					_ => throw new System.NotImplementedException()
 				};
 			}
-			if (CannotStopDrop(type)) return player.CountAllItems(type) == infinityCount;
+			if (CannotStopDrop(type) && config.PreventItemDupication) return player.CountAllItems(type) == infinityCount;
 			return player.CountAllItems(type) >= infinityCount;
 		}
 	}

@@ -76,19 +76,19 @@ namespace SPIC.Globals {
                         X = i, Y = j,
                         W = data.Width, H = data.Height
                     });
-					Mod.Logger.Debug($"added {noDropObjects[^1]} to {nameof(noDropObjects)}");
+					//Mod.Logger.Debug($"added {noDropObjects[^1]} to {nameof(noDropObjects)}");
 				}
                 noItem = true;
 			}
 		}
         public override bool Drop(int i, int j, int type) {
-            Mod.Logger.Debug($"Drop called: type={type},i={i},j={j}, destroy={WorldGen.destroyObject}, DropItem={s_InDropItem}");
+            //Mod.Logger.Debug($"Drop called: type={type},i={i},j={j}, destroy={WorldGen.destroyObject}, DropItem={s_InDropItem}");
 
             if (!WorldGen.destroyObject || s_InDropItem) return true;
 
             for (int o = 0; o < noDropObjects.Count; o++) {
                 if (noDropObjects[o].IsInside(i, j)) {
-                    Mod.Logger.Debug($"removed {noDropObjects[o]} to {nameof(noDropObjects)}");
+                    //Mod.Logger.Debug($"removed {noDropObjects[o]} to {nameof(noDropObjects)}");
                     noDropObjects.RemoveAt(o);
                     return false;
                 }
@@ -101,7 +101,7 @@ namespace SPIC.Globals {
                 int left = i - (Main.tile[i, j].TileFrameX % (18 * data.Width)) / 18;
                 bool noDrop = world.MineTile(left, top);
                 if (noDrop) {
-                    Mod.Logger.Debug($"no drop: type={type} at ({i},{j}), corner=({left},{top})");
+                    //Mod.Logger.Debug($"no drop: type={type} at ({i},{j}), corner=({left},{top})");
                     return false;
                 }
             }

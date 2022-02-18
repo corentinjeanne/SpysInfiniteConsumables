@@ -1,6 +1,5 @@
 using Terraria.ModLoader;
 
-
 namespace SPIC {
 
 	public class SpysInfiniteConsumables : Mod {
@@ -8,6 +7,5 @@ namespace SPIC {
 		public override void Load() {
             ShowConsumableCategory = KeybindLoader.RegisterKeybind(this, "Favorited Quick buff", "N");
         }
-
     }
 }
