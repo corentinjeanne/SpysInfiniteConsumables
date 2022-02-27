@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -14,8 +15,6 @@ namespace SPIC.Systems {
         public static int preUseInvasion;
         public static int preUseBossCount;
 
-        // Save the config if a modification has been made with those commands
-        public System.Version NoDropVersion { get; private set; }
         private bool m_Modified;
         private string NoDropPath;
         private byte[] noDropBloks;
@@ -41,21 +40,20 @@ namespace SPIC.Systems {
 
         private bool GetBit(int index, int offset) => (noDropBloks[index] & (1 << offset)) != 0;
         private void SetBit(int index, int offset, bool value) {
-            m_Modified = true; // 302918
+            m_Modified = true;
             if (value) noDropBloks[index] |= (byte)(1 << offset);
             else       noDropBloks[index] &= (byte)~(1 << offset);
         }
 
 		public override void OnWorldLoad() {
-            //if (Main.netMode == Terraria.ID.NetmodeID.MultiplayerClient) return;
+            // Does not load the world file in multi
+            if (Main.netMode != NetmodeID.SinglePlayer) return;
+
             m_Length = (Main.ActiveWorldFileData.WorldSizeX*2 + 7) / 8;
             m_Height = Main.ActiveWorldFileData.WorldSizeY;
             NoDropPath = Main.worldPathName.Replace(".wld", ".spic");
 
-            bool b = File.Exists(NoDropPath);
-            noDropBloks = File.Exists(NoDropPath) 
-                ? File.ReadAllBytes(NoDropPath) :
-                new byte[m_Length * m_Height];
+            noDropBloks = File.Exists(NoDropPath) ? File.ReadAllBytes(NoDropPath) : new byte[m_Length * m_Height];
 
         }
 		public override void Unload() {
@@ -67,8 +65,8 @@ namespace SPIC.Systems {
             if (config.modifiedInGame)
                 config.ManualSave();
 
-            if (Main.netMode == Terraria.ID.NetmodeID.MultiplayerClient)
-                return;
+            // Does not save the world file in multi
+            if (Main.netMode != NetmodeID.SinglePlayer) return;
             if (m_Modified) {
                 File.WriteAllBytes(NoDropPath, noDropBloks);
                 m_Modified = false;

@@ -37,9 +37,12 @@ namespace SPIC.Globals {
             s_InDropItem = false;
         }
 
-
         public override void PlaceInWorld(int i, int j, int type, Item item) {
+
+            if (Main.netMode != NetmodeID.SinglePlayer) return;
+
             SpicWorld world = ModContent.GetInstance<SpicWorld>();
+
 
             int playerIndex = item.playerIndexTheItemIsReservedFor;
             if (WorldGen.generatingWorld || playerIndex < 0 || !ModContent.GetInstance<ConsumableConfig>().PreventItemDupication)
@@ -64,6 +67,9 @@ namespace SPIC.Globals {
 
         }
 		public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem) {
+
+            if (Main.netMode != NetmodeID.SinglePlayer) return;
+
             if (fail || WorldGen.generatingWorld) return;
             if (!WorldGen.destroyObject) noDropObjects.Clear(); // Clears list when mine a tile, just in case
 
@@ -82,6 +88,9 @@ namespace SPIC.Globals {
 			}
 		}
         public override bool Drop(int i, int j, int type) {
+
+            if (Main.netMode != NetmodeID.SinglePlayer) return true;
+
             //Mod.Logger.Debug($"Drop called: type={type},i={i},j={j}, destroy={WorldGen.destroyObject}, DropItem={s_InDropItem}");
 
             if (!WorldGen.destroyObject || s_InDropItem) return true;

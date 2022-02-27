@@ -252,7 +252,10 @@ namespace SPIC.Categories {
 					_ => throw new System.NotImplementedException()
 				};
 			}
-			if (CannotStopDrop(type) && config.PreventItemDupication) return player.CountAllItems(type) == infinityCount;
+
+			if (config.PreventItemDupication && IsTileCategory(category) && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
+				return player.CountAllItems(type) == infinityCount;
+
 			return player.CountAllItems(type) >= infinityCount;
 		}
 	}

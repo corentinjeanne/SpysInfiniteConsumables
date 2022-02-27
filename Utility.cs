@@ -20,8 +20,8 @@ namespace SPIC {
 				}
 			}
 			throw new UsageException("Invalid Name" + name);
-		}
-		public static string TypeToName(int type) {
+        }
+        public static string TypeToName(int type) {
 			Item item = new Item(type);
 			if(item.IsAir)
 				throw new UsageException("Invalid type" + type);
