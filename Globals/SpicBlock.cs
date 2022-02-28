@@ -13,138 +13,122 @@ using System.Diagnostics;
 
 namespace SPIC.Globals {
 
-    public struct LargeObject {
-        //public int type;
-        public int X, Y;
-        public int W, H;
-        public bool IsInside(int x, int y) => X <= x && x < X + W && Y <= y && y < Y + H;
+	public struct LargeObject {
+		//public int type;
+		public int X, Y;
+		public int W, H;
+		public bool IsInside(int x, int y) => X <= x && x < X + W && Y <= y && y < Y + H;
 
-        public override string ToString() => $"({X},{Y}),{W}x{H}";
+		public override string ToString() => $"({X},{Y}),{W}x{H}";
 	}
-	public class NoTileDup : GlobalTile {
-        private readonly List<LargeObject> noDropObjects = new();
-        private static bool s_InDropItem;
+	public class SPICTile : GlobalTile {
+		private readonly List<LargeObject> noDropObjects = new();
+		private static bool s_InDropItem;
 		public override void Load() {
 			On.Terraria.WorldGen.KillTile_DropItems += HookKillTile_DropItem;
-        }
+			On.Terraria.WorldGen.ReplaceTIle_DoActualReplacement += HookReplaceTIle_DoActualReplacement;
+		}
 		public override void Unload() {
-            On.Terraria.WorldGen.KillTile_DropItems -= HookKillTile_DropItem;
-        }
+			On.Terraria.WorldGen.KillTile_DropItems -= HookKillTile_DropItem;
+			On.Terraria.WorldGen.ReplaceTIle_DoActualReplacement -= HookReplaceTIle_DoActualReplacement;
+		}
 
 		private static void HookKillTile_DropItem(On.Terraria.WorldGen.orig_KillTile_DropItems orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops) {
-            s_InDropItem = true;
-            orig(x, y, tileCache, includeLargeObjectDrops);
-            s_InDropItem = false;
-        }
+			s_InDropItem = true;
+			orig(x, y, tileCache, includeLargeObjectDrops);
+			s_InDropItem = false;
+		}
+		private static void HookReplaceTIle_DoActualReplacement(On.Terraria.WorldGen.orig_ReplaceTIle_DoActualReplacement orig, ushort targetType, int targetStyle, int topLeftX, int topLeftY, Tile t) {
+			Player player = Main.player[Main.myPlayer];
+			ModContent.GetInstance<SPICTile>().PlaceInWorld(topLeftX, topLeftY, player.HeldItem.createTile, player.HeldItem);
 
-        public override void PlaceInWorld(int i, int j, int type, Item item) {
+			orig(targetType, targetStyle, topLeftX, topLeftY, t);
+		}
 
-            if (Main.netMode != NetmodeID.SinglePlayer) return;
+		public override void PlaceInWorld(int i, int j, int type, Item item) {
 
-            SpicWorld world = ModContent.GetInstance<SpicWorld>();
+			if (Main.netMode != NetmodeID.SinglePlayer) return;
 
+			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
 
-            int playerIndex = item.playerIndexTheItemIsReservedFor;
-            if (WorldGen.generatingWorld || playerIndex < 0 || !ModContent.GetInstance<ConsumableConfig>().PreventItemDupication)
-                return;
+			int playerIndex = item.playerIndexTheItemIsReservedFor;
+			if (WorldGen.generatingWorld || playerIndex < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
+				return;
 
-            if (Main.netMode == NetmodeID.MultiplayerClient) {
-                NetMessage.SendData(MessageID.WorldData); // Immediately inform clients of new world state.
-                //return;
-            }
+			if (Consumable.CannotStopDrop(item.type)) return;
 
-            if (Consumable.CannotStopDrop(item.type)) return;
-
+			SpicWorld world = ModContent.GetInstance<SpicWorld>();
 			if (Main.player[playerIndex].HeldItem == item) {
-                if (item.IsInfiniteConsumable() ?? false) {
-                    TileObjectData data = TileObjectData.GetTileData(Main.tile[i, j]);
-                    if (data == null) world.PlaceTile(i, j);
+				if (item.IsInfiniteConsumable() ?? false) {
+					TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
+					if (data == null) world.PlaceTile(i, j);
 					else world.PlaceTile(i-data.Origin.X, j- data.Origin.Y);
-                }
-                return;
+				}
+				return;
 			}
 			if (item.IsInfiniteWandAmmo()) world.PlaceTile(i, j);
 
-        }
-		public override void KillTile(int i, int j, int type, ref bool fail, ref bool effectOnly, ref bool noItem) {
-
-            if (Main.netMode != NetmodeID.SinglePlayer) return;
-
-            if (fail || WorldGen.generatingWorld) return;
-            if (!WorldGen.destroyObject) noDropObjects.Clear(); // Clears list when mine a tile, just in case
-
-            SpicWorld world = ModContent.GetInstance<SpicWorld>();
-            bool noDrop =  world.MineTile(i, j);
-			if (noDrop) {
-                TileObjectData data = TileObjectData.GetTileData(Main.tile[i, j]);
-                if(data != null && (data.Width > 1 || data.Height > 1)) {
-                    noDropObjects.Add(new LargeObject() {
-                        X = i, Y = j,
-                        W = data.Width, H = data.Height
-                    });
-					//Mod.Logger.Debug($"added {noDropObjects[^1]} to {nameof(noDropObjects)}");
-				}
-                noItem = true;
-			}
 		}
-        public override bool Drop(int i, int j, int type) {
 
-            if (Main.netMode != NetmodeID.SinglePlayer) return true;
+		public override bool Drop(int i, int j, int type) {
+			if (Main.netMode != NetmodeID.SinglePlayer) return true;
 
-            //Mod.Logger.Debug($"Drop called: type={type},i={i},j={j}, destroy={WorldGen.destroyObject}, DropItem={s_InDropItem}");
-
-            if (!WorldGen.destroyObject || s_InDropItem) return true;
-
-            for (int o = 0; o < noDropObjects.Count; o++) {
-                if (noDropObjects[o].IsInside(i, j)) {
-                    //Mod.Logger.Debug($"removed {noDropObjects[o]} to {nameof(noDropObjects)}");
-                    noDropObjects.RemoveAt(o);
-                    return false;
-                }
+			TileObjectData data;
+			SpicWorld world = ModContent.GetInstance<SpicWorld>();
+			if (s_InDropItem) {
+				bool noDrop = world.MineTile(i, j);
+				if (noDrop) {
+					data = TileObjectData.GetTileData(Main.tile[i, j]);
+					if (data != null && (data.Width > 1 || data.Height > 1)) {
+						noDropObjects.Add(new LargeObject() {
+							X = i, Y = j,
+							W = data.Width, H = data.Height
+						});
+					}
+				}
+				return !noDrop;
+			}
+			
+			for (int k = 0; k < noDropObjects.Count; k++) {
+				if (noDropObjects[k].IsInside(i, j)) {
+					noDropObjects.RemoveAt(k);
+					return false;
+				}
 			}
 
-			SpicWorld world = ModContent.GetInstance<SpicWorld>();
-            TileObjectData data = TileObjectData.GetTileData(Main.tile[i, j]);
-            if (data != null) {
-                int top = j - (Main.tile[i, j].TileFrameX % (18 * data.Height)) / 18;
-                int left = i - (Main.tile[i, j].TileFrameX % (18 * data.Width)) / 18;
-                bool noDrop = world.MineTile(left, top);
-                if (noDrop) {
-                    //Mod.Logger.Debug($"no drop: type={type} at ({i},{j}), corner=({left},{top})");
-                    return false;
-                }
-            }
+			data = TileObjectData.GetTileData(Main.tile[i, j]);
+			if (data != null) {
+				int top = j - (Main.tile[i, j].TileFrameX % (18 * data.Height)) / 18;
+				int left = i - (Main.tile[i, j].TileFrameX % (18 * data.Width)) / 18;
+				bool noDrop = world.MineTile(left, top);
+				if (noDrop) return false;
+			}
 
-                
-            
-            return true; // true
-            // WallXxX
-            // 2x5
-            // 3x5
-            // 3x6
-            // Sunflower
-            // Gnome
-            // Chest
-            // drop in 2x1 bug : num instead of num3
-        }
-    }
+			return true;
+		}
+	}
 
-	public class NoWallDup : GlobalWall {
-    
+	
+	public class SPICWall : GlobalWall {
+	
+		public override void PlaceInWorld(int i, int j, int type, Item item) {
 
-        public override void PlaceInWorld(int i, int j, int type, Item item) {
-            SpicWorld world = ModContent.GetInstance<SpicWorld>();
-            if (ModContent.GetInstance<ConsumableConfig>().PreventItemDupication){
-                world.PlaceWall(i, j);
-            }
+			if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-        }
+			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+			if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
+				return;
+
+			ModContent.GetInstance<SpicWorld>().PlaceWall(i, j);
+		}
+
 		public override bool Drop(int i, int j, int type, ref int dropType) {
 
-            SpicWorld world = ModContent.GetInstance<SpicWorld>();
-            return !world.MineWall(i, j);
+			if (Main.netMode != NetmodeID.SinglePlayer) return true;
 
-        }
+			return !ModContent.GetInstance<SpicWorld>().MineWall(i, j);
 
-    }
+		}
+
+	}
 }

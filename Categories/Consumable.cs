@@ -199,6 +199,14 @@ namespace SPIC.Categories {
 		}
 
 		public static bool CannotStopDrop(int type) {
+			// WallXxX
+			// 2x5
+			// 3x5
+			// 3x6
+			// Sunflower
+			// Gnome
+			// Chest
+			// drop in 2x1 bug : num instead of num3
 			Item item = new(type);
 			// Does no place a tile
 			if (item.createTile < TileID.Dirt || item.createWall >= WallID.None || item.createTile == TileID.TallGateClosed) return false;

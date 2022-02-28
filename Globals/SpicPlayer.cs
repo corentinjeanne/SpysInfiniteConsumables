@@ -7,11 +7,11 @@ using SPIC.Categories;
 
 
 namespace SPIC.Globals {
-    public class SpicPlayer : ModPlayer {
+	public class SpicPlayer : ModPlayer {
 
-        public int preUseMaxLife, preUseMaxMana;
-        public int preUseExtraAccessories;
-        public bool preUseDemonHeart;
+		public int preUseMaxLife, preUseMaxMana;
+		public int preUseExtraAccessories;
+		public bool preUseDemonHeart;
 
 
 		public override void Load() {

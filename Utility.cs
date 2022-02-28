@@ -2,10 +2,9 @@ using Terraria;
 using Terraria.ModLoader;
 
 namespace SPIC {
-
 	public static class Utility {
 
-        public static bool ModifiedMaxStack {get; private set;}
+		public static bool ModifiedMaxStack {get; private set;}
 
 
 		public static int WorldDifficulty => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
@@ -20,8 +19,8 @@ namespace SPIC {
 				}
 			}
 			throw new UsageException("Invalid Name" + name);
-        }
-        public static string TypeToName(int type) {
+		}
+		public static string TypeToName(int type) {
 			Item item = new Item(type);
 			if(item.IsAir)
 				throw new UsageException("Invalid type" + type);
