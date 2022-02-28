@@ -144,7 +144,7 @@ namespace SPIC.Systems {
 		public override void OnWorldUnload() {
 			for (int i = 0; i < MAX_LOADED_CHUNKS; i++) UnLoadChunk(i);
 			m_LoadedChunks.Clear();
-			m_CreatedChunks=null;
+			m_CreatedChunks.Clear();
 		}
 		public int FileOffset(int chuckID) {
 			int chunkNumber = m_CreatedChunks.IndexOf(chuckID);

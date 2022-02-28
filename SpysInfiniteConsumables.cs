@@ -7,5 +7,8 @@ namespace SPIC {
 		public override void Load() {
 			ShowConsumableCategory = KeybindLoader.RegisterKeybind(this, "Favorited Quick buff", "N");
 		}
+		public override void Unload() {
+			ShowConsumableCategory = null;
+		}
 	}
 }
