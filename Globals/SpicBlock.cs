@@ -9,8 +9,6 @@ using SPIC.Categories;
 
 using System.Collections.Generic;
 
-using System.Diagnostics;
-
 namespace SPIC.Globals {
 
 	public struct LargeObject {
@@ -22,15 +20,13 @@ namespace SPIC.Globals {
 		public override string ToString() => $"({X},{Y}),{W}x{H}";
 	}
 	public class SPICTile : GlobalTile {
-		private readonly List<LargeObject> noDropObjects = new();
+
+		private readonly List<LargeObject> m_NoDropCache = new();
 		private static bool s_InDropItem;
+
 		public override void Load() {
 			On.Terraria.WorldGen.KillTile_DropItems += HookKillTile_DropItem;
 			On.Terraria.WorldGen.ReplaceTIle_DoActualReplacement += HookReplaceTIle_DoActualReplacement;
-		}
-		public override void Unload() {
-			On.Terraria.WorldGen.KillTile_DropItems -= HookKillTile_DropItem;
-			On.Terraria.WorldGen.ReplaceTIle_DoActualReplacement -= HookReplaceTIle_DoActualReplacement;
 		}
 
 		private static void HookKillTile_DropItem(On.Terraria.WorldGen.orig_KillTile_DropItems orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops) {
@@ -80,7 +76,7 @@ namespace SPIC.Globals {
 				if (noDrop) {
 					data = TileObjectData.GetTileData(Main.tile[i, j]);
 					if (data != null && (data.Width > 1 || data.Height > 1)) {
-						noDropObjects.Add(new LargeObject() {
+						m_NoDropCache.Add(new LargeObject() {
 							X = i, Y = j,
 							W = data.Width, H = data.Height
 						});
@@ -89,9 +85,9 @@ namespace SPIC.Globals {
 				return !noDrop;
 			}
 			
-			for (int k = 0; k < noDropObjects.Count; k++) {
-				if (noDropObjects[k].IsInside(i, j)) {
-					noDropObjects.RemoveAt(k);
+			for (int k = 0; k < m_NoDropCache.Count; k++) {
+				if (m_NoDropCache[k].IsInside(i, j)) {
+					m_NoDropCache.RemoveAt(k);
 					return false;
 				}
 			}

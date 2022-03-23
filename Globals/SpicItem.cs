@@ -1,37 +1,32 @@
 using System;
 using System.Collections.Generic;
 
-
 using System.Reflection;
 using MonoMod.Cil;
-
-using Microsoft.Xna.Framework;
 
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 using SPIC.Categories;
-using SPIC.Systems;
-
-
 
 namespace SPIC.Globals {
 	
 	public class SpicItem : GlobalItem {
 
-		private static int[] m_ItemMaxStack;
-		public static int MaxStack(int type) => SetDefaultsHook ? m_ItemMaxStack[type] : new Item(type).maxStack;
+		private static int[] s_ItemMaxStack;
+		public static int MaxStack(int type) => SetDefaultsHook ? s_ItemMaxStack[type] : new Item(type).maxStack;
 		public static bool SetDefaultsHook { get; private set; }
 
 		public override void Load() {
-			m_ItemMaxStack = new int[ItemID.Count];
+			s_ItemMaxStack = new int[ItemID.Count];
 			IL.Terraria.Item.SetDefaults_int_bool += HookItemSetDefaults;
 
 		}
 		public override void Unload() {
-			IL.Terraria.Item.SetDefaults_int_bool -= HookItemSetDefaults;
 			SetDefaultsHook = false;
+			s_ItemMaxStack = null;
+			Consumable.ClearCache();
 		}
 
 		public override void SetDefaults(Item item) {
@@ -42,12 +37,12 @@ namespace SPIC.Globals {
 		public override void SetStaticDefaults() {
 			if (!SetDefaultsHook) return;
 
-			Array.Resize(ref m_ItemMaxStack, ItemLoader.ItemCount);
+			Array.Resize(ref s_ItemMaxStack, ItemLoader.ItemCount);
 			for (int type = ItemID.Count; type < ItemLoader.ItemCount; type++) {
 				ModItem item = ItemLoader.GetItem(type);
 				ModItem modItem = item.Clone(new Item());
 				modItem.SetDefaults();
-				m_ItemMaxStack[type] = modItem.Item.maxStack != 0 ? modItem.Item.maxStack : 1;
+				s_ItemMaxStack[type] = modItem.Item.maxStack != 0 ? modItem.Item.maxStack : 1;
 			}
 		}
 
@@ -64,7 +59,7 @@ namespace SPIC.Globals {
 					if (consumable.Value != Consumable.Category.NotConsumable) {
 						category += (Consumable.IsTileCategory(consumable.Value) ?"P" : "C") + $":{consumable} ";
 					}
-				}else category += $"?Consumable ";
+				}else category += "?Consumable ";
 
 				Ammo.Category ammo = item.GetAmmoCategory();
 				if (ammo != Ammo.Category.NotAmmo) category += $"A:{ammo} ";
@@ -83,50 +78,59 @@ namespace SPIC.Globals {
 
 		public override bool? UseItem(Item item, Player player) {
 			Consumable.Category? category = item.GetConsumableCategory();
+
 			if (!category.HasValue) {
-				player.GetModPlayer<SpicPlayer>().PreUseItem();
-			   SpicWorld.PreUseItem();
+				SpicPlayer modPlayer =  player.GetModPlayer<SpicPlayer>();
+				modPlayer.SavePreUseItemStats();
+				modPlayer.checkingForCategory = true;
 			}
 			return null;
 		}
-		public override bool ConsumeItem(Item item, Player player) {
 
-			// Bags
+		public static bool TryDetectAndCacheCategory(Item item, SpicPlayer player) {
+			Consumable.Category? detect = player.CheckForCategory();
+			if (!detect.HasValue) return false;
+
+			Consumable.AddToCache(item.type, detect.Value);
+			return true;
+		}
+		public override bool ConsumeItem(Item item, Player player) {
+			Config.ConsumableConfig config = ModContent.GetInstance<Config.ConsumableConfig>();
+
 			if (Main.playerInventory && player.HeldItem != item) {
+
 				// Bags
 				if (Main.mouseRight && Main.mouseRightRelease) {
-					GrabBag.Category? bagCategory = item.GetBagCategory();
-					return !player.HasInfinite(item.type, bagCategory ?? GrabBag.Category.GrabBag);
+					if (!config.InfiniteConsumables) return true;
+					GrabBag.Category bagCategory = item.GetBagCategory() ?? GrabBag.Category.GrabBag;
+					return !player.HasInfinite(item.type, bagCategory);
 				}
+
 				// Wands
+				if (!config.InfiniteTiles) return true;
 				return player.HasInfinite(item.type, item.GetWandAmmoCategory() ?? WandAmmo.Category.WandAmmo);
 			}
 
 			// Consumables
-			Consumable.Category? consumableCategory = item.GetConsumableCategory();
-			if (consumableCategory.HasValue) return !player.HasInfinite(item.type, consumableCategory.Value);
-
-
 			SpicPlayer modPlayer = player.GetModPlayer<SpicPlayer>();
-			// Boss / event summoner
-			if (SpicWorld.preUseBossCount != Utility.BossCount() || SpicWorld.preUseInvasion != Main.invasionType) {
-				return !player.HasInfinite(item.type, Consumable.Category.Summoner);
+
+			// Live detection
+			if (modPlayer.checkingForCategory) {
+				TryDetectAndCacheCategory(item, modPlayer);
+				modPlayer.checkingForCategory = false;
 			}
-			// Player Boosters
-			if (modPlayer.preUseMaxLife != player.statLifeMax2 || modPlayer.preUseMaxMana != player.statManaMax2
-				|| modPlayer.preUseExtraAccessories != player.extraAccessorySlots || modPlayer.preUseDemonHeart != player.extraAccessory) {
-				return !player.HasInfinite(item.type, Consumable.Category.PlayerBooster);
-			}
-			// World boosters
-			if (SpicWorld.preUseDifficulty != Utility.WorldDifficulty || item.type == ItemID.LicenseBunny || item.type == ItemID.LicenseCat || item.type == ItemID.LicenseDog || item.type == ItemID.CombatBook) {
-				return !player.HasInfinite(item.type, Consumable.Category.WorldBooster);
-			}
-			
-			// Some boosters may go through
-			return !player.HasInfinite(item.type, Consumable.Category.Tool);
+			Consumable.Category consumableCategory = item.GetConsumableCategory() ?? Consumable.Category.PlayerBooster;
+
+
+			if (Consumable.IsTileCategory(consumableCategory) ? !config.InfiniteTiles : !config.InfiniteConsumables)
+				return true;
+
+			return !player.HasInfinite(item.type, consumableCategory);
+
 			
 		}
 		public override bool CanBeConsumedAsAmmo(Item item, Player player) {
+			if (!ModContent.GetInstance<Config.ConsumableConfig>().InfiniteConsumables) return true;
 			return !player.HasInfiniteAmmo(item);
 		}
 
@@ -139,18 +143,18 @@ namespace SPIC.Globals {
 			ILCursor c = new ILCursor(il);
 
 			if (setdefault_item_bool == null || !c.TryGotoNext(i => i.MatchCall(setdefault_item_bool))) {
-				Mod.Logger.Error("Set default hook could not be aplied");
-				return; // Patch unable to be applied
+				Mod.Logger.Error("Unable to apply patch!");
+				return;
 			}
 
 			c.Index -= args.Length;
 			c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0); // item
-			c.EmitDelegate<Action<Item>>((Item item) => {
-				if (item.type < ItemID.Count) {
-					m_ItemMaxStack[item.type] = item.maxStack;
-				}
+			c.EmitDelegate((Item item) => {
+				if (item.type < ItemID.Count) s_ItemMaxStack[item.type] = item.maxStack;
 			});
+
 			SetDefaultsHook = true;
 		}
+
 	}
 }

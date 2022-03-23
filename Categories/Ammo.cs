@@ -59,7 +59,7 @@ namespace SPIC.Categories {
 		public static bool HasInfinite(this Player player, int type, Category category) {
 			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
 
-			if (!config.InfiniteConsumables || category == Category.NotAmmo) return false;
+			if (category == Category.NotAmmo) return false;
 
 			if (config.JourneyRequirement)
 				return player.CountAllItems(type) >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];

@@ -14,7 +14,8 @@ namespace SPIC.Categories {
 
 	public static class Consumable {
 
-		public static List<int> buckets = new() { ItemID.EmptyBucket, ItemID.WaterBucket, ItemID.LavaBucket, ItemID.HoneyBucket };
+		private static List<int> m_Buckets = new() { ItemID.EmptyBucket, ItemID.WaterBucket, ItemID.LavaBucket, ItemID.HoneyBucket };
+		private static Dictionary<int, Category> s_DetectedCategoriesCache = new();
 
 		public enum Category : uint {
 			NotConsumable = 0,
@@ -114,6 +115,10 @@ namespace SPIC.Categories {
 			Item item = new(type);
 			return item.GetConsumableCategory();
 		}
+		public static bool IsInCache(int type) => s_DetectedCategoriesCache.ContainsKey(type);
+		public static void AddToCache(int type, Category c) => s_DetectedCategoriesCache.Add(type, c);
+		public static void ClearCache() => s_DetectedCategoriesCache.Clear();
+
 		public static Category? GetConsumableCategory(this Item item) {
 
 			if (item == null) return null;
@@ -125,15 +130,19 @@ namespace SPIC.Categories {
 				if (category.HasValue) return category.Value;
 			}
 
-			// Vanilla inconsitancies
+			if (IsInCache(item.type)) return s_DetectedCategoriesCache[item.type];
+
+			// Vanilla inconsitancies or special items
 			switch (item.type) {
 			case ItemID.Actuator: return Category.Wiring;
 			case ItemID.PirateMap: return Category.Summoner;
 			case ItemID.EmpressButterfly: return Category.Summoner;
+			case ItemID.LicenseBunny: case ItemID.LicenseCat: case ItemID.LicenseDog: return Category.Critter;
+			case ItemID.CombatBook: return Category.WorldBooster;
 			}			
 				
 				
-			if (buckets.Contains(item.type)) return Category.Bucket;
+			if (m_Buckets.Contains(item.type)) return Category.Bucket;
 
 			if(!item.consumable || item.useStyle == ItemUseStyleID.None) return Category.NotConsumable;
 
@@ -222,7 +231,7 @@ namespace SPIC.Categories {
 		public static bool HasInfinite(this Player player, int type, Category category) {
 			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
 
-			if (category == Category.NotConsumable || (IsTileCategory(category) ? !config.InfiniteTiles : !config.InfiniteConsumables)) return false;
+			if (category == Category.NotConsumable) return false;
 
 			if (config.JourneyRequirement)
 				return player.CountAllItems(type) >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
@@ -233,6 +242,7 @@ namespace SPIC.Categories {
 
 					Category.Recovery => config.InfinityRequirement(config.consumablesRecovery, type, LargestStack(category)),
 					Category.Buff => config.InfinityRequirement(config.consumablesBuffPotions, type, LargestStack(category)),
+					
 					Category.PlayerBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
 					Category.WorldBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
 
@@ -242,6 +252,7 @@ namespace SPIC.Categories {
 					Category.Explosives => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
 					Category.Tool => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
 
+					
 					Category.Block => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
 					Category.Wall => config.InfinityRequirement(config.tileWalls, type, LargestStack(category)),
 					Category.Bucket => config.InfinityRequirement(config.tileLiquids, type, LargestStack(category)),

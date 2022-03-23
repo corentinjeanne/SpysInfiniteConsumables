@@ -60,12 +60,11 @@ namespace SPIC.Systems {
 
 		public static int preUseDifficulty;
 		public static int preUseInvasion;
-		public static int preUseBossCount;
-
+		public static NPCStats preUseNPCStats;
 		private string m_ChunkFilePath;
 
 
-		private List<int> m_CreatedChunks;
+		private List<int> m_CreatedChunks = new();
 		private int m_ChunkSize = 128;
 		public const int MAX_LOADED_CHUNKS = 16;
 		private List<(int id, BlockChunk chunk)> m_LoadedChunks = new();
@@ -121,7 +120,7 @@ namespace SPIC.Systems {
 				}
 				if (m_CreatedChunks.Count != lenght / BlockChunk.GetSize(m_ChunkSize, m_ChunkSize)) {
 					Mod.Logger.Error("Mishmash between world data and .spic file data");
-					m_CreatedChunks = null;
+					m_CreatedChunks.Clear();
 					File.Move(m_ChunkFilePath, m_ChunkFilePath+".bad", true);
 				}
 			}else {
@@ -136,7 +135,7 @@ namespace SPIC.Systems {
 				config.ManualSave();
 
 
-			if (m_CreatedChunks != null && m_CreatedChunks.Count > 0) {
+			if (m_CreatedChunks.Count > 0) {
 				tag["chunks"] = m_CreatedChunks;
 				tag["chunksSize"] = m_ChunkSize;
 			}
@@ -178,10 +177,9 @@ namespace SPIC.Systems {
 			if (m_LoadedChunks.Count >= MAX_LOADED_CHUNKS) UnLoadChunk(0);
 
 			// Create the File if if doesn't exist
-			if(m_CreatedChunks is null) {
+			if(m_CreatedChunks.Count != 0) {
 				if (!createNew) return -1;
 				File.Create(m_ChunkFilePath).Close();
-				m_CreatedChunks = new List<int>();
 			}
 
 			BlockChunk toLoad;
@@ -230,10 +228,10 @@ namespace SPIC.Systems {
 		}
 
 
-		public static void PreUseItem() {
-			preUseDifficulty = Utility.WorldDifficulty;
+		public static void SavePreUseItemStats() {
+			preUseDifficulty = Utility.WorldDifficulty();
 			preUseInvasion = Main.invasionType;
-			preUseBossCount = Utility.BossCount();
+			preUseNPCStats = Utility.GetNPCStats();
 		}
 	}
 }

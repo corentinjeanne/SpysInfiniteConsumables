@@ -12,9 +12,6 @@ namespace SPIC.Globals {
 		public override void Load() {
 			On.Terraria.NPC.ReleaseNPC += HookReleaseNPC;
 		}
-		public override void Unload() {
-			On.Terraria.NPC.ReleaseNPC -= HookReleaseNPC;
-		}
 
 		private static void HookReleaseNPC(On.Terraria.NPC.orig_ReleaseNPC orig, int x, int y, int Type, int Style, int who) {
 			if (Main.netMode == NetmodeID.MultiplayerClient || Type < 0 || who < 0 || !Main.npcCatchable[Type] || !NPC.CanReleaseNPCs(who)) {

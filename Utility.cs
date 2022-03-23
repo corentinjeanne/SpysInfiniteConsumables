@@ -2,12 +2,13 @@ using Terraria;
 using Terraria.ModLoader;
 
 namespace SPIC {
+
+	public struct NPCStats {
+		public int boss, total;
+	}
 	public static class Utility {
 
-		public static bool ModifiedMaxStack {get; private set;}
-
-
-		public static int WorldDifficulty => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
+		public static int WorldDifficulty() => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
 
 		public static int NameToType(string name, bool noCaps = true){
 			string fullName = name.Replace("_", " ");
@@ -22,8 +23,7 @@ namespace SPIC {
 		}
 		public static string TypeToName(int type) {
 			Item item = new Item(type);
-			if(item.IsAir)
-				throw new UsageException("Invalid type" + type);
+			if(item.IsAir) throw new UsageException("Invalid type" + type);
 			return item.Name;
 		}
 
@@ -36,7 +36,6 @@ namespace SPIC {
 			}
 			return total;
 		}
-		public static void RemoveFromInventory(this Player player, Item item, int count = 1) => player.RemoveFromInventory(item.type, count);
 		public static void RemoveFromInventory(this Player player, int type, int count = 1) {
 			foreach (Item i in player.inventory) {
 				if (i.type != type) continue;
@@ -48,7 +47,6 @@ namespace SPIC {
 				i.TurnToAir();
 			}
 		}
-		public static int CountAllItems(this Player player, Item item) => player.CountAllItems(item.type);
 		public static int CountAllItems(this Player player, int type, bool includechest = false){
 			int total = CountInContainer(player.inventory, type);
 
@@ -62,16 +60,16 @@ namespace SPIC {
 				_ =>  CountInContainer(Main.chest[player.chest].item, type)
 			};
 		}
-		public static bool BusyWithInvasion() {
-			return Main.invasionType != 0;
-		}
 
-		public static int BossCount() {
-			int total = 0;
+		public static NPCStats GetNPCStats() {
+			NPCStats stats = new NPCStats();
 			foreach (NPC npc in Main.npc) {
-				if (npc.active && npc.boss) total++;
+				if (npc.active) {
+					stats.total++;
+					if(npc.boss) stats.boss++;
+				}
 			}
-			return total;
+			return stats;
 		}
 	}
 }
