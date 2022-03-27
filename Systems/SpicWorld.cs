@@ -227,7 +227,7 @@ namespace SPIC.Systems {
 			m_LoadedChunks.RemoveAt(index);
 		}
 
-
+		// May be moved into player class
 		public static void SavePreUseItemStats() {
 			preUseDifficulty = Utility.WorldDifficulty();
 			preUseInvasion = Main.invasionType;

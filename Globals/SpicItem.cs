@@ -33,6 +33,12 @@ namespace SPIC.Globals {
 			if(item.tileWand != -1){
 				if(!WandAmmo.wandAmmoTypes.Contains(item.tileWand)) WandAmmo.wandAmmoTypes.Add(item.tileWand);
 			}
+			switch (item.type) {
+			case ItemID.PlatinumAxe:
+				item.useTime = 0;
+				item.useAnimation = 0;
+				break;
+			}
 		}
 		public override void SetStaticDefaults() {
 			if (!SetDefaultsHook) return;
@@ -79,49 +85,31 @@ namespace SPIC.Globals {
 		public override bool? UseItem(Item item, Player player) {
 			Consumable.Category? category = item.GetConsumableCategory();
 
-			if (!category.HasValue) {
-				SpicPlayer modPlayer =  player.GetModPlayer<SpicPlayer>();
-				modPlayer.SavePreUseItemStats();
-				modPlayer.checkingForCategory = true;
-			}
+			if (!category.HasValue) player.GetModPlayer<SpicPlayer>().StartDetectingCategory(item.type);
+
 			return null;
-		}
-
-		public static bool TryDetectAndCacheCategory(Item item, SpicPlayer player) {
-			Consumable.Category? detect = player.CheckForCategory();
-			if (!detect.HasValue) return false;
-
-			Consumable.AddToCache(item.type, detect.Value);
-			return true;
 		}
 		public override bool ConsumeItem(Item item, Player player) {
 			Config.ConsumableConfig config = ModContent.GetInstance<Config.ConsumableConfig>();
-
-			if (Main.playerInventory && player.HeldItem != item) {
-
-				// Bags
-				if (Main.mouseRight && Main.mouseRightRelease) {
-					if (!config.InfiniteConsumables) return true;
-					GrabBag.Category bagCategory = item.GetBagCategory() ?? GrabBag.Category.GrabBag;
-					return !player.HasInfinite(item.type, bagCategory);
-				}
-
-				// Wands
-				if (!config.InfiniteTiles) return true;
-				return player.HasInfinite(item.type, item.GetWandAmmoCategory() ?? WandAmmo.Category.WandAmmo);
-			}
-
-			// Consumables
 			SpicPlayer modPlayer = player.GetModPlayer<SpicPlayer>();
 
-			// Live detection
-			if (modPlayer.checkingForCategory) {
-				TryDetectAndCacheCategory(item, modPlayer);
-				modPlayer.checkingForCategory = false;
+			if (modPlayer.InItemCheck) {
+				// Wands
+				if (item != player.HeldItem) {
+					if (!config.InfiniteTiles) return true;
+					return player.HasInfinite(item.type, item.GetWandAmmoCategory() ?? WandAmmo.Category.WandAmmo);
+				}
+
+				// Consumable used
+				if(modPlayer.CheckingForCategory) modPlayer.StopDetectingCategory();
 			}
-			Consumable.Category consumableCategory = item.GetConsumableCategory() ?? Consumable.Category.PlayerBooster;
+			// Bags
+			else if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
+				return !config.InfiniteConsumables || !player.HasInfinite(item.type, item.GetBagCategory() ?? GrabBag.Category.GrabBag);
+			}
+			Consumable.Category consumableCategory = item.GetConsumableCategory() ?? Consumable.Category.Buff;
 
-
+			// Consumables
 			if (Consumable.IsTileCategory(consumableCategory) ? !config.InfiniteTiles : !config.InfiniteConsumables)
 				return true;
 

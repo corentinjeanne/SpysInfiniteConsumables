@@ -3,6 +3,7 @@ using Terraria.ModLoader;
 
 using SPIC.Categories;
 using SPIC.Systems;
+using System;
 
 namespace SPIC.Globals {
 	public class SpicPlayer : ModPlayer {
@@ -11,8 +12,9 @@ namespace SPIC.Globals {
 		public int preUseExtraAccessories;
 		public Microsoft.Xna.Framework.Vector2 preUsePosition;
 		public bool preUseDemonHeart;
-		public bool checkingForCategory;
-
+		private int m_CheckingForCategory;
+		public bool CheckingForCategory => m_CheckingForCategory != Terraria.ID.ItemID.None;
+		public bool InItemCheck { get; private set; }
 
 
 		public override void Load() {
@@ -20,12 +22,31 @@ namespace SPIC.Globals {
 		}
 
 		public override bool PreItemCheck() {
-			if (checkingForCategory) SavePreUseItemStats();
+			InItemCheck = true;
+
+			if (CheckingForCategory) SavePreUseItemStats();
 
 			return true;
 		}
+		public override void PostItemCheck() {
+			InItemCheck = false;
+			if (CheckingForCategory) {
+				Consumable.Category? cat = CheckForCategory();
+				if (cat.HasValue || Player.itemTime <= 1) StopDetectingCategory();
+			}
+		}
 
-		public void SavePreUseItemStats() {
+		public void StartDetectingCategory(int type) {
+			m_CheckingForCategory = type;
+			SavePreUseItemStats();
+		}
+		public void StopDetectingCategory(Consumable.Category? detectedCategory = null) {
+
+			Consumable.AddToCache(m_CheckingForCategory, detectedCategory ?? CheckForCategory() ?? Consumable.Category.PlayerBooster);
+			m_CheckingForCategory = Terraria.ID.ItemID.None;
+		}
+
+		private void SavePreUseItemStats() {
 			preUseMaxLife = Player.statLifeMax2;
 			preUseMaxMana = Player.statManaMax2;
 			preUseExtraAccessories = Player.extraAccessorySlots;
@@ -70,5 +91,6 @@ namespace SPIC.Globals {
 			}
 			orig(self, type, selItem);
 		}
+
 	}
 }
