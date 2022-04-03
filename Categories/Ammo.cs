@@ -1,77 +1,60 @@
-﻿using SPIC.Config;
-using Terraria;
-using Terraria.GameContent.Creative;
+﻿using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
+using Terraria.GameContent.Creative;
 
-namespace SPIC.Categories {
-	public static class Ammo {
-		public enum Category {
-			NotAmmo,
-			BasicAmmo,
-			SpecialAmmo
+using SPIC.Categories;
+namespace SPIC {
+	namespace Categories {
+		public enum Ammo {
+			None,
+			Basic,
+			Special
 		}
-		public static Category? CategoryFromConfigCategory(ConsumableConfig.Category category) {
-			return category switch {
-				ConsumableConfig.Category.Blacklist => Category.NotAmmo,
-				ConsumableConfig.Category.Ammo => Category.BasicAmmo,
-				ConsumableConfig.Category.Special => Category.SpecialAmmo,
-				_ => null,
+	}
+	public static class AmmoExtension {
+		public static int MaxStack(this Ammo ammo) => ammo switch {
+			Ammo.Basic => 999,
+			Ammo.Special => 999,
+			Ammo.None => 999,
+			_ => throw new System.NotImplementedException(),
+		};
+		public static int Infinity(this Ammo ammo) {
+			Configs.Ammo a = Configs.ConsumableConfig.Instance.Ammos;
+			return ammo switch {
+				Ammo.Basic => a.Basic,
+				Ammo.Special => a.Special,
+				Ammo.None => 0,
+				_ => throw new System.NotImplementedException(),
 			};
 		}
-		public static int LargestStack(Category category) {
-			return category switch {
-				Category.BasicAmmo => 999,
-				Category.SpecialAmmo => 999,
-				_ => 999,
-			};
-		}
-		public static Category GetCategory(int type) {
-			Item item = new(type);
-			return item.GetAmmoCategory();
-		}
-		public static Category GetAmmoCategory(this Item item) {
+		public static Ammo GetAmmoCategory(this Item item) {
 
-			if (item == null || !item.consumable) return Category.NotAmmo;
+			if (item == null) return Ammo.None;
+			
+			if(Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.Ammo != null && custom.Ammo.Category != Ammo.None)
+				return custom.Ammo.Category;
+			
+			if(!item.consumable || item.ammo == AmmoID.None) return Ammo.None;
+			if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet) return Ammo.Basic;
+			return Ammo.Special;
+		}
 
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
-			if(config.HasCustomCategory(item, out ConsumableConfig.Category custom)) {
-				Category? category = CategoryFromConfigCategory(custom);
-				if (category.HasValue) return category.Value;
+		public static bool HasInfiniteAmmo(this Player player, Item item) => player.HasInfinite(item.type, item.GetAmmoCategory());
+		public static bool HasInfinite(this Player player, int type, Ammo ammo) {
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+
+			int items;
+			if(config.HasCustom(type, out Configs.Custom custom) && custom.Ammo?.Category == Ammo.None) {
+				items = Utility.InfinityToItems(custom.Ammo.Infinity, type, Ammo.None.MaxStack());
 			}
-
-			if (item.ammo == AmmoID.None) return Category.NotAmmo;
-			if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet)
-				return Category.BasicAmmo;
-			return Category.SpecialAmmo;
-		}
-
-		public static bool IsInfiniteAmmo(this Item item) {
-			if (item.playerIndexTheItemIsReservedFor == -1) return false;
-			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteAmmo(item);
-		}
-
-		public static bool HasInfiniteAmmo(this Player player, Item item) {
-			Category category = item.GetAmmoCategory();
-			return player.HasInfinite(item.type, category);
-		}
-
-		public static bool HasInfinite(this Player player, int type, Category category) {
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
-
-			if (category == Category.NotAmmo) return false;
-
-			if (config.JourneyRequirement)
-				return player.CountAllItems(type) >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-
-			if (!config.HasCustomInfinity(type, out int infinityCount)) {
-				infinityCount = category switch {
-					Category.BasicAmmo => config.InfinityRequirement(config.consumablesAmmos, type, LargestStack(category)),
-					Category.SpecialAmmo => config.InfinityRequirement(config.consumablesSpecialAmmos, type, LargestStack(category)),
-					_ => throw new System.NotImplementedException()
-				};
+			else {
+				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
+				else {
+					if (ammo == Ammo.None) return false;
+					items = Utility.InfinityToItems(ammo.Infinity(), type, ammo.MaxStack());
+				}
 			}
-			return player.CountAllItems(type) >= infinityCount;
+			return player.CountAllItems(type) >= items;
 		}
 	}
 }

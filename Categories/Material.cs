@@ -1,60 +1,63 @@
-﻿using SPIC.Config;
-using Terraria;
-using Terraria.GameContent.Creative;
-using Terraria.ModLoader;
-
+﻿using Terraria;
 using Terraria.ID;
+using Terraria.GameContent.Creative;
 
-namespace SPIC.Categories {
-	public static class Material {
-		public enum Category {
-			NotaMaterial,
-			Basic,//
-			Ore,//
-			Furniture,//
-			MaterialOnly,
-			NonStackable//
+using SPIC.Categories;
+namespace SPIC {
+
+	namespace Categories {
+		public enum Material {
+			None,
+			Basic,
+			Ore,
+			Furniture,
+			Miscellaneous,
+			NonStackable
 		}
-		public static Category? CategoryFromConfigCategory(ConsumableConfig.Category category) {
-			return category switch {
-				_ => null,
-			};
-		}
-		public static int LargestStack(Category category) {
-			return category switch {
-				Category.NotaMaterial => 999,
-				Category.Basic => 999,
-				Category.Ore => 999,
-				Category.Furniture => 99,
-				Category.MaterialOnly => 999,
-				Category.NonStackable => 1,
+	}
+	public static class MaterialExtension {
+		public static int MaxStack(this Material category) => category switch {
+			Material.Basic => 999,
+			Material.Ore => 999,
+			Material.Furniture => 99,
+			Material.Miscellaneous => 999,
+			Material.NonStackable => 1,
+			Material.None => 999,
+			_ => throw new System.NotImplementedException(),
+		};
+		public static int Infinity(this Material material) {
+			Configs.Materials m = Configs.ConsumableConfig.Instance.Materials;
+
+			return material switch {
+				Material.Basic => m.Basics,
+				Material.Ore => m.Ores,
+				Material.Furniture => m.Furnitures,
+				Material.Miscellaneous => m.Miscellaneous,
+				Material.NonStackable => m.NonStackable,
+				Material.None => 0,
 				_ => throw new System.NotImplementedException(),
 			};
 		}
-		public static Category GetCategory(int type) {
-			Item item = new(type);
-			return item.GetMaterialCategory();
-		}
-		public static Category GetMaterialCategory(this Item item) {
+		public static Material GetMaterialCategory(this Item item) {
 
 			int type = item.type;
-			if (item == null || !item.material) return Category.NotaMaterial;
+			if (item == null || !item.material) return Material.None;
 
-			if (Globals.SpicItem.MaxStack(type) == 1) return Category.NonStackable;
+			if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
 
-			Consumable.Category category = item.GetConsumableCategory() ?? Consumable.Category.NotConsumable;
+			Consumable consumable = item.GetConsumableCategory() ?? Consumable.None;
 
-			if (Consumable.IsFurnitureCategory(category)) return Category.Furniture;
+			if (consumable.IsFurniture()) return Material.Furniture;
 
-			if(category == Consumable.Category.Ore || type == ItemID.Hellstone) return Category.Ore;
+			if(consumable == Consumable.Ore) return Material.Ore;
 
-			if (Consumable.IsCommonBlockCategory(category)
-				|| type == ItemID.MusketBall || type == ItemID.EmptyBullet || type == ItemID.WoodenArrow 
-				|| type == ItemID.Wire || type == ItemID.BottledWater
-				|| type == ItemID.DryRocket || type == ItemID.DryBomb || type == ItemID.EmptyDropper)
-				return Category.Basic;
+			if (consumable.IsCommonTile()
+					|| type == ItemID.MusketBall || type == ItemID.EmptyBullet || type == ItemID.WoodenArrow 
+					|| type == ItemID.Wire || type == ItemID.BottledWater
+					|| type == ItemID.DryRocket || type == ItemID.DryBomb || type == ItemID.EmptyDropper)
+				return Material.Basic;
 
-			return Category.MaterialOnly;
+			return Material.Miscellaneous;
 		}
 
 		public static bool IsInfiniteMaterial(this Item item) {
@@ -62,30 +65,18 @@ namespace SPIC.Categories {
 			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteMaterial(item);
 		}
 
-		public static bool HasInfiniteMaterial(this Player player, Item item) {
-			Category category = item.GetMaterialCategory();
-			return player.HasInfinite(item.type, category);
-		}
+		public static bool HasInfiniteMaterial(this Player player, Item item) => player.HasInfinite(item.type, item.GetMaterialCategory());
+		public static bool HasInfinite(this Player player, int type, Material material) {
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
-		public static bool HasInfinite(this Player player, int type, Category category) {
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+			if (material == Material.None) return false;
 
-			if (!config.InfiniteCrafting || category == Category.NotaMaterial) return false;
+			int infinityCount = config.JourneyRequirement ?
+				CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type] :
+				Utility.InfinityToItems(material.Infinity(), type, material.MaxStack());
+			
 
-			int playerTotal = player.CountAllItems(type, includechest: true);
-
-			if (config.JourneyRequirement)
-				return playerTotal >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-
-			int infinityCount = category switch {
-				Category.Basic => config.InfinityRequirement(config.craftingBasis, type, LargestStack(category)),
-				Category.Ore => config.InfinityRequirement(config.craftingOres, type, LargestStack(category)),
-				Category.Furniture => config.InfinityRequirement(config.craftingFurnitures, type, LargestStack(category)),
-				Category.MaterialOnly => config.InfinityRequirement(config.craftingMaterials, type, LargestStack(category)),
-				Category.NonStackable => config.InfinityRequirement(config.craftingSingleStack, type, LargestStack(category)),
-				_ => throw new System.NotImplementedException(),
-			};
-			return playerTotal >= infinityCount;
+			return infinityCount >= player.CountAllItems(type, true);
 		}
 	}
 }

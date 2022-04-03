@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using Terraria;
 using Terraria.ModLoader;
-
-using SPIC.Categories;
 
 namespace SPIC.Globals {
 
@@ -21,7 +20,7 @@ namespace SPIC.Globals {
 
 		public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
 			Player player = Main.player[Main.myPlayer];
-			if (player == null) return;
+			if (player == null || !Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
 
 			if (player.HasInfiniteMaterial(new Item(type))) {
 				amount = 0;

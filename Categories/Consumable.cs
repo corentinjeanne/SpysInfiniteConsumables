@@ -2,26 +2,18 @@
 
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
-
-using SPIC.Config;
-using SPIC.Globals;
-
 using Terraria.ObjectData;
 using Terraria.GameContent.Creative;
 
-namespace SPIC.Categories {
+using SPIC.Categories;
+namespace SPIC {
 
-	public static class Consumable {
-
-		private static List<int> m_Buckets = new() { ItemID.EmptyBucket, ItemID.WaterBucket, ItemID.LavaBucket, ItemID.HoneyBucket };
-		private static Dictionary<int, Category> s_DetectedCategoriesCache = new();
-
-		public enum Category : uint {
-			NotConsumable = 0,
+	namespace Categories {
+		public enum Consumable {
+			None,
 
 			// Weapons
-			ThrownWeapon,
+			Weapon,
 
 			// Potions
 			Recovery, // Mushroom, leasser potions bottle water, ManaPotion
@@ -39,175 +31,180 @@ namespace SPIC.Categories {
 			Explosives,
 			Tool,
 
-			// Basic tiles
+			// Common tiles
 			Block,
-			Ore,
 			Platform,
+			Torch,
+			Ore,
 			Wall,
 
 			// Furnitures
-			Torch,
 			LightSource,
+			Container,
 			Functional,
 			CraftingStation,
 			Housing,
 			Decoration,
-			Container,
 			MusicBox,
 
 			// Other placeables
-			Wiring,
+			Mechanical,
 			Bucket,
 			Seed
 		}
-		public static bool IsTileCategory(Category category) => category >= Category.Block;
-		public static bool IsCommonBlockCategory(Category category) => Category.Block <= category && category <= Category.Wall;
-		public static bool IsFurnitureCategory(Category category) => Category.Torch <= category && category <= Category.MusicBox;
+	}
+	public static class ConsumableExtension {
 
-		public static Category? CategoryFromConfigCategory(ConsumableConfig.Category category){
-			return category switch {
-				ConsumableConfig.Category.Blacklist => Category.NotConsumable,
-				ConsumableConfig.Category.Weapon => Category.ThrownWeapon,
-				ConsumableConfig.Category.Recovery => Category.Recovery,
-				ConsumableConfig.Category.Buff => Category.Buff,
-				ConsumableConfig.Category.Booster => Category.WorldBooster,
-				ConsumableConfig.Category.Summoner => Category.Summoner,
-				ConsumableConfig.Category.Critter => Category.Critter,
-				ConsumableConfig.Category.Tools => Category.Tool, // explosive
-				ConsumableConfig.Category.Block => Category.Block,
-				ConsumableConfig.Category.Furniture => Category.Functional,
-				ConsumableConfig.Category.Wall => Category.Wall,
-				ConsumableConfig.Category.Liquid => Category.Bucket,
-				ConsumableConfig.Category.Wiring => Category.Wiring,
-				_ => null,
-			};
-		}
-		public static int LargestStack(Category category) {
-			return category switch {
-				Category.ThrownWeapon => 999,
-				Category.Recovery => 99,
-				Category.Buff => 30,
-				Category.PlayerBooster => 99,
-				Category.WorldBooster => 20,
-				Category.Summoner => 20,
-				Category.Critter => 99,
-				Category.Explosives => 99,
-				Category.Tool => 999,
-				Category.Block => 999,
-				Category.Torch => 999,
-				Category.Ore => 999,
-				Category.Platform => 999,
-				Category.Wall => 999,
-				Category.Bucket => 99,
-				Category.Seed => 99,
-				Category.MusicBox => 1,
-				Category.Container => 99,
-				Category.LightSource => 99,
-				Category.Housing => 99,
-				Category.CraftingStation => 99,
-				Category.Functional => 99,
-				Category.Wiring => 999,
-				Category.Decoration => 99,
-				_ => 999,
-			};
-		}
-		public static Category? GetCategory(int type) {
-			Item item = new(type);
-			return item.GetConsumableCategory();
-		}
+		private static readonly Dictionary<int, Consumable> s_DetectedCategoriesCache = new();
 		public static bool IsInCache(int type) => s_DetectedCategoriesCache.ContainsKey(type);
-		public static void AddToCache(int type, Category c) => s_DetectedCategoriesCache.Add(type, c);
+		public static void AddToCache(int type, Consumable c) => s_DetectedCategoriesCache.Add(type, c);
 		public static void ClearCache() => s_DetectedCategoriesCache.Clear();
+		
+		public static bool IsTile(this Consumable category) => Consumable.Block <= category;
+		public static bool IsCommonTile(this Consumable category) => category.IsTile() && category <= Consumable.Wall;
+		public static bool IsFurniture(this Consumable category) => Consumable.Torch <= category  && category <= Consumable.MusicBox;
 
-		public static Category? GetConsumableCategory(this Item item) {
+		public static int MaxStack(this Consumable category) => category switch {
+			Consumable.Weapon => 999,
+			Consumable.Recovery => 99,
+			Consumable.Buff => 30,
+			Consumable.PlayerBooster => 99,
+			Consumable.WorldBooster => 20,
+			Consumable.Summoner => 20,
+			Consumable.Critter => 99,
+			Consumable.Explosives => 99,
+			Consumable.Tool => 999,
+			Consumable.Block => 999,
+			Consumable.Torch => 999,
+			Consumable.Ore => 999,
+			Consumable.Platform => 999,
+			Consumable.Wall => 999,
+			Consumable.Bucket => 99,
+			Consumable.Seed => 99,
+			Consumable.MusicBox => 1,
+			Consumable.Container => 99,
+			Consumable.LightSource => 99,
+			Consumable.Housing => 99,
+			Consumable.CraftingStation => 99,
+			Consumable.Functional => 99,
+			Consumable.Mechanical => 999,
+			Consumable.Decoration => 99,
+			Consumable.None => 999,
+			_ => throw new System.NotImplementedException(),
+		};
+
+		public static int Infinity(this Consumable category) {
+			Configs.Consumable c = Configs.ConsumableConfig.Instance.Consumables;
+			Configs.CommonTiles t = Configs.ConsumableConfig.Instance.CommonTiles;
+			Configs.OthersTiles o = Configs.ConsumableConfig.Instance.Other;
+			Configs.Furnitures f = Configs.ConsumableConfig.Instance.Furnitures;
+
+			return category switch {
+				Consumable.Weapon => c.Weapons,
+				Consumable.Recovery => c.Recoveries,
+				Consumable.Buff => c.Buffs,
+				Consumable.PlayerBooster => c.Boosters,
+				Consumable.WorldBooster => c.Boosters,
+				Consumable.Summoner => c.Summoners,
+				Consumable.Critter => c.Critters,
+				Consumable.Explosives => c.Tools,
+				Consumable.Tool => c.Tools,
+
+				Consumable.Block => t.Blocks,
+				Consumable.Torch => t.PlatformAndTorches,
+				Consumable.Platform => t.PlatformAndTorches,
+				Consumable.Ore => t.Ores,
+				Consumable.Wall => t.Walls,
+
+				Consumable.LightSource => f.LightSources,
+				Consumable.Container => f.Containers,
+				Consumable.CraftingStation => f.Functional,
+				Consumable.Functional => f.Functional,
+				Consumable.MusicBox => f.Decoration,
+				Consumable.Housing => f.Decoration,
+				Consumable.Decoration => f.Decoration,
+
+				Consumable.Bucket => o.Buckets,
+				Consumable.Mechanical => o.Mechanical,
+				Consumable.Seed => o.Seeds,
+				Consumable.None => 0,
+				_ => throw new System.NotImplementedException(),
+			};
+		}
+
+		public static Consumable? GetConsumableCategory(this Item item) {
 
 			if (item == null) return null;
 
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
-
-			if (config.HasCustomCategory(item, out ConsumableConfig.Category custom)) {
-				Category? category = CategoryFromConfigCategory(custom);
-				if (category.HasValue) return category.Value;
-			}
+			if(Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.Consumable != null && custom.Consumable.Category != Consumable.None)
+				return custom.Consumable.Category;
 
 			if (IsInCache(item.type)) return s_DetectedCategoriesCache[item.type];
 
 			// Vanilla inconsitancies or special items
 			switch (item.type) {
-			case ItemID.Actuator: return Category.Wiring;
-			case ItemID.PirateMap: return Category.Summoner;
-			case ItemID.EmpressButterfly: return Category.Summoner;
-			case ItemID.LicenseBunny: case ItemID.LicenseCat: case ItemID.LicenseDog: return Category.Critter;
-			case ItemID.CombatBook: return Category.WorldBooster;
-			}			
-				
-				
-			if (m_Buckets.Contains(item.type)) return Category.Bucket;
+			case ItemID.Actuator: return Consumable.Mechanical;
+			case ItemID.PirateMap: case ItemID.EmpressButterfly: return Consumable.Summoner;
+			case ItemID.LicenseBunny: case ItemID.LicenseCat: case ItemID.LicenseDog: return Consumable.Critter;
+			case ItemID.CombatBook: return Consumable.WorldBooster;
+			case ItemID.Hellstone: return Consumable.Ore;
+			}
+			
 
-			if(!item.consumable || item.useStyle == ItemUseStyleID.None) return Category.NotConsumable;
+			if(!item.consumable || item.useStyle == ItemUseStyleID.None) return Consumable.None;
 
-			if (item.createWall != -1) return Category.Wall;
+			if (item.createWall != -1) return Consumable.Wall;
 			if (item.createTile != -1) {
 
 				int tileType = item.createTile;
-				if (item.accessory) return Category.MusicBox;
-				if (TileID.Sets.Platforms[tileType]) return Category.Platform;
+				if (item.accessory) return Consumable.MusicBox;
+				if (TileID.Sets.Platforms[tileType]) return Consumable.Platform;
 
-				if (Main.tileAlch[tileType] || TileID.Sets.TreeSapling[tileType] || TileID.Sets.Grass[tileType]) return Category.Seed;
-				if (Main.tileContainer[tileType]) return Category.Container;
+				if (Main.tileAlch[tileType] || TileID.Sets.TreeSapling[tileType] || TileID.Sets.Grass[tileType]) return Consumable.Seed;
+				if (Main.tileContainer[tileType]) return Consumable.Container;
 
-				if (item.mech) return Category.Wiring;
-				if (Main.tileSpelunker[tileType]) return Category.Ore;
+				if (item.mech) return Consumable.Mechanical;
+				if (Main.tileSpelunker[tileType]) return Consumable.Ore;
 
 				if (Main.tileFrameImportant[tileType]) {
 
 					bool GoodTile(int t) => t == tileType;
 
-					if (TileID.Sets.Torch[tileType]) return Category.Torch;
-					if(System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return Category.LightSource;
+					if (TileID.Sets.Torch[tileType]) return Consumable.Torch;
+					if(System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return Consumable.LightSource;
 
 					if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
-						return Category.Housing;
+						return Consumable.Housing;
 
-					if (SpicRecipe.CraftingStations.Contains(tileType)) return Category.CraftingStation;
+					if (Globals.SpicRecipe.CraftingStations.Contains(tileType)) return Consumable.CraftingStation;
 
-					if (TileID.Sets.HasOutlines[tileType]) return Category.Functional;
+					if (TileID.Sets.HasOutlines[tileType]) return Consumable.Functional;
 
-					return Category.Decoration;
+					return Consumable.Decoration;
 
 				}
-				return Category.Block;
+				return Consumable.Block;
 			}
 
 			if (0 < ItemID.Sets.SortingPriorityBossSpawns[item.type] && ItemID.Sets.SortingPriorityBossSpawns[item.type] <= 17 && item.type != ItemID.TreasureMap)
-				return Category.Summoner;
-			if (item.makeNPC != NPCID.None || item.bait != 0) return Category.Critter;
+				return Consumable.Summoner;
+			if (item.makeNPC != NPCID.None || item.bait != 0) return Consumable.Critter;
 
-			if (item.damage > 0) return Category.ThrownWeapon;
+			if (item.damage > 0) return Consumable.Weapon;
 
-			if (item.buffType != 0 && item.buffTime != 0) return Category.Buff;
-			if (item.healLife > 0 || item.healMana > 0 || item.potion) return Category.Recovery;
+			if (item.buffType != 0 && item.buffTime != 0) return Consumable.Buff;
+			if (item.healLife > 0 || item.healMana > 0 || item.potion) return Consumable.Recovery;
 
-			if (item.shoot != ProjectileID.None) return Category.Tool;
+			if (item.shoot != ProjectileID.None) return Consumable.Tool;
 
 
-			if (item.hairDye != -1) return Category.PlayerBooster;
+			if (item.hairDye != -1) return Consumable.PlayerBooster;
 
 			// Most modded summoners, booster and non buff potions, modded liquids...
 			return null;
 		}
-
-		public static bool? IsInfiniteConsumable(this Item item) {
-			if (item.playerIndexTheItemIsReservedFor == -1) return false;
-			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteConsumable(item);
-		}
-
-		public static bool? HasInfiniteConsumable(this Player player, Item item) {
-			Category? category = item.GetConsumableCategory();
-			return category.HasValue ? player.HasInfinite(item.type, category.Value) : null;
-		}
-
-		public static bool CannotStopDrop(int type) {
+		public static bool CannotStopDrop(int type) => CannotStopDrop(new Item(type));
+		public static bool CannotStopDrop(this Item item) {
 			// WallXxX
 			// 2x5
 			// 3x5
@@ -216,66 +213,49 @@ namespace SPIC.Categories {
 			// Gnome
 			// Chest
 			// drop in 2x1 bug : num instead of num3
-			Item item = new(type);
+
 			// Does no place a tile
 			if (item.createTile < TileID.Dirt || item.createWall >= WallID.None || item.createTile == TileID.TallGateClosed) return false;
 			if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
-			
+
 			TileObjectData data = TileObjectData.GetTileData(item.createTile, item.placeStyle);
+
 			// No data or 1x1 moditem
 			if (data == null || (item.ModItem != null && data.Width > 1 && data.Height > 1)) return false;
 			if ((data.Width == 2 && data.Height == 1) || (data.Width == 2 && data.Height == 5) || (data.Width == 3 && data.Height == 4) || (data.Width == 3 && data.Height == 5) || (data.Width == 3 && data.Height == 6)) return true;
+
 			return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
 
 		}
-		public static bool HasInfinite(this Player player, int type, Category category) {
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
 
-			if (category == Category.NotConsumable) return false;
+		public static bool? IsInfiniteConsumable(this Item item) {
+			if (item.playerIndexTheItemIsReservedFor == -1) return false;
+			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteConsumable(item);
+		}
 
-			if (config.JourneyRequirement)
-				return player.CountAllItems(type) >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
+		public static bool? HasInfiniteConsumable(this Player player, Item item) {
+			Consumable? category = item.GetConsumableCategory();
+			return category.HasValue ? player.HasInfinite(item.type, category.Value) : null;
+		}
+		public static bool HasInfinite(this Player player, int type, Consumable consumable) {
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
-			if (!config.HasCustomInfinity(type, out int infinityCount)) {
-				infinityCount = category switch {
-					Category.ThrownWeapon => config.InfinityRequirement(config.consumablesThrown, type, LargestStack(category)),
-
-					Category.Recovery => config.InfinityRequirement(config.consumablesRecovery, type, LargestStack(category)),
-					Category.Buff => config.InfinityRequirement(config.consumablesBuffPotions, type, LargestStack(category)),
-					
-					Category.PlayerBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
-					Category.WorldBooster => config.InfinityRequirement(config.consumablesBoosters, type, LargestStack(category)),
-
-					Category.Summoner => config.InfinityRequirement(config.consumablesSummoning, type, LargestStack(category)),
-					Category.Critter => config.InfinityRequirement(config.consumablesCritters, type, LargestStack(category)),
-
-					Category.Explosives => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
-					Category.Tool => config.InfinityRequirement(config.consumablesTools, type, LargestStack(category)),
-
-					
-					Category.Block => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
-					Category.Wall => config.InfinityRequirement(config.tileWalls, type, LargestStack(category)),
-					Category.Bucket => config.InfinityRequirement(config.tileLiquids, type, LargestStack(category)),
-					Category.Torch => config.InfinityRequirement(config.tileLightSources, type, LargestStack(category)), // custom category ?
-					Category.Ore => config.InfinityRequirement(config.tileOres, type, LargestStack(category)),
-					Category.Platform => config.InfinityRequirement(config.tileBlocks, type, LargestStack(category)),
-					Category.Seed => config.InfinityRequirement(config.tileSeeds, type, LargestStack(category)),
-					Category.MusicBox => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)), // custom category ?
-					Category.Container => config.InfinityRequirement(config.tileContainers, type, LargestStack(category)),
-					Category.LightSource => config.InfinityRequirement(config.tileLightSources, type, LargestStack(category)),
-					Category.Housing => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
-					Category.CraftingStation => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
-					Category.Functional => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
-					Category.Wiring => config.InfinityRequirement(config.tileWiring, type, LargestStack(category)),
-					Category.Decoration => config.InfinityRequirement(config.tilesFurnitures, type, LargestStack(category)),
-					_ => throw new System.NotImplementedException()
-				};
+			int items;
+			if (config.HasCustom(type, out Configs.Custom custom) && custom.Consumable?.Category == Consumable.None) {
+				items = Utility.InfinityToItems(custom.Consumable.Infinity, type, Consumable.None.MaxStack());
+			}
+			else {
+				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
+				else {
+					if (consumable == Consumable.None) return false;
+					 items = Utility.InfinityToItems(consumable.Infinity(), type, consumable.MaxStack());
+				}
 			}
 
-			if (config.PreventItemDupication && IsTileCategory(category) && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
-				return player.CountAllItems(type) == infinityCount;
+			if (config.PreventItemDupication && consumable.IsTile() && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
+				return player.CountAllItems(type) == items;
 
-			return player.CountAllItems(type) >= infinityCount;
+			return player.CountAllItems(type) >= items;
 		}
 	}
 }

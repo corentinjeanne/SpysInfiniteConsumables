@@ -1,13 +1,12 @@
 ﻿using System.IO;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-using SPIC.Config;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace SPIC.Systems {
 
@@ -129,10 +128,9 @@ namespace SPIC.Systems {
 		}
 		public override void SaveWorldData(TagCompound tag) {
 
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
-			if (config.modifiedInGame)
-				config.ManualSave();
+			config.ManualSave();
 
 
 			if (m_CreatedChunks.Count > 0) {

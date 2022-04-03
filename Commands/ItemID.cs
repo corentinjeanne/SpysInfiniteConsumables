@@ -1,4 +1,3 @@
-using SPIC.Config;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -10,9 +9,7 @@ namespace SPIC.Commands {
 		public override string Usage => "/id [name|type]";
 		public override string Description => "Gives the ID and the name of an item.";
 
-		public override bool IsLoadingEnabled(Mod mod) {
-			return ModContent.GetInstance<ConsumableConfig>().Commands;
-		}
+		public override bool IsLoadingEnabled(Mod mod) => Configs.ConsumableConfig.Instance.Commands;
 		public override void Action(CommandCaller caller, string input, string[] args) {
 			int type;
 			string name;

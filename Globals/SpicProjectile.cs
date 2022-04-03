@@ -14,7 +14,7 @@
 //        }
 
 //        public override bool PreKill(Projectile projectile, int timeLeft){
-//            if(projectile.noDropItem || !ModContent.GetInstance<ConsumableConfig>().PreventItemDupication || potentialOwner.Key == null)
+//            if(projectile.noDropItem || !Config.ConsumableConfig.Instance.PreventItemDupication || potentialOwner.Key == null)
 //                return true;
 //            if(Main.player[projectile.owner] == potentialOwner.Key)
 //                projectile.noDropItem = potentialOwner.Value;

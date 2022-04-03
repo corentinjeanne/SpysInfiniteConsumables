@@ -71,5 +71,13 @@ namespace SPIC {
 			}
 			return stats;
 		}
+
+		public static int InfinityToItems(int infinity, int type, int LargestStack = 999) {
+			int maxStack = Globals.SpicItem.MaxStack(type);
+			int items = infinity >= 0 ? infinity > maxStack ? maxStack : infinity :
+				-infinity * (maxStack < LargestStack ? maxStack : LargestStack);
+
+			return infinity == 0 ? int.MaxValue : items;
+		}
 	}
 }

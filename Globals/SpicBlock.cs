@@ -1,13 +1,9 @@
-﻿using Terraria;
+﻿using System.Collections.Generic;
+
+using Terraria;
 using Terraria.ID;
 using Terraria.ObjectData;
 using Terraria.ModLoader;
-
-using SPIC.Systems;
-using SPIC.Config;
-using SPIC.Categories;
-
-using System.Collections.Generic;
 
 namespace SPIC.Globals {
 
@@ -45,15 +41,15 @@ namespace SPIC.Globals {
 
 			if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			int playerIndex = item.playerIndexTheItemIsReservedFor;
 			if (WorldGen.generatingWorld || playerIndex < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
 				return;
 
-			if (Consumable.CannotStopDrop(item.type)) return;
+			if (item.CannotStopDrop()) return;
 
-			SpicWorld world = ModContent.GetInstance<SpicWorld>();
+			Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
 			if (Main.player[playerIndex].HeldItem == item) {
 				if (item.IsInfiniteConsumable() ?? false) {
 					TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
@@ -63,14 +59,13 @@ namespace SPIC.Globals {
 				return;
 			}
 			if (item.IsInfiniteWandAmmo()) world.PlaceTile(i, j);
-
 		}
 
 		public override bool Drop(int i, int j, int type) {
 			if (Main.netMode != NetmodeID.SinglePlayer) return true;
 
 			TileObjectData data;
-			SpicWorld world = ModContent.GetInstance<SpicWorld>();
+			Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
 			if (s_InDropItem) {
 				bool noDrop = world.MineTile(i, j);
 				if (noDrop) {
@@ -111,18 +106,18 @@ namespace SPIC.Globals {
 
 			if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 			if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
 				return;
 
-			ModContent.GetInstance<SpicWorld>().PlaceWall(i, j);
+			ModContent.GetInstance<Systems.SpicWorld>().PlaceWall(i, j);
 		}
 
 		public override bool Drop(int i, int j, int type, ref int dropType) {
 
 			if (Main.netMode != NetmodeID.SinglePlayer) return true;
 
-			return !ModContent.GetInstance<SpicWorld>().MineWall(i, j);
+			return !ModContent.GetInstance<Systems.SpicWorld>().MineWall(i, j);
 
 		}
 

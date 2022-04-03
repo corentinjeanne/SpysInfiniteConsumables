@@ -8,8 +8,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using SPIC.Categories;
-
 namespace SPIC.Globals {
 	
 	public class SpicItem : GlobalItem {
@@ -26,19 +24,11 @@ namespace SPIC.Globals {
 		public override void Unload() {
 			SetDefaultsHook = false;
 			s_ItemMaxStack = null;
-			Consumable.ClearCache();
+			ConsumableExtension.ClearCache();
 		}
 
 		public override void SetDefaults(Item item) {
-			if(item.tileWand != -1){
-				if(!WandAmmo.wandAmmoTypes.Contains(item.tileWand)) WandAmmo.wandAmmoTypes.Add(item.tileWand);
-			}
-			switch (item.type) {
-			case ItemID.PlatinumAxe:
-				item.useTime = 0;
-				item.useAnimation = 0;
-				break;
-			}
+			if(item.tileWand != -1 && !WandAmmoExtension.IsInCache(item.type)) WandAmmoExtension.AddToCache(item.type);
 		}
 		public override void SetStaticDefaults() {
 			if (!SetDefaultsHook) return;
@@ -53,51 +43,67 @@ namespace SPIC.Globals {
 		}
 
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-			if (SpysInfiniteConsumables.ShowConsumableCategory.Current) {
-				Config.ConsumableConfig config = ModContent.GetInstance<Config.ConsumableConfig>();
-				if(config.HasCustomInfinity(item.type, out int req)) {
-					tooltips.Add(new TooltipLine(Mod, "Category", $"Custom: {config.InfinityRequirement(req, item.type)} items"));
-					return;
-				}
-				string category = "";
-				Consumable.Category? consumable = item.GetConsumableCategory();
-				if (consumable.HasValue) {
-					if (consumable.Value != Consumable.Category.NotConsumable) {
-						category += (Consumable.IsTileCategory(consumable.Value) ?"P" : "C") + $":{consumable} ";
-					}
-				}else category += "?Consumable ";
+			if (!SpysInfiniteConsumables.ShowConsumableCategory.Current) return;
+			Configs.Custom custom = Configs.ConsumableConfig.Instance.GetCustom(item.type);
+				
+			string categoryTooltip = "";
+			string toAdd = "";
+			Categories.Consumable? consumable = item.GetConsumableCategory();
+			if (custom?.Consumable?.Category == Categories.Consumable.None) toAdd = custom.Consumable.Infinity.ToString();
+			else if (consumable.HasValue) {
+				if (consumable.Value != Categories.Consumable.None) toAdd = consumable.Value.ToString();
+			}else toAdd = "?";
 
-				Ammo.Category ammo = item.GetAmmoCategory();
-				if (ammo != Ammo.Category.NotAmmo) category += $"A:{ammo} ";
-
-				GrabBag.Category? bag = item.GetBagCategory();
-				if (bag.HasValue) {
-					if (bag.Value != GrabBag.Category.NotaBag) category += $"B:{bag} ";
-				}
-				WandAmmo.Category? wand = item.GetWandAmmoCategory();
-				if (wand.HasValue) {
-					if (wand.Value != WandAmmo.Category.NotWandAmmo) category += $"W:{wand} ";
-				}
-				tooltips.Add(new TooltipLine(Mod, "Category", category));
+			if (toAdd != "") {
+				categoryTooltip += "C:" + toAdd + " ";
+				toAdd = "";
 			}
+
+			Categories.Ammo ammo = item.GetAmmoCategory();
+			if (custom?.Ammo?.Category == Categories.Ammo.None) categoryTooltip += $"A:{custom.Ammo.Infinity} ";
+			else if (ammo != Categories.Ammo.None) categoryTooltip += $"A:{ammo} ";
+
+			if(toAdd != "") {
+				categoryTooltip += "A:" + toAdd + " ";
+				toAdd = "";
+			}
+			Categories.GrabBag? grabBag = item.GetGrabBagCategory();
+			if (custom?.GrabBag?.Category == Categories.GrabBag.None) toAdd = custom.GrabBag.Infinity.ToString();
+			else if (grabBag.HasValue && grabBag.Value != Categories.GrabBag.None)
+				toAdd = grabBag.Value.ToString();
+
+			if (toAdd != "") {
+				categoryTooltip += "B:" + toAdd + " ";
+				toAdd = "";
+			}
+
+			Categories.WandAmmo? wand = item.GetWandAmmoCategory();
+			if (custom?.WandAmmo?.Category == Categories.WandAmmo.None) toAdd = custom.WandAmmo.Infinity.ToString();
+			else if (wand.HasValue && wand.Value != Categories.WandAmmo.None)
+				toAdd = wand.Value.ToString();
+
+			if (toAdd != "") categoryTooltip += "W:" + toAdd + " ";
+
+			tooltips.Add(new TooltipLine(Mod, "Category", categoryTooltip));
+			
 		}
 
 		public override bool? UseItem(Item item, Player player) {
-			Consumable.Category? category = item.GetConsumableCategory();
+			Categories.Consumable? category = item.GetConsumableCategory();
 
 			if (!category.HasValue) player.GetModPlayer<SpicPlayer>().StartDetectingCategory(item.type);
 
 			return null;
 		}
 		public override bool ConsumeItem(Item item, Player player) {
-			Config.ConsumableConfig config = ModContent.GetInstance<Config.ConsumableConfig>();
+			Configs.ConsumableConfig config = ModContent.GetInstance<Configs.ConsumableConfig>();
 			SpicPlayer modPlayer = player.GetModPlayer<SpicPlayer>();
 
 			if (modPlayer.InItemCheck) {
 				// Wands
 				if (item != player.HeldItem) {
 					if (!config.InfiniteTiles) return true;
-					return player.HasInfinite(item.type, item.GetWandAmmoCategory() ?? WandAmmo.Category.WandAmmo);
+					return player.HasInfinite(item.type, item.GetWandAmmoCategory() ?? Categories.WandAmmo.Block);
 				}
 
 				// Consumable used
@@ -105,20 +111,19 @@ namespace SPIC.Globals {
 			}
 			// Bags
 			else if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
-				return !config.InfiniteConsumables || !player.HasInfinite(item.type, item.GetBagCategory() ?? GrabBag.Category.GrabBag);
+				return !config.InfiniteConsumables || !player.HasInfinite(item.type, item.GetGrabBagCategory() ?? Categories.GrabBag.Crate);
 			}
-			Consumable.Category consumableCategory = item.GetConsumableCategory() ?? Consumable.Category.Buff;
 
+			Categories.Consumable consumableCategory = item.GetConsumableCategory() ?? Categories.Consumable.Buff;
 			// Consumables
-			if (Consumable.IsTileCategory(consumableCategory) ? !config.InfiniteTiles : !config.InfiniteConsumables)
-				return true;
+			if (consumableCategory.IsTile() ? !config.InfiniteTiles : !config.InfiniteConsumables) return true;
 
 			return !player.HasInfinite(item.type, consumableCategory);
 
 			
 		}
 		public override bool CanBeConsumedAsAmmo(Item item, Player player) {
-			if (!ModContent.GetInstance<Config.ConsumableConfig>().InfiniteConsumables) return true;
+			if (!ModContent.GetInstance<Configs.ConsumableConfig>().InfiniteConsumables) return true;
 			return !player.HasInfiniteAmmo(item);
 		}
 

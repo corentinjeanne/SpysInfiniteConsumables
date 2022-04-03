@@ -1,72 +1,63 @@
-﻿using SPIC.Config;
-using Terraria;
-using Terraria.GameContent.Creative;
+﻿using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
+using Terraria.GameContent.Creative;
 
-namespace SPIC.Categories {
-	public static class GrabBag {
-		public enum Category {
-			NotaBag,
-			BossBag,
-			GrabBag
+using SPIC.Categories;
+namespace SPIC {
+	namespace Categories {
+		public enum GrabBag {
+			None,
+			Crate,
+			TreasureBag,
 		}
-		public static Category? CategoryFromConfigCategory(ConsumableConfig.Category category) {
-			return category switch {
-				ConsumableConfig.Category.Blacklist => Category.NotaBag,
-				ConsumableConfig.Category.Bags => Category.GrabBag,
-				_ => null
+	}
+	public static class GrabBagExtension {
+		public static int MaxStack(this GrabBag bag) => bag switch {
+			GrabBag.TreasureBag => 999,
+			GrabBag.Crate => 99,
+			GrabBag.None => 999,
+			_ => throw new System.NotImplementedException(),
+		};public static int Infinity(this GrabBag bag) {
+			Configs.GrabBag b = Configs.ConsumableConfig.Instance.Bags;
+			return bag switch {
+				GrabBag.Crate => b.Crates,
+				GrabBag.TreasureBag => b.TreasureBags,
+				GrabBag.None => 0,
+				_ => throw new System.NotImplementedException(),
 			};
 		}
-		public static int LargestStack(Category category) {
-			return category switch {
-				Category.BossBag => 999,
-				Category.GrabBag => 99,
-				_ => 999,
-			};
-		}
-		public static Category? GetCategory(int type) {
-			Item item = new(type);
-			return item.GetBagCategory();
-		}
-		public static Category? GetBagCategory(this Item item) {
+		public static GrabBag? GetGrabBagCategory(this Item item) {
 			if (item == null) return null;
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
-			if (config.HasCustomCategory(item, out ConsumableConfig.Category custom)) {
-				Category? category = CategoryFromConfigCategory(custom);
-				if (category.HasValue) return category.Value;
-			}
-			if (ItemID.Sets.BossBag[item.type]) return Category.BossBag;
-			if (item.ModItem?.CanRightClick() ?? false) return Category.GrabBag;
+
+			if (Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.GrabBag != null && custom.GrabBag.Category != GrabBag.None)
+				return custom.GrabBag.Category;
+
+			if (ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
+			if (item.ModItem?.CanRightClick() ?? false) return GrabBag.Crate;
 			return null;
 		}
-
-		public static bool? IsInfiniteBag(this Item item) {
-			if (item.playerIndexTheItemIsReservedFor == -1) return false;
-			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteBag(item);
-		}
+		
 		public static bool? HasInfiniteBag(this Player player, Item item) {
-			Category? category = item.GetBagCategory();
-			return category.HasValue ? player.HasInfinite(item.type, category.Value) : null;
+			GrabBag? GrabBag = item.GetGrabBagCategory();
+			return GrabBag.HasValue ? player.HasInfinite(item.type, GrabBag.Value) : null;
 		}
 
-		public static bool HasInfinite(this Player player, int type, Category category) {
-			ConsumableConfig config = ModContent.GetInstance<ConsumableConfig>();
+		public static bool HasInfinite(this Player player, int type, GrabBag grabBag) {
+			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
-			if (category == Category.NotaBag) return false;
-
-
-			if (config.JourneyRequirement)
-				return player.CountAllItems(type) >= CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-
-			if (!config.HasCustomInfinity(type, out int infinityCount)) {
-					infinityCount = category switch {
-					Category.BossBag => config.InfinityRequirement(config.consumablesBags, type, LargestStack(category)),
-					Category.GrabBag => config.InfinityRequirement(config.consumablesBags, type, LargestStack(category), 2.5f),
-					_ => throw new System.NotImplementedException()
-				};
+			int items;
+			if (config.HasCustom(type, out Configs.Custom custom) && custom.GrabBag?.Category == GrabBag.None) {
+				items = Utility.InfinityToItems(custom.GrabBag.Infinity, type, GrabBag.None.MaxStack());
 			}
-			return player.CountAllItems(type) >= infinityCount;
+			else {
+				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
+				else {
+					if (grabBag == GrabBag.None) return false;
+					items = Utility.InfinityToItems(grabBag.Infinity(), type, grabBag.MaxStack());
+				}
+			}
+
+			return player.CountAllItems(type) >= items;
 		}
 
 	}
