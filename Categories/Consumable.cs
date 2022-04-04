@@ -96,7 +96,7 @@ namespace SPIC {
 		public static int Infinity(this Consumable category) {
 			Configs.Consumable c = Configs.ConsumableConfig.Instance.Consumables;
 			Configs.CommonTiles t = Configs.ConsumableConfig.Instance.CommonTiles;
-			Configs.OthersTiles o = Configs.ConsumableConfig.Instance.Other;
+			Configs.OthersTiles o = Configs.ConsumableConfig.Instance.OtherTiles;
 			Configs.Furnitures f = Configs.ConsumableConfig.Instance.Furnitures;
 
 			return category switch {
@@ -107,7 +107,7 @@ namespace SPIC {
 				Consumable.WorldBooster => c.Boosters,
 				Consumable.Summoner => c.Summoners,
 				Consumable.Critter => c.Critters,
-				Consumable.Explosives => c.Tools,
+				Consumable.Explosives => c.Explosives,
 				Consumable.Tool => c.Tools,
 
 				Consumable.Block => t.Blocks,
@@ -196,7 +196,7 @@ namespace SPIC {
 			if (item.healLife > 0 || item.healMana > 0 || item.potion) return Consumable.Recovery;
 
 			if (item.shoot != ProjectileID.None) return Consumable.Tool;
-
+			
 
 			if (item.hairDye != -1) return Consumable.PlayerBooster;
 

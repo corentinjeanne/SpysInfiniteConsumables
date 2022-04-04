@@ -8,7 +8,6 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs {
-
 	public class Consumable {
 		[Range(-50, 999), Label("[i:279] Thrown weapons")]
 		public int Weapons = -1;
@@ -19,23 +18,25 @@ namespace SPIC.Configs {
 		[Range(-50, 999), Label("[i:29] Permanent Boosters")]
 		public int Boosters = 5;
 		[Range(-50, 999), Label("[i:43] Boss and Event summoners")]
-		public int Summoners = 1;
+		public int Summoners = 3;
 		[Range(-50, 999), Label("[i:2019] Criters and Baits")]
 		public int Critters = 10;
+		[Range(-50, 999), Label("[i:282] Explosives"),Tooltip("Does not work for now")]
+		public int Explosives = -1;
 		[Range(-50, 999), Label("[i:282] Miscellaneous")]
 		public int Tools = -1;
 	}
 	public class Ammo {
-		[Range(-50, 999), Label("[i:40] Arrows and Bullets")]
+		[Range(-50, 999), Label("[i:40] Standard")]
 		public int Basic = -4;
-		[Range(-50, 999), Label("[i:75] Other Ammunitions")]
+		[Range(-50, 999), Label("[i:75] Other")]
 		public int Special = -1;
 	}
 	public class GrabBag {
 		[Range(-50, 999), Label("[i:2334] Crates and Bags")]
 		public int Crates = 5;
 		[Range(-50, 999), Label("[i:3331] Treasure Bags")]
-		public int TreasureBags = 2;
+		public int TreasureBags = 3;
 	}
 
 	public class CommonTiles {
@@ -138,18 +139,25 @@ Buckets won't create empty or full buckets when used")]
 
 
 		[Header("Consumables")]
+		[Label("Consumables")]
 		public Consumable Consumables = new();
+		[Label("Ammunitions")]
 		public Ammo Ammos = new();
+		[Label("Grab Bags")]
 		public GrabBag Bags = new();
 
 
 		[Header("Tiles")]
+		[Label("Common tiles")]
 		public CommonTiles CommonTiles = new();
+		[Label("Furitures")]
 		public Furnitures Furnitures = new();
-		public OthersTiles Other = new();
+		[Label("Other tiles")]
+		public OthersTiles OtherTiles = new();
 
 
 		[Header("Crafting")]
+		[Label("Materials")]
 		public Materials Materials = new();
 
 
@@ -166,7 +174,6 @@ Buckets won't create empty or full buckets when used")]
 			sw.Write(serialisedConfig);
 			m_ModifiedInGame = false;
 		}
-
 
 		public bool HasCustom(int type, out Custom custom) => (custom = GetCustom(type)) != null;
 		public Custom GetCustom(int type) => Customs.Find(c => c.Item.Type == type);

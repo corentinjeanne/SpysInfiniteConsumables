@@ -33,9 +33,11 @@ namespace SPIC {
 			
 			if(Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.Ammo != null && custom.Ammo.Category != Ammo.None)
 				return custom.Ammo.Category;
-			
+
 			if(!item.consumable || item.ammo == AmmoID.None) return Ammo.None;
-			if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet) return Ammo.Basic;
+			if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
+				return Ammo.Basic;
+
 			return Ammo.Special;
 		}
 
