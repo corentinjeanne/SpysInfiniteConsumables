@@ -1,0 +1,94 @@
+Mods: {
+	SPIC: {
+		Hotkeys: {
+			Categories: Hold to display the categories of items
+		}
+
+		Commands: {
+			IDDesc: Gives the ID and the name of an item
+			SetDesc: Set the category of an item
+		}
+		Configs: {
+			General: {
+				Header: General
+				Consumables: Infinite Consumables
+				Tiles: Infinite Tiles
+				Crafting: Infinite Crafting
+				Journey: Journey requirement
+				JourneyTooltip: Uses the journey research cost of items as their infinite requirent
+				Duplication: Prevent item duplication
+				DuplicationTooltip:
+					'''
+					/!\ WIP for multiplayer /!\
+					Tiles and walls won't drop their item when broken
+					Critters will turn into smoke
+					Buckets won't create empty or full buckets when used"
+					'''
+				Commands: Commands
+				CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
+			}
+			Infinities: {
+				ConsumablesHeader: Consumables
+				Consumables: Consumables
+				Ammos: Ammunitions
+				Bags: Grab bags
+
+				TilesHeader: Tiles
+				CommonTiles: Common tiles
+				Furnitures: Furitures
+				OtherTiles: Other tiles
+
+				CraftingHeader: Crafting
+				Materials: Materials
+
+				CustomHeader: Custom Categories and values
+				Customs: Customs
+			}
+			Customs: {
+				Item: Item
+				WandAmmo: Wand Ammo
+				Category: Category
+				Infinity: Infinity
+				InfinityTooltip: Only in use when category is None
+			}
+
+			# Class from the config
+			Consumables: {
+				Weapons: Thrown weapons
+				Recovery: Recovery potions
+				Buffs: Buff potions
+				Boosters: Permanent Boosters
+				Summoners: Boss and Event summoners
+				Critters: Criters and Baits
+				Explosives: Explosives
+				ExplosivesTooltip: Does not work
+				Tools: Miscellaneous
+				Standard: Standard
+				Special: Special
+				Crates: Crates and Bags
+				Boss: Treasure Bags
+			}
+			Tiles: {
+				Blocks: Blocks
+				Platforms: Platforms and Torches
+				Ores: Ores
+				Walls: Walls
+				Lights: Light sources
+				Containers: Containers
+				Functional: Functional
+				Decorations: Decorations
+				Mechanical: Mechanical
+				Buckets: Buckets
+				Seeds: Seeds
+			}
+			Materials: {
+				Basics: Basic materials
+				Ores: Valuable Tiles
+				OresTooltip: Drops from tiles detected by a metal detector
+				Furnitures: Furnitures
+				Miscellaneous: Miscellaneous
+				NonStackable: Non stackable
+			}
+		}
+	}
+}

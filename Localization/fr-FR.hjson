@@ -1,0 +1,10 @@
+﻿Mods: {
+	SPIC: {
+		Config: {
+			Ammos: {
+				Standard: "Basiques"
+				Special: "Speciales"
+			}
+		}
+	}
+}

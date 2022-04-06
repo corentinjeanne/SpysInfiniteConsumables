@@ -7,7 +7,7 @@ namespace SPIC.Commands {
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "id";
 		public override string Usage => "/id [name|type]";
-		public override string Description => "Gives the ID and the name of an item.";
+		public override string Description => Terraria.Localization.Language.GetTextValue("Mods.SPIC.Commands.IDDesc");
 
 		public override bool IsLoadingEnabled(Mod mod) => Configs.ConsumableConfig.Instance.Commands;
 		public override void Action(CommandCaller caller, string input, string[] args) {

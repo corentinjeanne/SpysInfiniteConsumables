@@ -12,8 +12,6 @@ namespace SPIC.Globals {
 		public int X, Y;
 		public int W, H;
 		public bool IsInside(int x, int y) => X <= x && x < X + W && Y <= y && y < Y + H;
-
-		public override string ToString() => $"({X},{Y}),{W}x{H}";
 	}
 	public class SPICTile : GlobalTile {
 

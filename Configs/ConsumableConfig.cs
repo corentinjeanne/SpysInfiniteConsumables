@@ -9,89 +9,96 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs {
 	public class Consumable {
-		[Range(-50, 999), Label("[i:279] Thrown weapons")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.WeaponsLabel")]
 		public int Weapons = -1;
-		[DefaultValue(-2), Label("[i:188] Recovery potions")]
-		public int Recoveries = -2;
-		[Range(-50, 999), Label("[i:2348] Buff potions")]
+		[DefaultValue(-2), Label("$Mods.SPIC.Configs.Consumables.RecoveryLabel")]
+		public int Recovery = -2;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.BuffsLabel")]
 		public int Buffs = -1;
-		[Range(-50, 999), Label("[i:29] Permanent Boosters")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.BoostersLabel")]
 		public int Boosters = 5;
-		[Range(-50, 999), Label("[i:43] Boss and Event summoners")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.SummonersLabel")]
 		public int Summoners = 3;
-		[Range(-50, 999), Label("[i:2019] Criters and Baits")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.CrittersLabel")]
 		public int Critters = 10;
-		[Range(-50, 999), Label("[i:282] Explosives"),Tooltip("Does not work for now")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.ExplosivesLabel"),Tooltip("$Mods.SPIC.Configs.Consumables.ExplosivesTooltip")]
 		public int Explosives = -1;
-		[Range(-50, 999), Label("[i:282] Miscellaneous")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.ToolsLabel")]
 		public int Tools = -1;
 	}
 	public class Ammo {
-		[Range(-50, 999), Label("[i:40] Standard")]
-		public int Basic = -4;
-		[Range(-50, 999), Label("[i:75] Other")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.StandardLabel")]
+		public int Standard = -4;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.SpecialLabel")]
 		public int Special = -1;
 	}
 	public class GrabBag {
-		[Range(-50, 999), Label("[i:2334] Crates and Bags")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.CratesLabel")]
 		public int Crates = 5;
-		[Range(-50, 999), Label("[i:3331] Treasure Bags")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.BossLabel")]
 		public int TreasureBags = 3;
 	}
 
 	public class CommonTiles {
-		[Range(-50, 999), Label("[i:3] Blocks")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.BlocksLabel")]
 		public int Blocks = -1;
-		[Range(-50, 999), Label("[i:8] Platforms and Torches")]
-		public int PlatformAndTorches = 100;
-		[Range(-50, 999), Label("[i:702] Ores")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.PlatformsLabel")]
+		public int PlatformsAndTorches = 100;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.OresLabel")]
 		public int Ores = 100;
-		[Range(-50, 999), Label("[i:93] Walls")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.WallsLabel")]
 		public int Walls = -1;
 	}
 	public class Furnitures {
-		[Range(-50, 999), Label("[i:105] Light sources")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.LightsLabel")]
 		public int LightSources = 3;
-		[Range(-50, 999), Label("[i:343] Containers")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.ContainersLabel")]
 		public int Containers = 3;
-		[Range(-50, 999), Label("[i:398] Functional")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.FunctionalLabel")]
 		public int Functional = 3;
-		[Range(-50, 999), Label("[i:333] Decoration")]
-		public int Decoration = 3;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.DecorationsLabel")]
+		public int Decorations = 3;
 	}
 	public class OthersTiles {
-		[Range(-50, 999), Label("[i:3603] Mechanical")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.MechanicalLabel")]
 		public int Mechanical = 3;
-		[Range(-50, 999), Label("[i:206] Buckets")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.BucketsLabel")]
 		public int Buckets = 5;
-		[Range(-50, 999), Label("[i:27] Seeds")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.SeedsLabel")]
 		public int Seeds = 5;
 	}
 	public class Materials {
-		[Range(-50, 999), Label("[i:9] Basic materials")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.BasicsLabel")]
 		public int Basics = -1;
-		[Range(-50, 999), Label("[i:177] Valuable Tiles"), Tooltip("Drops from tiles detected by a metal detector")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.OresLabel"), Tooltip("$Mods.SPIC.Configs.Materials.OresTooltip")]
 		public int Ores = 100;
-		[Range(-50, 999), Label("[i:32] Furnitures")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.FurnituresLabel")]
 		public int Furnitures = 20;
-		[Range(-50, 999), Label("[i:575] Miscellaneous")]
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.MiscellaneousLabel")]
 		public int Miscellaneous = 50;
-		[Range(0, 50), Label("[i:53] Non stackable")]
+		[Range(0, 50),    Label("$Mods.SPIC.Configs.Materials.NonStackableLabel")]
 		public int NonStackable = 2;
 	}
 
 	[NullAllowed]
 	public class CustomInfinity<T> where T : System.Enum {
+		[Label("$Mods.SPIC.Configs.Customs.Category")]
 		public T Category;
-		[Range(0, 50), Tooltip("Only in use when category is None")]
+		[Range(0, 50), Label("$Mods.SPIC.Configs.Customs.Infinity"), Tooltip("$Mods.SPIC.Configs.Customs.InfinityTooltip")]
 		public int Infinity;
 	}
 
 	public class Custom {
+		[Label("$Mods.SPIC.Configs.Customs.Item")]
 		public ItemDefinition Item;
+
+		[Label("$Mods.SPIC.Configs.Infinities.Consumables")]
 		public CustomInfinity<Categories.Consumable> Consumable;
+		[Label("$Mods.SPIC.Configs.Infinities.Ammos")]
 		public CustomInfinity<Categories.Ammo> Ammo;
+		[Label("$Mods.SPIC.Configs.Infinities.Bags")]
 		public CustomInfinity<Categories.GrabBag> GrabBag;
+		[Label("$Mods.SPIC.Configs.Customs.WandAmmo")] 
 		public CustomInfinity<Categories.WandAmmo> WandAmmo;
 
 		public static Custom CreateWith<T>(int type, CustomInfinity<T> customInfinity) where T: System.Enum {
@@ -117,55 +124,51 @@ namespace SPIC.Configs {
 		public static string ConfigPath { get; private set; }
 		private bool m_ModifiedInGame = false;
 
-
-		[Header("General")]
-		[DefaultValue(true), Label("[i:3104] Infinite Consumables")]
+		internal static string Loc(string a) => a;
+		[Header("$Mods.SPIC.Configs.General.Header")]
+		[DefaultValue(true), Label("$Mods.SPIC.Configs.General.ConsumablesLabel")]
 		public bool InfiniteConsumables;
-		[Label("[i:3061] Infinite Tiles")]
+		[Label("$Mods.SPIC.Configs.General.TilesLabel")]
 		public bool InfiniteTiles;
-		[Label("[i:398] Infinite Crafting")]
+		[Label("$Mods.SPIC.Configs.General.CraftingLabel")]
 		public bool InfiniteCrafting;
 
-		[DefaultValue(false), Label("[i:2890] Journey requirement"), Tooltip("Uses the journey research cost of items as their infinite requirent")]
+		[DefaultValue(false), Label("$Mods.SPIC.Configs.General.JourneyLabel"), Tooltip("$Mods.SPIC.Configs.General.JourneyTooltip")]
 		public bool JourneyRequirement;
-		[DefaultValue(true), Label("[i:1293] Prevent item duplication"), Tooltip(
-@"/!\ WIP for multiplayer /!\
-Tiles and walls won't drop their item when broken
-Critters will turn into smoke
-Buckets won't create empty or full buckets when used")]
+		[DefaultValue(true), Label("$Mods.SPIC.Configs.General.DuplicationLabel"), Tooltip("$Mods.SPIC.Configs.General.DuplicationTooltip")]
 		public bool PreventItemDupication;
-		[DefaultValue(true), ReloadRequired, Label("[i:3617] Commands"), Tooltip("Adds the '/spic' command to edit the category of items in-game")]
+		[DefaultValue(true), ReloadRequired, Label("$Mods.SPIC.Configs.General.CommandsLabel"), Tooltip("$Mods.SPIC.Configs.General.CommandsTooltip")]
 		public bool Commands;
 
 
-		[Header("Consumables")]
-		[Label("Consumables")]
+		[Header("$Mods.SPIC.Configs.Infinities.ConsumablesHeader")]
+		[Label("$Mods.SPIC.Configs.Infinities.Consumables")]
 		public Consumable Consumables = new();
-		[Label("Ammunitions")]
+		[Label("$Mods.SPIC.Configs.Infinities.Ammos")]
 		public Ammo Ammos = new();
-		[Label("Grab Bags")]
+		[Label("$Mods.SPIC.Configs.Infinities.Bags")]
 		public GrabBag Bags = new();
 
 
-		[Header("Tiles")]
-		[Label("Common tiles")]
+		[Header("$Mods.SPIC.Configs.Infinities.TilesHeader")]
+		[Label("$Mods.SPIC.Configs.Infinities.CommonTiles")]
 		public CommonTiles CommonTiles = new();
-		[Label("Furitures")]
+		[Label("$Mods.SPIC.Configs.Infinities.Furnitures")]
 		public Furnitures Furnitures = new();
-		[Label("Other tiles")]
+		[Label("$Mods.SPIC.Configs.Infinities.OtherTiles")]
 		public OthersTiles OtherTiles = new();
 
 
-		[Header("Crafting")]
-		[Label("Materials")]
+		[Header("$Mods.SPIC.Configs.Infinities.CraftingHeader")]
+		[Label("$Mods.SPIC.Configs.Infinities.Materials")]
 		public Materials Materials = new();
 
 
-		[Header("Custom Categories and values")]
-		[Label("[i:1913] Customs")]
+		[Header("$Mods.SPIC.Configs.Infinities.CustomHeader")]
+		[Label("$Mods.SPIC.Configs.Infinities.CustomsLabel")]
 		public List<Custom> Customs = new();
 
-		public override void OnLoaded() => ConfigPath = ConfigManager.ModConfigPath + $"\\SPIC_{nameof(ConsumableConfig)}.json";
+		public override void OnLoaded() => ConfigPath = ConfigManager.ModConfigPath + $"\\{nameof(SPIC)}_{nameof(ConsumableConfig)}.json";
 
 		public void ManualSave() {
 			if (!m_ModifiedInGame) return;

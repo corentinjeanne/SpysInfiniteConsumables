@@ -21,7 +21,7 @@ namespace SPIC {
 		public static int Infinity(this Ammo ammo) {
 			Configs.Ammo a = Configs.ConsumableConfig.Instance.Ammos;
 			return ammo switch {
-				Ammo.Basic => a.Basic,
+				Ammo.Basic => a.Standard,
 				Ammo.Special => a.Special,
 				Ammo.None => 0,
 				_ => throw new System.NotImplementedException(),

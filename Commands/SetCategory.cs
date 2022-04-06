@@ -8,7 +8,7 @@ namespace SPIC.Commands {
 		public override string Command => "spic";
 
 		public override string Usage => "/spic <consu> <category|req> [name|type]";
-		public override string Description => "Set the category of an item.";
+		public override string Description => Terraria.Localization.Language.GetTextValue("Mods.SPIC.Commands.SetDesc");
 
 		public override bool IsLoadingEnabled(Mod mod) => Configs.ConsumableConfig.Instance.Commands;
 		public override void Action(CommandCaller caller, string input, string[] args) {

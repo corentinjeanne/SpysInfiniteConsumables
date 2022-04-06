@@ -10,7 +10,7 @@ namespace SPIC.Systems {
 	public struct ChunkID {
 		public int X, Y;
 		public ChunkID(int x, int y) { X = x; Y = y; }
-		public override string ToString() => $"{X} {Y}";
+		public string Tag() => $"{X} {Y}";
 		public int[] AsArray() => new int[] { X,Y };
 	}
 	public class Chunk {
@@ -55,7 +55,9 @@ namespace SPIC.Systems {
 
 		private int m_ChunkSize = 64;
 		private readonly Dictionary<ChunkID, Chunk> m_Chunks = new();
-
+		
+		private const string TAG_CREATED = "Chunks";
+		private const string TAG_SIZE = "Size";
 		public void PlaceBlock(int i, int j) {
 			GetChunk(ref i, ref j, canCreate: true).SetBlock(i, j, true);
 		}
@@ -91,31 +93,29 @@ namespace SPIC.Systems {
 			return m_Chunks[id];
 
 		}
-		//public override void OnWorldLoad() {
-		//	m_Chunks.Clear();
-		//}
 
 		public override void LoadWorldData(TagCompound tag) {
 			m_Chunks.Clear();
-			m_ChunkSize = tag.GetInt("Size");
-			List<ChunkID> createdChunks = (tag["Chunks"] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
+			m_ChunkSize = tag.GetInt(TAG_SIZE);
+			List<ChunkID> createdChunks = (tag[TAG_CREATED] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
 			foreach (ChunkID id in createdChunks) {
-				m_Chunks.Add(id, new Chunk(m_ChunkSize, tag.GetByteArray(id.ToString())));
+				m_Chunks.Add(id, new Chunk(m_ChunkSize, tag.GetByteArray(id.Tag())));
 			}
 		}
+
 		public override void SaveWorldData(TagCompound tag) {
 
 			Configs.ConsumableConfig.Instance.ManualSave();
 
 			if (m_Chunks.Count != 0) {
-				tag.Add("Size", m_ChunkSize);
+				tag.Add(TAG_SIZE, m_ChunkSize);
 				List<int[]> createdChunks = new();
 				foreach ((ChunkID id, Chunk chunck) in m_Chunks) {
 					if (chunck.IsEmpty) continue;
 					createdChunks.Add(id.AsArray());
-					tag.Add(id.ToString(), chunck.Tiles);
+					tag.Add(id.Tag(), chunck.Tiles);
 				}
-				tag.Add("Chunks", createdChunks);
+				tag.Add(TAG_CREATED, createdChunks);
 			}
 		}
 		public override void OnWorldUnload() {

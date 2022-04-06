@@ -101,7 +101,7 @@ namespace SPIC {
 
 			return category switch {
 				Consumable.Weapon => c.Weapons,
-				Consumable.Recovery => c.Recoveries,
+				Consumable.Recovery => c.Recovery,
 				Consumable.Buff => c.Buffs,
 				Consumable.PlayerBooster => c.Boosters,
 				Consumable.WorldBooster => c.Boosters,
@@ -111,8 +111,8 @@ namespace SPIC {
 				Consumable.Tool => c.Tools,
 
 				Consumable.Block => t.Blocks,
-				Consumable.Torch => t.PlatformAndTorches,
-				Consumable.Platform => t.PlatformAndTorches,
+				Consumable.Torch => t.PlatformsAndTorches,
+				Consumable.Platform => t.PlatformsAndTorches,
 				Consumable.Ore => t.Ores,
 				Consumable.Wall => t.Walls,
 
@@ -120,9 +120,9 @@ namespace SPIC {
 				Consumable.Container => f.Containers,
 				Consumable.CraftingStation => f.Functional,
 				Consumable.Functional => f.Functional,
-				Consumable.MusicBox => f.Decoration,
-				Consumable.Housing => f.Decoration,
-				Consumable.Decoration => f.Decoration,
+				Consumable.MusicBox => f.Decorations,
+				Consumable.Housing => f.Decorations,
+				Consumable.Decoration => f.Decorations,
 
 				Consumable.Bucket => o.Buckets,
 				Consumable.Mechanical => o.Mechanical,
