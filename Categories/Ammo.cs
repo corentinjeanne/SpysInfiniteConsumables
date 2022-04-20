@@ -8,6 +8,7 @@ namespace SPIC {
 		public enum Ammo {
 			None,
 			Basic,
+			Explosives,
 			Special
 		}
 	}
@@ -15,6 +16,7 @@ namespace SPIC {
 		public static int MaxStack(this Ammo ammo) => ammo switch {
 			Ammo.Basic => 999,
 			Ammo.Special => 999,
+			Ammo.Explosives => 999,
 			Ammo.None => 999,
 			_ => throw new System.NotImplementedException(),
 		};
@@ -23,6 +25,7 @@ namespace SPIC {
 			return ammo switch {
 				Ammo.Basic => a.Standard,
 				Ammo.Special => a.Special,
+				Ammo.Explosives => a.Explosives,
 				Ammo.None => 0,
 				_ => throw new System.NotImplementedException(),
 			};
@@ -40,8 +43,6 @@ namespace SPIC {
 
 			return Ammo.Special;
 		}
-
-		public static bool HasInfiniteAmmo(this Player player, Item item) => player.HasInfinite(item.type, item.GetAmmoCategory());
 		public static bool HasInfinite(this Player player, int type, Ammo ammo) {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 

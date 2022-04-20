@@ -48,15 +48,19 @@ namespace SPIC.Globals {
 			if (item.CannotStopDrop()) return;
 
 			Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
-			if (Main.player[playerIndex].HeldItem == item) {
-				if (item.IsInfiniteConsumable() ?? false) {
+			Player p = Main.player[playerIndex];
+			SpicPlayer spicPlayer = p.GetModPlayer<SpicPlayer>();
+			Categories.ItemCategories categories = spicPlayer.UpdateCategories(item);
+
+			if (p.HeldItem == item) {
+				if (p.HasInfinite(item.type, categories.Consumable ?? Categories.Consumable.Block)) {
 					TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
 					if (data == null) world.PlaceBlock(i, j);
 					else world.PlaceBlock(i-data.Origin.X, j- data.Origin.Y);
 				}
 				return;
 			}
-			if (item.IsInfiniteWandAmmo()) world.PlaceBlock(i, j);
+			if (p.HasInfinite(item.type, categories.WandAmmo ?? Categories.WandAmmo.Block)) world.PlaceBlock(i, j);
 		}
 
 		public override bool Drop(int i, int j, int type) {

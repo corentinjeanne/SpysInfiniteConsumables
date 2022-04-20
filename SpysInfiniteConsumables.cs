@@ -1,16 +1,14 @@
 using Terraria.ModLoader;
-using Terraria.Localization;
-
+ 
 namespace SPIC {
 
 	public class SpysInfiniteConsumables : Mod {
-		public static ModKeybind ShowConsumableCategory;
+		public static SpysInfiniteConsumables Instance { get; private set; }
 		public override void Load() {
-			//string s = Language.GetTextValue("Mods.SPIC.Hotkeys.Categories");
-			ShowConsumableCategory = KeybindLoader.RegisterKeybind(this, "Hold to display the categories of items", "N");
+			Instance = this;
 		}
 		public override void Unload() {
-			ShowConsumableCategory = null;
+			Instance = null;
 		}
 	}
 }

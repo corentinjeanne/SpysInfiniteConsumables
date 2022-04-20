@@ -3,6 +3,8 @@ using Terraria.ID;
 using Terraria.GameContent.Creative;
 
 using SPIC.Categories;
+using Terraria.UI;
+
 namespace SPIC {
 	namespace Categories {
 		public enum GrabBag {
@@ -32,16 +34,17 @@ namespace SPIC {
 			if (Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.GrabBag != null && custom.GrabBag.Category != GrabBag.None)
 				return custom.GrabBag.Category;
 
+			string tip = ItemTooltip.FromLanguageKey("CommonItemTooltip.RightClickToOpen").GetLine(0);
 			if (ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
 			if (item.ModItem?.CanRightClick() ?? false) return GrabBag.Crate;
+
+			for(int i = 0; i < item.ToolTip.Lines; i++) {
+				string line = item.ToolTip.GetLine(i);
+				if (line.Contains(tip)) return GrabBag.Crate;
+			}
 			return null;
 		}
 		
-		public static bool? HasInfiniteBag(this Player player, Item item) {
-			GrabBag? GrabBag = item.GetGrabBagCategory();
-			return GrabBag.HasValue ? player.HasInfinite(item.type, GrabBag.Value) : null;
-		}
-
 		public static bool HasInfinite(this Player player, int type, GrabBag grabBag) {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 

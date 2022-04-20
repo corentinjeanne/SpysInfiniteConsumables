@@ -14,7 +14,16 @@ namespace SPIC.Globals {
 		public bool CheckingForCategory => m_CheckingForCategory != Terraria.ID.ItemID.None;
 		public bool InItemCheck { get; private set; }
 
+		private Categories.ItemCategories m_LastCategories;
 
+
+		public Categories.ItemCategories UpdateCategories(Item updateTo = null, bool forceUpdate = false) {
+			
+			if (forceUpdate || updateTo?.type != m_LastCategories.Item?.type)
+				m_LastCategories = new Categories.ItemCategories(updateTo ?? m_LastCategories.Item);
+
+			return m_LastCategories;
+		}
 		public override void Load() {
 			On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
 		}
@@ -29,8 +38,7 @@ namespace SPIC.Globals {
 		public override void PostItemCheck() {
 			InItemCheck = false;
 			if (CheckingForCategory) {
-				Categories.Consumable? cat = CheckForCategory();
-				if (cat.HasValue || Player.itemTime <= 1) StopDetectingCategory();
+				TryStopDetectingCategory();
 			}
 		}
 
@@ -38,10 +46,15 @@ namespace SPIC.Globals {
 			m_CheckingForCategory = type;
 			SavePreUseItemStats();
 		}
+		public void TryStopDetectingCategory() {
+			Categories.Consumable? cat = CheckForCategory();
+			if (cat.HasValue || Player.itemTime <= 1) StopDetectingCategory(cat);
+		}
 		public void StopDetectingCategory(Categories.Consumable? detectedCategory = null) {
-
+			if (!CheckingForCategory) return;
 			ConsumableExtension.AddToCache(m_CheckingForCategory, detectedCategory ?? CheckForCategory() ?? Categories.Consumable.PlayerBooster);
 			m_CheckingForCategory = Terraria.ID.ItemID.None;
+			UpdateCategories();
 		}
 
 		private void SavePreUseItemStats() {
@@ -83,7 +96,7 @@ namespace SPIC.Globals {
 				if (!ConsumableExtension.IsInCache(self.inventory[selItem].type)) ConsumableExtension.AddToCache(self.inventory[selItem].type, Categories.Consumable.Bucket);
 				
 				self.inventory[selItem].stack++;
-				if (ModContent.GetInstance<Configs.ConsumableConfig>().PreventItemDupication && self.HasInfinite(self.inventory[selItem].type, Categories.Consumable.Bucket)) {
+				if (Configs.ConsumableConfig.Instance.PreventItemDupication && self.HasInfinite(self.inventory[selItem].type, Categories.Consumable.Bucket)) {
 					return;
 				}
 				self.inventory[selItem].stack--;

@@ -7,10 +7,10 @@ namespace SPIC.Globals {
 
 	public class SpicRecipe : GlobalRecipe {
 
-		public static List<int> CraftingStations;
+		public static readonly List<int> CraftingStations = new();
 
 		public override void SetStaticDefaults() {
-			CraftingStations = new();
+			CraftingStations.Clear();
 			foreach(Recipe r in Main.recipe) {
 				foreach(int t in r.requiredTile) {
 					if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
@@ -22,7 +22,7 @@ namespace SPIC.Globals {
 			Player player = Main.player[Main.myPlayer];
 			if (player == null || !Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
 
-			if (player.HasInfiniteMaterial(new Item(type))) {
+			if (player.HasInfinite(type, new Item(type).GetMaterialCategory())) {
 				amount = 0;
 			}
 		}

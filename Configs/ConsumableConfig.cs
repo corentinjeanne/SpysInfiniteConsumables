@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs {
+
 	public class Consumable {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.WeaponsLabel")]
 		public int Weapons = -1;
@@ -26,11 +27,14 @@ namespace SPIC.Configs {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.ToolsLabel")]
 		public int Tools = -1;
 	}
+
 	public class Ammo {
-		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.StandardLabel")]
+		[Range(50, 999), Label("$Mods.SPIC.Configs.Consumables.StandardLabel")]
 		public int Standard = -4;
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.SpecialLabel")]
 		public int Special = -1;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.ExplosivesLabel"), Tooltip("$Mods.SPIC.Configs.Consumables.ExplosivesTooltip")]
+		public int Explosives = -1;
 	}
 	public class GrabBag {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Consumables.CratesLabel")]
@@ -42,6 +46,8 @@ namespace SPIC.Configs {
 	public class CommonTiles {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.BlocksLabel")]
 		public int Blocks = -1;
+		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.WiringLabel")]
+		public int Wiring = -1;
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.PlatformsLabel")]
 		public int PlatformsAndTorches = 100;
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.OresLabel")]
@@ -67,6 +73,7 @@ namespace SPIC.Configs {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.SeedsLabel")]
 		public int Seeds = 5;
 	}
+	[BackgroundColor(73, 94, 171)]
 	public class Materials {
 		[Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.BasicsLabel")]
 		public int Basics = -1;
@@ -124,7 +131,6 @@ namespace SPIC.Configs {
 		public static string ConfigPath { get; private set; }
 		private bool m_ModifiedInGame = false;
 
-		internal static string Loc(string a) => a;
 		[Header("$Mods.SPIC.Configs.General.Header")]
 		[DefaultValue(true), Label("$Mods.SPIC.Configs.General.ConsumablesLabel")]
 		public bool InfiniteConsumables;
@@ -132,6 +138,8 @@ namespace SPIC.Configs {
 		public bool InfiniteTiles;
 		[Label("$Mods.SPIC.Configs.General.CraftingLabel")]
 		public bool InfiniteCrafting;
+		[Label("$Mods.SPIC.Configs.General.CategoryLabel")]
+		public bool ShowCategories;
 
 		[DefaultValue(false), Label("$Mods.SPIC.Configs.General.JourneyLabel"), Tooltip("$Mods.SPIC.Configs.General.JourneyTooltip")]
 		public bool JourneyRequirement;
@@ -142,25 +150,25 @@ namespace SPIC.Configs {
 
 
 		[Header("$Mods.SPIC.Configs.Infinities.ConsumablesHeader")]
-		[Label("$Mods.SPIC.Configs.Infinities.Consumables")]
+		[Label("$Mods.SPIC.Configs.Infinities.ConsumablesLabel")]
 		public Consumable Consumables = new();
-		[Label("$Mods.SPIC.Configs.Infinities.Ammos")]
+		[Label("$Mods.SPIC.Configs.Infinities.AmmosLabel")]
 		public Ammo Ammos = new();
-		[Label("$Mods.SPIC.Configs.Infinities.Bags")]
+		[Label("$Mods.SPIC.Configs.Infinities.BagsLabel")]
 		public GrabBag Bags = new();
 
 
 		[Header("$Mods.SPIC.Configs.Infinities.TilesHeader")]
-		[Label("$Mods.SPIC.Configs.Infinities.CommonTiles")]
+		[Label("$Mods.SPIC.Configs.Infinities.CommonTilesLabel")]
 		public CommonTiles CommonTiles = new();
-		[Label("$Mods.SPIC.Configs.Infinities.Furnitures")]
+		[Label("$Mods.SPIC.Configs.Infinities.FurnituresLabel")]
 		public Furnitures Furnitures = new();
-		[Label("$Mods.SPIC.Configs.Infinities.OtherTiles")]
+		[Label("$Mods.SPIC.Configs.Infinities.OtherTilesLabel")]
 		public OthersTiles OtherTiles = new();
 
 
 		[Header("$Mods.SPIC.Configs.Infinities.CraftingHeader")]
-		[Label("$Mods.SPIC.Configs.Infinities.Materials")]
+		[Label("$Mods.SPIC.Configs.Infinities.MaterialsLabel")]
 		public Materials Materials = new();
 
 
@@ -169,7 +177,6 @@ namespace SPIC.Configs {
 		public List<Custom> Customs = new();
 
 		public override void OnLoaded() => ConfigPath = ConfigManager.ModConfigPath + $"\\{nameof(SPIC)}_{nameof(ConsumableConfig)}.json";
-
 		public void ManualSave() {
 			if (!m_ModifiedInGame) return;
 			using StreamWriter sw = new(ConfigPath);
@@ -177,7 +184,6 @@ namespace SPIC.Configs {
 			sw.Write(serialisedConfig);
 			m_ModifiedInGame = false;
 		}
-
 		public bool HasCustom(int type, out Custom custom) => (custom = GetCustom(type)) != null;
 		public Custom GetCustom(int type) => Customs.Find(c => c.Item.Type == type);
 		

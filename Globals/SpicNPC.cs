@@ -41,7 +41,7 @@ namespace SPIC.Globals {
 			if(spawnIndex > 0) {
 				NPC critter = Main.npc[spawnIndex];
 				if (critter.active && critter.type == Type) {
-					if(ModContent.GetInstance<Configs.ConsumableConfig>().PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, Categories.Consumable.Critter)){
+					if(Configs.ConsumableConfig.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, Categories.Consumable.Critter)){
 						critter.SpawnedFromStatue = true;
 					}
 				}

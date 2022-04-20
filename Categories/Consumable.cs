@@ -28,7 +28,7 @@ namespace SPIC {
 			Critter,
 
 			// Other consumables
-			Explosives,
+			Explosive,
 			Tool,
 
 			// Common tiles
@@ -72,7 +72,7 @@ namespace SPIC {
 			Consumable.WorldBooster => 20,
 			Consumable.Summoner => 20,
 			Consumable.Critter => 99,
-			Consumable.Explosives => 99,
+			Consumable.Explosive => 99,
 			Consumable.Tool => 999,
 			Consumable.Block => 999,
 			Consumable.Torch => 999,
@@ -107,7 +107,7 @@ namespace SPIC {
 				Consumable.WorldBooster => c.Boosters,
 				Consumable.Summoner => c.Summoners,
 				Consumable.Critter => c.Critters,
-				Consumable.Explosives => c.Explosives,
+				Consumable.Explosive => c.Explosives,
 				Consumable.Tool => c.Tools,
 
 				Consumable.Block => t.Blocks,
@@ -227,17 +227,7 @@ namespace SPIC {
 			return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
 
 		}
-
-		public static bool? IsInfiniteConsumable(this Item item) {
-			if (item.playerIndexTheItemIsReservedFor == -1) return false;
-			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteConsumable(item);
-		}
-
-		public static bool? HasInfiniteConsumable(this Player player, Item item) {
-			Consumable? category = item.GetConsumableCategory();
-			return category.HasValue ? player.HasInfinite(item.type, category.Value) : null;
-		}
-		public static bool HasInfinite(this Player player, int type, Consumable consumable) {
+		public static bool HasInfinite(this Player player, int type, Consumable consumable, bool ignoreAllwaysDrop = false) {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			int items;
@@ -252,7 +242,7 @@ namespace SPIC {
 				}
 			}
 
-			if (config.PreventItemDupication && consumable.IsTile() && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
+			if (!ignoreAllwaysDrop && config.PreventItemDupication && consumable.IsTile() && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
 				return player.CountAllItems(type) == items;
 
 			return player.CountAllItems(type) >= items;

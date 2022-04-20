@@ -1,5 +1,60 @@
 Mods: {
 	SPIC: {
+		Categories: {
+			Ammo: {
+				None: Not Ammo
+				Basic: Basic
+				Explosives: Explosives
+				Special: Special
+			}
+			Consumable: {
+				None: Not consumable
+				Weapon: Weapon
+				Recovery: Recovery potion
+				Buff: Buff potion
+				PlayerBooster: Player Booster
+				WorldBooster: World Booster
+				Summoner: Summoner
+				Critter: Critter
+				Explosive: Explosive
+				Tool: Tool
+				Block: Block
+				Platform: Platform
+				Torch: Torch
+				Ore: Ore
+				Wall: Wall
+				LightSource: Light source
+				Container: Container
+				Functional: Functional
+				CraftingStation: Crafting station
+				Housing: Housing
+				Decoration: Decoration
+				MusicBox: MusicBox
+				Mechanical: Mechanical
+				Bucket: Bucket
+				Seed: Seed
+			}
+			GrabBag: {
+				None: Not a bag
+				Crate: Crate
+				TreasureBag: Treasure bag
+			}
+			WandAmmo: {
+				None: Not wand ammo
+				Block: Block
+				Wiring: Wiring
+				Mechanical: Mechanical
+			}
+			Material: {
+				None: Not a material
+				Basic: Basic
+				Ore: Ore
+				Furniture: Furniture
+				Miscellaneous: Miscellaneous
+				NonStackable: Non stackable
+			}
+		}
+
 		Hotkeys: {
 			Categories: Hold to display the categories of items
 		}
@@ -8,12 +63,19 @@ Mods: {
 			IDDesc: Gives the ID and the name of an item
 			SetDesc: Set the category of an item
 		}
+		ItemTooltip: {
+			Unknown: Unknown
+			GrabBag: Grab bag
+			WandAmmo: Wand ammo
+			Infinite: Infinite
+		}
 		Configs: {
 			General: {
 				Header: General
 				Consumables: Infinite Consumables
 				Tiles: Infinite Tiles
 				Crafting: Infinite Crafting
+				Category: Show categories
 				Journey: Journey requirement
 				JourneyTooltip: Uses the journey research cost of items as their infinite requirent
 				Duplication: Prevent item duplication
@@ -70,6 +132,7 @@ Mods: {
 			}
 			Tiles: {
 				Blocks: Blocks
+				Wiring: Wiring
 				Platforms: Platforms and Torches
 				Ores: Ores
 				Walls: Walls

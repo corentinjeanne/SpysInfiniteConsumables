@@ -59,24 +59,18 @@ namespace SPIC {
 
 			return Material.Miscellaneous;
 		}
-
-		public static bool IsInfiniteMaterial(this Item item) {
-			if (item.playerIndexTheItemIsReservedFor == -1) return false;
-			return Main.player[item.playerIndexTheItemIsReservedFor].HasInfiniteMaterial(item);
-		}
-
-		public static bool HasInfiniteMaterial(this Player player, Item item) => player.HasInfinite(item.type, item.GetMaterialCategory());
 		public static bool HasInfinite(this Player player, int type, Material material) {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
-			if (material == Material.None) return false;
+			int items;
+			if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
+			else {
+				if (material == Material.None) return false;
+				items = Utility.InfinityToItems(material.Infinity(), type, material.MaxStack());
+			}
 
-			int infinityCount = config.JourneyRequirement ?
-				CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type] :
-				Utility.InfinityToItems(material.Infinity(), type, material.MaxStack());
-			
 
-			return infinityCount >= player.CountAllItems(type, true);
+			return player.CountAllItems(type, true) >= items;
 		}
 	}
 }
