@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "tModLoader",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/tModLoader.dll",
+            "cwd": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/",
+            "args": ["watch"],
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "tModLoader Server",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/tModLoader.dll",
+            "cwd": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/",
+            "args": ["-server"],
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+    ]
+}

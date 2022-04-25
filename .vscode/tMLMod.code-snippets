@@ -1,0 +1,32 @@
+{
+	"Log Debug":{
+		"scope": "csharp",
+		"prefix": "log",
+		"body": "Mod.Logger.Debug($\"$1\");"
+	},
+	"Leg Info":{
+		"scope": "csharp",
+		"prefix": "logi",
+		"body": "Mod.Logger.Info($\"$1\");"
+	},
+	"Log Warn":{
+		"scope": "csharp",
+		"prefix": "logw",
+		"body": "Mod.Logger.Warn($\"$1\");"
+	},
+	"Log Error":{
+		"scope": "csharp",
+		"prefix": "loge",
+		"body": "Mod.Logger.Error($\"$1\");"
+	},
+	"Log Fatal":{
+		"scope": "csharp",
+		"prefix": "logf",
+		"body": "Mod.Logger.Fatal($\"$1\");"
+	},
+	"Get Instance": {
+		"scope": "csharp",
+		"prefix": "getinstance",
+		"body": "${1:object} ${obj} = ModContent.GetInstance<$1>();"
+	},
+}

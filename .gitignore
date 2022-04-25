@@ -1,9 +1,7 @@
-
-#Folders
-
+# C# folders
 obj/
 bin/
 
+# VS files
 .vs/
-.vscode/
 *.user

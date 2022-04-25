@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "SPIC",
+			"path": "."
+		}
+	],
+	"settings": {
+		"extension-profiles.activeProfiles": [
+			"C#",
+			"Hjson",
+			"Git"
+		]
+	},
+}
