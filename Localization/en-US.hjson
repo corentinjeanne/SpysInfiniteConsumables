@@ -1,159 +1,159 @@
 {
-	Mods: {
-		SPIC: {
-			Categories: {
-				Ammo: {
-					None: Not Ammo
-					Basic: Basic
-					Explosives: Explosives
-					Special: Special
-				}
-				Consumable: {
-					None: Not consumable
-					Weapon: Weapon
-					Recovery: Recovery potion
-					Buff: Buff potion
-					PlayerBooster: Player Booster
-					WorldBooster: World Booster
-					Summoner: Summoner
-					Critter: Critter
-					Explosive: Explosive
-					Tool: Tool
-					Block: Block
-					Platform: Platform
-					Torch: Torch
-					Ore: Ore
-					Wall: Wall
-					LightSource: Light source
-					Container: Container
-					Functional: Functional
-					CraftingStation: Crafting station
-					Housing: Housing
-					Decoration: Decoration
-					MusicBox: MusicBox
-					Mechanical: Mechanical
-					Bucket: Bucket
-					Seed: Seed
-				}
-				GrabBag: {
-					None: Not a bag
-					Crate: Crate
-					TreasureBag: Treasure bag
-				}
-				WandAmmo: {
-					None: Not wand ammo
-					Block: Block
-					Wiring: Wiring
-					Mechanical: Mechanical
-				}
-				Material: {
-					None: Not a material
-					Basic: Basic
-					Ore: Ore
-					Furniture: Furniture
-					Miscellaneous: Miscellaneous
-					NonStackable: Non stackable
-				}
-			}
+    Mods: {
+        SPIC: {
+            Categories: {
+                Ammo: {
+                    None: Not Ammo
+                    Basic: Basic
+                    Explosives: Explosives
+                    Special: Special
+                }
+                Consumable: {
+                    None: Not consumable
+                    Weapon: Weapon
+                    Recovery: Recovery potion
+                    Buff: Buff potion
+                    PlayerBooster: Player Booster
+                    WorldBooster: World Booster
+                    Summoner: Summoner
+                    Critter: Critter
+                    Explosive: Explosive
+                    Tool: Tool
+                    Block: Block
+                    Platform: Platform
+                    Torch: Torch
+                    Ore: Ore
+                    Wall: Wall
+                    LightSource: Light source
+                    Container: Container
+                    Functional: Functional
+                    CraftingStation: Crafting station
+                    Housing: Housing
+                    Decoration: Decoration
+                    MusicBox: MusicBox
+                    Mechanical: Mechanical
+                    Bucket: Bucket
+                    Seed: Seed
+                }
+                GrabBag: {
+                    None: Not a bag
+                    Crate: Crate
+                    TreasureBag: Treasure bag
+                }
+                WandAmmo: {
+                    None: Not wand ammo
+                    Block: Block
+                    Wiring: Wiring
+                    Mechanical: Mechanical
+                }
+                Material: {
+                    None: Not a material
+                    Basic: Basic
+                    Ore: Ore
+                    Furniture: Furniture
+                    Miscellaneous: Miscellaneous
+                    NonStackable: Non stackable
+                }
+            }
 
-			Hotkeys: {
-				Categories: Hold to display the categories of items
-			}
+            Hotkeys: {
+                Categories: Hold to display the categories of items
+            }
 
-			Commands: {
-				IDDesc: Gives the ID and the name of an item
-				SetDesc: Set the category of an item
-			}
-			ItemTooltip: {
-				Unknown: Unknown
-				GrabBag: Grab bag
-				WandAmmo: Wand ammo
-				Infinite: Infinite
-			}
-			Configs: {
-				General: {
-					Header: General
-					Consumables: Infinite Consumables
-					Tiles: Infinite Tiles
-					Crafting: Infinite Crafting
-					Category: Show categories
-					Journey: Journey requirement
-					JourneyTooltip: Uses the journey research cost of items as their infinite requirent
-					Duplication: Prevent item duplication
-					DuplicationTooltip:
-						'''
-						/!\ WIP for multiplayer /!\
-						Tiles and walls won't drop their item when broken
-						Critters will turn into smoke
-						Buckets won't create empty or full buckets when used"
-						'''
-					Commands: Commands
-					CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
-				}
-				Infinities: {
-					ConsumablesHeader: Consumables
-					Consumables: Consumables
-					Ammos: Ammunitions
-					Bags: Grab bags
+            Commands: {
+                IDDesc: Gives the ID and the name of an item
+                SetDesc: Set the category of an item
+            }
+            ItemTooltip: {
+                Unknown: Unknown
+                GrabBag: Grab bag
+                WandAmmo: Wand ammo
+                Infinite: Infinite
+            }
+            Configs: {
+                General: {
+                    Header: General
+                    Consumables: Infinite Consumables
+                    Tiles: Infinite Tiles
+                    Crafting: Infinite Crafting
+                    Category: Show categories
+                    Journey: Journey requirement
+                    JourneyTooltip: Uses the journey research cost of items as their infinite requirent
+                    Duplication: Prevent item duplication
+                    DuplicationTooltip:
+                        '''
+                        /!\ WIP for multiplayer /!\
+                        Tiles and walls won't drop their item when broken
+                        Critters will turn into smoke
+                        Buckets won't create empty or full buckets when used"
+                        '''
+                    Commands: Commands
+                    CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
+                }
+                Infinities: {
+                    ConsumablesHeader: Consumables
+                    Consumables: Consumables
+                    Ammos: Ammunitions
+                    Bags: Grab bags
 
-					TilesHeader: Tiles
-					CommonTiles: Common tiles
-					Furnitures: Furitures
-					OtherTiles: Other tiles
+                    TilesHeader: Tiles
+                    CommonTiles: Common tiles
+                    Furnitures: Furitures
+                    OtherTiles: Other tiles
 
-					CraftingHeader: Crafting
-					Materials: Materials
+                    CraftingHeader: Crafting
+                    Materials: Materials
 
-					CustomHeader: Custom Categories and values
-					Customs: Customs
-				}
-				Customs: {
-					Item: Item
-					WandAmmo: Wand Ammo
-					Category: Category
-					Infinity: Infinity
-					InfinityTooltip: Only in use when category is None
-				}
+                    CustomHeader: Custom Categories and values
+                    Customs: Customs
+                }
+                Customs: {
+                    Item: Item
+                    WandAmmo: Wand Ammo
+                    Category: Category
+                    Infinity: Infinity
+                    InfinityTooltip: Only in use when category is None
+                }
 
-				# Class from the config
-				Consumables: {
-					Weapons: Thrown weapons
-					Recovery: Recovery potions
-					Buffs: Buff potions
-					Boosters: Permanent Boosters
-					Summoners: Boss and Event summoners
-					Critters: Criters and Baits
-					Explosives: Explosives
-					ExplosivesTooltip: Does not work
-					Tools: Miscellaneous
-					Standard: Standard
-					Special: Special
-					Crates: Crates and Bags
-					Boss: Treasure Bags
-				}
-				Tiles: {
-					Blocks: Blocks
-					Wiring: Wiring
-					Platforms: Platforms and Torches
-					Ores: Ores
-					Walls: Walls
-					Lights: Light sources
-					Containers: Containers
-					Functional: Functional
-					Decorations: Decorations
-					Mechanical: Mechanical
-					Buckets: Buckets
-					Seeds: Seeds
-				}
-				Materials: {
-					Basics: Basic materials
-					Ores: Valuable Tiles
-					OresTooltip: Drops from tiles detected by a metal detector
-					Furnitures: Furnitures
-					Miscellaneous: Miscellaneous
-					NonStackable: Non stackable
-				}
-			}
-		}
-	}
+                # Class from the config
+                Consumables: {
+                    Weapons: Thrown weapons
+                    Recovery: Recovery potions
+                    Buffs: Buff potions
+                    Boosters: Permanent Boosters
+                    Summoners: Boss and Event summoners
+                    Critters: Criters and Baits
+                    Explosives: Explosives
+                    ExplosivesTooltip: Does not work
+                    Tools: Miscellaneous
+                    Standard: Standard
+                    Special: Special
+                    Crates: Crates and Bags
+                    Boss: Treasure Bags
+                }
+                Tiles: {
+                    Blocks: Blocks
+                    Wiring: Wiring
+                    Platforms: Platforms and Torches
+                    Ores: Ores
+                    Walls: Walls
+                    Lights: Light sources
+                    Containers: Containers
+                    Functional: Functional
+                    Decorations: Decorations
+                    Mechanical: Mechanical
+                    Buckets: Buckets
+                    Seeds: Seeds
+                }
+                Materials: {
+                    Basics: Basic materials
+                    Ores: Valuable Tiles
+                    OresTooltip: Drops from tiles detected by a metal detector
+                    Furnitures: Furnitures
+                    Miscellaneous: Miscellaneous
+                    NonStackable: Non stackable
+                }
+            }
+        }
+    }
 }

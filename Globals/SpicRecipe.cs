@@ -5,33 +5,33 @@ using Terraria.ModLoader;
 
 namespace SPIC.Globals {
 
-	public class SpicRecipe : GlobalRecipe {
+    public class SpicRecipe : GlobalRecipe {
 
-		public static readonly HashSet<int> CraftingStations = new();
-		public override void Load() {
-			On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
-		}
-		public override void SetStaticDefaults() {
-			CraftingStations.Clear();
-			foreach(Recipe r in Main.recipe) {
-				foreach(int t in r.requiredTile) {
-					if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
-				}
-			}
-		}
+        public static readonly HashSet<int> CraftingStations = new();
+        public override void Load() {
+            On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+        }
+        public override void SetStaticDefaults() {
+            CraftingStations.Clear();
+            foreach(Recipe r in Main.recipe) {
+                foreach(int t in r.requiredTile) {
+                    if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
+                }
+            }
+        }
 
-		public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
-			if (!Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
+        public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
+            if (!Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
 
-			SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
-			if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;
-		}
+            SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
+            if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;
+        }
 
-		private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
-			orig(canDelayCheck);
+        private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+            orig(canDelayCheck);
             Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
-		}
+        }
 
-	}
+    }
 
 }

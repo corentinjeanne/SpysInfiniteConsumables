@@ -1,67 +1,67 @@
 # Everything in this file does not depend of localization and is only used for formating purpose
 {
-	Mods: {
-		SPIC: {
-			Configs: {
-				General: {
-					ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.General.Consumables}"
-					TilesLabel: "[i:3061] {$Mods.SPIC.Configs.General.Tiles}"
-					CraftingLabel: "[i:398] {$Mods.SPIC.Configs.General.Crafting}"
-					JourneyLabel: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
-					CategoryLabel: "{$Mods.SPIC.Configs.General.Category}"
-					DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
-					CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
-				}
-				Infinities: {
-					ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.Infinities.Consumables}"
-					AmmosLabel: "[i:3103] {$Mods.SPIC.Configs.Infinities.Ammos}"
-					BagsLabel: "{$Mods.SPIC.Configs.Infinities.Bags}"
+    Mods: {
+        SPIC: {
+            Configs: {
+                General: {
+                    ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.General.Consumables}"
+                    TilesLabel: "[i:3061] {$Mods.SPIC.Configs.General.Tiles}"
+                    CraftingLabel: "[i:398] {$Mods.SPIC.Configs.General.Crafting}"
+                    JourneyLabel: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
+                    CategoryLabel: "{$Mods.SPIC.Configs.General.Category}"
+                    DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
+                    CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
+                }
+                Infinities: {
+                    ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.Infinities.Consumables}"
+                    AmmosLabel: "[i:3103] {$Mods.SPIC.Configs.Infinities.Ammos}"
+                    BagsLabel: "{$Mods.SPIC.Configs.Infinities.Bags}"
 
-					CommonTilesLabel: "{$Mods.SPIC.Configs.Infinities.CommonTiles}"
-					FurnituresLabel: "{$Mods.SPIC.Configs.Infinities.Furnitures}"
-					OtherTilesLabel: "{$Mods.SPIC.Configs.Infinities.OtherTiles}"
+                    CommonTilesLabel: "{$Mods.SPIC.Configs.Infinities.CommonTiles}"
+                    FurnituresLabel: "{$Mods.SPIC.Configs.Infinities.Furnitures}"
+                    OtherTilesLabel: "{$Mods.SPIC.Configs.Infinities.OtherTiles}"
 
-					MaterialsLabel: "[i:487] {$Mods.SPIC.Configs.Infinities.Materials}"
+                    MaterialsLabel: "[i:487] {$Mods.SPIC.Configs.Infinities.Materials}"
 
-					CustomsLabel: "[i:1913] {$Mods.SPIC.Configs.Infinities.Customs}"
-				}
+                    CustomsLabel: "[i:1913] {$Mods.SPIC.Configs.Infinities.Customs}"
+                }
 
-				Consumables: {
-					WeaponsLabel: "[i:279] {$Mods.SPIC.Configs.Consumables.Weapons}"
-					RecoveryLabel: "[i:188] {$Mods.SPIC.Configs.Consumables.Recovery}"
-					BuffsLabel: "[i:2348] {$Mods.SPIC.Configs.Consumables.Buffs}"
-					BoostersLabel: "[i:29] {$Mods.SPIC.Configs.Consumables.Boosters}"
-					SummonersLabel: "[i:43] {$Mods.SPIC.Configs.Consumables.Summoners}"
-					CrittersLabel: "[i:2019] {$Mods.SPIC.Configs.Consumables.Critters}"
-					ExplosivesLabel: "[i:166] {$Mods.SPIC.Configs.Consumables.Explosives}"
-					ToolsLabel: "[i:282] {$Mods.SPIC.Configs.Consumables.Tools}"
-					StandardLabel: "[i:40] {$Mods.SPIC.Configs.Consumables.Standard}"
-					SpecialLabel: "[i:75] {$Mods.SPIC.Configs.Consumables.Special}"
-					CratesLabel: "[i:2334] {$Mods.SPIC.Configs.Consumables.Crates}"
-					BossLabel: "[i:3331] {$Mods.SPIC.Configs.Consumables.Boss}"
-				}
-				Tiles: {
-					BlocksLabel: "[i:3] {$Mods.SPIC.Configs.Tiles.Blocks}"
-					WiringLabel: "[i:530] {$Mods.SPIC.Configs.Tiles.Wiring}"
-					PlatformsLabel: "[i:8] {$Mods.SPIC.Configs.Tiles.Platforms}"
-					OresLabel: "[i:702] {$Mods.SPIC.Configs.Tiles.Ores}"
-					WallsLabel: "[i:93] {$Mods.SPIC.Configs.Tiles.Walls}"
-					LightsLabel: "[i:105] {$Mods.SPIC.Configs.Tiles.Lights}"
-					ContainersLabel: "[i:343] {$Mods.SPIC.Configs.Tiles.Containers}"
-					FunctionalLabel: "[i:398] {$Mods.SPIC.Configs.Tiles.Functional}"
-					DecorationsLabel: "[i:333] {$Mods.SPIC.Configs.Tiles.Decorations}"
-					MechanicalLabel: "[i:3603] {$Mods.SPIC.Configs.Tiles.Mechanical}"
-					BucketsLabel: "[i:206] {$Mods.SPIC.Configs.Tiles.Buckets}"
-					SeedsLabel: "[i:27] {$Mods.SPIC.Configs.Tiles.Seeds}"
-				}
-				Materials: {
-					BasicsLabel: "[i:9] {$Mods.SPIC.Configs.Materials.Basics}"
-					OresLabel: "[i:177] {$Mods.SPIC.Configs.Materials.Ores}"
-					FurnituresLabel: "[i:32] {$Mods.SPIC.Configs.Materials.Furnitures}"
-					MiscellaneousLabel: "[i:575] {$Mods.SPIC.Configs.Materials.Miscellaneous}"
-					NonStackableLabel: "[i:53] {$Mods.SPIC.Configs.Materials.NonStackable}"
-				}
-			}
-		}
-	}
+                Consumables: {
+                    WeaponsLabel: "[i:279] {$Mods.SPIC.Configs.Consumables.Weapons}"
+                    RecoveryLabel: "[i:188] {$Mods.SPIC.Configs.Consumables.Recovery}"
+                    BuffsLabel: "[i:2348] {$Mods.SPIC.Configs.Consumables.Buffs}"
+                    BoostersLabel: "[i:29] {$Mods.SPIC.Configs.Consumables.Boosters}"
+                    SummonersLabel: "[i:43] {$Mods.SPIC.Configs.Consumables.Summoners}"
+                    CrittersLabel: "[i:2019] {$Mods.SPIC.Configs.Consumables.Critters}"
+                    ExplosivesLabel: "[i:166] {$Mods.SPIC.Configs.Consumables.Explosives}"
+                    ToolsLabel: "[i:282] {$Mods.SPIC.Configs.Consumables.Tools}"
+                    StandardLabel: "[i:40] {$Mods.SPIC.Configs.Consumables.Standard}"
+                    SpecialLabel: "[i:75] {$Mods.SPIC.Configs.Consumables.Special}"
+                    CratesLabel: "[i:2334] {$Mods.SPIC.Configs.Consumables.Crates}"
+                    BossLabel: "[i:3331] {$Mods.SPIC.Configs.Consumables.Boss}"
+                }
+                Tiles: {
+                    BlocksLabel: "[i:3] {$Mods.SPIC.Configs.Tiles.Blocks}"
+                    WiringLabel: "[i:530] {$Mods.SPIC.Configs.Tiles.Wiring}"
+                    PlatformsLabel: "[i:8] {$Mods.SPIC.Configs.Tiles.Platforms}"
+                    OresLabel: "[i:702] {$Mods.SPIC.Configs.Tiles.Ores}"
+                    WallsLabel: "[i:93] {$Mods.SPIC.Configs.Tiles.Walls}"
+                    LightsLabel: "[i:105] {$Mods.SPIC.Configs.Tiles.Lights}"
+                    ContainersLabel: "[i:343] {$Mods.SPIC.Configs.Tiles.Containers}"
+                    FunctionalLabel: "[i:398] {$Mods.SPIC.Configs.Tiles.Functional}"
+                    DecorationsLabel: "[i:333] {$Mods.SPIC.Configs.Tiles.Decorations}"
+                    MechanicalLabel: "[i:3603] {$Mods.SPIC.Configs.Tiles.Mechanical}"
+                    BucketsLabel: "[i:206] {$Mods.SPIC.Configs.Tiles.Buckets}"
+                    SeedsLabel: "[i:27] {$Mods.SPIC.Configs.Tiles.Seeds}"
+                }
+                Materials: {
+                    BasicsLabel: "[i:9] {$Mods.SPIC.Configs.Materials.Basics}"
+                    OresLabel: "[i:177] {$Mods.SPIC.Configs.Materials.Ores}"
+                    FurnituresLabel: "[i:32] {$Mods.SPIC.Configs.Materials.Furnitures}"
+                    MiscellaneousLabel: "[i:575] {$Mods.SPIC.Configs.Materials.Miscellaneous}"
+                    NonStackableLabel: "[i:53] {$Mods.SPIC.Configs.Materials.NonStackable}"
+                }
+            }
+        }
+    }
 }

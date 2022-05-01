@@ -2,92 +2,92 @@
 using System.Collections.Generic;
 
 namespace SPIC {
-	public static class TooltipHelper {
-		public static readonly List<string> TooltipLinesOrder = new(){
-			"ItemName",
-			"Favorite",
-			"FavoriteDesc",
-			"NoTransfer",
-			"Social",
-			"SocialDesc",
-			"Damage",
-			"CritChance",
-			"Speed",
-			"Knockback",
-			"FishingPower",
-			"NeedsBait",
-			"BaitPower",
-			"Equipable",
-			"WandConsumes",
-			"Quest",
-			"Vanity",
-			"VanityLegal",
-			"Defense",
-			"PickPower",
-			"AxePower",
-			"HammerPower",
-			"TileBoost",
-			"HealLife",
-			"HealMana",
-			"UseMana",
-			"Placeable",
-			"Ammo",
-			"Consumable",
-			"Material",
-			"Tooltip",
-			"EtherianManaWarning",
-			"WellFedExpert",
-			"BuffTime",
-			"OneDropLogo",
-			"PrefixDamage",
-			"PrefixSpeed",
-			"PrefixCritChance",
-			"PrefixUseMana",
-			"PrefixSize",
-			"PrefixShootSpeed",
-			"PrefixKnockback",
-			"PrefixAccDefense",
-			"PrefixAccMaxMana",
-			"PrefixAccCritChance",
-			"PrefixAccDamage",
-			"PrefixAccMoveSpeed",
-			"PrefixAccMeleeSpeed",
-			"SetBonus",
-			"Expert",
-			"Master",
-			"JourneyResearch",
-			"BestiaryNotes",
-			"SpecialPrice",
-			"Price"
-		};
+    public static class TooltipHelper {
+        public static readonly List<string> TooltipLinesOrder = new(){
+            "ItemName",
+            "Favorite",
+            "FavoriteDesc",
+            "NoTransfer",
+            "Social",
+            "SocialDesc",
+            "Damage",
+            "CritChance",
+            "Speed",
+            "Knockback",
+            "FishingPower",
+            "NeedsBait",
+            "BaitPower",
+            "Equipable",
+            "WandConsumes",
+            "Quest",
+            "Vanity",
+            "VanityLegal",
+            "Defense",
+            "PickPower",
+            "AxePower",
+            "HammerPower",
+            "TileBoost",
+            "HealLife",
+            "HealMana",
+            "UseMana",
+            "Placeable",
+            "Ammo",
+            "Consumable",
+            "Material",
+            "Tooltip",
+            "EtherianManaWarning",
+            "WellFedExpert",
+            "BuffTime",
+            "OneDropLogo",
+            "PrefixDamage",
+            "PrefixSpeed",
+            "PrefixCritChance",
+            "PrefixUseMana",
+            "PrefixSize",
+            "PrefixShootSpeed",
+            "PrefixKnockback",
+            "PrefixAccDefense",
+            "PrefixAccMaxMana",
+            "PrefixAccCritChance",
+            "PrefixAccDamage",
+            "PrefixAccMoveSpeed",
+            "PrefixAccMeleeSpeed",
+            "SetBonus",
+            "Expert",
+            "Master",
+            "JourneyResearch",
+            "BestiaryNotes",
+            "SpecialPrice",
+            "Price"
+        };
 
-		public static TooltipLine NewLine(Mod mod, string name, string text, Microsoft.Xna.Framework.Color? overrideColor = null) {
+        public static TooltipLine NewLine(Mod mod, string name, string text, Microsoft.Xna.Framework.Color? overrideColor = null) {
             TooltipLine line = new(mod, name, text){
-				OverrideColor = overrideColor
-			};
+                OverrideColor = overrideColor
+            };
             return line;
-		}
-		public static TooltipLine FindLine(this List<TooltipLine> tooltips, string name) {
-			return tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);
-		}
-		public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLine line, string after) {
-			int addIndex = TooltipLinesOrder.FindIndex(n => n == after);
-			for (int i = 0; i < tooltips.Count; i++) {
-				int lookingAt = tooltips[i].Name.StartsWith("Tooltip") ? TooltipLinesOrder.FindIndex(l => l == "Tooltip") : TooltipLinesOrder.FindIndex(l => l == tooltips[i].Name);
-				if (lookingAt <= addIndex) continue;
-				tooltips.Insert(i, line);
-				return line;
-			}
-			tooltips.Add(line);
-			return line;
+        }
+        public static TooltipLine FindLine(this List<TooltipLine> tooltips, string name) {
+            return tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);
+        }
+        public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLine line, string after) {
+            int addIndex = TooltipLinesOrder.FindIndex(n => n == after);
+            for (int i = 0; i < tooltips.Count; i++) {
+                int lookingAt = tooltips[i].Name.StartsWith("Tooltip") ? TooltipLinesOrder.FindIndex(l => l == "Tooltip") : TooltipLinesOrder.FindIndex(l => l == tooltips[i].Name);
+                if (lookingAt <= addIndex) continue;
+                tooltips.Insert(i, line);
+                return line;
+            }
+            tooltips.Add(line);
+            return line;
 
-		}
-		public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, string name, TooltipLine notFound = null) {
-			TooltipLine target = tooltips.FindLine(name);
-			if (target == null) tooltips.AddLine(target = notFound, name);
-			return target;
-		}
-	}
+        }
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, string name, TooltipLine notFound = null) {
+            TooltipLine target = tooltips.FindLine(name);
+            if (target == null) tooltips.AddLine(target = notFound, name);
+            return target;
+        }
+    }
 }
 //localizedTextKey = id switch {
 //	TooltipLineID.ItemName => "{0}",
