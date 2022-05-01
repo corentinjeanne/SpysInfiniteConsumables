@@ -7,8 +7,10 @@ namespace SPIC.Globals {
 
 	public class SpicRecipe : GlobalRecipe {
 
-		public static readonly List<int> CraftingStations = new();
-
+		public static readonly HashSet<int> CraftingStations = new();
+		public override void Load() {
+			On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+		}
 		public override void SetStaticDefaults() {
 			CraftingStations.Clear();
 			foreach(Recipe r in Main.recipe) {
@@ -19,14 +21,17 @@ namespace SPIC.Globals {
 		}
 
 		public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
-			Player player = Main.player[Main.myPlayer];
-			if (player == null || !Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
+			if (!Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
 
-			if (player.HasInfinite(type, new Item(type).GetMaterialCategory())) {
-				amount = 0;
-			}
+			SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
+			if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;
 		}
-		
+
+		private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+			orig(canDelayCheck);
+            Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
+		}
+
 	}
 
 }

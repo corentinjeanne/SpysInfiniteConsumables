@@ -33,9 +33,9 @@ namespace SPIC {
 		public static Ammo GetAmmoCategory(this Item item) {
 
 			if (item == null) return Ammo.None;
-			
-			if(Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.Ammo != null && custom.Ammo.Category != Ammo.None)
-				return custom.Ammo.Category;
+
+            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type); 
+			if(categories.Ammo.HasValue) return categories.Ammo.Value;
 
 			if(!item.consumable || item.ammo == AmmoID.None) return Ammo.None;
 			if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
@@ -47,9 +47,9 @@ namespace SPIC {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			int items;
-			if(config.HasCustom(type, out Configs.Custom custom) && custom.Ammo?.Category == Ammo.None) {
-				items = Utility.InfinityToItems(custom.Ammo.Infinity, type, Ammo.None.MaxStack());
-			}
+            var infinities = config.GetInfinitiesOverride(type);
+            if (infinities.Ammo.HasValue)
+                items = Utility.InfinityToItems(infinities.Ammo.Value, type, Ammo.None.MaxStack());
 			else {
 				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
 				else {

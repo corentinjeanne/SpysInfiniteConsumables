@@ -31,17 +31,12 @@ namespace SPIC {
 		public static GrabBag? GetGrabBagCategory(this Item item) {
 			if (item == null) return null;
 
-			if (Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.GrabBag != null && custom.GrabBag.Category != GrabBag.None)
-				return custom.GrabBag.Category;
+            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type);
+            if (categories.GrabBag.HasValue) return categories.GrabBag.Value;
 
-			string tip = ItemTooltip.FromLanguageKey("CommonItemTooltip.RightClickToOpen").GetLine(0);
 			if (ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
 			if (item.ModItem?.CanRightClick() ?? false) return GrabBag.Crate;
 
-			for(int i = 0; i < item.ToolTip.Lines; i++) {
-				string line = item.ToolTip.GetLine(i);
-				if (line.Contains(tip)) return GrabBag.Crate;
-			}
 			return null;
 		}
 		
@@ -49,9 +44,9 @@ namespace SPIC {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			int items;
-			if (config.HasCustom(type, out Configs.Custom custom) && custom.GrabBag?.Category == GrabBag.None) {
-				items = Utility.InfinityToItems(custom.GrabBag.Infinity, type, GrabBag.None.MaxStack());
-			}
+            var infinities = config.GetInfinitiesOverride(type);
+            if (infinities.GrabBag.HasValue)
+                items = Utility.InfinityToItems(infinities.GrabBag.Value, type, GrabBag.None.MaxStack());
 			else {
 				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
 				else {

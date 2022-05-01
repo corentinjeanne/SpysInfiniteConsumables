@@ -18,7 +18,7 @@ namespace SPIC.Commands {
 				name = caller.Player.HeldItem.Name;
 			}
 			else if (int.TryParse(args[0], out type)) { // args is a string
-				Item item = new Item(type);
+				Item item = new(type);
 				name = item.Name;
 			}
 			else {

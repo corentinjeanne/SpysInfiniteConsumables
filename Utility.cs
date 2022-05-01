@@ -10,6 +10,7 @@ namespace SPIC {
 
 		public static int WorldDifficulty() => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
 
+		
 		public static int NameToType(string name, bool noCaps = true){
 			string fullName = name.Replace("_", " ");
 			if(noCaps) fullName = fullName.ToLower();
@@ -21,9 +22,6 @@ namespace SPIC {
 			}
 			throw new UsageException("Invalid Name" + name);
 		}
-
-		public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;
-
 		public static int CountInContainer(Item[] container, int type) {
 			int total = 0;
 			foreach (Item i in container) {
@@ -44,8 +42,8 @@ namespace SPIC {
 		}
 		public static int CountAllItems(this Player player, int type, bool includechest = false){
 			int total = CountInContainer(player.inventory, type);
-
-			if (!includechest) return total;
+			if(Main.mouseItem is not null && Main.mouseItem.type == type) total += Main.mouseItem.stack;
+            if (!includechest) return total;
 			return total + player.chest switch {
 				-1 => 0,
 				-2 => CountInContainer(player.bank.item, type),
@@ -57,7 +55,7 @@ namespace SPIC {
 		}
 
 		public static NPCStats GetNPCStats() {
-			NPCStats stats = new NPCStats();
+			NPCStats stats = new ();
 			foreach (NPC npc in Main.npc) {
 				if (npc.active) {
 					stats.total++;

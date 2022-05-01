@@ -27,16 +27,16 @@ namespace SPIC.Commands {
 
 			switch (args[0].ToLower()) {
 			case "c":
-				AddCustom<Categories.Consumable>(caller, type, args[1]);
+				AddCustom<Categories.Consumable>(type, args[1]);
 				break;
 			case "a":
-				AddCustom<Categories.Ammo>(caller, type, args[1]);
+				AddCustom<Categories.Ammo>(type, args[1]);
 				break;
 			case "b":
-				AddCustom<Categories.GrabBag>(caller, type, args[1]);
+				AddCustom<Categories.GrabBag>(type, args[1]);
 				break;
 			case "w":
-				AddCustom<Categories.WandAmmo>(caller, type, args[1]);
+				AddCustom<Categories.WandAmmo>(type, args[1]);
 				break;
 			default:
 				caller.Reply(Usage);
@@ -44,7 +44,7 @@ namespace SPIC.Commands {
 			}
 		}
 
-		private void AddCustom<T>(CommandCaller caller, int type, string value) where T : struct, System.Enum {
+		private static void AddCustom<T>(int type, string value) where T : struct, System.Enum {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			Configs.CustomInfinity<T> custom = new();

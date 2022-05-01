@@ -15,8 +15,8 @@ namespace SPIC.Globals {
 	}
 	public class SPICTile : GlobalTile {
 
-		private readonly List<LargeObject> m_NoDropCache = new();
-		private static bool s_InDropItem;
+		private readonly List<LargeObject> _noDropCache = new();
+		private static bool s_inDropItem;
 
 		public override void Load() {
 			On.Terraria.WorldGen.KillTile_DropItems += HookKillTile_DropItem;
@@ -24,9 +24,9 @@ namespace SPIC.Globals {
 		}
 
 		private static void HookKillTile_DropItem(On.Terraria.WorldGen.orig_KillTile_DropItems orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops) {
-			s_InDropItem = true;
+			s_inDropItem = true;
 			orig(x, y, tileCache, includeLargeObjectDrops);
-			s_InDropItem = false;
+			s_inDropItem = false;
 		}
 		private static void HookReplaceTIle_DoActualReplacement(On.Terraria.WorldGen.orig_ReplaceTIle_DoActualReplacement orig, ushort targetType, int targetStyle, int topLeftX, int topLeftY, Tile t) {
 			Player player = Main.player[Main.myPlayer];
@@ -48,19 +48,16 @@ namespace SPIC.Globals {
 			if (item.CannotStopDrop()) return;
 
 			Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
-			Player p = Main.player[playerIndex];
-			SpicPlayer spicPlayer = p.GetModPlayer<SpicPlayer>();
-			Categories.ItemCategories categories = spicPlayer.UpdateCategories(item);
-
-			if (p.HeldItem == item) {
-				if (p.HasInfinite(item.type, categories.Consumable ?? Categories.Consumable.Block)) {
+            SpicPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<SpicPlayer>();
+			
+			if (spicPlayer.Player.HeldItem == item) {
+				if (spicPlayer.HasInfiniteConsumable(item.type)) {
 					TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
 					if (data == null) world.PlaceBlock(i, j);
 					else world.PlaceBlock(i-data.Origin.X, j- data.Origin.Y);
 				}
-				return;
 			}
-			if (p.HasInfinite(item.type, categories.WandAmmo ?? Categories.WandAmmo.Block)) world.PlaceBlock(i, j);
+			else if (spicPlayer.HasInfiniteWandAmmo(item)) world.PlaceBlock(i, j);
 		}
 
 		public override bool Drop(int i, int j, int type) {
@@ -68,12 +65,12 @@ namespace SPIC.Globals {
 
 			TileObjectData data;
 			Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
-			if (s_InDropItem) {
+			if (s_inDropItem) {
 				bool noDrop = world.MineBlock(i, j);
 				if (noDrop) {
 					data = TileObjectData.GetTileData(Main.tile[i, j]);
 					if (data != null && (data.Width > 1 || data.Height > 1)) {
-						m_NoDropCache.Add(new LargeObject() {
+						_noDropCache.Add(new LargeObject() {
 							X = i, Y = j,
 							W = data.Width, H = data.Height
 						});
@@ -82,17 +79,17 @@ namespace SPIC.Globals {
 				return !noDrop;
 			}
 			
-			for (int k = 0; k < m_NoDropCache.Count; k++) {
-				if (m_NoDropCache[k].IsInside(i, j)) {
-					m_NoDropCache.RemoveAt(k);
+			for (int k = 0; k < _noDropCache.Count; k++) {
+				if (_noDropCache[k].IsInside(i, j)) {
+					_noDropCache.RemoveAt(k);
 					return false;
 				}
 			}
 
 			data = TileObjectData.GetTileData(Main.tile[i, j]);
 			if (data != null) {
-				int top = j - (Main.tile[i, j].TileFrameX % (18 * data.Height)) / 18;
-				int left = i - (Main.tile[i, j].TileFrameX % (18 * data.Width)) / 18;
+				int top = j - Main.tile[i, j].TileFrameX % (18 * data.Height) / 18;
+				int left = i - Main.tile[i, j].TileFrameX % (18 * data.Width) / 18;
 				bool noDrop = world.MineBlock(left, top);
 				if (noDrop) return false;
 			}

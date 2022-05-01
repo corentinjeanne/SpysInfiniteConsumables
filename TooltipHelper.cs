@@ -62,9 +62,10 @@ namespace SPIC {
 		};
 
 		public static TooltipLine NewLine(Mod mod, string name, string text, Microsoft.Xna.Framework.Color? overrideColor = null) {
-			TooltipLine line = new(mod, name, text);
-			line.OverrideColor = overrideColor;
-			return line;
+            TooltipLine line = new(mod, name, text){
+				OverrideColor = overrideColor
+			};
+            return line;
 		}
 		public static TooltipLine FindLine(this List<TooltipLine> tooltips, string name) {
 			return tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);

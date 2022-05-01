@@ -55,11 +55,6 @@ namespace SPIC {
 	}
 	public static class ConsumableExtension {
 
-		private static readonly Dictionary<int, Consumable> s_DetectedCategoriesCache = new();
-		public static bool IsInCache(int type) => s_DetectedCategoriesCache.ContainsKey(type);
-		public static void AddToCache(int type, Consumable c) => s_DetectedCategoriesCache.Add(type, c);
-		public static void ClearCache() => s_DetectedCategoriesCache.Clear();
-		
 		public static bool IsTile(this Consumable category) => Consumable.Block <= category;
 		public static bool IsCommonTile(this Consumable category) => category.IsTile() && category <= Consumable.Wall;
 		public static bool IsFurniture(this Consumable category) => Consumable.Torch <= category  && category <= Consumable.MusicBox;
@@ -131,15 +126,12 @@ namespace SPIC {
 				_ => throw new System.NotImplementedException(),
 			};
 		}
-
 		public static Consumable? GetConsumableCategory(this Item item) {
 
 			if (item == null) return null;
 
-			if(Configs.ConsumableConfig.Instance.HasCustom(item.type, out Configs.Custom custom) && custom.Consumable != null && custom.Consumable.Category != Consumable.None)
-				return custom.Consumable.Category;
-
-			if (IsInCache(item.type)) return s_DetectedCategoriesCache[item.type];
+            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type);
+            if (categories.Consumable.HasValue) return categories.Consumable.Value;
 
 			// Vanilla inconsitancies or special items
 			switch (item.type) {
@@ -231,9 +223,9 @@ namespace SPIC {
 			Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
 
 			int items;
-			if (config.HasCustom(type, out Configs.Custom custom) && custom.Consumable?.Category == Consumable.None) {
-				items = Utility.InfinityToItems(custom.Consumable.Infinity, type, Consumable.None.MaxStack());
-			}
+            var infinities = config.GetInfinitiesOverride(type);
+            if (infinities.Consumable.HasValue)
+                items = Utility.InfinityToItems(infinities.Consumable.Value, type, Consumable.None.MaxStack());
 			else {
 				if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
 				else {

@@ -25,6 +25,6 @@
             "args": ["-server"],
             "console": "internalConsole",
             "stopAtEntry": false
-        },
+        }
     ]
 }

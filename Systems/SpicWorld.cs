@@ -28,20 +28,20 @@ namespace SPIC.Systems {
 		}
 
 		public void SetBlock(int x, int y, bool val) {
-			var i = IndexKeyPair(x, y);
-			SetBit(i.index, i.key, val);
+			var (index, key) = IndexKeyPair(x, y);
+			SetBit(index, key, val);
 		}
 		public bool GetBlock(int x, int y) {
-			var i = IndexKeyPair(x, y);
-			return GetBit(i.index, i.key);
+			var (index, key) = IndexKeyPair(x, y);
+			return GetBit(index, key);
 		}
 		public void SetWall(int x, int y, bool val) {
-			var i = IndexKeyPair(x, y);
-			SetBit(i.index, i.key+1, val);
+			var (index, key) = IndexKeyPair(x, y);
+			SetBit(index, key+1, val);
 		}
 		public bool GetWall(int x, int y) {
-			var i = IndexKeyPair(x, y);
-			return GetBit(i.index, i.key+1);
+			var (index, key) = IndexKeyPair(x, y);
+			return GetBit(index, key+1);
 		}
 		private bool GetBit(int index, int key) => (Tiles[index] & (1 << key)) != 0;
 		private void SetBit(int index, int key, bool value) {
@@ -53,8 +53,8 @@ namespace SPIC.Systems {
 	}
 	public class SpicWorld : ModSystem {
 
-		private int m_ChunkSize = 64;
-		private readonly Dictionary<ChunkID, Chunk> m_Chunks = new();
+		private int _chunkSize = 64;
+		private readonly Dictionary<ChunkID, Chunk> _chunks = new();
 		
 		private const string TAG_CREATED = "Chunks";
 		private const string TAG_SIZE = "Size";
@@ -81,25 +81,26 @@ namespace SPIC.Systems {
 			return val;
 		}
 		public Chunk GetChunk(ref int i, ref int j, bool canCreate = false) {
-			int x = i / m_ChunkSize;
-			int y = j / m_ChunkSize;
-			i %= m_ChunkSize; j %= m_ChunkSize;
+			int x = i / _chunkSize;
+			int y = j / _chunkSize;
+			i %= _chunkSize; j %= _chunkSize;
 
 			ChunkID id = new(x, y);
-			if (!m_Chunks.ContainsKey(id)) {
+			if (!_chunks.ContainsKey(id)) {
 				if (!canCreate) return null;
-				m_Chunks.Add(id, new Chunk(m_ChunkSize));
+				_chunks.Add(id, new Chunk(_chunkSize));
 			}
-			return m_Chunks[id];
+			return _chunks[id];
 
 		}
 
+
 		public override void LoadWorldData(TagCompound tag) {
-			m_Chunks.Clear();
-			m_ChunkSize = tag.GetInt(TAG_SIZE);
+			_chunks.Clear();
+			_chunkSize = tag.GetInt(TAG_SIZE);
 			List<ChunkID> createdChunks = (tag[TAG_CREATED] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
 			foreach (ChunkID id in createdChunks) {
-				m_Chunks.Add(id, new Chunk(m_ChunkSize, tag.GetByteArray(id.Tag())));
+				_chunks.Add(id, new Chunk(_chunkSize, tag.GetByteArray(id.Tag())));
 			}
 		}
 
@@ -107,10 +108,10 @@ namespace SPIC.Systems {
 
 			Configs.ConsumableConfig.Instance.ManualSave();
 
-			if (m_Chunks.Count != 0) {
-				tag.Add(TAG_SIZE, m_ChunkSize);
+			if (_chunks.Count != 0) {
+				tag.Add(TAG_SIZE, _chunkSize);
 				List<int[]> createdChunks = new();
-				foreach ((ChunkID id, Chunk chunck) in m_Chunks) {
+				foreach ((ChunkID id, Chunk chunck) in _chunks) {
 					if (chunck.IsEmpty) continue;
 					createdChunks.Add(id.AsArray());
 					tag.Add(id.Tag(), chunck.Tiles);
@@ -119,8 +120,8 @@ namespace SPIC.Systems {
 			}
 		}
 		public override void OnWorldUnload() {
-			m_Chunks.Clear();
-		}
+			_chunks.Clear();
+        }
 
 		public static int preUseDifficulty;
 		public static int preUseInvasion;
