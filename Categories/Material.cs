@@ -26,7 +26,7 @@ namespace SPIC {
             _ => throw new System.NotImplementedException(),
         };
         public static int Infinity(this Material material) {
-            Configs.Materials m = Configs.ConsumableConfig.Instance.Materials;
+            Configs.Materials m = Configs.Infinities.Instance.Materials;
 
             return material switch {
                 Material.Basic => m.Basics,
@@ -41,11 +41,11 @@ namespace SPIC {
         public static Material GetMaterialCategory(this Item item) {
 
             int type = item.type;
-            if (item == null || !item.material) return Material.None;
+            if (item == null || !ItemID.Sets.IsAMaterial[type]) return Material.None;
 
             if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
 
-            Consumable consumable = item.GetConsumableCategory() ?? Consumable.None;
+            Consumable consumable = item.GetConsumableCategory().GetValueOrDefault();
 
             if (consumable.IsFurniture()) return Material.Furniture;
 
@@ -60,7 +60,7 @@ namespace SPIC {
             return Material.Miscellaneous;
         }
         public static bool HasInfinite(this Player player, int type, Material material) {
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+            Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;
             if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];

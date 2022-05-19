@@ -42,7 +42,6 @@ namespace SPIC {
         }
         public static int CountAllItems(this Player player, int type, bool includechest = false){
             int total = CountInContainer(player.inventory, type);
-            if(Main.mouseItem is not null && Main.mouseItem.type == type) total += Main.mouseItem.stack;
             if (!includechest) return total;
             return total + player.chest switch {
                 -1 => 0,
@@ -55,11 +54,11 @@ namespace SPIC {
         }
 
         public static NPCStats GetNPCStats() {
-            NPCStats stats = new ();
+            NPCStats stats = new();
             foreach (NPC npc in Main.npc) {
                 if (npc.active) {
                     stats.total++;
-                    if(npc.boss) stats.boss++;
+                    if (npc.boss) stats.boss++;
                 }
             }
             return stats;

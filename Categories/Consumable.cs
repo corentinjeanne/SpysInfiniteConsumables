@@ -89,10 +89,10 @@ namespace SPIC {
         };
 
         public static int Infinity(this Consumable category) {
-            Configs.Consumable c = Configs.ConsumableConfig.Instance.Consumables;
-            Configs.CommonTiles t = Configs.ConsumableConfig.Instance.CommonTiles;
-            Configs.OthersTiles o = Configs.ConsumableConfig.Instance.OtherTiles;
-            Configs.Furnitures f = Configs.ConsumableConfig.Instance.Furnitures;
+            Configs.Consumable c = Configs.Infinities.Instance.Consumables;
+            Configs.CommonTiles t = Configs.Infinities.Instance.CommonTiles;
+            Configs.OthersTiles o = Configs.Infinities.Instance.OtherTiles;
+            Configs.Furnitures f = Configs.Infinities.Instance.Furnitures;
 
             return category switch {
                 Consumable.Weapon => c.Weapons,
@@ -130,20 +130,24 @@ namespace SPIC {
 
             if (item == null) return null;
 
-            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type);
+            var categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
             if (categories.Consumable.HasValue) return categories.Consumable.Value;
+            
+            var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+            if (autos.Consumable.HasValue) return autos.Consumable;
+
+            if (!item.consumable || item.useStyle == ItemUseStyleID.None) return Consumable.None;
+
+
 
             // Vanilla inconsitancies or special items
             switch (item.type) {
             case ItemID.Actuator: return Consumable.Mechanical;
-            case ItemID.PirateMap: case ItemID.EmpressButterfly: return Consumable.Summoner;
-            case ItemID.LicenseBunny: case ItemID.LicenseCat: case ItemID.LicenseDog: return Consumable.Critter;
+            case ItemID.PirateMap or ItemID.EmpressButterfly: return Consumable.Summoner;
+            case ItemID.LicenseBunny or ItemID.LicenseCat or ItemID.LicenseDog: return Consumable.Critter;
             case ItemID.CombatBook: return Consumable.WorldBooster;
             case ItemID.Hellstone: return Consumable.Ore;
             }
-            
-
-            if(!item.consumable || item.useStyle == ItemUseStyleID.None) return Consumable.None;
 
             if (item.createWall != -1) return Consumable.Wall;
             if (item.createTile != -1) {
@@ -187,7 +191,11 @@ namespace SPIC {
             if (item.buffType != 0 && item.buffTime != 0) return Consumable.Buff;
             if (item.healLife > 0 || item.healMana > 0 || item.potion) return Consumable.Recovery;
 
-            if (item.shoot != ProjectileID.None) return Consumable.Tool;
+
+            if (item.shoot != ProjectileID.None){
+                if(autos.Explosive) return Consumable.Explosive;
+                return Consumable.Tool;
+            }
             
 
             if (item.hairDye != -1) return Consumable.PlayerBooster;
@@ -219,11 +227,15 @@ namespace SPIC {
             return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
 
         }
-        public static bool HasInfinite(this Player player, int type, Consumable consumable, bool ignoreAllwaysDrop = false) {
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+        public static bool HasInfinite(this Player player, int type, Consumable consumable, bool ignoreAllwaysDrop = false)
+            => HasInfinite(player.CountAllItems(type), type, consumable, ignoreAllwaysDrop);
+
+
+        public static bool HasInfinite(int count, int type, Consumable consumable, bool ignoreAllwaysDrop = false){
+            Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;
-            var infinities = config.GetInfinitiesOverride(type);
+            var infinities = config.GetCustomInfinities(type);
             if (infinities.Consumable.HasValue)
                 items = Utility.InfinityToItems(infinities.Consumable.Value, type, Consumable.None.MaxStack());
             else {
@@ -235,9 +247,9 @@ namespace SPIC {
             }
 
             if (!ignoreAllwaysDrop && config.PreventItemDupication && consumable.IsTile() && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
-                return player.CountAllItems(type) == items;
+                return count == items;
 
-            return player.CountAllItems(type) >= items;
+            return count >= items;
         }
     }
 }

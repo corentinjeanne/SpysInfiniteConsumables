@@ -60,17 +60,11 @@ namespace SPIC {
             "SpecialPrice",
             "Price"
         };
-
-        public static TooltipLine NewLine(Mod mod, string name, string text, Microsoft.Xna.Framework.Color? overrideColor = null) {
-            TooltipLine line = new(mod, name, text){
-                OverrideColor = overrideColor
-            };
-            return line;
-        }
+        
         public static TooltipLine FindLine(this List<TooltipLine> tooltips, string name) {
             return tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);
         }
-        public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLine line, string after) {
+        public static TooltipLine AddLine(this List<TooltipLine> tooltips, string after, TooltipLine line) {
             int addIndex = TooltipLinesOrder.FindIndex(n => n == after);
             for (int i = 0; i < tooltips.Count; i++) {
                 int lookingAt = tooltips[i].Name.StartsWith("Tooltip") ? TooltipLinesOrder.FindIndex(l => l == "Tooltip") : TooltipLinesOrder.FindIndex(l => l == tooltips[i].Name);
@@ -80,11 +74,11 @@ namespace SPIC {
             }
             tooltips.Add(line);
             return line;
-
         }
-        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, string name, TooltipLine notFound = null) {
-            TooltipLine target = tooltips.FindLine(name);
-            if (target == null) tooltips.AddLine(target = notFound, name);
+
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string notFound = null) {
+            TooltipLine target = tooltips.FindLine(line.Name);
+            if (target == null) tooltips.AddLine(notFound is null? line.Name : notFound, target = line);
             return target;
         }
     }

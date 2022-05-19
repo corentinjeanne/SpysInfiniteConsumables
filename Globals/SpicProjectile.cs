@@ -1,26 +1,35 @@
-﻿//using Terraria.ModLoader;
+﻿using Terraria;
+using Terraria.ModLoader;
 
-//namespace SPIC.Globals {
+namespace SPIC.Globals {
 
-//	public class NoProjectileDup : GlobalProjectile {
-//		public override bool InstancePerEntity => true;
-//        public override bool CloneNewInstances => true;
+	public class SpicProjectile : GlobalProjectile {
 
-//        public static KeyValuePair<Player,  bool> lastSpawnedProjectiles = new ();
+        public override void Load() {
+			On.Terraria.Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
+			On.Terraria.Projectile.ExplodeTiles += HookExplodeTiles;
+			On.Terraria.Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
+		}
 
-//        private KeyValuePair<Player,  bool> potentialOwner = new ();
-//        public override void SetDefaults(Projectile projectile){
-//            potentialOwner = lastSpawnedProjectiles; // Need to be done because projectile.owner is not set
-//        }
+		private static void SaveExplosive(Projectile p){
+            if (p.owner < 0) return;
 
-//        public override bool PreKill(Projectile projectile, int timeLeft){
-//            if(projectile.noDropItem || !Config.ConsumableConfig.Instance.PreventItemDupication || potentialOwner.Key == null)
-//                return true;
-//            if(Main.player[projectile.owner] == potentialOwner.Key)
-//                projectile.noDropItem = potentialOwner.Value;
+            SpicPlayer spicPlayer = Main.player[p.owner].GetModPlayer<SpicPlayer>();
+            spicPlayer.FindPotentialExplosives(p.type);
+        }
+		private void HookExplodeCrackedTiles(On.Terraria.Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){
+            orig(self, compareSpot, radius, minI, maxI, minJ, maxJ);
+            SaveExplosive(self);
+        }
+		private void HookExplodeTiles(On.Terraria.Projectile.orig_ExplodeTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ, bool wallSplode){
+			orig(self, compareSpot, radius, minI, maxI, minJ, maxJ, wallSplode);
+            SaveExplosive(self);
+		}
 
-//            return true;
-//        }
-//	}
+		private void HookKill_DirtAndFluid(On.Terraria.Projectile.orig_Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks orig, Terraria.Projectile self, Microsoft.Xna.Framework.Point pt, float size, Terraria.Utils.TileActionAttempt plot) {
+            orig(self, pt, size, plot);
+            SaveExplosive(self);
+        }
+	}
 
-//}
+}

@@ -18,6 +18,12 @@ namespace SPIC {
     }
     public static class WandAmmoExtension {
 
+        private static readonly HashSet<int> _tiles = new();
+        public static void SaveWandAmmo(int tile) {
+            if(!_tiles.Contains(tile)) _tiles.Add(tile);
+        }
+        public static void ClearWandAmmos() => _tiles.Clear();
+
         public static int MaxStack(this WandAmmo wandAmmo) => wandAmmo switch {
             WandAmmo.None => 999,
             WandAmmo.Block => 999,
@@ -26,7 +32,7 @@ namespace SPIC {
             _ => throw new System.NotImplementedException(),
         };
         public static int Infinity(this WandAmmo wandAmmo) {
-            Configs.ConsumableConfig c = Configs.ConsumableConfig.Instance;
+            Configs.Infinities c = Configs.Infinities.Instance;
             return wandAmmo switch {
                 WandAmmo.None => 0,
                 WandAmmo.Block => c.CommonTiles.Blocks,
@@ -37,27 +43,26 @@ namespace SPIC {
         }
         public static WandAmmo? GetWandAmmoCategory(this Item item) {
 
-            if (item == null) return WandAmmo.None;
+            if (item == null) return null;
 
-            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type);
+
+            var categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
             if (categories.WandAmmo.HasValue) return categories.WandAmmo.Value;
+            var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+            if (autos.WandAmmo) return WandAmmo.Block;
+
+            if(_tiles.Contains(item.type)) return WandAmmo.Block;
             if (item.FitsAmmoSlot() && item.mech) return item.useStyle == ItemUseStyleID.None ? WandAmmo.Wiring : WandAmmo.Mechanical;
 
             return null;
         }
-
-        private static readonly HashSet<int> _tiles = new();
-        public static void SaveWandAmmo(int tile) {
-            if(!_tiles.Contains(tile)) _tiles.Add(tile);
-        }
-        public static void ClearWandAmmos() => _tiles.Clear();
         
 
         public static bool HasInfinite(this Player player, int type, WandAmmo wandAmmo) {
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+            Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;
-            var infinities = config.GetInfinitiesOverride(type);
+            var infinities = config.GetCustomInfinities(type);
             if (infinities.WandAmmo.HasValue)
                 items = Utility.InfinityToItems(infinities.WandAmmo.Value, type, WandAmmo.None.MaxStack());
             else {

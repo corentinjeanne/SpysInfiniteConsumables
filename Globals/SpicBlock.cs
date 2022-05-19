@@ -39,7 +39,7 @@ namespace SPIC.Globals {
 
             if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+            Configs.Infinities config = Configs.Infinities.Instance;
 
             int playerIndex = item.playerIndexTheItemIsReservedFor;
             if (WorldGen.generatingWorld || playerIndex < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
@@ -105,7 +105,7 @@ namespace SPIC.Globals {
 
             if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+            Configs.Infinities config = Configs.Infinities.Instance;
             if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
                 return;
 

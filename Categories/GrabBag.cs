@@ -20,7 +20,7 @@ namespace SPIC {
             GrabBag.None => 999,
             _ => throw new System.NotImplementedException(),
         };public static int Infinity(this GrabBag bag) {
-            Configs.GrabBag b = Configs.ConsumableConfig.Instance.Bags;
+            Configs.GrabBag b = Configs.Infinities.Instance.Bags;
             return bag switch {
                 GrabBag.Crate => b.Crates,
                 GrabBag.TreasureBag => b.TreasureBags,
@@ -31,20 +31,22 @@ namespace SPIC {
         public static GrabBag? GetGrabBagCategory(this Item item) {
             if (item == null) return null;
 
-            var categories = Configs.ConsumableConfig.Instance.GetCategoriesOverride(item.type);
+            var categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
             if (categories.GrabBag.HasValue) return categories.GrabBag.Value;
+            var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+            if(autos.GrabBag) return GrabBag.Crate;
 
             if (ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
-            if (item.ModItem?.CanRightClick() ?? false) return GrabBag.Crate;
+            if (item.ModItem?.CanRightClick() == true || autos.GrabBag) return GrabBag.Crate;
 
             return null;
         }
         
         public static bool HasInfinite(this Player player, int type, GrabBag grabBag) {
-            Configs.ConsumableConfig config = Configs.ConsumableConfig.Instance;
+            Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;
-            var infinities = config.GetInfinitiesOverride(type);
+            var infinities = config.GetCustomInfinities(type);
             if (infinities.GrabBag.HasValue)
                 items = Utility.InfinityToItems(infinities.GrabBag.Value, type, GrabBag.None.MaxStack());
             else {

@@ -5,7 +5,7 @@
                 Ammo: {
                     None: Not Ammo
                     Basic: Basic
-                    Explosives: Explosives
+                    Explosive: Explosives
                     Special: Special
                 }
                 Consumable: {

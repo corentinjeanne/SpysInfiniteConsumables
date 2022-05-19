@@ -21,7 +21,7 @@ namespace SPIC.Globals {
         }
 
         public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
-            if (!Configs.ConsumableConfig.Instance.InfiniteCrafting) return;
+            if (!Configs.Infinities.Instance.InfiniteCrafting) return;
 
             SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
             if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;
@@ -29,6 +29,7 @@ namespace SPIC.Globals {
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
             orig(canDelayCheck);
+            if (canDelayCheck) return;
             Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
         }
 

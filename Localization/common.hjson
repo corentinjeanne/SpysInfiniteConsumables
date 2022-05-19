@@ -8,20 +8,20 @@
                     TilesLabel: "[i:3061] {$Mods.SPIC.Configs.General.Tiles}"
                     CraftingLabel: "[i:398] {$Mods.SPIC.Configs.General.Crafting}"
                     JourneyLabel: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
-                    CategoryLabel: "{$Mods.SPIC.Configs.General.Category}"
+                    CategoryLabel: "[i:393] {$Mods.SPIC.Configs.General.Category}"
                     DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
                     CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
                 }
                 Infinities: {
-                    ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.Infinities.Consumables}"
-                    AmmosLabel: "[i:3103] {$Mods.SPIC.Configs.Infinities.Ammos}"
+                    ConsumablesLabel: "{$Mods.SPIC.Configs.Infinities.Consumables}" // [i:3104]
+                    AmmosLabel: "{$Mods.SPIC.Configs.Infinities.Ammos}" // [i:3103]
                     BagsLabel: "{$Mods.SPIC.Configs.Infinities.Bags}"
 
                     CommonTilesLabel: "{$Mods.SPIC.Configs.Infinities.CommonTiles}"
                     FurnituresLabel: "{$Mods.SPIC.Configs.Infinities.Furnitures}"
                     OtherTilesLabel: "{$Mods.SPIC.Configs.Infinities.OtherTiles}"
 
-                    MaterialsLabel: "[i:487] {$Mods.SPIC.Configs.Infinities.Materials}"
+                    MaterialsLabel: "{$Mods.SPIC.Configs.Infinities.Materials}" // [i:487]
 
                     CustomsLabel: "[i:1913] {$Mods.SPIC.Configs.Infinities.Customs}"
                 }

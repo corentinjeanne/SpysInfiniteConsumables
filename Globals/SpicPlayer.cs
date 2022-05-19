@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace SPIC.Globals {
@@ -66,11 +67,11 @@ namespace SPIC.Globals {
                 if(item.IsAir) continue;
                 if (typesChecked.Contains(item.type)) continue;
                 SpicItem spicItem = item.GetGlobalItem<SpicItem>();
-                if (Player.HasInfinite(item.type, spicItem.Consumable ?? Categories.Consumable.None)) _infiniteConsumables.Add(item.type);
-                if (Player.HasInfinite(item.type, spicItem.Ammo))                                     _infiniteAmmos.Add(item.type);
-                if (Player.HasInfinite(item.type, spicItem.WandAmmo ?? Categories.WandAmmo.None))     _infiniteWandAmmos.Add(item.type);
-                if (Player.HasInfinite(item.type, spicItem.GrabBag ?? Categories.GrabBag.None))       _infiniteGrabBabs.Add(item.type);
-                if (Player.HasInfinite(item.type, spicItem.Material))                                 _infiniteMaterials.Add(item.type);
+                if (Player.HasInfinite(item.type, spicItem.Consumable.GetValueOrDefault())) _infiniteConsumables.Add(item.type);
+                if (Player.HasInfinite(item.type, spicItem.Ammo))                           _infiniteAmmos.Add(item.type);
+                if (Player.HasInfinite(item.type, spicItem.WandAmmo.GetValueOrDefault()))   _infiniteWandAmmos.Add(item.type);
+                if (Player.HasInfinite(item.type, spicItem.GrabBag.GetValueOrDefault()))    _infiniteGrabBabs.Add(item.type);
+                if (Player.HasInfinite(item.type, spicItem.Material))                       _infiniteMaterials.Add(item.type);
                 typesChecked.Add(item.type);
             }
         }
@@ -84,9 +85,9 @@ namespace SPIC.Globals {
         }
         public void StopDetectingCategory(Categories.Consumable? detectedCategory = null) {
             if (!CheckingForCategory) return;
-            Configs.ConsumableConfig.Instance.SaveConsumableCategory(_checkingForCategory, detectedCategory ?? CheckForCategory() ?? Categories.Consumable.PlayerBooster);
+            Configs.CategorySettings.Instance.SaveConsumableCategory(_checkingForCategory, detectedCategory ?? CheckForCategory() ?? Categories.Consumable.PlayerBooster);
             RebuildCategories(_checkingForCategory);
-            _checkingForCategory = Terraria.ID.ItemID.None;
+            _checkingForCategory = ItemID.None;
         }
 
         private void SavePreUseItemStats() {
@@ -124,21 +125,60 @@ namespace SPIC.Globals {
             return null;
         }
 
+        public void FindPotentialExplosives(int proj) {
+            int type = ItemID.None;
+
+            foreach (Dictionary<int,int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values){
+                foreach((int t, int p) in projectiles){
+                    if(p == proj){
+                        type = t;
+                        goto ProcessExplosive;
+                    }
+                }
+            }
+            foreach(Item item in Player.inventory){
+                if (item.shoot == proj) {
+                    type = item.type;
+                    goto ProcessExplosive;
+                }
+            }
+
+            ProcessExplosive:
+            if (type != ItemID.None && Configs.CategorySettings.Instance.SaveExplosive(type)){
+                RebuildCategories(type);
+
+                // Refill if needed
+                int tot = Player.CountAllItems(type);
+                int air = 0;
+                foreach(Projectile p in Main.projectile){
+                    if(p.type == proj)
+                        air += 1;
+                }
+                SpicItem spicItem = new Item(type).GetGlobalItem<SpicItem>();
+
+                if ((spicItem.Consumable == Categories.Consumable.Tool && ConsumableExtension.HasInfinite(tot+air, type, spicItem.Consumable.Value))
+                        || (spicItem.Ammo != Categories.Ammo.None && AmmoExtension.HasInfinite(tot+air, type, spicItem.Ammo))){
+                    Player.GetItem(Player.whoAmI, new(type, air), new(NoText: true));
+                }
+            }
+        } 
+
         public void RebuildCategories(int type) {
-        foreach(Item i in Player.inventory){
+            if(Main.mouseItem != null) Main.mouseItem.GetGlobalItem<SpicItem>().BuildCategories(Main.mouseItem);
+            foreach(Item i in Player.inventory){
                 if(i.type == type) i.GetGlobalItem<SpicItem>().BuildCategories(i);
             }
-            FindInfinities();
         }
         
         private static void HookPutItemInInventory(On.Terraria.Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
             if (selItem > -1) {
-                Configs.ConsumableConfig.Instance.SaveConsumableCategory(type, Categories.Consumable.Bucket);
+                Configs.CategorySettings.Instance.SaveConsumableCategory(type, Categories.Consumable.Bucket);
                 self.GetModPlayer<SpicPlayer>().RebuildCategories(type);
+                
                 self.inventory[selItem].stack++;
-                if (Configs.ConsumableConfig.Instance.PreventItemDupication && self.HasInfinite(self.inventory[selItem].type, Categories.Consumable.Bucket)) {
+                if (Configs.Infinities.Instance.PreventItemDupication && self.HasInfinite(self.inventory[selItem].type, Categories.Consumable.Bucket))
                     return;
-                }
+                
                 self.inventory[selItem].stack--;
             }
             orig(self, type, selItem);

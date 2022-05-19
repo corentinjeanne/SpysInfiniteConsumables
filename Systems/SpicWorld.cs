@@ -106,7 +106,7 @@ namespace SPIC.Systems {
 
         public override void SaveWorldData(TagCompound tag) {
 
-            Configs.ConsumableConfig.Instance.ManualSave();
+            Configs.CategorySettings.Instance.ManualSave();
 
             if (_chunks.Count != 0) {
                 tag.Add(TAG_SIZE, _chunkSize);
