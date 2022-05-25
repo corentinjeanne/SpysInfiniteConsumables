@@ -11,11 +11,18 @@ namespace SPIC.Globals {
 			On.Terraria.Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
 		}
 
-		private static void SaveExplosive(Projectile p){
-            if (p.owner < 0) return;
+		private static void SaveExplosive(Projectile proj){
+            if (proj.owner < 0) return;
 
-            SpicPlayer spicPlayer = Main.player[p.owner].GetModPlayer<SpicPlayer>();
-            spicPlayer.FindPotentialExplosives(p.type);
+            SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
+            int type = spicPlayer.FindPotentialExplosivesType(proj.type);
+
+            if (type != Terraria.ID.ItemID.None && Configs.CategorySettings.Instance.SaveExplosive(type)) {
+                spicPlayer.RefilExplosive(type);
+                
+                CategoryHelper.UpdateItem(type);
+            }
+            
         }
 		private void HookExplodeCrackedTiles(On.Terraria.Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){
             orig(self, compareSpot, radius, minI, maxI, minJ, maxJ);

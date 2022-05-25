@@ -30,6 +30,8 @@ public class CategorySettings : ModConfig {
 
     [Label("$Mods.SPIC.Configs.General.CategoryLabel")]
     public bool ShowCategories;
+    [Label("$Mods.SPIC.Configs.General.CategoryLabel")] // TODO localization
+    public bool ShowInfinites;
 
     [Label("Automatic Categories")]
     public Dictionary<ItemDefinition, Categories.Consumable> autoConsumables = new();
@@ -41,6 +43,7 @@ public class CategorySettings : ModConfig {
         ItemDefinition key = new(type);
         if (IsExplosive(type) || autoConsumables.TryGetValue(key, out _)) return;
         autoConsumables.Add(key, consumable);
+        CategoryHelper.UpdateItem(type);
         _modifiedInGame = true;
     }
 
@@ -70,6 +73,8 @@ public class CategorySettings : ModConfig {
     }
 
     public AutoCategories GetAutoCategories(int type){
+        if(!Terraria.ID.ItemID.Search.ContainsId(type)) return new();
+
         ItemDefinition key = new(type);
         return new(
             autoConsumables.ContainsKey(key) ? autoConsumables[key] : null,

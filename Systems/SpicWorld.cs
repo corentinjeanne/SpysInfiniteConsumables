@@ -96,6 +96,7 @@ namespace SPIC.Systems {
 
 
         public override void LoadWorldData(TagCompound tag) {
+            if(! tag.ContainsKey(TAG_CREATED)) return;
             _chunks.Clear();
             _chunkSize = tag.GetInt(TAG_SIZE);
             List<ChunkID> createdChunks = (tag[TAG_CREATED] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
@@ -121,17 +122,6 @@ namespace SPIC.Systems {
         }
         public override void OnWorldUnload() {
             _chunks.Clear();
-        }
-
-        public static int preUseDifficulty;
-        public static int preUseInvasion;
-        public static NPCStats preUseNPCStats;
-
-        // May be moved into player class
-        public static void SavePreUseItemStats() {
-            preUseDifficulty = Utility.WorldDifficulty();
-            preUseInvasion = Main.invasionType;
-            preUseNPCStats = Utility.GetNPCStats();
         }
     }
 }

@@ -203,7 +203,10 @@ namespace SPIC {
             // Most modded summoners, booster and non buff potions, modded liquids...
             return null;
         }
+
         public static bool CannotStopDrop(int type) => CannotStopDrop(new Item(type));
+
+        // TODO Update as tml updates
         public static bool CannotStopDrop(this Item item) {
             // WallXxX
             // 2x5
@@ -228,10 +231,10 @@ namespace SPIC {
 
         }
         public static bool HasInfinite(this Player player, int type, Consumable consumable, bool ignoreAllwaysDrop = false)
-            => HasInfinite(player.CountAllItems(type), type, consumable, ignoreAllwaysDrop);
+            => IsInfinite(player.CountAllItems(type), type, consumable, ignoreAllwaysDrop);
 
 
-        public static bool HasInfinite(int count, int type, Consumable consumable, bool ignoreAllwaysDrop = false){
+        public static bool IsInfinite(int count, int type, Consumable consumable, bool ignoreAllwaysDrop = false){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;
@@ -242,7 +245,7 @@ namespace SPIC {
                 if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
                 else {
                     if (consumable == Consumable.None) return false;
-                     items = Utility.InfinityToItems(consumable.Infinity(), type, consumable.MaxStack());
+                    items = Utility.InfinityToItems(consumable.Infinity(), type, consumable.MaxStack());
                 }
             }
 

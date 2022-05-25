@@ -76,9 +76,9 @@ namespace SPIC {
             return line;
         }
 
-        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string notFound = null) {
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after = null) {
             TooltipLine target = tooltips.FindLine(line.Name);
-            if (target == null) tooltips.AddLine(notFound is null? line.Name : notFound, target = line);
+            if (target == null) tooltips.AddLine(after ?? line.Name, target = line);
             return target;
         }
     }

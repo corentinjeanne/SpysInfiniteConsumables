@@ -2,6 +2,8 @@
     Mods: {
         SPIC: {
             Categories: {
+                Unknown: Unknown
+                
                 Ammo: {
                     None: Not Ammo
                     Basic: Basic
@@ -65,7 +67,6 @@
                 SetDesc: Set the category of an item
             }
             ItemTooltip: {
-                Unknown: Unknown
                 GrabBag: Grab bag
                 WandAmmo: Wand ammo
                 Infinite: Infinite

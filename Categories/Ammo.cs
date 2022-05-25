@@ -49,10 +49,10 @@ namespace SPIC {
             return Ammo.Special;
         }
         public static bool HasInfinite(this Player player, int type, Ammo ammo)
-         => HasInfinite(player.CountAllItems(type), type, ammo);
+         => IsInfinite(player.CountAllItems(type), type, ammo);
 
 
-        public static bool HasInfinite(int count, int type, Ammo ammo){
+        public static bool IsInfinite(int count, int type, Ammo ammo){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             int items;

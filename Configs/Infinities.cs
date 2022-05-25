@@ -205,7 +205,7 @@ public class Infinities : ModConfig {
     public Dictionary<ItemDefinition,Custom> Customs = new();
 
     public CustomCategories GetCustomCategories(int type)
-        => Customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
+        => !Terraria.ID.ItemID.Search.ContainsId(type) ? new() : Customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
 
     public CustomInfinities GetCustomInfinities(int type)
         => Customs.TryGetValue(new(type), out var custom) ? custom.Infinities() : new();
