@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.GameContent.Creative;
 
 using SPIC.Categories;
-using Terraria.UI;
+using Terraria.ModLoader;
 
 namespace SPIC {
     namespace Categories {
@@ -36,8 +36,9 @@ namespace SPIC {
             var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
             if(autos.GrabBag) return GrabBag.Crate;
 
-            if (ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
-            if (item.ModItem?.CanRightClick() == true || autos.GrabBag) return GrabBag.Crate;
+            if (ItemID.Sets.BossBag[item.type] || ItemLoader.IsModBossBag(item)) return GrabBag.TreasureBag;
+            if (ItemID.Sets.IsFishingCrate[item.type] || autos.GrabBag)
+                return GrabBag.Crate;
 
             return null;
         }

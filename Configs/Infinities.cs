@@ -47,7 +47,7 @@ public class CommonTiles {
     [Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.WiringLabel")]
     public int Wiring = -1;
     [Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.PlatformsLabel")]
-    public int PlatformsAndTorches = 100;
+    public int PlatformsAndTorches = 99;
     [Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.OresLabel")]
     public int Ores = 100;
     [Range(-50, 999), Label("$Mods.SPIC.Configs.Tiles.WallsLabel")]

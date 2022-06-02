@@ -8,7 +8,8 @@
                     TilesLabel: "[i:3061] {$Mods.SPIC.Configs.General.Tiles}"
                     CraftingLabel: "[i:398] {$Mods.SPIC.Configs.General.Crafting}"
                     JourneyLabel: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
-                    CategoryLabel: "[i:393] {$Mods.SPIC.Configs.General.Category}"
+                    CategoryLabel: "[i:3102] {$Mods.SPIC.Configs.General.Category}"
+                    InfinitesLabel: "[i:393] {$Mods.SPIC.Configs.General.Infinities}"
                     DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
                     CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
                 }

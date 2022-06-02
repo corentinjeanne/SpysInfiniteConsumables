@@ -30,7 +30,7 @@ public class CategorySettings : ModConfig {
 
     [Label("$Mods.SPIC.Configs.General.CategoryLabel")]
     public bool ShowCategories;
-    [Label("$Mods.SPIC.Configs.General.CategoryLabel")] // TODO localization
+    [Label("$Mods.SPIC.Configs.General.InfinitesLabel")]
     public bool ShowInfinites;
 
     [Label("Automatic Categories")]

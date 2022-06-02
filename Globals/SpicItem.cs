@@ -36,7 +36,6 @@ namespace SPIC.Globals {
         public override void SetStaticDefaults() {
             if (!SetDefaultsHook) return;
 
-            // FIXME probably not working for loaded items before or after the load
             Array.Resize(ref s_ItemMaxStack, ItemLoader.ItemCount);
             for (int type = ItemID.Count; type < ItemLoader.ItemCount; type++) {
                 ModItem modItem = ItemLoader.GetItem(type).Clone(new());
@@ -107,7 +106,8 @@ namespace SPIC.Globals {
 
                 if (categories.Material != Categories.Material.None) {
                     material ??= tooltips.FindLine(materialLine);
-                    material.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.Material.{categories.Material}")})";
+                    if(material != null)
+                        material.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.Material.{categories.Material}")})";
                 }
             }
 
@@ -146,8 +146,10 @@ namespace SPIC.Globals {
                 }
                 if (config.InfiniteCrafting && spicPlayer.HasInfiniteMaterial(item.type)) {
                     material ??= tooltips.FindLine(materialLine);
-                    material.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + material.Text;
-                    material.OverrideColor = new(255, 0, 0);
+                    if (material != null) {
+                        material.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + material.Text;
+                        material.OverrideColor = new(255, 0, 0);
+                    }
                 }
             }
         }
@@ -194,14 +196,14 @@ namespace SPIC.Globals {
 
             return !spicPlayer.HasInfiniteConsumable(item.type);
         }
-        
-        public override bool CanBeConsumedAsAmmo(Item ammo, Player player) {
+
+        public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player) {
             if (!Configs.Infinities.Instance.InfiniteConsumables) return true;
-            
+
             SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
             return !spicPlayer.HasInfiniteAmmo(ammo.type);
         }
-        
+
         public override bool? CanConsumeBait(Player player, Item bait) {
             if (!Configs.Infinities.Instance.InfiniteConsumables) return null;
 

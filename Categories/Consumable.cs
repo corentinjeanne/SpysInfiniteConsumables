@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ObjectData;
 using Terraria.GameContent.Creative;
