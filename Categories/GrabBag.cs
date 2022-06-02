@@ -19,7 +19,9 @@ namespace SPIC {
             GrabBag.Crate => 99,
             GrabBag.None => 999,
             _ => throw new System.NotImplementedException(),
-        };public static int Infinity(this GrabBag bag) {
+        };
+        
+        public static int Infinity(this GrabBag bag) {
             Configs.GrabBag b = Configs.Infinities.Instance.Bags;
             return bag switch {
                 GrabBag.Crate => b.Crates,
@@ -28,6 +30,7 @@ namespace SPIC {
                 _ => throw new System.NotImplementedException(),
             };
         }
+
         public static GrabBag? GetGrabBagCategory(this Item item) {
             if (item == null) return null;
 
@@ -42,24 +45,19 @@ namespace SPIC {
 
             return null;
         }
-        
-        public static bool HasInfinite(this Player player, int type, GrabBag grabBag) {
+        public static int GetGrabBagInfinity(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
-            int items;
-            var infinities = config.GetCustomInfinities(type);
-            if (infinities.GrabBag.HasValue)
-                items = Utility.InfinityToItems(infinities.GrabBag.Value, type, GrabBag.None.MaxStack());
-            else {
-                if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-                else {
-                    if (grabBag == GrabBag.None) return false;
-                    items = Utility.InfinityToItems(grabBag.Infinity(), type, grabBag.MaxStack());
-                }
-            }
+            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
+            if(infinities.GrabBag.HasValue) return Utility.InfinityToItems(infinities.GrabBag.Value, item.type);
+            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
 
-            return player.CountAllItems(type) >= items;
+            GrabBag grabBag = Category.GetCategories(item).GrabBag ?? GrabBag.None;
+            return Utility.InfinityToItems(grabBag.Infinity(), item.type, grabBag.MaxStack());
         }
+
+        public static bool HasInfiniteGrabBag(this Player player, int type)
+            =>  player.CountAllItems(type, true) >= Category.GetInfinities(type).GrabBag;
 
     }
 }

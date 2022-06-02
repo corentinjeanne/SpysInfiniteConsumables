@@ -16,6 +16,7 @@ namespace SPIC.Globals {
                 orig(x, y, Type, Style, who);
                 return;
             }
+
             // Find npc spawn slot
             int spawnIndex = -1;
             if (NPCID.Sets.SpawnFromLastEmptySlot[Type]) {
@@ -41,7 +42,7 @@ namespace SPIC.Globals {
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
                 if (critter.active && critter.type == Type) {
-                    if(Configs.Infinities.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, Categories.Consumable.Critter)){
+                    if(Configs.Infinities.Instance.PreventItemDupication && Main.player[who].HasInfiniteConsumable(critter.catchItem)){
                         critter.SpawnedFromStatue = true;
                     }
                 }

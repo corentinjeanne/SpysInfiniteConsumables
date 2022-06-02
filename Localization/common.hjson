@@ -5,13 +5,18 @@
             Configs: {
                 General: {
                     ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.General.Consumables}"
+                    BagsLabel: "[i:3104] {$Mods.SPIC.Configs.General.Bags}"
                     TilesLabel: "[i:3061] {$Mods.SPIC.Configs.General.Tiles}"
+                    CurrencyLabel: "[i:3104] {$Mods.SPIC.Configs.General.Currency}"
                     CraftingLabel: "[i:398] {$Mods.SPIC.Configs.General.Crafting}"
                     JourneyLabel: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
-                    CategoryLabel: "[i:3102] {$Mods.SPIC.Configs.General.Category}"
-                    InfinitesLabel: "[i:393] {$Mods.SPIC.Configs.General.Infinities}"
                     DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
                     CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
+
+                    CategoryLabel: "[i:3102] {$Mods.SPIC.Configs.General.Category}"
+                    InfinitesLabel: "[i:393] {$Mods.SPIC.Configs.General.Infinities}"
+                    RequirementLabel: "[i:393] {$Mods.SPIC.Configs.General.Requirement}"
+                    AutoLabel: "[i:393] {$Mods.SPIC.Configs.General.Auto}"
                 }
                 Infinities: {
                     ConsumablesLabel: "{$Mods.SPIC.Configs.Infinities.Consumables}" // [i:3104]

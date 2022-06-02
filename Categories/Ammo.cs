@@ -12,6 +12,7 @@ namespace SPIC {
             Special
         }
     }
+
     public static class AmmoExtension {
         public static int MaxStack(this Ammo ammo) => ammo switch {
             Ammo.Basic => 999,
@@ -20,6 +21,7 @@ namespace SPIC {
             Ammo.None => 999,
             _ => throw new System.NotImplementedException(),
         };
+
         public static int Infinity(this Ammo ammo) {
             Configs.Ammo a = Configs.Infinities.Instance.Ammos;
             return ammo switch {
@@ -30,17 +32,14 @@ namespace SPIC {
                 _ => throw new System.NotImplementedException(),
             };
         }
-        public static Ammo GetAmmoCategory(this Item item) {
 
-            if (item == null) return Ammo.None;
-            
+        public static Ammo GetAmmoCategory(this Item item) {          
 
-            var categories = Configs.Infinities.Instance.GetCustomCategories(item.type); 
+            Configs.CustomCategories categories = Configs.Infinities.Instance.GetCustomCategories(item.type); 
             if(categories.Ammo.HasValue) return categories.Ammo.Value;
 
             if(!item.consumable || item.ammo == AmmoID.None) return Ammo.None;
-
-            var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+            Configs.AutoCategories autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
             if (autos.Explosive) return Ammo.Explosive;
 
             if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
@@ -48,25 +47,23 @@ namespace SPIC {
 
             return Ammo.Special;
         }
-        public static bool HasInfinite(this Player player, int type, Ammo ammo)
-         => IsInfinite(player.CountAllItems(type), type, ammo);
 
-
-        public static bool IsInfinite(int count, int type, Ammo ammo){
+        public static int GetAmmoInfinity(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
-            int items;
-            var infinities = config.GetCustomInfinities(type);
-            if (infinities.Ammo.HasValue)
-                items = Utility.InfinityToItems(infinities.Ammo.Value, type, Ammo.None.MaxStack());
-            else {
-                if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-                else {
-                    if (ammo == Ammo.None) return false;
-                    items = Utility.InfinityToItems(ammo.Infinity(), type, ammo.MaxStack());
-                }
-            }
-            return count >= items;
+            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
+            if(infinities.Ammo.HasValue) return Utility.InfinityToItems(infinities.Ammo.Value, item.type);
+            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+
+            Ammo ammo = Category.GetCategories(item).Ammo;
+            return Utility.InfinityToItems(ammo.Infinity(), item.type, ammo.MaxStack());
         }
+        public static bool HasInfiniteAmmo(this Player player, int type)
+         => IsInfiniteAmmo(player.CountAllItems(type), type);
+
+
+        public static bool IsInfiniteAmmo(int count, int type)
+            =>  count >= Category.GetInfinities(type).Ammo;
+        
     }
 }

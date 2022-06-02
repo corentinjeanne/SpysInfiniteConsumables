@@ -164,8 +164,12 @@ public class Infinities : ModConfig {
     [Header("$Mods.SPIC.Configs.General.Header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.General.ConsumablesLabel")]
     public bool InfiniteConsumables;
+    [Label("$Mods.SPIC.Configs.General.BagsLabel")]
+    public bool InfiniteGrabBags;
     [Label("$Mods.SPIC.Configs.General.TilesLabel")]
     public bool InfiniteTiles;
+    [Label("$Mods.SPIC.Configs.General.CurrencyLabel")]
+    public bool InfiniteCurrency;
     [Label("$Mods.SPIC.Configs.General.CraftingLabel")]
     public bool InfiniteCrafting;
 
@@ -182,6 +186,8 @@ public class Infinities : ModConfig {
     public Consumable Consumables = new();
     [Label("$Mods.SPIC.Configs.Infinities.AmmosLabel")]
     public Ammo Ammos = new();
+
+    [Header("$Mods.SPIC.Configs.Infinities.BagsHeader")]
     [Label("$Mods.SPIC.Configs.Infinities.BagsLabel")]
     public GrabBag Bags = new();
 
@@ -205,7 +211,7 @@ public class Infinities : ModConfig {
     public Dictionary<ItemDefinition,Custom> Customs = new();
 
     public CustomCategories GetCustomCategories(int type)
-        => !Terraria.ID.ItemID.Search.ContainsId(type) ? new() : Customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
+        => Customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
 
     public CustomInfinities GetCustomInfinities(int type)
         => Customs.TryGetValue(new(type), out var custom) ? custom.Infinities() : new();

@@ -155,60 +155,57 @@ namespace SPIC.Globals {
         }
 
         public override bool? UseItem(Item item, Player player) {
-            SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
-            if (!item.GetCategories().Consumable.HasValue) spicPlayer.StartDetectingCategory(item.type);
+            if (Configs.CategorySettings.Instance.AutoCategories && !item.GetCategories().Consumable.HasValue)
+                player.GetModPlayer<SpicPlayer>().StartDetectingCategory(item.type);
             return null;
         }
         
         public override bool ConsumeItem(Item item, Player player) {
             Configs.Infinities infinities = Configs.Infinities.Instance;
-            SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
+            Configs.CategorySettings autos = Configs.CategorySettings.Instance;
 
+            SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
             Categories.Categories categories = item.GetCategories();
+
             // Item used
             if (spicPlayer.InItemCheck) {
                 // Wands
                 if (item != player.HeldItem) {
-                    if (!categories.WandAmmo.HasValue && categories.Consumable?.IsTile() != true) {
+                    if (autos.AutoCategories && !categories.WandAmmo.HasValue && categories.Consumable?.IsTile() != true)
                         Configs.CategorySettings.Instance.SaveWandAmmoCategory(item.type);
-                    }
+
                     return !(infinities.InfiniteTiles && spicPlayer.HasInfiniteWandAmmo(item));
                 }
 
                 // Consumable used
-                if (spicPlayer.CheckingForCategory) spicPlayer.TryStopDetectingCategory();
+                spicPlayer.TryStopDetectingCategory();
             }
 
             else {
                 // Bags
                 if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease){
-                    if(!categories.GrabBag.HasValue) {
+                    if(autos.AutoCategories && !categories.GrabBag.HasValue)
                         Configs.CategorySettings.Instance.SaveGrabBagCategory(item.type);
-                    }
-                    return !(infinities.InfiniteConsumables && spicPlayer.HasInfiniteGrabBag(item.type));
+                    return !(infinities.InfiniteGrabBags && spicPlayer.HasInfiniteGrabBag(item.type));
                 }
 
-                // Hotkeys
+                // ? Hotkeys detect buff
             }
 
             // Consumables
-            if (categories.Consumable?.IsTile() == true ? !infinities.InfiniteTiles : !infinities.InfiniteConsumables) return true;
-
-            return !spicPlayer.HasInfiniteConsumable(item.type);
+            return !((categories.Consumable?.IsTile() == true ? infinities.InfiniteTiles : infinities.InfiniteConsumables)
+                && spicPlayer.HasInfiniteConsumable(item.type));
         }
 
         public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player) {
-            if (!Configs.Infinities.Instance.InfiniteConsumables) return true;
-
-            SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
-            return !spicPlayer.HasInfiniteAmmo(ammo.type);
+            return !(Configs.Infinities.Instance.InfiniteConsumables
+                && player.GetModPlayer<SpicPlayer>().HasInfiniteAmmo(ammo.type));
         }
 
         public override bool? CanConsumeBait(Player player, Item bait) {
-            if (!Configs.Infinities.Instance.InfiniteConsumables) return null;
-
-            SpicPlayer spicPlayer = player.GetModPlayer<SpicPlayer>();
-            return spicPlayer.HasInfiniteConsumable(bait.type) ? false : null;
+            return Configs.Infinities.Instance.InfiniteConsumables
+                && player.GetModPlayer<SpicPlayer>().HasInfiniteConsumable(bait.type) ?
+                    false : null;
         }
 
         private void HookItemSetDefaults(ILContext il) {

@@ -75,10 +75,10 @@
                 General: {
                     Header: General
                     Consumables: Infinite Consumables
+                    Bags: Infinite Grab bags
                     Tiles: Infinite Tiles
+                    Currency: Infinite Currency
                     Crafting: Infinite Crafting
-                    Category: Show categories
-                    Infinities: "Show infinites"
                     Journey: Journey requirement
                     JourneyTooltip: Uses the journey research cost of items as their infinite requirent
                     Duplication: Prevent item duplication
@@ -91,11 +91,23 @@
                         '''
                     Commands: Commands
                     CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
+                    
+                    Category: Show categories
+                    Infinities: Show infinities
+                    Requirement: Show requirement
+                    Auto: Automatic categories
+                    AutoTooltip: 
+                        '''
+                        Detect the categories of items if they are unknown.
+                        To see the detected categories, look at the json version of the file.
+                        '''
                 }
                 Infinities: {
                     ConsumablesHeader: Consumables
                     Consumables: Consumables
                     Ammos: Ammunitions
+
+                    BagsHeader: Grab bags
                     Bags: Grab bags
 
                     TilesHeader: Tiles

@@ -11,6 +11,10 @@ namespace SPIC.Globals {
         public override void Load() {
             On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
         }
+        public override void Unload(){
+            CraftingStations.Clear();
+        }
+        
         public override void SetStaticDefaults() {
             CraftingStations.Clear();
             foreach(Recipe r in Main.recipe) {
@@ -30,6 +34,7 @@ namespace SPIC.Globals {
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
             orig(canDelayCheck);
             if (canDelayCheck) return;
+            Category.ClearAll();
             Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
         }
 

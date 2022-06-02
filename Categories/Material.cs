@@ -72,5 +72,16 @@ namespace SPIC {
 
             return player.CountAllItems(type, true) >= items;
         }
+        public static int GetMaterialInfinity(this Item item){
+            Configs.Infinities config = Configs.Infinities.Instance;
+
+            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+
+            Material material = Category.GetCategories(item).Material;
+            return Utility.InfinityToItems(material.Infinity(), item.type, material.MaxStack());
+        }
+        
+        public static bool HasInfiniteMaterial(this Player player, int type)
+            => player.CountAllItems(type, true) >= Category.GetInfinities(type).Material;
     }
 }

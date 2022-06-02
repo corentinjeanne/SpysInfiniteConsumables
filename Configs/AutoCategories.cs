@@ -1,5 +1,6 @@
 using System.IO;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
@@ -32,55 +33,56 @@ public class CategorySettings : ModConfig {
     public bool ShowCategories;
     [Label("$Mods.SPIC.Configs.General.InfinitesLabel")]
     public bool ShowInfinites;
+    [Label("$Mods.SPIC.Configs.General.RequirementLabel")]
+    public bool ShowRequirement;
 
-    [Label("Automatic Categories")]
-    public Dictionary<ItemDefinition, Categories.Consumable> autoConsumables = new();
-    public HashSet<ItemDefinition> autoExplosives = new();
-    public HashSet<ItemDefinition> autoGrabBags = new();
-    public HashSet<ItemDefinition> autoWands = new();
+
+    [Header("Automatic Categories")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.AutoLabel"), Tooltip("$Mods.SPIC.Configs.General.AutoTooltip")]
+    public bool AutoCategories;
+
+    private readonly Dictionary<ItemDefinition, Categories.Consumable> _autoConsumables = new();
+    private readonly HashSet<ItemDefinition> _autoExplosives = new();
+    private readonly HashSet<ItemDefinition> _autoGrabBags = new();
+    private readonly HashSet<ItemDefinition> _autoWands = new();
 
     public void SaveConsumableCategory(int type, Categories.Consumable consumable) {
         ItemDefinition key = new(type);
-        if (IsExplosive(type) || autoConsumables.TryGetValue(key, out _)) return;
-        autoConsumables.Add(key, consumable);
-        CategoryHelper.UpdateItem(type);
+        if (IsExplosive(type) || !_autoConsumables.TryAdd(key, consumable)) return;
+        Category.UpdateItem(type);
         _modifiedInGame = true;
     }
 
     public bool SaveExplosive(int type) {
         ItemDefinition key = new(type);
-        if (autoExplosives.Contains(key)) return false;
-        autoExplosives.Add(key);
-        autoConsumables.Remove(key);
+        if (!_autoExplosives.Add(key)) return false;
+        _autoConsumables.Remove(key);
+        Category.UpdateItem(type);
         _modifiedInGame = true;
         return true;
     }
-    public bool IsExplosive(int type) => autoExplosives.Contains(new(type));
+    public bool IsExplosive(int type) => _autoExplosives.Contains(new(type));
 
 
     public void SaveGrabBagCategory(int type) {
-        ItemDefinition key = new(type);
-        if (autoGrabBags.Contains(key)) return;
-        autoGrabBags.Add(key);
-        _modifiedInGame = true;
+        if (_autoGrabBags.Add(new(type))) _modifiedInGame = true;
+        Category.UpdateItem(type);
     }
 
     public void SaveWandAmmoCategory(int type) {
-        ItemDefinition key = new(type);
-        if (autoWands.Contains(key)) return;
-        autoWands.Add(key);
-        _modifiedInGame = true;
+        if (!_autoWands.Add(new(type))) _modifiedInGame = true;
+        Category.UpdateItem(type);
     }
 
     public AutoCategories GetAutoCategories(int type){
-        if(!Terraria.ID.ItemID.Search.ContainsId(type)) return new();
+        if(!AutoCategories) return new();
 
         ItemDefinition key = new(type);
         return new(
-            autoConsumables.ContainsKey(key) ? autoConsumables[key] : null,
-            autoGrabBags.Contains(key),
-            autoWands.Contains(key),
-            autoExplosives.Contains(key)
+            _autoConsumables.ContainsKey(key) ? _autoConsumables[key] : null,
+            _autoGrabBags.Contains(key),
+            _autoWands.Contains(key),
+            _autoExplosives.Contains(key)
         );
     }
 

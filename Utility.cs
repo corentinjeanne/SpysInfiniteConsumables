@@ -22,6 +22,15 @@ namespace SPIC {
             }
             throw new UsageException("Invalid Name" + name);
         }
+        public static Item[] Chest(this Player player) => player.chest switch {
+            > -1 => Main.chest[player.chest].item,
+            -2 => player.bank.item,
+            -3 => player.bank2.item,
+            -4 => player.bank3.item,
+            -6 => player.bank4.item,
+            _ => null
+        };
+        
         public static int CountInContainer(Item[] container, int type) {
             int total = 0;
             foreach (Item i in container) {
@@ -40,17 +49,11 @@ namespace SPIC {
                 i.TurnToAir();
             }
         }
-        public static int CountAllItems(this Player player, int type, bool includechest = false){
+        public static int CountAllItems(this Player player, int type, bool includeChest = false){
             int total = CountInContainer(player.inventory, type);
-            if (!includechest) return total;
-            return total + player.chest switch {
-                -1 => 0,
-                -2 => CountInContainer(player.bank.item, type),
-                -3 => CountInContainer(player.bank.item, type),
-                -4 => CountInContainer(player.bank.item, type),
-                -5 => CountInContainer(player.bank.item, type),
-                _ =>  CountInContainer(Main.chest[player.chest].item, type)
-            };
+            Item[] chest;
+            if(includeChest && (chest=player.Chest()) is not null) total += CountInContainer(chest, type);
+            return total;
         }
 
         public static NPCStats GetNPCStats() {
@@ -64,10 +67,10 @@ namespace SPIC {
             return stats;
         }
 
-        public static int InfinityToItems(int infinity, int type, int LargestStack = 999) {
+        public static int InfinityToItems(int infinity, int type, int MaxStack = 999) {
             int maxStack = Globals.SpicItem.MaxStack(type);
             int items = infinity >= 0 ? infinity > maxStack ? maxStack : infinity :
-                -infinity * (maxStack < LargestStack ? maxStack : LargestStack);
+                -infinity * (maxStack < MaxStack ? maxStack : MaxStack);
 
             return infinity == 0 ? int.MaxValue : items;
         }

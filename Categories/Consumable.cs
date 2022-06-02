@@ -126,8 +126,6 @@ namespace SPIC {
         }
         public static Consumable? GetConsumableCategory(this Item item) {
 
-            if (item == null) return null;
-
             var categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
             if (categories.Consumable.HasValue) return categories.Consumable.Value;
             
@@ -202,20 +200,26 @@ namespace SPIC {
             return null;
         }
 
+        public static int GetConsumableInfinity(this Item item){
+            Configs.Infinities config = Configs.Infinities.Instance;
+
+            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
+            if(infinities.Consumable.HasValue) return Utility.InfinityToItems(infinities.Consumable.Value, item.type);
+            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+            
+            Consumable consumable = Category.GetCategories(item).Consumable ?? Consumable.None;
+            return Utility.InfinityToItems(consumable.Infinity(), item.type, consumable.MaxStack());
+        }
+
         public static bool CannotStopDrop(int type) => CannotStopDrop(new Item(type));
 
         // TODO Update as tml updates
+        // WallXxX
+        // 2x5, 3x5, 3x6
+        // Sunflower, Gnome
+        // Chest
+        // drop in 2x1 bug : num instead of num3
         public static bool CannotStopDrop(this Item item) {
-            // WallXxX
-            // 2x5
-            // 3x5
-            // 3x6
-            // Sunflower
-            // Gnome
-            // Chest
-            // drop in 2x1 bug : num instead of num3
-
-            // Does no place a tile
             if (item.createTile < TileID.Dirt || item.createWall >= WallID.None || item.createTile == TileID.TallGateClosed) return false;
             if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
 
@@ -228,29 +232,16 @@ namespace SPIC {
             return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
 
         }
-        public static bool HasInfinite(this Player player, int type, Consumable consumable, bool ignoreAllwaysDrop = false)
-            => IsInfinite(player.CountAllItems(type), type, consumable, ignoreAllwaysDrop);
 
+        public static bool HasInfiniteConsumable(this Player player, int type, bool ignoreAllwaysDrop = false)
+         => IsInfiniteConsumable(player.CountAllItems(type), type, ignoreAllwaysDrop);
 
-        public static bool IsInfinite(int count, int type, Consumable consumable, bool ignoreAllwaysDrop = false){
-            Configs.Infinities config = Configs.Infinities.Instance;
+        public static bool IsInfiniteConsumable(int count, int type, bool ignoreAllwaysDrop = false)
+            => !ignoreAllwaysDrop && Configs.Infinities.Instance.PreventItemDupication
+                    && Category.GetCategories(type).Consumable?.IsTile() == true
+                    && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)) ?
+                count == Category.GetInfinities(type).Consumable : count >= Category.GetInfinities(type).Consumable;
+        
 
-            int items;
-            var infinities = config.GetCustomInfinities(type);
-            if (infinities.Consumable.HasValue)
-                items = Utility.InfinityToItems(infinities.Consumable.Value, type, Consumable.None.MaxStack());
-            else {
-                if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-                else {
-                    if (consumable == Consumable.None) return false;
-                    items = Utility.InfinityToItems(consumable.Infinity(), type, consumable.MaxStack());
-                }
-            }
-
-            if (!ignoreAllwaysDrop && config.PreventItemDupication && consumable.IsTile() && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)))
-                return count == items;
-
-            return count >= items;
-        }
     }
 }

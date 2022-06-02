@@ -5,7 +5,6 @@ using Terraria.GameContent.Creative;
 
 using SPIC.Categories;
 using Terraria.ID;
-using System;
 
 namespace SPIC {
     namespace Categories {
@@ -19,9 +18,7 @@ namespace SPIC {
     public static class WandAmmoExtension {
 
         private static readonly HashSet<int> _tiles = new();
-        public static void SaveWandAmmo(int tile) {
-            if(!_tiles.Contains(tile)) _tiles.Add(tile);
-        }
+        public static void SaveWandAmmo(int tile) { if(!_tiles.Contains(tile)) _tiles.Add(tile); }
         public static void ClearWandAmmos() => _tiles.Clear();
 
         public static int MaxStack(this WandAmmo wandAmmo) => wandAmmo switch {
@@ -31,6 +28,7 @@ namespace SPIC {
             WandAmmo.Mechanical => 999,
             _ => throw new System.NotImplementedException(),
         };
+
         public static int Infinity(this WandAmmo wandAmmo) {
             Configs.Infinities c = Configs.Infinities.Instance;
             return wandAmmo switch {
@@ -41,6 +39,7 @@ namespace SPIC {
                 _ => throw new System.NotImplementedException(),
             };
         }
+
         public static WandAmmo? GetWandAmmoCategory(this Item item) {
 
             if (item == null) return null;
@@ -56,23 +55,19 @@ namespace SPIC {
 
             return null;
         }
-        
 
-        public static bool HasInfinite(this Player player, int type, WandAmmo wandAmmo) {
+        public static int GetWandAmmoInfinity(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
-            int items;
-            var infinities = config.GetCustomInfinities(type);
-            if (infinities.WandAmmo.HasValue)
-                items = Utility.InfinityToItems(infinities.WandAmmo.Value, type, WandAmmo.None.MaxStack());
-            else {
-                if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-                else {
-                    if (wandAmmo == WandAmmo.None) return false;
-                    items = Utility.InfinityToItems(wandAmmo.Infinity(), type, wandAmmo.MaxStack());
-                }
-            }
-            return player.CountAllItems(type) >= items;
+            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
+            if(infinities.WandAmmo.HasValue) return Utility.InfinityToItems(infinities.WandAmmo.Value, item.type);
+            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+
+            WandAmmo wandAmmo = Category.GetCategories(item).WandAmmo ?? WandAmmo.None;
+            return Utility.InfinityToItems(wandAmmo.Infinity(), item.type, wandAmmo.MaxStack());
         }
+
+        public static bool HasInfiniteWandAmmo(this Player player, int type)
+            =>  player.CountAllItems(type) >= Category.GetInfinities(type).WandAmmo;
     }
 }
