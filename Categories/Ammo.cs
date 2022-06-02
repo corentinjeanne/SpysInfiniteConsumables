@@ -62,8 +62,7 @@ namespace SPIC {
          => IsInfiniteAmmo(player.CountAllItems(type), type);
 
 
-        public static bool IsInfiniteAmmo(int count, int type)
-            =>  count >= Category.GetInfinities(type).Ammo;
+        public static bool IsInfiniteAmmo(int count, int type) => Category.IsInfinite(count,Category.GetInfinities(type).Ammo);
         
     }
 }

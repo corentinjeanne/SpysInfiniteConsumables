@@ -60,16 +60,18 @@ namespace SPIC {
         }
         
         public static Categories.Categories GetCategories(int type) => GetCategories(new Item(type));
-        
         public static Categories.Categories GetCategories(this Item item){
-            if(!_categories.ContainsKey(item.type)) _categories.Add(item.type, new(item));
+            _categories.TryAdd(item.type, new(item));
             return _categories[item.type];
         }
+
         public static Categories.Infinities GetInfinities(int type) => GetInfinities(new Item(type));
-        
         public static Categories.Infinities GetInfinities(this Item item){
-            if(!_infinities.ContainsKey(item.type)) _infinities.Add(item.type, new(item));
+            _infinities.TryAdd(item.type, new(item));
             return _infinities[item.type];
         }
+        
+        public static bool IsInfinite(int items, int infinity, bool exact = false)
+            => infinity != 0 && (exact ? items == infinity : items >= infinity);
     }
 }

@@ -48,110 +48,61 @@ namespace SPIC.Globals {
             
             Configs.Infinities config = Configs.Infinities.Instance;
             Configs.CategorySettings autos = Configs.CategorySettings.Instance;
-
+            
             Categories.Categories categories = item.GetCategories();
+            Categories.Infinities infinities = item.GetInfinities();
             bool isTile = categories.Consumable?.IsTile() == true;
 
-            TooltipLine ammo = null, consumable = null, bag = null, wand = null, material = null;
-
+            SpicPlayer spicPlayer = Main.player[item.playerIndexTheItemIsReservedFor].GetModPlayer<SpicPlayer>();
+            
             static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) {
                 OverrideColor = new(150, 150, 150)
             };
-            // ? MAke static
-            TooltipLine consumableLine = isTile ? AddedLine("Placeable",Lang.tip[33].Value) : AddedLine("Consumable", Lang.tip[35].Value);
-            TooltipLine wandLine = AddedLine("WandAmmo", Language.GetTextValue("Mods.SPIC.ItemTooltip.WandAmmo"));
-            TooltipLine ammoLine = AddedLine("Ammo", Lang.tip[34].Value);
-            TooltipLine bagLine = AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.ItemTooltip.GrabBag"));
-            string materialLine = "Material";
+            TooltipLine consumable = isTile ? AddedLine("Placeable",Lang.tip[33].Value) : AddedLine("Consumable", Lang.tip[35].Value);
+            TooltipLine wand = AddedLine("WandAmmo", Language.GetTextValue("Mods.SPIC.ItemTooltip.WandAmmo"));
+            TooltipLine ammo = AddedLine("Ammo", Lang.tip[34].Value);
+            TooltipLine bag = AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.ItemTooltip.GrabBag"));
+            TooltipLine material = AddedLine("Material", null);
 
-            if(autos.ShowCategories){
-                Configs.CustomInfinities infs = config.GetCustomInfinities(item.type);
-
-                if(infs.Consumable.HasValue) {
-                    consumable ??= tooltips.FindorAddLine(consumableLine);
-                    consumable.Text += $" ({infs.Consumable} items)";
-                }
-                else if (categories.Consumable != Categories.Consumable.None){
-                    consumable ??= tooltips.FindorAddLine(consumableLine);
-                    consumable.Text += $" ({Language.GetTextValue(categories.Consumable.HasValue ? $"Mods.SPIC.Categories.Consumable.{categories.Consumable}" : "Mods.SPIC.Categories.Unknown")})";
-                }
-                if(!isTile) {
-                    if(infs.WandAmmo.HasValue) {
-                        wand ??= tooltips.FindorAddLine(wandLine, "Ammo");
-                        wand.Text += $" ({infs.Consumable} items)";
-                    }
-                    else if (categories.WandAmmo.HasValue && categories.WandAmmo != Categories.WandAmmo.None) {
-                        wand ??= tooltips.FindorAddLine(wandLine, "Ammo");
-                        wand.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.WandAmmo.{categories.WandAmmo}")})";
-                    }
+            bool ModifyLine(TooltipLine toEdit, string missing, bool displayCategory, string categoryKey, int requirement, bool infinite, Microsoft.Xna.Framework.Color color){ // category, req, inf
+                TooltipLine line = null;
+                TooltipLine Setline() => line ??= tooltips.FindorAddLine(toEdit, missing);
+                if(autos.ShowInfinities && infinite) {
+                    Setline();
+                    line.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + line.Text;
+                    line.OverrideColor = color;
                 }
 
-                if(infs.GrabBag.HasValue) {
-                    bag ??= tooltips.FindorAddLine(bagLine, "Consumable");
-                    bag.Text += $" ({infs.Consumable} items)";
-                }
-                else if (categories.GrabBag.HasValue && categories.GrabBag != Categories.GrabBag.None) {
-                    bag ??= tooltips.FindorAddLine(bagLine, "Consumable");
-                    bag.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.GrabBag.{categories.GrabBag}")})";
-                }
+                int total = 0;
+                string Separator() => total++ == 0 ? " (" : ", ";
+                
+                if(autos.ShowCategories && displayCategory) Setline().Text += Separator() + Language.GetTextValue(categoryKey);
+                if(autos.ShowRequirement && requirement != 0) Setline().Text += Separator() + Language.GetTextValue("Mods.SPIC.ItemTooltip.RequirementTooltip", requirement);
 
-                if(infs.Ammo.HasValue) {
-                    ammo ??= tooltips.FindorAddLine(ammoLine);
-                    ammo.Text += $" ({infs.Ammo} items)";
-                }
-                else if (categories.Ammo != Categories.Ammo.None) {
-                    ammo ??= tooltips.FindorAddLine(ammoLine);
-                    ammo.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.Ammo.{categories.Ammo}")})";
-                }
-
-                if (categories.Material != Categories.Material.None) {
-                    material ??= tooltips.FindLine(materialLine);
-                    if(material != null)
-                        material.Text += $" ({Language.GetTextValue($"Mods.SPIC.Categories.Material.{categories.Material}")})";
-                }
+                if(total != 0) line.Text += ")";
+                return line != null;
             }
 
-            if (autos.ShowInfinites && item.playerIndexTheItemIsReservedFor >= 0) {
-                SpicPlayer spicPlayer = Main.player[item.playerIndexTheItemIsReservedFor].GetModPlayer<SpicPlayer>();
-
-                if(config.InfiniteConsumables){
-                    if (!isTile && spicPlayer.HasInfiniteConsumable(item.type)) {
-                        consumable ??= tooltips.FindorAddLine(consumableLine);
-                        consumable.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + consumable.Text;
-                        consumable.OverrideColor = new(255, 0, 0);
-                    }
-                    if(spicPlayer.HasInfiniteAmmo(item.type)){
-                        ammo ??= tooltips.FindorAddLine(ammoLine, "Ammo");
-                        ammo.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + ammo.Text;
-                        ammo.OverrideColor = new(255, 0, 0);
-                    }
-                    if (spicPlayer.HasInfiniteGrabBag(item.type)) {
-                        bag ??= tooltips.FindorAddLine(bagLine, "Consumable");
-                        bag.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + bag.Text;
-                        bag.OverrideColor = new(255, 0, 0);
-                    }
-                }
-                if(config.InfiniteTiles){
-                    if (isTile){
-                        if (spicPlayer.HasInfiniteConsumable(item.type)) {
-                            consumable ??= tooltips.FindorAddLine(consumableLine);
-                            consumable.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + consumable.Text;
-                            consumable.OverrideColor = new(255, 0, 0);
-                        }
-                    }else if(spicPlayer.HasInfiniteWandAmmo(item.type)){
-                        wand ??= tooltips.FindorAddLine(wandLine, "Ammo");
-                        wand.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + wand.Text;
-                        wand.OverrideColor = new(255, 0, 0);
-                    }
-                }
-                if (config.InfiniteCrafting && spicPlayer.HasInfiniteMaterial(item.type)) {
-                    material ??= tooltips.FindLine(materialLine);
-                    if (material != null) {
-                        material.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + material.Text;
-                        material.OverrideColor = new(255, 0, 0);
-                    }
-                }
+            ModifyLine(ammo, null,
+                categories.Ammo != Categories.Ammo.None, $"Mods.SPIC.Categories.Ammo.{categories.Ammo}",
+                infinities.Ammo, config.InfiniteConsumables && spicPlayer.HasInfiniteAmmo(item.type), new(0,255,0)
+            );
+            if (!(ModifyLine(consumable, null,
+                    categories.Consumable != Categories.Consumable.None, $"Mods.SPIC.Categories.Consumable.{categories.Consumable}",
+                    infinities.Consumable, spicPlayer.HasInfiniteConsumable(item.type), new(0, 0, 255)) && isTile)){
+                ModifyLine(wand, "Placeable",
+                    categories.WandAmmo.HasValue && categories.WandAmmo != Categories.WandAmmo.None, $"Mods.SPIC.Categories.WandAmmo.{categories.WandAmmo}",
+                    infinities.WandAmmo, config.InfiniteTiles && spicPlayer.HasInfiniteWandAmmo(item.type), new(255, 0, 0)
+                );
             }
+            ModifyLine(bag, "Consumable",
+                categories.GrabBag.HasValue && categories.GrabBag != Categories.GrabBag.None, $"Mods.SPIC.Categories.GrabBag.{categories.GrabBag}",
+                infinities.GrabBag, config.InfiniteGrabBags && spicPlayer.HasInfiniteGrabBag(item.type), new(255, 0, 255)
+            );
+            ModifyLine(material, null,
+                categories.Material != Categories.Material.None, $"Mods.SPIC.Categories.Material.{categories.Material}",
+                infinities.Material, config.InfiniteCrafting && spicPlayer.HasInfiniteMaterial(item.type), new(255, 150, 150)
+            );
         }
 
         public override bool? UseItem(Item item, Player player) {

@@ -70,6 +70,7 @@
                 GrabBag: Grab bag
                 WandAmmo: Wand ammo
                 Infinite: Infinite
+                Requirement: items
             }
             Configs: {
                 General: {

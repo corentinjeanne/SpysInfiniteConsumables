@@ -57,7 +57,7 @@ namespace SPIC {
         }
 
         public static bool HasInfiniteGrabBag(this Player player, int type)
-            =>  player.CountAllItems(type, true) >= Category.GetInfinities(type).GrabBag;
+            => Category.IsInfinite(player.CountAllItems(type, true), Category.GetInfinities(type).GrabBag);
 
     }
 }

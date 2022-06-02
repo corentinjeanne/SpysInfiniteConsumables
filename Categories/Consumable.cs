@@ -211,7 +211,7 @@ namespace SPIC {
             return Utility.InfinityToItems(consumable.Infinity(), item.type, consumable.MaxStack());
         }
 
-        public static bool CannotStopDrop(int type) => CannotStopDrop(new Item(type));
+        public static bool AlwaysDrop(int type) => AlwaysDrop(new Item(type));
 
         // TODO Update as tml updates
         // WallXxX
@@ -219,7 +219,7 @@ namespace SPIC {
         // Sunflower, Gnome
         // Chest
         // drop in 2x1 bug : num instead of num3
-        public static bool CannotStopDrop(this Item item) {
+        public static bool AlwaysDrop(this Item item) {
             if (item.createTile < TileID.Dirt || item.createWall >= WallID.None || item.createTile == TileID.TallGateClosed) return false;
             if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
 
@@ -234,14 +234,14 @@ namespace SPIC {
         }
 
         public static bool HasInfiniteConsumable(this Player player, int type, bool ignoreAllwaysDrop = false)
-         => IsInfiniteConsumable(player.CountAllItems(type), type, ignoreAllwaysDrop);
+            => IsInfiniteConsumable(player.CountAllItems(type), type, ignoreAllwaysDrop);
 
-        public static bool IsInfiniteConsumable(int count, int type, bool ignoreAllwaysDrop = false)
-            => !ignoreAllwaysDrop && Configs.Infinities.Instance.PreventItemDupication
-                    && Category.GetCategories(type).Consumable?.IsTile() == true
-                    && (Main.netMode != NetmodeID.SinglePlayer || CannotStopDrop(type)) ?
-                count == Category.GetInfinities(type).Consumable : count >= Category.GetInfinities(type).Consumable;
-        
+        public static bool IsInfiniteConsumable(int count, int type, bool ignoreAllwaysDrop = false) => Category.IsInfinite(
+            count, Category.GetInfinities(type).Consumable,
+            Configs.Infinities.Instance.PreventItemDupication && !ignoreAllwaysDrop
+                && (Main.netMode != NetmodeID.SinglePlayer || AlwaysDrop(type))
+        );
+
 
     }
 }

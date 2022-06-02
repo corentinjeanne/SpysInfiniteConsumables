@@ -68,6 +68,6 @@ namespace SPIC {
         }
 
         public static bool HasInfiniteWandAmmo(this Player player, int type)
-            =>  player.CountAllItems(type) >= Category.GetInfinities(type).WandAmmo;
+            => Category.IsInfinite(player.CountAllItems(type), Category.GetInfinities(type).WandAmmo);
     }
 }

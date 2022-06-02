@@ -32,7 +32,7 @@ public class CategorySettings : ModConfig {
     [Label("$Mods.SPIC.Configs.General.CategoryLabel")]
     public bool ShowCategories;
     [Label("$Mods.SPIC.Configs.General.InfinitesLabel")]
-    public bool ShowInfinites;
+    public bool ShowInfinities;
     [Label("$Mods.SPIC.Configs.General.RequirementLabel")]
     public bool ShowRequirement;
 

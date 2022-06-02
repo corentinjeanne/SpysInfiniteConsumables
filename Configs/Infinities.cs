@@ -82,8 +82,8 @@ public class Materials {
     public int Furnitures = 20;
     [Range(-50, 999), Label("$Mods.SPIC.Configs.Materials.MiscellaneousLabel")]
     public int Miscellaneous = 50;
-    [Range(0, 50),    Label("$Mods.SPIC.Configs.Materials.NonStackableLabel")]
-    public int NonStackable = 2;
+    [Range(-50, 0), Label("$Mods.SPIC.Configs.Materials.NonStackableLabel")]
+    public int NonStackable = -2;
 }
 
 

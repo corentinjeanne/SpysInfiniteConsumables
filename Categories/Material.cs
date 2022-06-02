@@ -82,6 +82,6 @@ namespace SPIC {
         }
         
         public static bool HasInfiniteMaterial(this Player player, int type)
-            => player.CountAllItems(type, true) >= Category.GetInfinities(type).Material;
+            => Category.IsInfinite(player.CountAllItems(type, true), Category.GetInfinities(type).Material);
     }
 }

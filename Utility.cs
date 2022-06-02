@@ -69,10 +69,8 @@ namespace SPIC {
 
         public static int InfinityToItems(int infinity, int type, int MaxStack = 999) {
             int maxStack = Globals.SpicItem.MaxStack(type);
-            int items = infinity >= 0 ? infinity > maxStack ? maxStack : infinity :
-                -infinity * (maxStack < MaxStack ? maxStack : MaxStack);
-
-            return infinity == 0 ? int.MaxValue : items;
+            return infinity >= 0 ? System.Math.Min(maxStack,infinity) :
+                -infinity * System.Math.Min(maxStack, MaxStack);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace SPIC.Globals {
             if (WorldGen.generatingWorld || playerIndex < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
                 return;
 
-            if (item.CannotStopDrop()) return;
+            if (item.AlwaysDrop()) return;
 
             Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
             SpicPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<SpicPlayer>();

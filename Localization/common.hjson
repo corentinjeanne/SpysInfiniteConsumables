@@ -2,6 +2,9 @@
 {
     Mods: {
         SPIC: {
+            ItemTooltip: {
+                RequirementTooltip: "{0} {$Mods.SPIC.ItemTooltip.Requirement}"
+            }
             Configs: {
                 General: {
                     ConsumablesLabel: "[i:3104] {$Mods.SPIC.Configs.General.Consumables}"
@@ -13,10 +16,10 @@
                     DuplicationLabel: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
                     CommandsLabel: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
 
-                    CategoryLabel: "[i:3102] {$Mods.SPIC.Configs.General.Category}"
-                    InfinitesLabel: "[i:393] {$Mods.SPIC.Configs.General.Infinities}"
-                    RequirementLabel: "[i:393] {$Mods.SPIC.Configs.General.Requirement}"
-                    AutoLabel: "[i:393] {$Mods.SPIC.Configs.General.Auto}"
+                    InfinitesLabel: "[i:3084] {$Mods.SPIC.Configs.General.Infinities}"
+                    CategoryLabel: "[i:393] {$Mods.SPIC.Configs.General.Category}"
+                    RequirementLabel: "[i:3102] {$Mods.SPIC.Configs.General.Requirement}"
+                    AutoLabel: "[i:38] {$Mods.SPIC.Configs.General.Auto}"
                 }
                 Infinities: {
                     ConsumablesLabel: "{$Mods.SPIC.Configs.Infinities.Consumables}" // [i:3104]
