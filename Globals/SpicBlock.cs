@@ -28,40 +28,38 @@ namespace SPIC.Globals {
             orig(x, y, tileCache, includeLargeObjectDrops);
             s_inDropItem = false;
         }
+
         private static void HookReplaceTIle_DoActualReplacement(On.Terraria.WorldGen.orig_ReplaceTIle_DoActualReplacement orig, ushort targetType, int targetStyle, int topLeftX, int topLeftY, Tile t) {
             Player player = Main.player[Main.myPlayer];
             ModContent.GetInstance<SPICTile>().PlaceInWorld(topLeftX, topLeftY, player.HeldItem.createTile, player.HeldItem);
-
             orig(targetType, targetStyle, topLeftX, topLeftY, t);
         }
 
+
+        //  TODO Falling tiles
         public override void PlaceInWorld(int i, int j, int type, Item item) {
 
-            if (Main.netMode != NetmodeID.SinglePlayer) return;
 
-            Configs.Infinities config = Configs.Infinities.Instance;
+            Configs.Infinities infs = Configs.Infinities.Instance;
 
             int playerIndex = item.playerIndexTheItemIsReservedFor;
-            if (WorldGen.generatingWorld || playerIndex < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
+            if (WorldGen.generatingWorld || playerIndex < 0 || !infs.InfinitePlaceables || !infs.PreventItemDupication)
                 return;
 
-            if (item.AlwaysDrop()) return;
+            if (!PlaceableExtension.CanNoDuplicationWork(item)) return;
 
             Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
             SpicPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<SpicPlayer>();
-            
-            if (spicPlayer.Player.HeldItem == item) {
-                if (spicPlayer.HasInfiniteConsumable(item.type)) {
+
+            if (spicPlayer.HasInfinitePlaceable(item.tileWand == -1 ? item.type : item.tileWand)) {
                     TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
                     if (data == null) world.PlaceBlock(i, j);
                     else world.PlaceBlock(i-data.Origin.X, j- data.Origin.Y);
                 }
             }
-            else if (spicPlayer.HasInfiniteWandAmmo(item)) world.PlaceBlock(i, j);
-        }
 
         public override bool Drop(int i, int j, int type) {
-            if (Main.netMode != NetmodeID.SinglePlayer) return true;
+            if (!PlaceableExtension.CanNoDuplicationWork()) return true;
 
             TileObjectData data;
             Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
@@ -103,18 +101,18 @@ namespace SPIC.Globals {
     
         public override void PlaceInWorld(int i, int j, int type, Item item) {
 
-            if (Main.netMode != NetmodeID.SinglePlayer) return;
-
             Configs.Infinities config = Configs.Infinities.Instance;
-            if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfiniteTiles || !config.PreventItemDupication)
+            if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfinitePlaceables || !config.PreventItemDupication)
                 return;
+
+            if(!PlaceableExtension.CanNoDuplicationWork(item)) return;
 
             ModContent.GetInstance<Systems.SpicWorld>().PlaceWall(i, j);
         }
 
         public override bool Drop(int i, int j, int type, ref int dropType) {
 
-            if (Main.netMode != NetmodeID.SinglePlayer) return true;
+            if (!PlaceableExtension.CanNoDuplicationWork()) return true;
 
             return !ModContent.GetInstance<Systems.SpicWorld>().MineWall(i, j);
 

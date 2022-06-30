@@ -11,15 +11,14 @@ namespace SPIC.Configs;
 
 public struct AutoCategories {
     public readonly Categories.Consumable? Consumable;
+    public readonly Categories.Placeable? Placeable;
+
     public readonly bool GrabBag;
-    public readonly bool WandAmmo;
     public readonly bool Explosive;
 
-    public AutoCategories(Categories.Consumable? consumable, bool grabBag, bool wandAmmo, bool explosive) {
-        Consumable = consumable;
-        GrabBag = grabBag;
-        WandAmmo = wandAmmo;
-        Explosive = explosive;
+    public AutoCategories(Categories.Consumable? consumable, Categories.Placeable? placeable, bool grabBag, bool explosive) {
+        Consumable = consumable; Placeable = placeable;
+        GrabBag = grabBag; Explosive = explosive;
     }
 }
 
@@ -29,9 +28,10 @@ public class CategorySettings : ModConfig {
     public static CategorySettings Instance => _instance ??= ModContent.GetInstance<CategorySettings>();
     private static CategorySettings _instance;
 
+    [Header("$Mods.SPIC.Configs.General.DisplayHeader")]
     [Label("$Mods.SPIC.Configs.General.CategoryLabel")]
     public bool ShowCategories;
-    [Label("$Mods.SPIC.Configs.General.InfinitesLabel")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.InfinitesLabel")]
     public bool ShowInfinities;
     [Label("$Mods.SPIC.Configs.General.RequirementLabel")]
     public bool ShowRequirement;
@@ -42,36 +42,38 @@ public class CategorySettings : ModConfig {
     public bool AutoCategories;
 
     private readonly Dictionary<ItemDefinition, Categories.Consumable> _autoConsumables = new();
+    private readonly Dictionary<ItemDefinition, Categories.Placeable> _autoPlaceables = new();
     private readonly HashSet<ItemDefinition> _autoExplosives = new();
     private readonly HashSet<ItemDefinition> _autoGrabBags = new();
-    private readonly HashSet<ItemDefinition> _autoWands = new();
 
-    public void SaveConsumableCategory(int type, Categories.Consumable consumable) {
-        ItemDefinition key = new(type);
-        if (IsExplosive(type) || !_autoConsumables.TryAdd(key, consumable)) return;
-        Category.UpdateItem(type);
+    public void SaveConsumableCategory(Terraria.Item item, Categories.Consumable consumable) {
+        ItemDefinition key = new(item.type);
+        if (IsExplosive(item.type) || !_autoConsumables.TryAdd(key, consumable)) return;
+        Category.UpdateItem(item);
         _modifiedInGame = true;
     }
 
-    public bool SaveExplosive(int type) {
-        ItemDefinition key = new(type);
+    public void SavePlaceableCategory(Terraria.Item item, Categories.Placeable placeable) {
+        ItemDefinition key = new(item.type);
+        if (!_autoPlaceables.TryAdd(key, placeable)) return;
+        Category.UpdateItem(item);
+        _modifiedInGame = true;
+    }
+
+    public bool SaveExplosive(Terraria.Item item) {
+        ItemDefinition key = new(item.type);
         if (!_autoExplosives.Add(key)) return false;
         _autoConsumables.Remove(key);
-        Category.UpdateItem(type);
+        Category.UpdateItem(item);
         _modifiedInGame = true;
         return true;
     }
     public bool IsExplosive(int type) => _autoExplosives.Contains(new(type));
 
 
-    public void SaveGrabBagCategory(int type) {
-        if (_autoGrabBags.Add(new(type))) _modifiedInGame = true;
-        Category.UpdateItem(type);
-    }
-
-    public void SaveWandAmmoCategory(int type) {
-        if (!_autoWands.Add(new(type))) _modifiedInGame = true;
-        Category.UpdateItem(type);
+    public void SaveGrabBagCategory(Terraria.Item item) {
+        if (_autoGrabBags.Add(new(item.type))) _modifiedInGame = true;
+        Category.UpdateItem(item);
     }
 
     public AutoCategories GetAutoCategories(int type){
@@ -80,8 +82,8 @@ public class CategorySettings : ModConfig {
         ItemDefinition key = new(type);
         return new(
             _autoConsumables.ContainsKey(key) ? _autoConsumables[key] : null,
+            _autoPlaceables.ContainsKey(key) ? _autoPlaceables[key] : null,
             _autoGrabBags.Contains(key),
-            _autoWands.Contains(key),
             _autoExplosives.Contains(key)
         );
     }

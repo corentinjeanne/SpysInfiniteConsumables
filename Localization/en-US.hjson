@@ -3,51 +3,62 @@
         SPIC: {
             Categories: {
                 Unknown: Unknown
-                
+
                 Ammo: {
                     None: Not Ammo
                     Basic: Basic
                     Explosive: Explosives
                     Special: Special
                 }
+
                 Consumable: {
                     None: Not consumable
+
                     Weapon: Weapon
                     Recovery: Recovery potion
                     Buff: Buff potion
                     PlayerBooster: Player Booster
                     WorldBooster: World Booster
+
                     Summoner: Summoner
                     Critter: Critter
                     Explosive: Explosive
                     Tool: Tool
+                }
+
+                Placeable: {
+                    None: Not Placeable
+
                     Block: Block
-                    Platform: Platform
+                    Wall: Wall
+                    Wiring: Wiring
                     Torch: Torch
                     Ore: Ore
-                    Wall: Wall
+
                     LightSource: Light source
                     Container: Container
                     Functional: Functional
                     CraftingStation: Crafting station
-                    Housing: Housing
                     Decoration: Decoration
                     MusicBox: MusicBox
+
                     Mechanical: Mechanical
                     Bucket: Bucket
                     Seed: Seed
                 }
+
                 GrabBag: {
                     None: Not a bag
                     Crate: Crate
                     TreasureBag: Treasure bag
                 }
-                WandAmmo: {
-                    None: Not wand ammo
-                    Block: Block
-                    Wiring: Wiring
-                    Mechanical: Mechanical
+
+                Currency: {
+                    None: Not a currency
+                    Coin: Coin
+                    SingleCoin: Special
                 }
+
                 Material: {
                     None: Not a material
                     Basic: Basic
@@ -58,44 +69,47 @@
                 }
             }
 
-            Hotkeys: {
-                Categories: Hold to display the categories of items
-            }
-
             Commands: {
                 IDDesc: Gives the ID and the name of an item
                 SetDesc: Set the category of an item
             }
+
             ItemTooltip: {
                 GrabBag: Grab bag
                 WandAmmo: Wand ammo
                 Infinite: Infinite
                 Requirement: items
+                // Coin: 
             }
+
             Configs: {
                 General: {
                     Header: General
+
                     Consumables: Infinite Consumables
                     Bags: Infinite Grab bags
-                    Tiles: Infinite Tiles
-                    Currency: Infinite Currency
-                    Crafting: Infinite Crafting
-                    Journey: Journey requirement
-                    JourneyTooltip: Uses the journey research cost of items as their infinite requirent
+                    Placeables: Infinite Placeables
+                    Currencies: Infinite Currencies
+                    Materials: Infinite Materials
+
                     Duplication: Prevent item duplication
                     DuplicationTooltip:
                         '''
-                        /!\ WIP for multiplayer /!\
+                        /!\ WIP /!\
                         Tiles and walls won't drop their item when broken
-                        Critters will turn into smoke
-                        Buckets won't create empty or full buckets when used"
+                        Critters will turn into smoke when caught
+                        Buckets won't create empty or full buckets when used
                         '''
+                    Journey: Journey requirement
+                    JourneyTooltip: Uses the journey research cost of items as their infinite requirent
                     Commands: Commands
                     CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
-                    
+                
+                    DisplayHeader: Infinities display
                     Category: Show categories
                     Infinities: Show infinities
                     Requirement: Show requirement
+
                     Auto: Automatic categories
                     AutoTooltip: 
                         '''
@@ -105,69 +119,56 @@
                 }
                 Infinities: {
                     ConsumablesHeader: Consumables
-                    Consumables: Consumables
-                    Ammos: Ammunitions
-
-                    BagsHeader: Grab bags
-                    Bags: Grab bags
-
-                    TilesHeader: Tiles
-                    CommonTiles: Common tiles
-                    Furnitures: Furitures
-                    OtherTiles: Other tiles
-
-                    CraftingHeader: Crafting
-                    Materials: Materials
-
-                    CustomHeader: Custom Categories and values
-                    Customs: Customs
-                }
-                Customs: {
-                    Item: Item
-                    WandAmmo: Wand Ammo
-                    Category: Category
-                    Infinity: Infinity
-                    InfinityTooltip: Only in use when category is None
-                }
-
-                # Class from the config
-                Consumables: {
                     Weapons: Thrown weapons
-                    Recovery: Recovery potions
-                    Buffs: Buff potions
+                    StandardAmmo: Standard Ammo
+                    SpecialAmmo: Special Ammo
+                    Potions: Potions
                     Boosters: Permanent Boosters
+
                     Summoners: Boss and Event summoners
                     Critters: Criters and Baits
                     Explosives: Explosives
-                    ExplosivesTooltip: Does not work
                     Tools: Miscellaneous
-                    Standard: Standard
-                    Special: Special
+
+                    BagsHeader: Grab bags
                     Crates: Crates and Bags
                     Boss: Treasure Bags
-                }
-                Tiles: {
-                    Blocks: Blocks
-                    Wiring: Wiring
-                    Platforms: Platforms and Torches
-                    Ores: Ores
-                    Walls: Walls
-                    Lights: Light sources
-                    Containers: Containers
-                    Functional: Functional
-                    Decorations: Decorations
-                    Mechanical: Mechanical
-                    Buckets: Buckets
-                    Seeds: Seeds
-                }
-                Materials: {
-                    Basics: Basic materials
+
+                    PlaceablesHeader: Placeables
+                    Tiles: Tiles
+                    Torches: Torches
                     Ores: Valuable Tiles
-                    OresTooltip: Drops from tiles detected by a metal detector
                     Furnitures: Furnitures
+                    Mechanical: Mechanical parts
+                    Liquids: Liquids
+                    Seeds: Seeds
+                    Wiring: Wiring
+
+                    CurrenciesHeader: Currencies
+                    Coins: Coins
+                    CustomCoins: Custom currencies
+
+                    MaterialsHeader: Materials
+                    Basics: Basic materials
                     Miscellaneous: Miscellaneous
                     NonStackable: Non stackable
+
+                    CustomHeader: Custom Categories and values
+                    Customs: Customs
+                    Custom: {
+                        Item: Item
+                        Ammo: Ammo
+                        Consumable: Consumable
+                        Placeable: Placeable
+                        Bag: Grab bag
+                        Currency: Currency
+
+                        Category: Category
+                        Infinity: Infinity
+                        InfinityTooltip: Only in use when category is None
+                    }
                 }
+
             }
         }
     }

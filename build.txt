@@ -1,4 +1,4 @@
 displayName = Spy's Infinite Consumables
 author = Spiky
-version = 1.3.1
+version = 2.0.0
 homepage = https://github.com/Spiky-73/SpysInfiniteConsumables

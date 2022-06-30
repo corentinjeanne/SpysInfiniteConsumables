@@ -42,12 +42,19 @@ namespace SPIC.Globals {
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
                 if (critter.active && critter.type == Type) {
-                    if(Configs.Infinities.Instance.PreventItemDupication && Main.player[who].HasInfiniteConsumable(critter.catchItem)){
+                    if(Configs.Infinities.Instance.PreventItemDupication && Main.player[who].GetModPlayer<SpicPlayer>().HasInfiniteConsumable(critter.catchItem)){
                         critter.SpawnedFromStatue = true;
                     }
                 }
             }
 
         }
+
+        // public override void SetupShop(int type, Chest shop, ref int nextSlot){
+        //     foreach (Item item in shop.item){
+        //         item.value = 0;
+        //     }
+        // }
+
     }
 }

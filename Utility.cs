@@ -72,5 +72,7 @@ namespace SPIC {
             return infinity >= 0 ? System.Math.Min(maxStack,infinity) :
                 -infinity * System.Math.Min(maxStack, MaxStack);
         }
+
+        public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;
     }
 }

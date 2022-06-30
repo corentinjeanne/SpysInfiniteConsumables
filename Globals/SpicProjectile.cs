@@ -16,11 +16,12 @@ namespace SPIC.Globals {
 
             SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
             int type = spicPlayer.FindPotentialExplosivesType(proj.type);
+            Item item = System.Array.Find(spicPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            if (type != Terraria.ID.ItemID.None && Configs.CategorySettings.Instance.SaveExplosive(type)) {
-                spicPlayer.RefilExplosive(type);
+            if (item?.IsAir == false && Configs.CategorySettings.Instance.SaveExplosive(item)) {
+                spicPlayer.RefilExplosive(proj.type, item);
                 
-                Category.UpdateItem(type);
+                Category.UpdateItem(item);
             }
             
         }

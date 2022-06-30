@@ -22,20 +22,18 @@ namespace SPIC {
             Material.Furniture => 99,
             Material.Miscellaneous => 999,
             Material.NonStackable => 1,
-            Material.None => 999,
-            _ => throw new System.NotImplementedException(),
+            _ => 999,
         };
         public static int Infinity(this Material material) {
-            Configs.Materials m = Configs.Infinities.Instance.Materials;
+            Configs.Infinities inf = Configs.Infinities.Instance;
 
             return material switch {
-                Material.Basic => m.Basics,
-                Material.Ore => m.Ores,
-                Material.Furniture => m.Furnitures,
-                Material.Miscellaneous => m.Miscellaneous,
-                Material.NonStackable => m.NonStackable,
-                Material.None => 0,
-                _ => throw new System.NotImplementedException(),
+                Material.Basic => inf.materials_Basics,
+                Material.Ore => inf.materials_Ores,
+                Material.Furniture => inf.materials_Furnitures,
+                Material.Miscellaneous => inf.materials_Miscellaneous,
+                Material.NonStackable => inf.materials_NonStackable,
+                _ => 0,
             };
         }
         public static Material GetMaterialCategory(this Item item) {
@@ -45,13 +43,13 @@ namespace SPIC {
 
             if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
 
-            Consumable consumable = item.GetConsumableCategory().GetValueOrDefault();
+            Placeable placeable = item.GetPlaceableCategory();
 
-            if (consumable.IsFurniture()) return Material.Furniture;
+            if (placeable.IsFurniture()) return Material.Furniture;
 
-            if(consumable == Consumable.Ore) return Material.Ore;
+            if(placeable == Placeable.Ore) return Material.Ore;
 
-            if (consumable.IsCommonTile()
+            if (placeable.IsCommonTile()
                     || type == ItemID.MusketBall || type == ItemID.EmptyBullet || type == ItemID.WoodenArrow 
                     || type == ItemID.Wire || type == ItemID.BottledWater
                     || type == ItemID.DryRocket || type == ItemID.DryBomb || type == ItemID.EmptyDropper)
@@ -75,13 +73,13 @@ namespace SPIC {
         public static int GetMaterialInfinity(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
-            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
 
             Material material = Category.GetCategories(item).Material;
+            if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return Utility.InfinityToItems(material.Infinity(), item.type, material.MaxStack());
         }
         
-        public static bool HasInfiniteMaterial(this Player player, int type)
-            => Category.IsInfinite(player.CountAllItems(type, true), Category.GetInfinities(type).Material);
+        public static bool HasInfiniteMaterial(this Player player, Item item)
+            => Category.IsInfinite(player.CountAllItems(item.type, true), Category.GetInfinities(item).Material);
     }
 }

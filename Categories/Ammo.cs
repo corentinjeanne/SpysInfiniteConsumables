@@ -18,18 +18,15 @@ namespace SPIC {
             Ammo.Basic => 999,
             Ammo.Special => 999,
             Ammo.Explosive => 999,
-            Ammo.None => 999,
-            _ => throw new System.NotImplementedException(),
+            _ => 999,
         };
 
         public static int Infinity(this Ammo ammo) {
-            Configs.Ammo a = Configs.Infinities.Instance.Ammos;
+            Configs.Infinities inf = Configs.Infinities.Instance;
             return ammo switch {
-                Ammo.Basic => a.Standard,
-                Ammo.Special => a.Special,
-                Ammo.Explosive => a.Explosives,
-                Ammo.None => 0,
-                _ => throw new System.NotImplementedException(),
+                Ammo.Basic => inf.ammo_Standard,
+                Ammo.Special or Ammo.Explosive => inf.ammo_Special,
+                _ => 0,
             };
         }
 
@@ -53,16 +50,16 @@ namespace SPIC {
 
             Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
             if(infinities.Ammo.HasValue) return Utility.InfinityToItems(infinities.Ammo.Value, item.type);
-            if(config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-
+            
             Ammo ammo = Category.GetCategories(item).Ammo;
+            if(ammo != Ammo.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return Utility.InfinityToItems(ammo.Infinity(), item.type, ammo.MaxStack());
         }
-        public static bool HasInfiniteAmmo(this Player player, int type)
-         => IsInfiniteAmmo(player.CountAllItems(type), type);
+        public static bool HasInfiniteAmmo(this Player player, Item item)
+         => IsInfiniteAmmo(player.CountAllItems(item.type), item);
 
 
-        public static bool IsInfiniteAmmo(int count, int type) => Category.IsInfinite(count,Category.GetInfinities(type).Ammo);
+        public static bool IsInfiniteAmmo(int count, Item item) => Category.IsInfinite(count,Category.GetInfinities(item).Ammo);
         
     }
 }

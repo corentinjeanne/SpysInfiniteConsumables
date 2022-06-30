@@ -25,7 +25,7 @@ namespace SPIC.Globals {
         }
 
         public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
-            if (!Configs.Infinities.Instance.InfiniteCrafting) return;
+            if (!Configs.Infinities.Instance.InfiniteMaterials) return;
 
             SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
             if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;

@@ -2,38 +2,43 @@ using System.Collections.Generic;
 
 using Terraria;
 
+
 namespace SPIC {
 
     namespace Categories {
         public struct Categories {
             public readonly Ammo Ammo;
             public readonly Consumable? Consumable;
+            public readonly Placeable Placeable;
             public readonly GrabBag? GrabBag;
-            public readonly WandAmmo? WandAmmo;
             public readonly Material Material;
+            public readonly Currency Currency;
 
             public Categories(Item item){
                 Ammo = item.GetAmmoCategory();
                 Consumable = item.GetConsumableCategory();
+                Placeable = item.GetPlaceableCategory();
                 GrabBag = item.GetGrabBagCategory();
-                WandAmmo = item.GetWandAmmoCategory();
                 Material = item.GetMaterialCategory();
+                Currency = item.GetCurrencyCategory();
             }
         }
         public struct Infinities {
             public readonly int Ammo;
             public readonly int Consumable;
             public readonly int GrabBag;
-            public readonly int WandAmmo;
+            public readonly int Placeable;
             public readonly int Material;
+            public readonly int Currency;
 
 
             public Infinities(Item item){
                 Ammo = item.GetAmmoInfinity();
                 Consumable = item.GetConsumableInfinity();
                 GrabBag = item.GetGrabBagInfinity();
-                WandAmmo = item.GetWandAmmoInfinity();
+                Placeable = item.GetPlaceableInfinity();
                 Material = item.GetMaterialInfinity();
+                Currency = item.GetCurrencyInfinity();
             }
         }
         
@@ -48,7 +53,6 @@ namespace SPIC {
             _infinities.Clear();
         }
 
-        public static void UpdateItem(int type) => UpdateItem(new Item(type));
         public static void UpdateItem(Item item){
             if(!_categories.ContainsKey(item.type)) return;
             _categories.Remove(item.type, out _);
@@ -59,15 +63,13 @@ namespace SPIC {
             _infinities.Add(item.type, new(item));
         }
         
-        public static Categories.Categories GetCategories(int type) => GetCategories(new Item(type));
         public static Categories.Categories GetCategories(this Item item){
-            _categories.TryAdd(item.type, new(item));
+            if(!_categories.ContainsKey(item.type)) _categories.Add(item.type, new(item));
             return _categories[item.type];
         }
 
-        public static Categories.Infinities GetInfinities(int type) => GetInfinities(new Item(type));
         public static Categories.Infinities GetInfinities(this Item item){
-            _infinities.TryAdd(item.type, new(item));
+            if (!_infinities.ContainsKey(item.type)) _infinities.Add(item.type, new(item));
             return _infinities[item.type];
         }
         
