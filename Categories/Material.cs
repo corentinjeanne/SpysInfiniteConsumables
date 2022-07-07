@@ -24,7 +24,7 @@ namespace SPIC {
             Material.NonStackable => 1,
             _ => 999,
         };
-        public static int Infinity(this Material material) {
+        public static int Requirement(this Material material) {
             Configs.Infinities inf = Configs.Infinities.Instance;
 
             return material switch {
@@ -57,29 +57,14 @@ namespace SPIC {
 
             return Material.Miscellaneous;
         }
-        public static bool HasInfinite(this Player player, int type, Material material) {
+        public static int GetMaterialRequirement(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
-
-            int items;
-            if (config.JourneyRequirement) items = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[type];
-            else {
-                if (material == Material.None) return false;
-                items = Utility.InfinityToItems(material.Infinity(), type, material.MaxStack());
-            }
-
-
-            return player.CountAllItems(type, true) >= items;
-        }
-        public static int GetMaterialInfinity(this Item item){
-            Configs.Infinities config = Configs.Infinities.Instance;
-
-
             Material material = Category.GetCategories(item).Material;
             if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-            return Utility.InfinityToItems(material.Infinity(), item.type, material.MaxStack());
+            return material.Requirement();
         }
-        
-        public static bool HasInfiniteMaterial(this Player player, Item item)
-            => Category.IsInfinite(player.CountAllItems(item.type, true), Category.GetInfinities(item).Material);
+
+        public static long GetMaterialInfinity(this Player player, Item item)
+            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), player.CountAllItems(item.type, true), Category.GetRequirements(item).Material, 1, Category.ARIDelegates.LargestMultiple);
     }
 }

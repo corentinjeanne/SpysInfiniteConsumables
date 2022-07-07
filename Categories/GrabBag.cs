@@ -20,7 +20,7 @@ namespace SPIC {
             _ => 999,
         };
         
-        public static int Infinity(this GrabBag bag) {
+        public static int Requirement(this GrabBag bag) {
             Configs.Infinities inf = Configs.Infinities.Instance;
             return bag switch {
                 GrabBag.Crate => inf.bags_Crates,
@@ -43,19 +43,19 @@ namespace SPIC {
 
             return null;
         }
-        public static int GetGrabBagInfinity(this Item item){
+        public static int GetGrabBagRequirement(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
-            if(infinities.GrabBag.HasValue) return Utility.InfinityToItems(infinities.GrabBag.Value, item.type);
+            if(infinities.GrabBag.HasValue) return Utility.RequirementToItems(infinities.GrabBag.Value, item.type);
 
             GrabBag grabBag = Category.GetCategories(item).GrabBag ?? GrabBag.None;
             if(grabBag != GrabBag.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-            return Utility.InfinityToItems(grabBag.Infinity(), item.type, grabBag.MaxStack());
+            return grabBag.Requirement();
         }
 
-        public static bool HasInfiniteGrabBag(this Player player, Item item)
-            => Category.IsInfinite(player.CountAllItems(item.type, true), Category.GetInfinities(item).GrabBag);
+        public static int GetGrabBagInfinity(this Player player, Item item)
+            => (int)Category.Infinity(item.type, Category.GetCategories(item).GrabBag?.MaxStack() ?? 999, player.CountAllItems(item.type, true), Category.GetRequirements(item).GrabBag);
 
     }
 }

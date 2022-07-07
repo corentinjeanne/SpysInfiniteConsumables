@@ -7,10 +7,10 @@ using Terraria.ModLoader;
 namespace SPIC.Globals {
     public class SpicPlayer : ModPlayer {
 
-        public int preUseMaxLife, preUseMaxMana;
-        public int preUseExtraAccessories;
-        public Microsoft.Xna.Framework.Vector2 preUsePosition;
-        public bool preUseDemonHeart;
+        private int _preUseMaxLife, _preUseMaxMana;
+        private int _preUseExtraAccessories;
+        private Microsoft.Xna.Framework.Vector2 _preUsePosition;
+        private bool _preUseDemonHeart;
         private Item _checkingForCategory;
         private static int _preUseDifficulty;
         private static int _preUseInvasion;
@@ -25,16 +25,17 @@ namespace SPIC.Globals {
         private readonly HashSet<int> _infinitePlaceables = new();
         private readonly HashSet<int> _infiniteAmmos = new();
         private readonly HashSet<int> _infiniteGrabBabs = new();
+        private readonly Dictionary<int, long> _infiniteMaterials = new();
+        private readonly Dictionary<int, long> _infiniteCurrencies = new();
+
         public bool HasInfiniteConsumable(int type) => _infiniteConsumables.Contains(type);
         public bool HasInfiniteAmmo(int type) => _infiniteAmmos.Contains(type);
         public bool HasInfinitePlaceable(int type) => _infinitePlaceables.Contains(type);
         public bool HasInfiniteGrabBag(int type) => _infiniteGrabBabs.Contains(type);
-
-        private readonly HashSet<int> _infiniteMaterials = new();
-        public bool HasInfiniteMaterial(int type) => _infiniteMaterials.Contains(type);
-
-        private readonly Dictionary<int, int> _infiniteCurrencies = new();
-        // public bool HasInfiniteCurrency(int id) => _infiniteCurrencies.ContainsKey(id);
+        public bool HasInfiniteMaterial(int type, out long inf) => _infiniteMaterials.TryGetValue(type, out inf);
+        public bool HasInfiniteMaterial(int type, long cost) => _infiniteMaterials.TryGetValue(type, out long inf) && cost <= inf;
+        public bool HasInfiniteCurrency(int id, out long inf) => _infiniteCurrencies.TryGetValue(id, out inf);
+        public bool HasInfiniteCurrency(int id, long cost) => _infiniteCurrencies.TryGetValue(id, out long inf) && cost <= inf;
 
 
         public override void Load() {
@@ -70,15 +71,21 @@ namespace SPIC.Globals {
 
             void LookIn(Item[] inventory){
                 foreach (Item item in inventory) {
-                    if (item.IsAir || typesChecked.Contains(item.type)) continue;
+                    if(item.IsAir) continue;
 
-                    if (Player.HasInfiniteAmmo(item)) _infiniteAmmos.Add(item.type);
-                    if (Player.HasInfiniteConsumable(item)) _infiniteConsumables.Add(item.type);
-                    if (Player.HasInfinitePlaceable(item)) _infinitePlaceables.Add(item.type);
-                    if (Player.HasInfiniteGrabBag(item)) _infiniteGrabBabs.Add(item.type);
-
-                    if (Player.HasInfiniteMaterial(item)) _infiniteMaterials.Add(item.type);
-                    typesChecked.Add(item.type);
+                    long inf;
+                    if(item.IsPartOfACurrency(out int currency) && !currenciesChecked.Contains(currency)){
+                        if ((inf = Player.GetCurrencyInfinity(item)) != 0) _infiniteCurrencies.Add(currency, inf);
+                        currenciesChecked.Add(currency);
+                    }
+                    if (!typesChecked.Contains(item.type)) {
+                        if ((inf = Player.GetAmmoInfinity(item)) != 0) _infiniteAmmos.Add(item.type);
+                        if ((inf = Player.GetConsumableInfinity(item)) != 0) _infiniteConsumables.Add(item.type);
+                        if ((inf = Player.GetPlaceableInfinity(item)) != 0) _infinitePlaceables.Add(item.type);
+                        if ((inf = Player.GetGrabBagInfinity(item)) != 0) _infiniteGrabBabs.Add(item.type);
+                        if ((inf = Player.GetMaterialInfinity(item)) != 0) _infiniteMaterials.Add(item.type, inf);
+                        typesChecked.Add(item.type);
+                    }
                 }
             }
             LookIn(Player.inventory);
@@ -102,16 +109,18 @@ namespace SPIC.Globals {
         }
 
         private void SavePreUseItemStats() {
-            preUseMaxLife = Player.statLifeMax2;
-            preUseMaxMana = Player.statManaMax2;
-            preUseExtraAccessories = Player.extraAccessorySlots;
-            preUseDemonHeart = Player.extraAccessory;
-            preUsePosition = Player.position;
+            _preUseMaxLife = Player.statLifeMax2;
+            _preUseMaxMana = Player.statManaMax2;
+            _preUseExtraAccessories = Player.extraAccessorySlots;
+            _preUseDemonHeart = Player.extraAccessory;
+            _preUsePosition = Player.position;
 
             _preUseDifficulty = Utility.WorldDifficulty();
             _preUseInvasion = Main.invasionType;
             _preUseNPCStats = Utility.GetNPCStats();
         }
+
+        // FIXME recall when at spawn -> err: booster vs Tool
         public Categories.Consumable? CheckForCategory() {
 
             NPCStats stats = Utility.GetNPCStats();
@@ -122,17 +131,17 @@ namespace SPIC.Globals {
                 return Categories.Consumable.Critter;
 
             // Player Boosters
-            if (preUseMaxLife != Player.statLifeMax2 || preUseMaxMana != Player.statManaMax2
-                    || preUseExtraAccessories != Player.extraAccessorySlots || preUseDemonHeart != Player.extraAccessory)
+            if (_preUseMaxLife != Player.statLifeMax2 || _preUseMaxMana != Player.statManaMax2
+                    || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
                 return Categories.Consumable.PlayerBooster;
 
             // World boosters
-            // ? Other difficulties
+            // TODO Other difficulties
             if (_preUseDifficulty != Utility.WorldDifficulty())
                 return Categories.Consumable.WorldBooster;
 
             // Some tools
-            if (Player.position != preUsePosition)
+            if (Player.position != _preUsePosition)
                 return Categories.Consumable.Tool;
 
             // No new category detected
@@ -159,8 +168,8 @@ namespace SPIC.Globals {
             }
 
             Categories.Categories categories = Category.GetCategories(refill);
-            if ((categories.Consumable == Categories.Consumable.Tool && ConsumableExtension.IsInfiniteConsumable(tot + used, refill))
-                    || (categories.Ammo != Categories.Ammo.None && AmmoExtension.IsInfiniteAmmo(tot + used, refill))) {
+            if ((categories.Consumable == Categories.Consumable.Tool && ConsumableExtension.GetConsumableInfinity(tot + used, refill) != 0)
+                    || (categories.Ammo != Categories.Ammo.None && AmmoExtension.GetAmmoInfinity(tot + used, refill) != 0)) {
                 Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
             }
         }

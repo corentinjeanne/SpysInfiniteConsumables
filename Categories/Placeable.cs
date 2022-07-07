@@ -60,7 +60,7 @@ namespace SPIC {
             _ => 999,
         };
 
-        public static int Infinity(this Placeable category) {
+        public static int Requirement(this Placeable category) {
             Configs.Infinities infs = Configs.Infinities.Instance;
             return category switch {
                 Placeable.Block or Placeable.Wall or Placeable.Wiring => infs.placeables_Tiles,
@@ -145,15 +145,15 @@ namespace SPIC {
             return Placeable.None;
         }
 
-        public static int GetPlaceableInfinity(this Item item){
+        public static int GetPlaceableRequirement(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
-            if (infinities.Placeable.HasValue) return Utility.InfinityToItems(infinities.Placeable.Value, item.type);
+            if (infinities.Placeable.HasValue) return infinities.Placeable.Value;
 
             Placeable placeable = Category.GetCategories(item).Placeable;
             if (placeable != Placeable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-            return Utility.InfinityToItems(placeable.Infinity(), item.type, placeable.MaxStack());
+            return placeable.Requirement();
         }
 
         public static bool CanNoDuplicationWork(int type) => CanNoDuplicationWork(new Item(type));
@@ -182,12 +182,12 @@ namespace SPIC {
             return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
         }
 
-        public static bool HasInfinitePlaceable(this Player player, Item item, bool ignoreAllwaysDrop = false)
-            => IsInfinitePlaceable(player.CountAllItems(item.type), item, ignoreAllwaysDrop);
+        public static int GetPlaceableInfinity(this Player player, Item item, bool ignoreAllwaysDrop = false)
+            => GetPlaceableInfinity(player.CountAllItems(item.type), item, ignoreAllwaysDrop);
 
-        public static bool IsInfinitePlaceable(int count, Item item, bool ignoreAllwaysDrop = false) => Category.IsInfinite(
-            count, Category.GetInfinities(item).Placeable,
-            Configs.Infinities.Instance.PreventItemDupication && !ignoreAllwaysDrop && !CanNoDuplicationWork(item)
+        public static int GetPlaceableInfinity(int count, Item item, bool ignoreAllwaysDrop = false)
+         => (int)Category.Infinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
+            !(Configs.Infinities.Instance.PreventItemDupication || ignoreAllwaysDrop) && !CanNoDuplicationWork(item) ? Category.ARIDelegates.NotInfinite : Category.ARIDelegates.ItemCount
         );
 
     }

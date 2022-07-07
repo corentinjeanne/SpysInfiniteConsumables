@@ -21,7 +21,7 @@ namespace SPIC {
             _ => 999,
         };
 
-        public static int Infinity(this Ammo ammo) {
+        public static int Requirement(this Ammo ammo) {
             Configs.Infinities inf = Configs.Infinities.Instance;
             return ammo switch {
                 Ammo.Basic => inf.ammo_Standard,
@@ -45,21 +45,23 @@ namespace SPIC {
             return Ammo.Special;
         }
 
-        public static int GetAmmoInfinity(this Item item){
+        public static int GetAmmoRequirement(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
-            if(infinities.Ammo.HasValue) return Utility.InfinityToItems(infinities.Ammo.Value, item.type);
-            
+            if(infinities.Ammo.HasValue) return infinities.Ammo.Value;
+
             Ammo ammo = Category.GetCategories(item).Ammo;
+            // TODO move journey requirement sw else
             if(ammo != Ammo.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-            return Utility.InfinityToItems(ammo.Infinity(), item.type, ammo.MaxStack());
+            return ammo.Requirement();
         }
-        public static bool HasInfiniteAmmo(this Player player, Item item)
-         => IsInfiniteAmmo(player.CountAllItems(item.type), item);
+        public static int GetAmmoInfinity(this Player player, Item item)
+         => GetAmmoInfinity(player.CountAllItems(item.type), item);
 
 
-        public static bool IsInfiniteAmmo(int count, Item item) => Category.IsInfinite(count,Category.GetInfinities(item).Ammo);
+        public static int GetAmmoInfinity(int count, Item item)
+            => (int)Category.Infinity(item.type, Category.GetCategories(item).Ammo.MaxStack(), count, Category.GetRequirements(item).Ammo);
         
     }
 }

@@ -28,7 +28,7 @@ namespace SPIC.Globals {
             if (!Configs.Infinities.Instance.InfiniteMaterials) return;
 
             SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
-            if (spicPlayer.HasInfiniteMaterial(type)) amount = 0;
+            if (spicPlayer.HasInfiniteMaterial(type, amount)) amount = 0;
         }
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {

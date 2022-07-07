@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using Terraria;
@@ -33,15 +34,14 @@ namespace SPIC {
 
 
             public Infinities(Item item){
-                Ammo = item.GetAmmoInfinity();
-                Consumable = item.GetConsumableInfinity();
-                GrabBag = item.GetGrabBagInfinity();
-                Placeable = item.GetPlaceableInfinity();
-                Material = item.GetMaterialInfinity();
-                Currency = item.GetCurrencyInfinity();
+                Ammo = item.GetAmmoRequirement();
+                Consumable = item.GetConsumableRequirement();
+                GrabBag = item.GetGrabBagRequirement();
+                Placeable = item.GetPlaceableRequirement();
+                Material = item.GetMaterialRequirement();
+                Currency = item.GetCurrencyRequirement();
             }
         }
-        
     }
 
     public static class Category {
@@ -68,12 +68,36 @@ namespace SPIC {
             return _categories[item.type];
         }
 
-        public static Categories.Infinities GetInfinities(this Item item){
+        public static Categories.Infinities GetRequirements(this Item item){
             if (!_infinities.ContainsKey(item.type)) _infinities.Add(item.type, new(item));
             return _infinities[item.type];
         }
-        
-        public static bool IsInfinite(int items, int infinity, bool exact = false)
-            => infinity != 0 && (exact ? items == infinity : items >= infinity);
+
+        public delegate long AboveRequirementInfinity(long count, int requirement, params int[] args);
+        public static class ARIDelegates{
+            public static long NotInfinite(long count, int requirement, params int[] args) => 0;
+            public static long ItemCount(long count, int requirement, params int[] args) => count;
+            public static long Requirement(long count, int requirement, params int[] args) => count = requirement;
+
+            public static long LargestMultiple(long count, int requirement, params int[] args)
+                => count / requirement * requirement;
+            public static long LargestPower(long count, int requirement, params int[] args)
+                => requirement * (long)MathF.Pow(args[0],(int)MathF.Log(count / (float)requirement, args[0]));
+            
+        }
+
+        public static long Infinity(int type, int theoricalMaxStack, long count, int requirement, float multiplier = 1, AboveRequirementInfinity aboveRequirement = null, params int[] args) {
+            if(requirement == 0) return 0;
+
+            requirement = Utility.RequirementToItems(requirement, type, theoricalMaxStack);
+
+            long infinity = 0;
+            if(count == requirement) infinity = requirement;
+            else if (count > requirement) {
+                aboveRequirement ??= ARIDelegates.Requirement;
+                infinity = aboveRequirement.Invoke(count, requirement, args);
+            }
+            return (long)(infinity * multiplier);
+        }
     }
 }

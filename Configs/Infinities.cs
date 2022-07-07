@@ -16,13 +16,14 @@ public class CustomInfinity<T> where T : System.Enum {
 
 
 public class Custom {
-    [Label("$Mods.SPIC.Configs.Infinities.Custom.Consumable")]
-    public CustomInfinity<Categories.Consumable> Consumable;
-    [Label("$Mods.SPIC.Configs.Infinities.Custom.Placeable")] 
-    public CustomInfinity<Categories.Placeable> Placeable;
-    [Label("$Mods.SPIC.Configs.Infinities.Custom.Ammo")]
+    // ? add sprites
+    [Label("$Mods.SPIC.Configs.Customs.f_Ammo")]
     public CustomInfinity<Categories.Ammo> Ammo;
-    [Label("$Mods.SPIC.Configs.Infinities.Custom.Bag")]
+    [Label("$Mods.SPIC.Configs.Customs.f_Consumable")]
+    public CustomInfinity<Categories.Consumable> Consumable;
+    [Label("$Mods.SPIC.Configs.Customs.f_Placeable")] 
+    public CustomInfinity<Categories.Placeable> Placeable;
+    [Label("$Mods.SPIC.Configs.Customs.f_Bag")]
     public CustomInfinity<Categories.GrabBag> GrabBag;
     
     public Custom Set<T>(CustomInfinity<T> customInfinity) where T : System.Enum {
@@ -73,95 +74,95 @@ public class Infinities : ModConfig {
     
     [Header("$Mods.SPIC.Configs.General.Header")]
 
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.ConsumablesLabel")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Consumables")]
     public bool InfiniteConsumables;
-    [Label("$Mods.SPIC.Configs.General.BagsLabel")]
+    [Label("$Mods.SPIC.Configs.General.f_Bags")]
     public bool InfiniteGrabBags;
-    [Label("$Mods.SPIC.Configs.General.PlaceablesLabel")]
+    [Label("$Mods.SPIC.Configs.General.f_Placeables")]
     public bool InfinitePlaceables;
-    [Label("$Mods.SPIC.Configs.General.CurrenciesLabel")]
+    [Label("$Mods.SPIC.Configs.General.f_Currencies")]
     public bool InfiniteCurrencies;
-    [Label("$Mods.SPIC.Configs.General.MaterialsLabel")]
+    [Label("$Mods.SPIC.Configs.General.f_Materials")]
     public bool InfiniteMaterials;
 
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.DuplicationLabel"), Tooltip("$Mods.SPIC.Configs.General.DuplicationTooltip")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Duplication"), Tooltip("$Mods.SPIC.Configs.General.DuplicationTooltip")]
     public bool PreventItemDupication;
-    [DefaultValue(false), Label("$Mods.SPIC.Configs.General.JourneyLabel"), Tooltip("$Mods.SPIC.Configs.General.JourneyTooltip")]
+    [DefaultValue(false), Label("$Mods.SPIC.Configs.General.f_Journey"), Tooltip("$Mods.SPIC.Configs.General.JourneyTooltip")]
     public bool JourneyRequirement;
 
     
     [Header("$Mods.SPIC.Configs.Infinities.ConsumablesHeader")]
 
-    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.WeaponsLabel")]
+    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_Weapons")]
     public int consumables_Weapons;
-    [Range(-50, 999), DefaultValue(-4), Label("$Mods.SPIC.Configs.Infinities.StandardAmmoLabel")]
+    [Range(-50, 999), DefaultValue(-4), Label("$Mods.SPIC.Configs.Infinities.f_StandardAmmo")]
     public int ammo_Standard;
-    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.SpecialAmmoLabel")]
+    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_SpecialAmmo")]
     public int ammo_Special;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.PotionsLabel")]
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Potions")]
     public int consumables_Potions;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.BoostersLabel")]
+    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Boosters")]
     public int consumables_Boosters;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.SummonersLabel")]
+    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Summoners")]
     public int consumables_Summoners;
-    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Infinities.CrittersLabel")]
+    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Infinities.f_Critters")]
     public int consumables_Critters;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.ToolsLabel")]
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Tools")]
     public int consumables_Tools;
     
 
     [Header("$Mods.SPIC.Configs.Infinities.BagsHeader")]
 
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.CratesLabel")]
+    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Crates")]
     public int bags_Crates;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.BossLabel")]
+    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Boss")]
     public int bags_TreasureBags;
 
 
     [Header("$Mods.SPIC.Configs.Infinities.PlaceablesHeader")]
 
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.TilesLabel")]
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Tiles")]
     public int placeables_Tiles;
-    [Range(-50, 999), DefaultValue(499), Label("$Mods.SPIC.Configs.Infinities.OresLabel")]
+    [Range(-50, 999), DefaultValue(499), Label("$Mods.SPIC.Configs.Infinities.f_Ores")]
     public int placeables_Ores;
-    [Range(-50, 999), DefaultValue(99), Label("$Mods.SPIC.Configs.Infinities.TorchesLabel")]
+    [Range(-50, 999), DefaultValue(99), Label("$Mods.SPIC.Configs.Infinities.f_Torches")]
     public int placeables_Torches;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.FurnituresLabel")]
+    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Furnitures")]
     public int placeables_Furnitures;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.MechanicalLabel")]
+    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Mechanical")]
     public int placeables_Mechanical;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.LiquidsLabel")]
+    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Liquids")]
     public int placeables_Liquids;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.SeedsLabel")]
+    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Seeds")]
     public int placeables_Seeds;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.PaintsLabel")] // TODO Localization
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Paints")]
     public int placeables_Paints;
 
 
     [Header("$Mods.SPIC.Configs.Infinities.CurrenciesHeader")]
-    [Range(-50, 999), DefaultValue(-10), Label("$Mods.SPIC.Configs.Infinities.CoinsLabel")]
+    [Range(-50, 999), DefaultValue(-10), Label("$Mods.SPIC.Configs.Infinities.f_Coins")]
     public int currency_Coins;
-    [Range(-50, 999), DefaultValue(100), Label("$Mods.SPIC.Configs.Infinities.CustomCoinsLabel")]
+    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Infinities.f_CustomCoins")]
     public int currency_Single;
 
 
     [Header("$Mods.SPIC.Configs.Infinities.MaterialsHeader")]
 
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.BasicsLabel")]
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Basics")]
     public int materials_Basics;
-    [Range(-50, 999), DefaultValue(499d), Label("$Mods.SPIC.Configs.Infinities.OresLabel")]
+    [Range(-50, 999), DefaultValue(499d), Label("$Mods.SPIC.Configs.Infinities.f_Ores")]
     public int materials_Ores;
-    [Range(-50, 999), DefaultValue(20), Label("$Mods.SPIC.Configs.Infinities.FurnituresLabel")]
+    [Range(-50, 999), DefaultValue(20), Label("$Mods.SPIC.Configs.Infinities.f_Furnitures")]
     public int materials_Furnitures;
-    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Infinities.MiscellaneousLabel")]
+    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Infinities.f_Miscellaneous")]
     public int materials_Miscellaneous;
-    [Range(-50, 0), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.NonStackableLabel")]
+    [Range(-50, 0), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_NonStackable")]
     public int materials_NonStackable;
 
 
-    [Header("$Mods.SPIC.Configs.Infinities.CustomHeader")]
+    [Header("$Mods.SPIC.Configs.Customs.Header")]
 
-    [Label("$Mods.SPIC.Configs.Infinities.CustomsLabel")]
+    [Label("$Mods.SPIC.Configs.Customs.f_Customs")]
     public Dictionary<ItemDefinition,Custom> customs = new();
 
     public CustomCategories GetCustomCategories(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();

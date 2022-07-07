@@ -1,6 +1,10 @@
 {
     Mods: {
         SPIC: {
+            Words: {
+                Items: items
+                Stacks: stacks
+            }
             Categories: {
                 Unknown: Unknown
 
@@ -45,6 +49,7 @@
                     Mechanical: Mechanical
                     Bucket: Bucket
                     Seed: Seed
+                    Paint : Paint
                 }
 
                 GrabBag: {
@@ -77,9 +82,9 @@
             ItemTooltip: {
                 GrabBag: Grab bag
                 WandAmmo: Wand ammo
+                Currency: Currency
                 Infinite: Infinite
-                Requirement: items
-                // Coin: 
+                InfiniteMid: below
             }
 
             Configs: {
@@ -142,6 +147,7 @@
                     Mechanical: Mechanical parts
                     Liquids: Liquids
                     Seeds: Seeds
+                    Paints: Paints
                     Wiring: Wiring
 
                     CurrenciesHeader: Currencies
@@ -153,20 +159,21 @@
                     Miscellaneous: Miscellaneous
                     NonStackable: Non stackable
 
-                    CustomHeader: Custom Categories and values
+                }
+                Customs: {
+                    Header: Custom Categories and values
                     Customs: Customs
-                    Custom: {
-                        Item: Item
-                        Ammo: Ammo
-                        Consumable: Consumable
-                        Placeable: Placeable
-                        Bag: Grab bag
-                        Currency: Currency
 
-                        Category: Category
-                        Infinity: Infinity
-                        InfinityTooltip: Only in use when category is None
-                    }
+                    Item: Item
+                    Ammo: Ammo
+                    Consumable: Consumable
+                    Placeable: Placeable
+                    Bag: Grab bag
+                    Currency: Currency
+
+                    Category: Category
+                    Infinity: Infinity
+                    InfinityTooltip: Only in use when category is None
                 }
 
             }

@@ -1,11 +1,9 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.ObjectData;
 using Terraria.GameContent.Creative;
 
 using SPIC.Categories;
 namespace SPIC {
-
     namespace Categories {
         public enum Consumable {
             None,
@@ -40,7 +38,7 @@ namespace SPIC {
             _ => 999,
         };
 
-        public static int Infinity(this Consumable category) {
+        public static int Requirement(this Consumable category) {
             Configs.Infinities c = Configs.Infinities.Instance;
             return category switch {
                 Consumable.Weapon => c.consumables_Weapons,
@@ -94,23 +92,22 @@ namespace SPIC {
             return null;
         }
 
-        public static int GetConsumableInfinity(this Item item){
+        public static int GetConsumableRequirement(this Item item){
             Configs.Infinities config = Configs.Infinities.Instance;
 
             Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
-            if(infinities.Consumable.HasValue) return Utility.InfinityToItems(infinities.Consumable.Value, item.type);
+            if(infinities.Consumable.HasValue) return infinities.Consumable.Value;
             
             Consumable consumable = Category.GetCategories(item).Consumable ?? Consumable.None;
             if(consumable != Consumable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-            return Utility.InfinityToItems(consumable.Infinity(), item.type, consumable.MaxStack());
+            return consumable.Requirement();
         }
 
-        public static bool HasInfiniteConsumable(this Player player, Item item)
-            => IsInfiniteConsumable(player.CountAllItems(item.type), item);
+        public static int GetConsumableInfinity(this Player player, Item item)
+            => GetConsumableInfinity(player.CountAllItems(item.type), item);
 
-        public static bool IsInfiniteConsumable(int count, Item item) => Category.IsInfinite(
-            count, Category.GetInfinities(item).Consumable
-        );
+        public static int GetConsumableInfinity(int count, Item item)
+         => (int)Category.Infinity(item.type, Category.GetCategories(item).Consumable?.MaxStack() ?? 999, count, Category.GetRequirements(item).Consumable);
 
 
     }

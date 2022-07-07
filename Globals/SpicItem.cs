@@ -20,8 +20,7 @@ namespace SPIC.Globals {
 
         public override void Load() {
             s_ItemMaxStack = new int[ItemID.Count];
-            IL.Terraria.Item.SetDefaults_int_bool += HookItemSetDefaults;
-
+            IL.Terraria.Item.SetDefaults_int_bool += Hook_ItemSetDefaults;
         }
         public override void Unload() {
             SetDefaultsHook = false;
@@ -51,10 +50,11 @@ namespace SPIC.Globals {
             Configs.CategorySettings autos = Configs.CategorySettings.Instance;
             
             Categories.Categories categories = item.GetCategories();
-            Categories.Infinities infinities = item.GetInfinities();
+            Categories.Infinities infinities = item.GetRequirements();
 
-            SpicPlayer spicPlayer = Main.player[item.playerIndexTheItemIsReservedFor].GetModPlayer<SpicPlayer>();
-            
+            // SpicPlayer spicPlayer = Main.player[item.playerIndexTheItemIsReservedFor].GetModPlayer<SpicPlayer>();
+            SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
+
             static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) {
                 OverrideColor = new(150, 150, 150)
             };
@@ -64,24 +64,34 @@ namespace SPIC.Globals {
             TooltipLine ammo = AddedLine("Ammo", Lang.tip[34].Value);
             TooltipLine bag = AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.ItemTooltip.GrabBag"));
             TooltipLine material = AddedLine("Material", null);
-            TooltipLine currency = AddedLine("Currencycat", null);
+            TooltipLine currency = AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.Currency"));
 
-            void ModifyLine(bool active, TooltipLine toEdit, string missing, bool displayCategory, string categoryKey, int requirement, bool infinite, Microsoft.Xna.Framework.Color color){ // category, req, inf
+            void ModifyLine(bool active, TooltipLine toEdit, string missing, bool displayCategory, string categoryKey, int requirement, bool infinite, Microsoft.Xna.Framework.Color color, object infinity = null){ // category, req, inf
                 if(!active) return;
+                
                 TooltipLine line = null;
-                TooltipLine Setline() => line ??= tooltips.FindorAddLine(toEdit, missing);
+                TooltipLine Line() => line ??= tooltips.FindorAddLine(toEdit, missing);
+
                 if(autos.ShowInfinities && infinite) {
-                    Setline();
-                    line.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.Infinite") + " " + line.Text;
-                    line.OverrideColor = color;
+                    Line().Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.f_Infinite", line.Text);
+                    if(infinity != null){
+                        line.Text += " " + Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteDetail", infinity) + " ";
+                        if(infinity is int or long)
+                            line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteItems", infinity);
+                        else if(infinity is List<KeyValuePair<int,int>> l){
+                            foreach (KeyValuePair<int, int> kvp in l) {
+                                line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", kvp.Key, kvp.Value);
+                            }
+                        } 
+                        line.OverrideColor = color;
+                    }
                 }
 
                 int total = 0;
                 string Separator() => total++ == 0 ? " (" : ", ";
                 
-                if(autos.ShowCategories && displayCategory) Setline().Text += Separator() + Language.GetTextValue(categoryKey);
-                if(autos.ShowRequirement && requirement != 0) Setline().Text += Separator() + Language.GetTextValue("Mods.SPIC.ItemTooltip.RequirementTooltip", requirement);
-
+                if(autos.ShowCategories && displayCategory) Line().Text += Separator() + Language.GetTextValue(categoryKey);
+                if(autos.ShowRequirement && requirement != 0 && !infinite) Line().Text += Separator() + (requirement > 0 ? Language.GetTextValue("Mods.SPIC.ItemTooltip.f_Requirement", requirement) : Language.GetTextValue("Mods.SPIC.ItemTooltip.f_RequirementStacks", -requirement));
                 if(total != 0) line.Text += ")";
             }
 
@@ -90,7 +100,7 @@ namespace SPIC.Globals {
                 infinities.Ammo, spicPlayer.HasInfiniteAmmo(item.type), new(0,255,0)
             );
             ModifyLine(config.InfiniteConsumables, consumable, null,
-                categories.Consumable != Categories.Consumable.None, $"Mods.SPIC.Categories.Consumable.{categories.Consumable}",
+                categories.Consumable != Categories.Consumable.None, categories.Consumable.HasValue ? $"Mods.SPIC.Categories.Consumable.{categories.Consumable}" : $"Mods.SPIC.Categories.Unknown",
                 infinities.Consumable, spicPlayer.HasInfiniteConsumable(item.type), new(0, 0, 255)
             );
             ModifyLine(config.InfinitePlaceables, item.Placeable() || !PlaceableExtension.IsWandAmmo(item.type) ? placeable : wand, "Placeable",
@@ -103,12 +113,16 @@ namespace SPIC.Globals {
             );
             ModifyLine(config.InfiniteMaterials, material, null,
                 categories.Material != Categories.Material.None, $"Mods.SPIC.Categories.Material.{categories.Material}",
-                infinities.Material, spicPlayer.HasInfiniteMaterial(item.type), new(255, 150, 150)
+                infinities.Material, spicPlayer.HasInfiniteMaterial(item.type, out long inf), new(255, 150, 150), inf
             );
-            ModifyLine(config.InfiniteCurrencies, currency, null,
-                categories.Currency != Categories.Currency.None, $"Mods.SPIC.Categories.Currency.{categories.Currency}",
-                infinities.Currency, false, new(255, 150, 150)
-            );
+
+            int currencyType = item.CurrencyType();
+            if (currencyType != -2) {
+                ModifyLine(config.InfiniteCurrencies, currency, "Material",
+                    categories.Currency != Categories.Currency.None, $"Mods.SPIC.Categories.Currency.{categories.Currency}",
+                    infinities.Currency, spicPlayer.HasInfiniteCurrency(currencyType, out inf), new(255, 150, 150), CurrencyExtension.ToCurrencyStacks(currencyType, inf)
+                );
+            }
         }
 
         public override bool? UseItem(Item item, Player player) {
@@ -117,6 +131,7 @@ namespace SPIC.Globals {
                 player.GetModPlayer<SpicPlayer>().StartDetectingCategory(item);
             return null;
         }
+
         public override bool ConsumeItem(Item item, Player player) {
             Configs.Infinities infinities = Configs.Infinities.Instance;
             Configs.CategorySettings autos = Configs.CategorySettings.Instance;
@@ -164,10 +179,14 @@ namespace SPIC.Globals {
                 null : false;
         }
 
-        private void HookItemSetDefaults(ILContext il) {
+        private void Hook_ItemSetDefaults(ILContext il) {
             
             Type[] args = { typeof(Item), typeof(bool) };
-            MethodBase setdefault_item_bool = typeof(ItemLoader).GetMethod("SetDefaults", BindingFlags.Static | BindingFlags.NonPublic, args);
+            MethodBase setdefault_item_bool = typeof(ItemLoader).GetMethod(
+                nameof(Item.SetDefaults),
+                BindingFlags.Static | BindingFlags.NonPublic,
+                args
+            );
 
             // IL code editing
             ILCursor c = new (il);
@@ -178,7 +197,7 @@ namespace SPIC.Globals {
             }
 
             c.Index -= args.Length;
-            c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0); // item
+            c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
             c.EmitDelegate((Item item) => {
                 if (item.type < ItemID.Count) s_ItemMaxStack[item.type] = item.maxStack;
             });
@@ -186,10 +205,13 @@ namespace SPIC.Globals {
             SetDefaultsHook = true;
         }
 
-        // TODO
         public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount){
-            return base.ReforgePrice(item, ref reforgePrice, ref canApplyDiscount);
+            SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
+            if(spicPlayer.HasInfiniteCurrency(-1, reforgePrice)){
+                reforgePrice = 0;
+                return true;
+            }
+            return false;
         }
-
     }
 }
