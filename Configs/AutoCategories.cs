@@ -41,6 +41,19 @@ public class CategorySettings : ModConfig {
     [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Auto"), Tooltip("$Mods.SPIC.Configs.General.AutoTooltip")]
     public bool AutoCategories;
 
+    [Range(-1,int.MaxValue), Label("$Mods.SPIC.Configs.General.DetectedCount"), Tooltip("$Mods.SPIC.Configs.General.DetectedCountTooltip")]
+    public int CacheCount {
+        get => _autoConsumables.Count + _autoPlaceables.Count
+                + _autoExplosives.Count + _autoGrabBags.Count;
+        set {
+            if (value != 0) return;
+            _autoConsumables.Clear();
+            _autoPlaceables.Clear();
+            _autoExplosives.Clear();
+            _autoGrabBags.Clear();
+        }
+    }
+
     private readonly Dictionary<ItemDefinition, Categories.Consumable> _autoConsumables = new();
     private readonly Dictionary<ItemDefinition, Categories.Placeable> _autoPlaceables = new();
     private readonly HashSet<ItemDefinition> _autoExplosives = new();

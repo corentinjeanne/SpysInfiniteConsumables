@@ -121,6 +121,9 @@
                         Detect the categories of items if they are unknown.
                         To see the detected categories, look at the json version of the file.
                         '''
+                    DetectedCount : Cached categories
+                    DetectedCountTooltip : Set to 0 to clear
+
                 }
                 Infinities: {
                     ConsumablesHeader: Consumables

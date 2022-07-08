@@ -14,9 +14,8 @@ public class CustomInfinity<T> where T : System.Enum {
     public int Infinity;
 }
 
-
+// ? remove
 public class Custom {
-    // ? add sprites
     [Label("$Mods.SPIC.Configs.Customs.f_Ammo")]
     public CustomInfinity<Categories.Ammo> Ammo;
     [Label("$Mods.SPIC.Configs.Customs.f_Consumable")]
