@@ -1,15 +1,29 @@
-DISCLAIMER: THE MOD WAS NOT TESTED IN MULTIPLAYER!
+--------- Make every consumable item infinite ---------
+Collect enough a consumable item to make it infinite, and not consume it!
+Depending of the item, this requirement may vary.
+There are a wide variety of categorie for all sorts of consumables (consumables, placeables, materials and more) each with their own sub-categories.
+You can also use the journey research cost of items as their infinities.
+Works with modified max stack and most (if not all) modded items.
 
-A simple Quality of life Mod giving the ability to make almost every consumable and tiles endless when you have enough of them
-Also include a few commands to change the setting in game and other features
-Many values can be changed in the config
-For more detailed infos, visit the homepage
+------------ No more item duplication -------------
+*** WORK IN PROGRESS, BREAKS EASILY ***
+NPCs, Tiles, walls, etc dropping an item when destroyed, killed, etc won't drop if they were infinite when used.
+Include all placeable, critter, and other items.
 
-CONFIG
-Negative values for items (ex Thrown weapons) means items, positive value means stacks (-5 = 5 items, 2 = 2 stacks)
+----------- Alter the behaviour of the mod -----------
+Edit the Infinity config to modify the behaviour of the mod!
+Toggle on/off certain categories and features of the mods.
+Check and change infinities (use negative values for stacks, i.g.: 5 = 5 items, -5 = 5 stacks).
+Add customs for items with incorrect categories (create an issue on the github if needed so in I can fix it).
 
-AVAILABLE COMMANDS
-/SPIC values: Prints all available categories
-        category: give the category of an item 
-        set : set the category of an item
-/ID: gives the id/name of an item
+---------- Detect the category of most items ----------
+If an item's category cannot be determined with the items's stats, it will be found when the item is used!
+This should work for almost every summoner, player booster and other items.
+Edit the Auto Categories config to modify disable this or clear all the detected categories!
+
+------------ See what the mod is doing -------------
+Edit the Auto Categories config to display various infos used by the mod!
+By default, infinte items will be colored and their tooltip will change.
+In addition, the category and requirement of items can be showed by enabling toogles.
+
+More details on the github.

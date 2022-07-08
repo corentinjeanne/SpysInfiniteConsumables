@@ -77,7 +77,8 @@ namespace SPIC.Globals {
                     if(infinity != null){
                         line.Text += " " + Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteDetail", infinity) + " ";
                         if(infinity is int or long)
-                            line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteItems", infinity);
+                            line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", item.type, infinity);
+                            // line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteItems", infinity);
                         else if(infinity is List<KeyValuePair<int,int>> l){
                             foreach (KeyValuePair<int, int> kvp in l) {
                                 line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", kvp.Key, kvp.Value);

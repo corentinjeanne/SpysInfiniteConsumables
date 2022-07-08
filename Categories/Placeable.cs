@@ -27,7 +27,7 @@ namespace SPIC {
             Mechanical,
             Liquid,
             Seed,
-            Paint,
+            Paint
         }
     }
     public static class PlaceableExtension {

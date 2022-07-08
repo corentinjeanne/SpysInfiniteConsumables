@@ -72,31 +72,30 @@ public struct CustomInfinities {
 public class Infinities : ModConfig {
     
     [Header("$Mods.SPIC.Configs.General.Header")]
-
     [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Consumables")]
     public bool InfiniteConsumables;
-    [Label("$Mods.SPIC.Configs.General.f_Bags")]
-    public bool InfiniteGrabBags;
     [Label("$Mods.SPIC.Configs.General.f_Placeables")]
     public bool InfinitePlaceables;
-    [Label("$Mods.SPIC.Configs.General.f_Currencies")]
-    public bool InfiniteCurrencies;
+    [Label("$Mods.SPIC.Configs.General.f_Bags")]
+    public bool InfiniteGrabBags;
     [Label("$Mods.SPIC.Configs.General.f_Materials")]
     public bool InfiniteMaterials;
+    [Label("$Mods.SPIC.Configs.General.f_Currencies")]
+    public bool InfiniteCurrencies;
 
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Duplication"), Tooltip("$Mods.SPIC.Configs.General.DuplicationTooltip")]
-    public bool PreventItemDupication;
     [DefaultValue(false), Label("$Mods.SPIC.Configs.General.f_Journey"), Tooltip("$Mods.SPIC.Configs.General.JourneyTooltip")]
     public bool JourneyRequirement;
 
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Duplication"), Tooltip("$Mods.SPIC.Configs.General.DuplicationTooltip")]
+    public bool PreventItemDupication;
+
     
     [Header("$Mods.SPIC.Configs.Infinities.ConsumablesHeader")]
-
     [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_Weapons")]
     public int consumables_Weapons;
     [Range(-50, 999), DefaultValue(-4), Label("$Mods.SPIC.Configs.Infinities.f_StandardAmmo")]
     public int ammo_Standard;
-    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_SpecialAmmo")]
+    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_SpecialAmmo")]
     public int ammo_Special;
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Potions")]
     public int consumables_Potions;
@@ -109,17 +108,7 @@ public class Infinities : ModConfig {
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Tools")]
     public int consumables_Tools;
     
-
-    [Header("$Mods.SPIC.Configs.Infinities.BagsHeader")]
-
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Crates")]
-    public int bags_Crates;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Boss")]
-    public int bags_TreasureBags;
-
-
     [Header("$Mods.SPIC.Configs.Infinities.PlaceablesHeader")]
-
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Tiles")]
     public int placeables_Tiles;
     [Range(-50, 999), DefaultValue(499), Label("$Mods.SPIC.Configs.Infinities.f_Ores")]
@@ -137,16 +126,14 @@ public class Infinities : ModConfig {
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Paints")]
     public int placeables_Paints;
 
-
-    [Header("$Mods.SPIC.Configs.Infinities.CurrenciesHeader")]
-    [Range(-50, 999), DefaultValue(-10), Label("$Mods.SPIC.Configs.Infinities.f_Coins")]
-    public int currency_Coins;
-    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Infinities.f_CustomCoins")]
-    public int currency_Single;
+    [Header("$Mods.SPIC.Configs.Infinities.BagsHeader")]
+    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Infinities.f_Crates")]
+    public int bags_Crates;
+    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Infinities.f_Boss")]
+    public int bags_TreasureBags;
 
 
     [Header("$Mods.SPIC.Configs.Infinities.MaterialsHeader")]
-
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Infinities.f_Basics")]
     public int materials_Basics;
     [Range(-50, 999), DefaultValue(499d), Label("$Mods.SPIC.Configs.Infinities.f_Ores")]
@@ -158,9 +145,13 @@ public class Infinities : ModConfig {
     [Range(-50, 0), DefaultValue(-2), Label("$Mods.SPIC.Configs.Infinities.f_NonStackable")]
     public int materials_NonStackable;
 
+    [Header("$Mods.SPIC.Configs.Infinities.CurrenciesHeader")]
+    [Range(-50, 999), DefaultValue(-10), Label("$Mods.SPIC.Configs.Infinities.f_Coins")]
+    public int currency_Coins;
+    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Infinities.f_CustomCoins")]
+    public int currency_Single;
 
     [Header("$Mods.SPIC.Configs.Customs.Header")]
-
     [Label("$Mods.SPIC.Configs.Customs.f_Customs")]
     public Dictionary<ItemDefinition,Custom> customs = new();
 

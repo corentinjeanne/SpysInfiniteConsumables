@@ -39,6 +39,9 @@ namespace SPIC {
         public static Material GetMaterialCategory(this Item item) {
 
             int type = item.type;
+            switch (type){
+            case ItemID.FallenStar: return Material.Miscellaneous;
+            }
             if (item == null || !ItemID.Sets.IsAMaterial[type]) return Material.None;
 
             if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
@@ -65,6 +68,6 @@ namespace SPIC {
         }
 
         public static long GetMaterialInfinity(this Player player, Item item)
-            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), player.CountAllItems(item.type, true), Category.GetRequirements(item).Material, 1, Category.ARIDelegates.LargestMultiple);
+            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), player.CountAllItems(item.type, true), Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
     }
 }

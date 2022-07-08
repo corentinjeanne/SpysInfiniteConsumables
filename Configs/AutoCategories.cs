@@ -29,10 +29,10 @@ public class CategorySettings : ModConfig {
     private static CategorySettings _instance;
 
     [Header("$Mods.SPIC.Configs.General.DisplayHeader")]
-    [Label("$Mods.SPIC.Configs.General.f_Category")]
-    public bool ShowCategories;
     [DefaultValue(true), Label("$Mods.SPIC.Configs.General.f_Infinites")]
     public bool ShowInfinities;
+    [Label("$Mods.SPIC.Configs.General.f_Category")]
+    public bool ShowCategories;
     [Label("$Mods.SPIC.Configs.General.f_Requirement")]
     public bool ShowRequirement;
 

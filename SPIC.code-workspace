@@ -9,7 +9,8 @@
         "extension-profiles.activeProfiles": [
             "C#",
             "Hjson",
-            "Git"
+            "Git",
+            "Markdown"
         ],
         "todo-tree.tree.showBadges": true,
         "todo-tree.tree.disableCompactFolders": true,

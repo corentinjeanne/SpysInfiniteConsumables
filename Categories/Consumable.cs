@@ -9,8 +9,8 @@ namespace SPIC {
             None,
 
             Weapon,
-            Recovery, // Mushroom, leasser potions bottle water, ManaPotion
-            Buff, // ales
+            Recovery,
+            Buff,
             PlayerBooster,
             WorldBooster,
 
@@ -65,6 +65,7 @@ namespace SPIC {
 
             // Vanilla inconsitancies or special items
             switch (item.type) {
+            case ItemID.FallenStar: return Consumable.None;
             case ItemID.PirateMap or ItemID.EmpressButterfly: return Consumable.Summoner;
             case ItemID.LicenseBunny or ItemID.LicenseCat or ItemID.LicenseDog: return Consumable.Critter;
             case ItemID.CombatBook: return Consumable.WorldBooster;
