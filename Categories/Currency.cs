@@ -123,7 +123,7 @@ namespace SPIC {
                 Category.Infinity(item.type, category.MaxStack(), count, Category.GetRequirements(item).Currency, 0.2f, Category.ARIDelegates.LargestMultiple);
         }
 
-        public static List<KeyValuePair<int,int>> ToCurrencyStacks(int currency, long amount) {
+        public static List<KeyValuePair<int,long>> ToCurrencyStacks(int currency, long amount) {
             List<KeyValuePair<int,int>> values = new();
             if(currency == -1){
                 values = new() {
@@ -139,7 +139,7 @@ namespace SPIC {
                 values.Sort((a, b) => a.Value < b.Value ? 0 : 1);
             }
 
-            List<KeyValuePair<int, int>> stacks = new();
+            List<KeyValuePair<int, long>> stacks = new();
             foreach(var coin in values){
                 int count = (int)(amount / coin.Value);
                 if(count == 0) continue;

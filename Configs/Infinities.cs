@@ -8,9 +8,9 @@ namespace SPIC.Configs;
 
 [NullAllowed]
 public class CustomInfinity<T> where T : System.Enum {
-    [Label("$Mods.SPIC.Configs.Infinities.Custom.Category")]
+    [Label("$Mods.SPIC.Configs.Customs.Category")]
     public T Category;
-    [Range(0, 50), Label("$Mods.SPIC.Configs.Infinities.Custom.Infinity"), Tooltip("$Mods.SPIC.Configs.Infinities.Custom.InfinityTooltip")]
+    [Range(0, 50), Label("$Mods.SPIC.Configs.Customs.Infinity"), Tooltip("$Mods.SPIC.Configs.Customs.InfinityTooltip")]
     public int Infinity;
 }
 

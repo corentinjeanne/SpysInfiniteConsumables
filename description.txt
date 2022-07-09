@@ -13,7 +13,7 @@ Include all placeable, critter, and other items.
 ----------- Alter the behaviour of the mod -----------
 Edit the Infinity config to modify the behaviour of the mod!
 Toggle on/off certain categories and features of the mods.
-Check and change infinities (use negative values for stacks, i.g.: 5 = 5 items, -5 = 5 stacks).
+Check and change infinities (use negative values for stacks, e.g.: 5 = 5 items, -5 = 5 stacks).
 Add customs for items with incorrect categories (create an issue on the github if needed so in I can fix it).
 
 ---------- Detect the category of most items ----------

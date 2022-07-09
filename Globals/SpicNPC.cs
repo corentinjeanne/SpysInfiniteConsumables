@@ -57,13 +57,11 @@ namespace SPIC.Globals {
             // Prevent duping
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
-                if (critter.active && critter.type == Type) {
-                    if(Configs.Infinities.Instance.PreventItemDupication && Main.player[who].GetModPlayer<SpicPlayer>().HasInfiniteConsumable(critter.catchItem)){
-                        critter.SpawnedFromStatue = true;
-                    }
-                }
+                if (critter.active && critter.type == Type
+                        && Configs.Infinities.Instance.PreventItemDupication
+                        && Main.player[who].GetModPlayer<SpicPlayer>().HasInfiniteConsumable(critter.catchItem))
+                    critter.SpawnedFromStatue = true;
             }
-
         }
     }
 }

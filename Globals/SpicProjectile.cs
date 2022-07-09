@@ -14,14 +14,14 @@ namespace SPIC.Globals {
 		private static void Explode(Projectile proj){
             if (proj.owner < 0 || !Configs.CategorySettings.Instance.AutoCategories) return;
 
+            // TODO optimise if the item has already been fired/is s.t. else
             SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
             int type = spicPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(spicPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
             if (item?.IsAir == false && Configs.CategorySettings.Instance.SaveExplosive(item)) {
-                spicPlayer.RefilExplosive(proj.type, item);
-                
                 Category.UpdateItem(item);
+                spicPlayer.RefilExplosive(proj.type, item);
             }
             
         }

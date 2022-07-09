@@ -14,18 +14,21 @@ namespace SPIC.Globals {
     public class SpicItem : GlobalItem {
 
         private static int[] s_ItemMaxStack;
-        public static int MaxStack(int type) => SetDefaultsHook ? s_ItemMaxStack[type] : new Item(type).maxStack;
+        public static int MaxStack(int type) => s_ItemMaxStack[type];
         public static bool SetDefaultsHook { get; private set; }
 
 
         public override void Load() {
             s_ItemMaxStack = new int[ItemID.Count];
             IL.Terraria.Item.SetDefaults_int_bool += Hook_ItemSetDefaults;
+            PlaceableExtension.ClearWandAmmos();
+            CurrencyExtension.GetCurrencies();
         }
         public override void Unload() {
             SetDefaultsHook = false;
             s_ItemMaxStack = null;
             PlaceableExtension.ClearWandAmmos();
+            CurrencyExtension.ClearCurrencies();
         }
 
         public override void SetDefaults(Item item) {
@@ -34,8 +37,13 @@ namespace SPIC.Globals {
         }
 
         public override void SetStaticDefaults() {
-            if (!SetDefaultsHook) return;
-
+            if (!SetDefaultsHook){
+                for (int type = 0; type < ItemID.Count; type++){
+                    Item item = new(type);
+                    s_ItemMaxStack[type] = item.maxStack != 0 ? item.maxStack : 1;
+                }
+            }
+            
             Array.Resize(ref s_ItemMaxStack, ItemLoader.ItemCount);
             for (int type = ItemID.Count; type < ItemLoader.ItemCount; type++) {
                 ModItem modItem = ItemLoader.GetItem(type).Clone(new());
@@ -52,7 +60,6 @@ namespace SPIC.Globals {
             Categories.Categories categories = item.GetCategories();
             Categories.Infinities infinities = item.GetRequirements();
 
-            // SpicPlayer spicPlayer = Main.player[item.playerIndexTheItemIsReservedFor].GetModPlayer<SpicPlayer>();
             SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
 
             static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) {
@@ -77,11 +84,12 @@ namespace SPIC.Globals {
                     if(infinity != null){
                         line.Text += " " + Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteDetail", infinity) + " ";
                         if(infinity is int or long)
-                            line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", item.type, infinity);
-                            // line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteItems", infinity);
-                        else if(infinity is List<KeyValuePair<int,int>> l){
-                            foreach (KeyValuePair<int, int> kvp in l) {
-                                line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", kvp.Key, kvp.Value);
+                            infinity = new List<KeyValuePair<int, long>> {new(item.type, (long)infinity) };
+
+                        if(infinity is List<KeyValuePair<int,long>> l && l.Count > 0){
+                            for (int i = 0; i < l.Count; i++) {
+                                if(i != l.Count-1) line.Text += ' ';
+                                line.Text += Language.GetTextValue("Mods.SPIC.ItemTooltip.f_InfiniteSprite", l[i].Key, l[i].Value);
                             }
                         } 
                         line.OverrideColor = color;
@@ -151,7 +159,7 @@ namespace SPIC.Globals {
                 }
 
                 // Consumable used
-                spicPlayer.TryStopDetectingCategory();
+                spicPlayer.TryDetectCategory();
             }
 
             else {
@@ -171,17 +179,15 @@ namespace SPIC.Globals {
                 !(infinities.InfiniteConsumables && spicPlayer.HasInfiniteConsumable(item.type));
         }
 
-        public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player) {
-            return !(Configs.Infinities.Instance.InfiniteConsumables && player.GetModPlayer<SpicPlayer>().HasInfiniteAmmo(ammo.type));
-        }
+        public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player)
+            => !(Configs.Infinities.Instance.InfiniteConsumables && player.GetModPlayer<SpicPlayer>().HasInfiniteAmmo(ammo.type));
 
-        public override bool? CanConsumeBait(Player player, Item bait) {
-            return !(Configs.Infinities.Instance.InfiniteConsumables && player.GetModPlayer<SpicPlayer>().HasInfiniteConsumable(bait.type)) ?
+        public override bool? CanConsumeBait(Player player, Item bait) 
+            => !(Configs.Infinities.Instance.InfiniteConsumables && player.GetModPlayer<SpicPlayer>().HasInfiniteConsumable(bait.type)) ?
                 null : false;
-        }
 
         private void Hook_ItemSetDefaults(ILContext il) {
-            
+            SetDefaultsHook = false;
             Type[] args = { typeof(Item), typeof(bool) };
             MethodBase setdefault_item_bool = typeof(ItemLoader).GetMethod(
                 nameof(Item.SetDefaults),

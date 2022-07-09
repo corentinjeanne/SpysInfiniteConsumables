@@ -30,8 +30,6 @@ namespace SPIC {
         }
 
         public static GrabBag? GetGrabBagCategory(this Item item) {
-            if (item == null) return null;
-
             var categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
             if (categories.GrabBag.HasValue) return categories.GrabBag.Value;
             var autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);

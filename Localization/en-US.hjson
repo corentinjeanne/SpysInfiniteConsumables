@@ -61,7 +61,7 @@
                 Currency: {
                     None: Not a currency
                     Coin: Coin
-                    SingleCoin: Special
+                    SingleCoin: Single Coin
                 }
 
                 Material: {

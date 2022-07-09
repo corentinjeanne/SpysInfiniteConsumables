@@ -16,6 +16,12 @@
             "stopAtEntry": false
         },
         {
+            "name": "tModLoader - Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": 25444
+        },
+        {
             "name": "tModLoader Server",
             "type": "coreclr",
             "request": "launch",

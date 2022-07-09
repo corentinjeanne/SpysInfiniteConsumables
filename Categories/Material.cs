@@ -42,7 +42,7 @@ namespace SPIC {
             switch (type){
             case ItemID.FallenStar: return Material.Miscellaneous;
             }
-            if (item == null || !ItemID.Sets.IsAMaterial[type]) return Material.None;
+            if (!ItemID.Sets.IsAMaterial[type]) return Material.None;
 
             if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
 

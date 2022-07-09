@@ -7,13 +7,9 @@ namespace SPIC {
         
         public override void Load() {
             Instance = this;
-            CurrencyExtension.GetCurrencies();
         }
         public override void Unload() {
             Instance = null;
-            CurrencyExtension.ClearCurrencies();
-
         }
-
     }
 }

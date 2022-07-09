@@ -11,12 +11,14 @@ namespace SPIC.Globals {
         private int _preUseExtraAccessories;
         private Microsoft.Xna.Framework.Vector2 _preUsePosition;
         private bool _preUseDemonHeart;
-        private Item _checkingForCategory;
+        private Item _detectingCategory;
         private static int _preUseDifficulty;
         private static int _preUseInvasion;
+        private static int _preUseItemCount;
+
         private static NPCStats _preUseNPCStats;
 
-        public bool CheckingForCategory => _checkingForCategory != null;
+        public bool DetectingCategory => _detectingCategory != null;
 
         public bool InItemCheck { get; private set; }
 
@@ -44,21 +46,21 @@ namespace SPIC.Globals {
 
         public override bool PreItemCheck() {			
             InItemCheck = true;
-            if (CheckingForCategory) SavePreUseItemStats();
-
+            if (DetectingCategory) SavePreUseItemStats();
             return true;
         }
         public override void PostItemCheck() {
             InItemCheck = false;
-            if (CheckingForCategory) {
-                if (Player.itemTime > 1) TryStopDetectingCategory();
-                else StopDetectingCategory();
-            }
+            if (!DetectingCategory) return;
+
+            if (Player.itemTime > 1) TryDetectCategory();
+            else TryDetectCategory(true);
+
         }
 
 
+        public static bool IsInfinite(long count) => count != 0;
         public void FindInfinities() {
-            
             _infiniteAmmos.Clear();
             _infiniteConsumables.Clear();
             _infinitePlaceables.Clear();
@@ -75,37 +77,77 @@ namespace SPIC.Globals {
 
                     long inf;
                     if(item.IsPartOfACurrency(out int currency) && !currenciesChecked.Contains(currency)){
-                        if ((inf = Player.GetCurrencyInfinity(item)) != 0) _infiniteCurrencies.Add(currency, inf);
+                        if (IsInfinite(inf = Player.GetCurrencyInfinity(item))) _infiniteCurrencies.Add(currency, inf);
                         currenciesChecked.Add(currency);
                     }
+                    // TODO opti: count items only once
+                    // TODO Make in funcs to be used elsewhere
                     if (!typesChecked.Contains(item.type)) {
-                        if ((inf = Player.GetAmmoInfinity(item)) != 0) _infiniteAmmos.Add(item.type);
-                        if ((inf = Player.GetConsumableInfinity(item)) != 0) _infiniteConsumables.Add(item.type);
-                        if ((inf = Player.GetPlaceableInfinity(item)) != 0) _infinitePlaceables.Add(item.type);
-                        if ((inf = Player.GetGrabBagInfinity(item)) != 0) _infiniteGrabBabs.Add(item.type);
-                        if ((inf = Player.GetMaterialInfinity(item)) != 0) _infiniteMaterials.Add(item.type, inf);
+                        if (IsInfinite(Player.GetAmmoInfinity(item))) _infiniteAmmos.Add(item.type);
+                        if (IsInfinite(Player.GetConsumableInfinity(item))) _infiniteConsumables.Add(item.type);
+                        if (IsInfinite(Player.GetPlaceableInfinity(item))) _infinitePlaceables.Add(item.type);
+                        if (IsInfinite(Player.GetGrabBagInfinity(item))) _infiniteGrabBabs.Add(item.type);
+                        if (IsInfinite(inf = Player.GetMaterialInfinity(item))) _infiniteMaterials.Add(item.type, inf);
                         typesChecked.Add(item.type);
                     }
                 }
             }
             LookIn(Player.inventory);
-
             Item[] chest = Player.Chest();
             if(chest != null) LookIn(chest);
         }
+
         public void StartDetectingCategory(Item item) {
-            _checkingForCategory = item;
+            _detectingCategory = item;
             SavePreUseItemStats();
         }
-        public void TryStopDetectingCategory() {
-            if (!CheckingForCategory) return;
-            Categories.Consumable? cat = CheckForCategory();
-            if (cat.HasValue || Player.itemTime <= 1) StopDetectingCategory(cat);
+        private void StopDetectingCategory() {
+            // if (!DetectingCategory) return;
+            _detectingCategory = null;
         }
-        public void StopDetectingCategory(Categories.Consumable? detectedCategory = null) {
-            if (!CheckingForCategory) return;
-            Configs.CategorySettings.Instance.SaveConsumableCategory(_checkingForCategory, detectedCategory ?? CheckForCategory() ?? Categories.Consumable.PlayerBooster);
-            _checkingForCategory = null;
+        
+        // FIXME recall when at spawn -> err: booster vs Tool
+        public void TryDetectCategory(bool mustDetect = false) {
+            if (!DetectingCategory) return;
+
+            void SaveConsumable(Categories.Consumable category)
+                => Configs.CategorySettings.Instance.SaveConsumableCategory(_detectingCategory, category);
+            void SaveBag()
+                => Configs.CategorySettings.Instance.SaveGrabBagCategory(_detectingCategory);
+
+            NPCStats stats = Utility.GetNPCStats();
+            if (_preUseNPCStats.boss != stats.boss || _preUseInvasion != Main.invasionType)
+                SaveConsumable(Categories.Consumable.Summoner);
+            else if (_preUseNPCStats.total != stats.total)
+                SaveConsumable(Categories.Consumable.Critter);
+
+            // Player Boosters
+            else if (_preUseMaxLife != Player.statLifeMax2 || _preUseMaxMana != Player.statManaMax2
+                    || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
+                SaveConsumable(Categories.Consumable.PlayerBooster);
+
+            // World boosters
+            // TODO Other difficulties
+            else if (_preUseDifficulty != Utility.WorldDifficulty())
+                SaveConsumable(Categories.Consumable.WorldBooster);
+
+            // Some tools
+            else if (Player.position != _preUsePosition)
+                SaveConsumable(Categories.Consumable.Tool);
+
+            // Bags opened with leftclick
+            else if (Utility.CountItemsInWorld() != _preUseItemCount)
+                SaveBag();
+
+            // Must find a category
+            else if (mustDetect)
+                SaveConsumable(Categories.Consumable.PlayerBooster);
+
+            // No new category detected
+            else return;
+
+            // Any category was detected
+            StopDetectingCategory();
         }
 
         private void SavePreUseItemStats() {
@@ -118,67 +160,38 @@ namespace SPIC.Globals {
             _preUseDifficulty = Utility.WorldDifficulty();
             _preUseInvasion = Main.invasionType;
             _preUseNPCStats = Utility.GetNPCStats();
-        }
-
-        // FIXME recall when at spawn -> err: booster vs Tool
-        public Categories.Consumable? CheckForCategory() {
-
-            NPCStats stats = Utility.GetNPCStats();
-            if (_preUseNPCStats.boss != stats.boss || _preUseInvasion != Main.invasionType)
-                return Categories.Consumable.Summoner;
-
-            if (_preUseNPCStats.total != stats.total)
-                return Categories.Consumable.Critter;
-
-            // Player Boosters
-            if (_preUseMaxLife != Player.statLifeMax2 || _preUseMaxMana != Player.statManaMax2
-                    || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
-                return Categories.Consumable.PlayerBooster;
-
-            // World boosters
-            // TODO Other difficulties
-            if (_preUseDifficulty != Utility.WorldDifficulty())
-                return Categories.Consumable.WorldBooster;
-
-            // Some tools
-            if (Player.position != _preUsePosition)
-                return Categories.Consumable.Tool;
-
-            // No new category detected
-            return null;
+            _preUseItemCount = Utility.CountItemsInWorld();
         }
 
         public int FindPotentialExplosivesType(int proj) {
-
             foreach (Dictionary<int,int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values){
-                foreach((int t, int p) in projectiles){
-                    if(p == proj) return t;
-                }
+                foreach((int t, int p) in projectiles) if(p == proj) return t;
             }
-            foreach(Item item in Player.inventory){
-                if (item.shoot == proj) return item.type;
-            }
+            foreach(Item item in Player.inventory) if (item.shoot == proj) return item.type;
+            
             return 0;
         }
+        
         public  void RefilExplosive(int proj, Item refill) {
             int tot = Player.CountAllItems(refill.type);
             int used = 0;
-            foreach (Projectile p in Main.projectile) {
+            foreach (Projectile p in Main.projectile)
                 if (p.owner == Player.whoAmI && p.type == proj) used += 1;
-            }
-
+            
+            Configs.Infinities infinities = Configs.Infinities.Instance;
             Categories.Categories categories = Category.GetCategories(refill);
-            if ((categories.Consumable == Categories.Consumable.Tool && ConsumableExtension.GetConsumableInfinity(tot + used, refill) != 0)
-                    || (categories.Ammo != Categories.Ammo.None && AmmoExtension.GetAmmoInfinity(tot + used, refill) != 0)) {
+            if (infinities.InfiniteConsumables && (
+                    (categories.Consumable == Categories.Consumable.Tool && IsInfinite(ConsumableExtension.GetConsumableInfinity(tot + used, refill)))
+                    || (categories.Ammo != Categories.Ammo.None && IsInfinite(AmmoExtension.GetAmmoInfinity(tot + used, refill)))
+            )) 
                 Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
-            }
+            
         }
         
         private static void HookPutItemInInventory(On.Terraria.Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
             if (selItem < 0) goto origin;
 
             Item item = self.inventory[selItem];
-            SpicPlayer spicPlayer = self.GetModPlayer<SpicPlayer>();
 
             Configs.CategorySettings autos = Configs.CategorySettings.Instance;
             Configs.Infinities infinities = Configs.Infinities.Instance;
@@ -188,13 +201,11 @@ namespace SPIC.Globals {
             if(autos.AutoCategories && categories.Placeable == Categories.Placeable.None)
                 autos.SavePlaceableCategory(item, Categories.Placeable.Liquid);
             
-            item.stack++;
-            if (!(infinities.InfinitePlaceables && spicPlayer.HasInfinitePlaceable(item.type)))
-                item.stack--;
-            else if (infinities.PreventItemDupication) return;
+            if (infinities.InfinitePlaceables && IsInfinite(PlaceableExtension.GetPlaceableInfinity(self.CountAllItems(item.type)+1, item)))
+                item.stack++;
 
-            origin:
-            orig(self, type, selItem);
+            if (infinities.PreventItemDupication) return;
+            origin: orig(self, type, selItem);
         }
     }
 }
