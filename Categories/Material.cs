@@ -68,6 +68,9 @@ namespace SPIC {
         }
 
         public static long GetMaterialInfinity(this Player player, Item item)
-            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), player.CountAllItems(item.type, true), Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
+            => item.GetMaterialInfinity(player.CountItems(item.type, true));
+
+        public static long GetMaterialInfinity(this Item item, long count)
+            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), count, Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
     }
 }

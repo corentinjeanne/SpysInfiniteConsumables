@@ -34,6 +34,7 @@ namespace SPIC.Globals {
         public bool HasInfiniteAmmo(int type) => _infiniteAmmos.Contains(type);
         public bool HasInfinitePlaceable(int type) => _infinitePlaceables.Contains(type);
         public bool HasInfiniteGrabBag(int type) => _infiniteGrabBabs.Contains(type);
+        public bool HasInfiniteMaterial(int type) => _infiniteMaterials.TryGetValue(type, out _);
         public bool HasInfiniteMaterial(int type, out long inf) => _infiniteMaterials.TryGetValue(type, out inf);
         public bool HasInfiniteMaterial(int type, long cost) => _infiniteMaterials.TryGetValue(type, out long inf) && cost <= inf;
         public bool HasInfiniteCurrency(int id, out long inf) => _infiniteCurrencies.TryGetValue(id, out inf);
@@ -77,17 +78,17 @@ namespace SPIC.Globals {
 
                     long inf;
                     if(item.IsPartOfACurrency(out int currency) && !currenciesChecked.Contains(currency)){
+
                         if (IsInfinite(inf = Player.GetCurrencyInfinity(item))) _infiniteCurrencies.Add(currency, inf);
                         currenciesChecked.Add(currency);
                     }
-                    // TODO opti: count items only once
-                    // TODO Make in funcs to be used elsewhere
                     if (!typesChecked.Contains(item.type)) {
-                        if (IsInfinite(Player.GetAmmoInfinity(item))) _infiniteAmmos.Add(item.type);
-                        if (IsInfinite(Player.GetConsumableInfinity(item))) _infiniteConsumables.Add(item.type);
-                        if (IsInfinite(Player.GetPlaceableInfinity(item))) _infinitePlaceables.Add(item.type);
-                        if (IsInfinite(Player.GetGrabBagInfinity(item))) _infiniteGrabBabs.Add(item.type);
-                        if (IsInfinite(inf = Player.GetMaterialInfinity(item))) _infiniteMaterials.Add(item.type, inf);
+                        int count = Player.CountItems(item.type, true);
+                        if (IsInfinite(item.GetAmmoInfinity(count))) _infiniteAmmos.Add(item.type);
+                        if (IsInfinite(item.GetConsumableInfinity(count))) _infiniteConsumables.Add(item.type);
+                        if (IsInfinite(item.GetPlaceableInfinity(count))) _infinitePlaceables.Add(item.type);
+                        if (IsInfinite(item.GetGrabBagInfinity(count))) _infiniteGrabBabs.Add(item.type);
+                        if (IsInfinite(inf = item.GetMaterialInfinity(count))) _infiniteMaterials.Add(item.type, inf);
                         typesChecked.Add(item.type);
                     }
                 }
@@ -106,7 +107,7 @@ namespace SPIC.Globals {
             _detectingCategory = null;
         }
         
-        // FIXME recall when at spawn -> err: booster vs Tool
+        // BUG recall when at spawn -> err: booster vs Tool
         public void TryDetectCategory(bool mustDetect = false) {
             if (!DetectingCategory) return;
 
@@ -173,7 +174,7 @@ namespace SPIC.Globals {
         }
         
         public  void RefilExplosive(int proj, Item refill) {
-            int tot = Player.CountAllItems(refill.type);
+            int tot = Player.CountItems(refill.type);
             int used = 0;
             foreach (Projectile p in Main.projectile)
                 if (p.owner == Player.whoAmI && p.type == proj) used += 1;
@@ -181,8 +182,8 @@ namespace SPIC.Globals {
             Configs.Infinities infinities = Configs.Infinities.Instance;
             Categories.Categories categories = Category.GetCategories(refill);
             if (infinities.InfiniteConsumables && (
-                    (categories.Consumable == Categories.Consumable.Tool && IsInfinite(ConsumableExtension.GetConsumableInfinity(tot + used, refill)))
-                    || (categories.Ammo != Categories.Ammo.None && IsInfinite(AmmoExtension.GetAmmoInfinity(tot + used, refill)))
+                    (categories.Consumable == Categories.Consumable.Tool && IsInfinite(refill.GetConsumableInfinity(tot + used)))
+                    || (categories.Ammo != Categories.Ammo.None && IsInfinite(refill.GetAmmoInfinity(tot + used)))
             )) 
                 Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
             
@@ -201,7 +202,7 @@ namespace SPIC.Globals {
             if(autos.AutoCategories && categories.Placeable == Categories.Placeable.None)
                 autos.SavePlaceableCategory(item, Categories.Placeable.Liquid);
             
-            if (infinities.InfinitePlaceables && IsInfinite(PlaceableExtension.GetPlaceableInfinity(self.CountAllItems(item.type)+1, item)))
+            if (infinities.InfinitePlaceables && IsInfinite(item.GetPlaceableInfinity(self.CountItems(item.type)+1)))
                 item.stack++;
 
             if (infinities.PreventItemDupication) return;

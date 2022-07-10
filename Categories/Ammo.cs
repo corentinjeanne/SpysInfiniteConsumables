@@ -57,10 +57,9 @@ namespace SPIC {
             return ammo.Requirement();
         }
         public static int GetAmmoInfinity(this Player player, Item item)
-         => GetAmmoInfinity(player.CountAllItems(item.type), item);
+            => item.GetAmmoInfinity(player.CountItems(item.type));
 
-
-        public static int GetAmmoInfinity(int count, Item item)
+        public static int GetAmmoInfinity(this Item item, int count)
             => (int)Category.Infinity(item.type, Category.GetCategories(item).Ammo.MaxStack(), count, Category.GetRequirements(item).Ammo);
         
     }

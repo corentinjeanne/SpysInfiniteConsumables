@@ -21,14 +21,10 @@ namespace SPIC.Globals {
         public override void Load() {
             s_ItemMaxStack = new int[ItemID.Count];
             IL.Terraria.Item.SetDefaults_int_bool += Hook_ItemSetDefaults;
-            PlaceableExtension.ClearWandAmmos();
-            CurrencyExtension.GetCurrencies();
         }
         public override void Unload() {
             SetDefaultsHook = false;
             s_ItemMaxStack = null;
-            PlaceableExtension.ClearWandAmmos();
-            CurrencyExtension.ClearCurrencies();
         }
 
         public override void SetDefaults(Item item) {

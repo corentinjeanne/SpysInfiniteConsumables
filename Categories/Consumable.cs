@@ -105,10 +105,10 @@ namespace SPIC {
         }
 
         public static int GetConsumableInfinity(this Player player, Item item)
-            => GetConsumableInfinity(player.CountAllItems(item.type), item);
+            => item.GetConsumableInfinity(player.CountItems(item.type));
 
-        public static int GetConsumableInfinity(int count, Item item)
-         => (int)Category.Infinity(item.type, Category.GetCategories(item).Consumable?.MaxStack() ?? 999, count, Category.GetRequirements(item).Consumable);
+        public static int GetConsumableInfinity(this Item item, int count)
+            => (int)Category.Infinity(item.type, Category.GetCategories(item).Consumable?.MaxStack() ?? 999, count, Category.GetRequirements(item).Consumable);
 
 
     }

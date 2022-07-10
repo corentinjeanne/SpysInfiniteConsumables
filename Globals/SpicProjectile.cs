@@ -9,21 +9,29 @@ namespace SPIC.Globals {
 			On.Terraria.Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
 			On.Terraria.Projectile.ExplodeTiles += HookExplodeTiles;
 			On.Terraria.Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
-		}
+            ClearExploded();
+        }
+        public override void Unload() {
+            ClearExploded();
+        }
 
-		private static void Explode(Projectile proj){
-            if (proj.owner < 0 || !Configs.CategorySettings.Instance.AutoCategories) return;
+        internal static void ClearExploded() => _explodedProjTypes.Clear();
+        private static readonly System.Collections.Generic.HashSet<int> _explodedProjTypes = new();
 
-            // TODO optimise if the item has already been fired/is s.t. else
+        private static void Explode(Projectile proj){
+
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategorySettings.Instance.AutoCategories) return;
+            
             SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
             int type = spicPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(spicPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            if (item?.IsAir == false && Configs.CategorySettings.Instance.SaveExplosive(item)) {
+            if (!item.IsAir && Configs.CategorySettings.Instance.SaveExplosive(item)) {
                 Category.UpdateItem(item);
                 spicPlayer.RefilExplosive(proj.type, item);
             }
-            
+            _explodedProjTypes.Add(proj.type);
+
         }
 		private void HookExplodeCrackedTiles(On.Terraria.Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){
             orig(self, compareSpot, radius, minI, maxI, minJ, maxJ);

@@ -2,6 +2,7 @@
 
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace SPIC.Globals {
 
@@ -34,10 +35,19 @@ namespace SPIC.Globals {
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
             orig(canDelayCheck);
             if (canDelayCheck) return;
+
+            if(Configs.Infinities.Instance.PreventItemDupication){
+                for (int r = 0; r < Recipe.maxRecipes && Main.recipe[r].createItem.type != ItemID.None; r++) {
+                    if (Main.availableRecipe[r] == 0) continue;
+                    if (Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().HasInfiniteMaterial(Main.recipe[Main.availableRecipe[r]].createItem.type))
+                        Main.availableRecipe[r] = 0;
+                }
+            }
+
             Category.ClearAll();
             Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
-        }
 
+        }
     }
 
 }

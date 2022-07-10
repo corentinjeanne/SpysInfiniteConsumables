@@ -21,23 +21,35 @@ namespace SPIC {
             throw new UsageException("Invalid Name" + name);
         }
 
-        public static Item[] Chest(this Player player) 
-            => player.chest switch {
-                > -1 => Main.chest[player.chest].item,
-                -2 => player.bank.item,
-                -3 => player.bank2.item,
-                -4 => player.bank3.item,
-                -6 => player.bank4.item,
-                _ => null
-            };
+        public static Item[] Chest(this Player player) => player.chest switch {
+            > -1 => Main.chest[player.chest].item,
+            -2 => player.bank.item,
+            -3 => player.bank2.item,
+            -4 => player.bank3.item,
+            -6 => player.bank4.item,
+            _ => null
+        };
         
-
-        public static int CountInContainer(Item[] container, int type) {
+        public static int CountItems(this Item[] container, int type, params int[] ignoreSots) {
             int total = 0;
-            foreach (Item i in container) if (i.type == type) total += i.stack;
-            
+            for (int i = 0; i < container.Length; i++) {
+                if(System.Array.IndexOf(ignoreSots, i) != -1) continue;
+                if (container[i].type == type) total += container[i].stack;
+            }
+
             return total;
         }
+        public static int CountItems(this Player player, int type, bool includeChest = false) {
+            int total = player.inventory.CountItems(type, 58);
+            if(Main.mouseItem.type == type) total += Main.mouseItem.stack;
+            Item[] chest = player.Chest();
+
+            if (includeChest && chest is not null)
+                total += chest.CountItems(type);
+
+            return total;
+        }
+
         public static void RemoveFromInventory(this Player player, int type, int count = 1) {
             foreach (Item i in player.inventory) {
                 if(i.type != type) continue;
@@ -50,14 +62,6 @@ namespace SPIC {
                     return;
                 }
             }
-        }
-        public static int CountAllItems(this Player player, int type, bool includeChest = false) {
-            int total = CountInContainer(player.inventory, type);
-            Item[] chest = player.Chest();
-            if (includeChest && chest is not null)
-                total += CountInContainer(chest, type);
-
-            return total;
         }
 
         public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;

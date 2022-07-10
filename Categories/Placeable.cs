@@ -80,13 +80,14 @@ namespace SPIC {
             };
         }
 
+        internal static void ClearWandAmmos() => _wands.Clear();
         private static readonly System.Collections.Generic.Dictionary<int, Placeable> _wands = new();
+
         public static void RegisterWandAmmo(Item wand) => RegisterWandAmmo(wand.tileWand, GetPlaceableCategory(wand, true));
         public static void RegisterWandAmmo(int type, Placeable category) => _wands.TryAdd(type, category);
 
         public static bool IsWandAmmo(int type) => IsWandAmmo(type, out _);
         public static bool IsWandAmmo(int type, out Placeable placeable) => _wands.TryGetValue(type, out placeable);
-        public static void ClearWandAmmos() => _wands.Clear();
 
 
         public static Placeable GetPlaceableCategory(this Item item, bool checkWandAmmo = false) {
@@ -183,12 +184,12 @@ namespace SPIC {
         }
 
         public static int GetPlaceableInfinity(this Player player, Item item, bool ignoreAllwaysDrop = false)
-            => GetPlaceableInfinity(player.CountAllItems(item.type), item, ignoreAllwaysDrop);
+            => item.GetPlaceableInfinity(player.CountItems(item.type), ignoreAllwaysDrop);
 
-        public static int GetPlaceableInfinity(int count, Item item, bool ignoreAllwaysDrop = false)
-         => (int)Category.Infinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
-            !(Configs.Infinities.Instance.PreventItemDupication || ignoreAllwaysDrop) && !CanNoDuplicationWork(item) ? Category.ARIDelegates.NotInfinite : Category.ARIDelegates.ItemCount
-        );
+        public static int GetPlaceableInfinity(this Item item, int count, bool ignoreAllwaysDrop = false)
+            => (int)Category.Infinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
+                !(Configs.Infinities.Instance.PreventItemDupication || ignoreAllwaysDrop) && !CanNoDuplicationWork(item) ? Category.ARIDelegates.NotInfinite : Category.ARIDelegates.ItemCount
+            );
 
     }
 }

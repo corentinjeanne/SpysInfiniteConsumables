@@ -53,7 +53,10 @@ namespace SPIC {
         }
 
         public static int GetGrabBagInfinity(this Player player, Item item)
-            => (int)Category.Infinity(item.type, Category.GetCategories(item).GrabBag?.MaxStack() ?? 999, player.CountAllItems(item.type, true), Category.GetRequirements(item).GrabBag);
+            => item.GetGrabBagInfinity(player.CountItems(item.type, true));
+
+        public static int GetGrabBagInfinity(this Item item, int count)
+            => (int)Category.Infinity(item.type, Category.GetCategories(item).GrabBag?.MaxStack() ?? 999, count, Category.GetRequirements(item).GrabBag);
 
     }
 }
