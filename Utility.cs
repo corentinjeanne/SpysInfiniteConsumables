@@ -33,12 +33,12 @@ namespace SPIC {
         public static int CountItems(this Item[] container, int type, params int[] ignoreSots) {
             int total = 0;
             for (int i = 0; i < container.Length; i++) {
-                if(System.Array.IndexOf(ignoreSots, i) != -1) continue;
-                if (container[i].type == type) total += container[i].stack;
+                if(System.Array.IndexOf(ignoreSots, i) == -1 && container[i].type == type)
+                    total += container[i].stack;
             }
-
             return total;
         }
+        
         public static int CountItems(this Player player, int type, bool includeChest = false) {
             int total = player.inventory.CountItems(type, 58);
             if(Main.mouseItem.type == type) total += Main.mouseItem.stack;
@@ -64,6 +64,15 @@ namespace SPIC {
             }
         }
 
+        public static long CountCoins(this Item[] container, params int[] ignoreSlots) {
+            long count = 0L;
+            for (int i = 0; i < container.Length; i++) {
+                if(System.Array.IndexOf(ignoreSlots,i) == -1 && container[i].IsACoin)
+                    count += container[i].value / 5 * container[i].stack;
+            }
+            return count;
+        }
+
         public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;
 
         public static int WorldDifficulty() => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
@@ -78,11 +87,10 @@ namespace SPIC {
             return stats;
         }
 
-        public static int RequirementToItems(int infinity, int type, int theoricalMaxStack = 999) {
-            int maxStack = Globals.SpicItem.MaxStack(type);
-            return infinity >= 0 ? System.Math.Min(maxStack, infinity) :
-                -infinity * System.Math.Min(maxStack, theoricalMaxStack);
-        }
+        public static int RequirementToItems(int infinity, int type, int theoricalMaxStack = 999) => infinity switch {
+            < 0 => -infinity * (int)System.MathF.Min(Globals.SpicItem.MaxStack(type), theoricalMaxStack),
+            _ => infinity
+        };
 
         public static int CountItemsInWorld(){
             int i = 0;

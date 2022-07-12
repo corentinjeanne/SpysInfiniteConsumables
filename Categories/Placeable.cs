@@ -157,10 +157,7 @@ namespace SPIC {
             return placeable.Requirement();
         }
 
-        public static bool CanNoDuplicationWork(int type) => CanNoDuplicationWork(new Item(type));
         public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
-
-        public static bool AlwaysDrop(int type) => AlwaysDrop(new Item(type));
 
         // TODO Update as tml updates
         // Wires and actuators
@@ -171,7 +168,7 @@ namespace SPIC {
         // drop in 2x1 bug : num instead of num3
         public static bool AlwaysDrop(this Item item) {
             if(item.type == ItemID.Wire || item.type == ItemID.Actuator) return true;
-            if (item.createTile < TileID.Dirt || item.createWall != WallID.None || item.createTile == TileID.TallGateClosed) return false;
+            if ((item.createTile < TileID.Dirt && item.createWall != WallID.None) || item.createTile == TileID.TallGateClosed) return false;
             if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
 
             TileObjectData data = TileObjectData.GetTileData(item.createTile, item.placeStyle);
@@ -188,7 +185,7 @@ namespace SPIC {
 
         public static int GetPlaceableInfinity(this Item item, int count, bool ignoreAllwaysDrop = false)
             => (int)Category.Infinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
-                !(Configs.Infinities.Instance.PreventItemDupication || ignoreAllwaysDrop) && !CanNoDuplicationWork(item) ? Category.ARIDelegates.NotInfinite : Category.ARIDelegates.ItemCount
+                ignoreAllwaysDrop || !Configs.Infinities.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? Category.ARIDelegates.ItemCount : Category.ARIDelegates.NotInfinite
             );
 
     }

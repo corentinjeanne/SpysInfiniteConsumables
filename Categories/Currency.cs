@@ -71,7 +71,6 @@ namespace SPIC {
         }
 
         public static Currency GetCurrencyCategory(this Item item) {
-
             return !item.IsPartOfACurrency(out int currency)
                 ? Currency.None
                 : currency == -1 ? Currency.Coin : _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
@@ -86,35 +85,25 @@ namespace SPIC {
         }
         public static long CountCurrency(this Player player, int currency) {
             switch (currency) {
-            case -2: return 0;
+            case -2: return 0L;
             case -1:
-                // FIXME overflow with max value
-                return Utils.CoinsCombineStacks(out _,
-                    Utils.CoinsCount(out _, player.inventory),
-                    Utils.CoinsCount(out _, player.bank.item),
-                    Utils.CoinsCount(out _, player.bank2.item),
-                    Utils.CoinsCount(out _, player.bank3.item),
-                    Utils.CoinsCount(out _, player.bank4.item)
-                );
-            default: {
+                return player.inventory.CountCoins(58)
+                    + player.bank.item.CountCoins() + player.bank2.item.CountCoins()
+                    + player.bank3.item.CountCoins() + player.bank4.item.CountCoins();
+            default: 
                 CustomCurrencySystem system = _currencies[currency].system;
                 long cap = system.CurrencyCap;
                 system.SetCurrencyCap(long.MaxValue);
-                long count = system.CombineStacks(out _,
-                    system.CountCurrency(out _, player.inventory),
-                    system.CountCurrency(out _, player.bank.item),
-                    system.CountCurrency(out _, player.bank2.item),
-                    system.CountCurrency(out _, player.bank3.item),
-                    system.CountCurrency(out _, player.bank4.item)
-                );
+                long count = system.CountCurrency(out _, player.inventory)
+                    + system.CountCurrency(out _, player.bank.item) + system.CountCurrency(out _, player.bank2.item)
+                    + system.CountCurrency(out _, player.bank3.item) + system.CountCurrency(out _, player.bank4.item);
                 system.SetCurrencyCap(cap);
                 return count;
-            }
             }
         }
 
         public static long GetCurrencyInfinity(this Player player, Item item) {
-            if (!item.IsPartOfACurrency(out int currency)) return 0;
+            if (!item.IsPartOfACurrency(out int currency)) return 0L;
             long count = player.CountCurrency(currency);
 
             Currency category = Category.GetCategories(item).Currency;

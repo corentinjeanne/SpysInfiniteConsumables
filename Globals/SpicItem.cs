@@ -170,9 +170,12 @@ namespace SPIC.Globals {
             }
 
             // Consumables
-            return item.GetCategories().Consumable == Categories.Consumable.None ?
-                !(infinities.InfinitePlaceables && spicPlayer.HasInfinitePlaceable(item.type)):
-                !(infinities.InfiniteConsumables && spicPlayer.HasInfiniteConsumable(item.type));
+            Categories.Categories categories = item.GetCategories();
+            if(categories.Consumable != Categories.Consumable.None)
+                return !(infinities.InfiniteConsumables && spicPlayer.HasInfiniteConsumable(item.type));
+            if(item.Placeable())
+                return !(infinities.InfinitePlaceables && spicPlayer.HasInfinitePlaceable(item.type));
+            return !(infinities.InfiniteGrabBags && spicPlayer.HasInfiniteGrabBag(item.type));
         }
 
         public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player)

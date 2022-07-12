@@ -36,16 +36,17 @@ namespace SPIC.Globals {
             orig(canDelayCheck);
             if (canDelayCheck) return;
 
-            if(Configs.Infinities.Instance.PreventItemDupication){
-                for (int r = 0; r < Recipe.maxRecipes && Main.recipe[r].createItem.type != ItemID.None; r++) {
-                    if (Main.availableRecipe[r] == 0) continue;
-                    if (Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().HasInfiniteMaterial(Main.recipe[Main.availableRecipe[r]].createItem.type))
-                        Main.availableRecipe[r] = 0;
-                }
-            }
-
             Category.ClearAll();
             Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
+
+            // Configs.Infinities infinities = Configs.Infinities.Instance;
+            // if(infinities.InfiniteMaterials && infinities.PreventItemDupication){
+            //     for (int r = 0; r < Recipe.maxRecipes && Main.recipe[r].createItem.type != ItemID.None; r++) {
+            //         if (Main.availableRecipe[r] == 0) continue;
+            //         if (Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().HasInfiniteMaterial(Main.recipe[Main.availableRecipe[r]].createItem.type))
+            //             Main.availableRecipe[r] = 0;
+            //     }
+            // }
 
         }
     }

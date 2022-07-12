@@ -94,8 +94,9 @@ namespace SPIC.Globals {
                 }
             }
             LookIn(Player.inventory);
+            LookIn(new[]{Main.mouseItem});
             Item[] chest = Player.Chest();
-            if(chest != null) LookIn(chest);
+            if(chest is not null) LookIn(chest);
         }
 
         public void StartDetectingCategory(Item item) {
@@ -113,8 +114,11 @@ namespace SPIC.Globals {
 
             void SaveConsumable(Categories.Consumable category)
                 => Configs.CategorySettings.Instance.SaveConsumableCategory(_detectingCategory, category);
-            void SaveBag()
-                => Configs.CategorySettings.Instance.SaveGrabBagCategory(_detectingCategory);
+            
+            void SaveBag() {
+                Configs.CategorySettings.Instance.SaveGrabBagCategory(_detectingCategory);
+                Configs.CategorySettings.Instance.SaveConsumableCategory(_detectingCategory, Categories.Consumable.None);
+            }
 
             NPCStats stats = Utility.GetNPCStats();
             if (_preUseNPCStats.boss != stats.boss || _preUseInvasion != Main.invasionType)
@@ -149,6 +153,7 @@ namespace SPIC.Globals {
 
             // Any category was detected
             StopDetectingCategory();
+            FindInfinities();
         }
 
         private void SavePreUseItemStats() {

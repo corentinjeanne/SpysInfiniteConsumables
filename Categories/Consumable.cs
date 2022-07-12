@@ -61,7 +61,7 @@ namespace SPIC {
             if (autos.Consumable.HasValue) return autos.Consumable;
 
             if (!item.consumable || item.useStyle == ItemUseStyleID.None) return Consumable.None;
-            if (item.createTile != -1 || item.createWall != -1) return Consumable.None;
+            if (item.Placeable()) return Consumable.None;
 
             // Vanilla inconsitancies or special items
             switch (item.type) {
