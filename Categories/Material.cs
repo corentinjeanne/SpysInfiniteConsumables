@@ -25,8 +25,7 @@ namespace SPIC {
             _ => 999,
         };
         public static int Requirement(this Material material) {
-            Configs.Infinities inf = Configs.Infinities.Instance;
-
+            Configs.Requirements inf = Configs.Requirements.Instance;
             return material switch {
                 Material.Basic => inf.materials_Basics,
                 Material.Ore => inf.materials_Ores,
@@ -61,7 +60,7 @@ namespace SPIC {
             return Material.Miscellaneous;
         }
         public static int GetMaterialRequirement(this Item item){
-            Configs.Infinities config = Configs.Infinities.Instance;
+            Configs.Requirements config = Configs.Requirements.Instance;
             Material material = Category.GetCategories(item).Material;
             if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return material.Requirement();
@@ -71,6 +70,6 @@ namespace SPIC {
             => item.GetMaterialInfinity(player.CountItems(item.type, true));
 
         public static long GetMaterialInfinity(this Item item, long count)
-            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), count, Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
+            => Category.CalculateInfinity(item.type, Category.GetCategories(item).Material.MaxStack(), count, Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
     }
 }

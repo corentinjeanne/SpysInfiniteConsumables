@@ -20,13 +20,13 @@ namespace SPIC.Globals {
 
         private static void Explode(Projectile proj){
 
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategorySettings.Instance.AutoCategories) return;
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategoryDetection.Instance.AutoCategories) return;
             
             SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
             int type = spicPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(spicPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            if (!item.IsAir && Configs.CategorySettings.Instance.SaveExplosive(item)) {
+            if (!item.IsAir && Configs.CategoryDetection.Instance.DetectedExplosive(item)) {
                 Category.UpdateItem(item);
                 spicPlayer.RefilExplosive(proj.type, item);
             }

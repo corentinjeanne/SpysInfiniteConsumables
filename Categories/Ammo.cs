@@ -22,7 +22,7 @@ namespace SPIC {
         };
 
         public static int Requirement(this Ammo ammo) {
-            Configs.Infinities inf = Configs.Infinities.Instance;
+            Configs.Requirements inf = Configs.Requirements.Instance;
             return ammo switch {
                 Ammo.Basic => inf.ammo_Standard,
                 Ammo.Special or Ammo.Explosive => inf.ammo_Special,
@@ -32,11 +32,11 @@ namespace SPIC {
 
         public static Ammo GetAmmoCategory(this Item item) {          
 
-            Configs.CustomCategories categories = Configs.Infinities.Instance.GetCustomCategories(item.type); 
+            Configs.CustomCategories categories = Configs.Requirements.Instance.GetCustomCategories(item.type); 
             if(categories.Ammo.HasValue) return categories.Ammo.Value;
 
             if(!item.consumable || item.ammo == AmmoID.None) return Ammo.None;
-            Configs.AutoCategories autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+            Configs.DetectedCategories autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
             if (autos.Explosive) return Ammo.Explosive;
 
             if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
@@ -46,9 +46,9 @@ namespace SPIC {
         }
 
         public static int GetAmmoRequirement(this Item item){
-            Configs.Infinities config = Configs.Infinities.Instance;
+            Configs.Requirements config = Configs.Requirements.Instance;
 
-            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
+            Configs.CustomRequirements infinities = config.GetCustomRequirements(item.type);
             if(infinities.Ammo.HasValue) return infinities.Ammo.Value;
 
             Ammo ammo = Category.GetCategories(item).Ammo;
@@ -60,7 +60,7 @@ namespace SPIC {
             => item.GetAmmoInfinity(player.CountItems(item.type));
 
         public static int GetAmmoInfinity(this Item item, int count)
-            => (int)Category.Infinity(item.type, Category.GetCategories(item).Ammo.MaxStack(), count, Category.GetRequirements(item).Ammo);
+            => (int)Category.CalculateInfinity(item.type, Category.GetCategories(item).Ammo.MaxStack(), count, Category.GetRequirements(item).Ammo);
         
     }
 }

@@ -38,7 +38,7 @@ namespace SPIC.Globals {
 
         //  TODO Falling tiles
         public override void PlaceInWorld(int i, int j, int type, Item item) {
-            Configs.Infinities infs = Configs.Infinities.Instance;
+            Configs.Requirements infs = Configs.Requirements.Instance;
 
             int playerIndex = item.playerIndexTheItemIsReservedFor;
             if (WorldGen.generatingWorld || playerIndex < 0 || !infs.InfinitePlaceables || !infs.PreventItemDupication)
@@ -99,7 +99,7 @@ namespace SPIC.Globals {
     
         public override void PlaceInWorld(int i, int j, int type, Item item) {
 
-            Configs.Infinities config = Configs.Infinities.Instance;
+            Configs.Requirements config = Configs.Requirements.Instance;
             if (WorldGen.generatingWorld || item.playerIndexTheItemIsReservedFor < 0 || !config.InfinitePlaceables || !config.PreventItemDupication)
                 return;
 

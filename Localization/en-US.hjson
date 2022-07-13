@@ -1,14 +1,18 @@
 {
     Mods: {
         SPIC: {
-            Words: {
-                Items: items
-                Stacks: stacks
+            InfinityRelated: {
+                infinite: Infinite
+                items: items
+                stacks: stacks
             }
             Categories: {
+                name: Category
+                names: Categories
                 Unknown: Unknown
-
                 Ammo: {
+                    name: Ammo
+                    names: Ammo
                     None: Not Ammo
                     Basic: Basic
                     Explosive: Explosives
@@ -16,6 +20,8 @@
                 }
 
                 Consumable: {
+                    name: Consumable
+                    names: Consumables
                     None: Not consumable
 
                     Weapon: Weapon
@@ -31,6 +37,8 @@
                 }
 
                 Placeable: {
+                    name: Placeable
+                    names: Placeables
                     None: Not Placeable
 
                     Block: Block
@@ -53,18 +61,24 @@
                 }
 
                 GrabBag: {
+                    name: Grab bag
+                    names: Grab bags
                     None: Not a bag
                     Crate: Crate
                     TreasureBag: Treasure bag
                 }
 
                 Currency: {
+                    name: Currency
+                    names: Currencies
                     None: Not a currency
                     Coin: Coin
                     SingleCoin: Single Coin
                 }
 
                 Material: {
+                    name: Material
+                    names: Materials
                     None: Not a material
                     Basic: Basic
                     Ore: Ore
@@ -75,110 +89,103 @@
             }
 
             Commands: {
-                IDDesc: Gives the ID and the name of an item
-                SetDesc: Set the category of an item
+                idDesc: Gives the ID and the name of an item
+                setDesc: Set the category of an item
             }
 
             ItemTooltip: {
-                GrabBag: Grab bag
-                WandAmmo: Wand ammo
-                Currency: Currency
-                Infinite: Infinite
-                InfiniteMid: below
+                infiniteMid: below
+                wandAmmo: Wand ammo
             }
 
             Configs: {
-                General: {
-                    Header: General
+                Requirements: {
+                    name: Infinity Requirements
+                    General: {
+                        header: General
 
-                    Consumables: Infinite Consumables
-                    Bags: Infinite Grab bags
-                    Placeables: Infinite Placeables
-                    Currencies: Infinite Currencies
-                    Materials: Infinite Materials
+                        duplication: Prevent item duplication
+                        t_duplication:
+                            '''
+                            /!\ WIP /!\
+                            Tiles and walls won't drop their item when broken
+                            Critters will turn into smoke when caught
+                            Buckets won't create empty or full buckets when used
+                            '''
+                        journey: Journey requirement
+                        t_journey: Uses the journey research cost of items as their infinite requirent
+                        commands: Commands
+                        t_commands: Adds the '/spic' command to edit the category of items in-game
+                    }
+                    Requirements: {
+                        weapons: Thrown weapons
+                        standardAmmo: Standard Ammo
+                        specialAmmo: Special Ammo
+                        potions: Potions
+                        boosters: Permanent Boosters
 
-                    Duplication: Prevent item duplication
-                    DuplicationTooltip:
-                        '''
-                        /!\ WIP /!\
-                        Tiles and walls won't drop their item when broken
-                        Critters will turn into smoke when caught
-                        Buckets won't create empty or full buckets when used
-                        '''
-                    Journey: Journey requirement
-                    JourneyTooltip: Uses the journey research cost of items as their infinite requirent
-                    Commands: Commands
-                    CommandsTooltip: Adds the '/spic' command to edit the category of items in-game
-                
-                    DisplayHeader: Infinities display
-                    Category: Show categories
-                    Infinities: Show infinities
-                    Requirement: Show requirement
+                        summoners: Boss and Event summoners
+                        critters: Criters and Baits
+                        explosives: Explosives
+                        tools: Miscellaneous
 
-                    Auto: Automatic categories
-                    AutoTooltip: 
-                        '''
-                        Detect the categories of items if they are unknown.
-                        To see the detected categories, look at the json version of the file.
-                        '''
-                    DetectedCount : Cached categories
-                    DetectedCountTooltip : Set to 0 to clear
+                        crates: Crates and Bags
+                        boss: Treasure Bags
 
+                        tiles: Tiles
+                        torches: Torches
+                        ores: Valuable Tiles
+                        furnitures: Furnitures
+                        mechanical: Mechanical parts
+                        liquids: Liquids
+                        seeds: Seeds
+                        paints: Paints
+                        wiring: Wiring
+
+                        coins: Coins
+                        customCoins: Custom currencies
+
+                        basics: Basic materials
+                        miscellaneous: Miscellaneous
+                        nonStackable: Non stackable
+                    }
+                    Customs: {
+                        header: Custom Categories and Requirements
+                        customs: Customs
+
+                        requirement: Requirement
+                        t_requirement: Only in use when category is None
+                    }
                 }
-                Infinities: {
-                    ConsumablesHeader: Consumables
-                    Weapons: Thrown weapons
-                    StandardAmmo: Standard Ammo
-                    SpecialAmmo: Special Ammo
-                    Potions: Potions
-                    Boosters: Permanent Boosters
-
-                    Summoners: Boss and Event summoners
-                    Critters: Criters and Baits
-                    Explosives: Explosives
-                    Tools: Miscellaneous
-
-                    BagsHeader: Grab bags
-                    Crates: Crates and Bags
-                    Boss: Treasure Bags
-
-                    PlaceablesHeader: Placeables
-                    Tiles: Tiles
-                    Torches: Torches
-                    Ores: Valuable Tiles
-                    Furnitures: Furnitures
-                    Mechanical: Mechanical parts
-                    Liquids: Liquids
-                    Seeds: Seeds
-                    Paints: Paints
-                    Wiring: Wiring
-
-                    CurrenciesHeader: Currencies
-                    Coins: Coins
-                    CustomCoins: Custom currencies
-
-                    MaterialsHeader: Materials
-                    Basics: Basic materials
-                    Miscellaneous: Miscellaneous
-                    NonStackable: Non stackable
-
+                Detection: {
+                    name: Category Detection
+                    General: {
+                        header: Tooggle
+                        detect: Detect missing categories
+                        t_detect: 
+                            '''
+                            Detect the categories of items if they are unknown.
+                            You can see the detected categories below.
+                            '''
+                    }
+                    Categories: {
+                        header: Detected Categories
+                        detected: Detected
+                        explosives: Explosives
+                    }
                 }
-                Customs: {
-                    Header: Custom Categories and values
-                    Customs: Customs
-
-                    Item: Item
-                    Ammo: Ammo
-                    Consumable: Consumable
-                    Placeable: Placeable
-                    Bag: Grab bag
-                    Currency: Currency
-
-                    Category: Category
-                    Infinity: Infinity
-                    InfinityTooltip: Only in use when category is None
+                Tooltip: {
+                    name: Item Info Display
+                    Infos:  {
+                        header: Infinity displays
+                        categories: Show categories
+                        infinities: Show infinities
+                        requirements: Show requirements
+                    }
+                    Colors: {
+                        header: Infinity colors
+                    }
                 }
-
             }
         }
     }

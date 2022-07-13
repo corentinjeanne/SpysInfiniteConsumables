@@ -25,6 +25,7 @@ namespace SPIC.Globals {
 
         private readonly HashSet<int> _infiniteConsumables = new();
         private readonly HashSet<int> _infinitePlaceables = new();
+        private readonly HashSet<int> _infinitePlaceablesTooltip = new();
         private readonly HashSet<int> _infiniteAmmos = new();
         private readonly HashSet<int> _infiniteGrabBabs = new();
         private readonly Dictionary<int, long> _infiniteMaterials = new();
@@ -32,7 +33,7 @@ namespace SPIC.Globals {
 
         public bool HasInfiniteConsumable(int type) => _infiniteConsumables.Contains(type);
         public bool HasInfiniteAmmo(int type) => _infiniteAmmos.Contains(type);
-        public bool HasInfinitePlaceable(int type) => _infinitePlaceables.Contains(type);
+        public bool HasInfinitePlaceable(int type, bool tooltip = false) => !tooltip ? _infinitePlaceables.Contains(type) : _infinitePlaceablesTooltip.Contains(type);
         public bool HasInfiniteGrabBag(int type) => _infiniteGrabBabs.Contains(type);
         public bool HasInfiniteMaterial(int type) => _infiniteMaterials.TryGetValue(type, out _);
         public bool HasInfiniteMaterial(int type, out long inf) => _infiniteMaterials.TryGetValue(type, out inf);
@@ -87,6 +88,7 @@ namespace SPIC.Globals {
                         if (IsInfinite(item.GetAmmoInfinity(count))) _infiniteAmmos.Add(item.type);
                         if (IsInfinite(item.GetConsumableInfinity(count))) _infiniteConsumables.Add(item.type);
                         if (IsInfinite(item.GetPlaceableInfinity(count))) _infinitePlaceables.Add(item.type);
+                        if (IsInfinite(item.GetPlaceableInfinity(count, true))) _infinitePlaceablesTooltip.Add(item.type);
                         if (IsInfinite(item.GetGrabBagInfinity(count))) _infiniteGrabBabs.Add(item.type);
                         if (IsInfinite(inf = item.GetMaterialInfinity(count))) _infiniteMaterials.Add(item.type, inf);
                         typesChecked.Add(item.type);
@@ -113,11 +115,11 @@ namespace SPIC.Globals {
             if (!DetectingCategory) return;
 
             void SaveConsumable(Categories.Consumable category)
-                => Configs.CategorySettings.Instance.SaveConsumableCategory(_detectingCategory, category);
+                => Configs.CategoryDetection.Instance.DetectedConsumable(_detectingCategory, category);
             
             void SaveBag() {
-                Configs.CategorySettings.Instance.SaveGrabBagCategory(_detectingCategory);
-                Configs.CategorySettings.Instance.SaveConsumableCategory(_detectingCategory, Categories.Consumable.None);
+                Configs.CategoryDetection.Instance.DetectedGrabBag(_detectingCategory);
+                Configs.CategoryDetection.Instance.DetectedConsumable(_detectingCategory, Categories.Consumable.None);
             }
 
             NPCStats stats = Utility.GetNPCStats();
@@ -184,8 +186,8 @@ namespace SPIC.Globals {
             foreach (Projectile p in Main.projectile)
                 if (p.owner == Player.whoAmI && p.type == proj) used += 1;
             
-            Configs.Infinities infinities = Configs.Infinities.Instance;
-            Categories.Categories categories = Category.GetCategories(refill);
+            Configs.Requirements infinities = Configs.Requirements.Instance;
+            Categories.ItemCategories categories = Category.GetCategories(refill);
             if (infinities.InfiniteConsumables && (
                     (categories.Consumable == Categories.Consumable.Tool && IsInfinite(refill.GetConsumableInfinity(tot + used)))
                     || (categories.Ammo != Categories.Ammo.None && IsInfinite(refill.GetAmmoInfinity(tot + used)))
@@ -199,13 +201,13 @@ namespace SPIC.Globals {
 
             Item item = self.inventory[selItem];
 
-            Configs.CategorySettings autos = Configs.CategorySettings.Instance;
-            Configs.Infinities infinities = Configs.Infinities.Instance;
-            Categories.Categories categories = Category.GetCategories(self.inventory[selItem]);
+            Configs.CategoryDetection autos = Configs.CategoryDetection.Instance;
+            Configs.Requirements infinities = Configs.Requirements.Instance;
+            Categories.ItemCategories categories = Category.GetCategories(self.inventory[selItem]);
 
 
             if(autos.AutoCategories && categories.Placeable == Categories.Placeable.None)
-                autos.SavePlaceableCategory(item, Categories.Placeable.Liquid);
+                autos.DetectedPlaceable(item, Categories.Placeable.Liquid);
             
             if (infinities.InfinitePlaceables && IsInfinite(item.GetPlaceableInfinity(self.CountItems(item.type)+1)))
                 item.stack++;
