@@ -11,22 +11,21 @@
                 Material:   { icon: "[i:398]" }
             }
             ItemTooltip: {
-                Requirement: "{0} {$Mods.SPIC.InfinityRelated.items}"
-                RequirementStacks: "{0} {$Mods.SPIC.InfinityRelated.stacks}"
+                Requirement: "{0} {$Mods.SPIC.ItemTooltip.items}"
+                RequirementStacks: "{0} {$Mods.SPIC.ItemTooltip.stacks}"
                 
-                Infinite: "{$Mods.SPIC.InfinityRelated.infinite} {0}"
-                InfiniteName: "{0} "
+                InfiniteName: "{1} {0}"
                 InfiniteSprite: "{1}[i:{0}]"
             }
 
             Configs: {
                 Requirements: {
                     General: {
-                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.InfinityRelated.infinite} {$Mods.SPIC.Categories.Consumable.names}"
-                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.InfinityRelated.infinite} {$Mods.SPIC.Categories.GrabBag.names}"
-                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.names}"
-                        Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.InfinityRelated.infinite} {$Mods.SPIC.Categories.Currency.names}"
-                        Materials: "{$Mods.SPIC.Categories.Material.icon} {$Mods.SPIC.InfinityRelated.infinite} {$Mods.SPIC.Categories.Material.names}"
+                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Requirements.General.consumable}"
+                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Requirements.General.grabBag}"
+                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Requirements.General.placeable}"
+                        Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.Configs.Requirements.General.currency}"
+                        Materials: "{$Mods.SPIC.Categories.Material.icon} {$Mods.SPIC.Configs.Requirements.General.material}"
 
                         Duplication: "[i:1293] {$Mods.SPIC.Configs.Requirements.General.duplication}"
                         Journey: "[i:2890] {$Mods.SPIC.Configs.Requirements.General.journey}"
@@ -79,10 +78,10 @@
                         Detect: "[i:38] {$Mods.SPIC.Configs.Detection.General.detect}"
                     }
                     Categories:{
-                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Detection.Categories.detected} {$Mods.SPIC.Categories.Consumable.names}"
-                        Explosives: "[i:167] {$Mods.SPIC.Configs.Detection.Categories.detected} {$Mods.SPIC.Configs.Detection.Categories.explosives}"
-                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Detection.Categories.detected} {$Mods.SPIC.Categories.GrabBag.names}"
-                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.detected} {$Mods.SPIC.Categories.Placeable.names}"
+                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Detection.Categories.consumable}"
+                        Explosives: "[i:167] {$Mods.SPIC.Configs.Detection.Configs.Detection.explosives}"
+                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Detection.Categories.grabBag}"
+                        wandAmmo: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.wandAmmo}"
                     }
                 }
                 Tooltip: {

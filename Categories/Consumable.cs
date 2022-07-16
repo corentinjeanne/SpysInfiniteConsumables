@@ -93,10 +93,10 @@ namespace SPIC {
         public static int GetConsumableRequirement(this Item item){
             Configs.Requirements config = Configs.Requirements.Instance;
 
-            Configs.CustomRequirements infinities = config.GetCustomRequirements(item.type);
-            if(infinities.Consumable.HasValue) return infinities.Consumable.Value;
+            Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
+            if(requirements.Consumable.HasValue) return requirements.Consumable.Value;
             
-            Consumable consumable = Category.GetCategories(item).Consumable ?? Consumable.None;
+            Consumable consumable = CategoryHelper.GetCategories(item).Consumable ?? Consumable.None;
             if(consumable != Consumable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return consumable.Requirement();
         }
@@ -105,8 +105,6 @@ namespace SPIC {
             => item.GetConsumableInfinity(player.CountItems(item.type));
 
         public static int GetConsumableInfinity(this Item item, int count)
-            => (int)Category.CalculateInfinity(item.type, Category.GetCategories(item).Consumable?.MaxStack() ?? 999, count, Category.GetRequirements(item).Consumable);
-
-
+            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Consumable?.MaxStack() ?? 999, count, CategoryHelper.GetRequirements(item).Consumable, 1);
     }
 }

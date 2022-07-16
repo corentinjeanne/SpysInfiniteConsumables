@@ -18,10 +18,10 @@ namespace SPIC.Globals {
             foreach (Item item in self.item)  {
                 if (item.IsAir) continue;
                 if (item.shopCustomPrice.HasValue) {
-                    if (spicPlayer.HasInfiniteCurrency(item.shopSpecialCurrency, item.shopCustomPrice.Value))
+                    if (item.shopCustomPrice.Value <= spicPlayer.GetCurrencyInfinity(item.shopSpecialCurrency))
                         item.shopCustomPrice = item.value = 0;
                 }
-                else if (spicPlayer.HasInfiniteCurrency(-1, item.value))
+                else if (item.value <= spicPlayer.GetCurrencyInfinity(-1))
                     item.value = 0;
 
             }
@@ -59,7 +59,7 @@ namespace SPIC.Globals {
                 NPC critter = Main.npc[spawnIndex];
                 if (critter.active && critter.type == Type
                         && Configs.Requirements.Instance.PreventItemDupication
-                        && Main.player[who].GetModPlayer<SpicPlayer>().HasInfiniteConsumable(critter.catchItem))
+                        && 1 <= Main.player[who].GetModPlayer<SpicPlayer>().GetInfinities(critter.catchItem).Consumable)
                     critter.SpawnedFromStatue = true;
             }
         }

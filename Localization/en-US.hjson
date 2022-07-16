@@ -1,11 +1,6 @@
 {
     Mods: {
         SPIC: {
-            InfinityRelated: {
-                infinite: Infinite
-                items: items
-                stacks: stacks
-            }
             Categories: {
                 name: Category
                 names: Categories
@@ -94,7 +89,10 @@
             }
 
             ItemTooltip: {
-                infiniteMid: below
+                item: items
+                stack: stacks
+                infinite: Infinite {0}
+                infiniteFull: Infinite {0} below {1}
                 wandAmmo: Wand ammo
             }
 
@@ -103,6 +101,12 @@
                     name: Infinity Requirements
                     General: {
                         header: General
+
+                        consumables: Infinite Consumables
+                        bags: Infinite Grab bags
+                        placeables: Infinite Placeables
+                        currencies: Infinite Currencies
+                        materials: Infinite Materials
 
                         duplication: Prevent item duplication
                         t_duplication:
@@ -154,7 +158,7 @@
                         customs: Customs
 
                         requirement: Requirement
-                        t_requirement: Only in use when category is None
+                        t_requirement: Only in use when category is "None"
                     }
                 }
                 Detection: {
@@ -170,8 +174,11 @@
                     }
                     Categories: {
                         header: Detected Categories
-                        detected: Detected
-                        explosives: Explosives
+                        
+                        consumables: Detected consumables
+                        explosives: Detected explosives
+                        grabBags: Detected Grab bags
+                        wandAmmo: Detected Wand ammo
                     }
                 }
                 Tooltip: {

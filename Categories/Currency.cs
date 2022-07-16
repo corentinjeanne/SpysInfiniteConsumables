@@ -37,28 +37,25 @@ namespace SPIC {
             };
         }
 
-        public static Currency GetCurrencyCategory(this Item item) {
-            return !item.IsPartOfACurrency(out int currency)
-                ? Currency.None
-                : currency == -1 ? Currency.Coin : _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
+        public static Currency GetCurrencyCategory(int currency) {
+            if(!_currencies.ContainsKey(currency)) return Currency.None;
+            return currency == -1 ? Currency.Coin : _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
         }
 
-        public static int GetCurrencyRequirement(this Item item) {
-            Configs.Requirements config = Configs.Requirements.Instance;
-            Currency Currency = Category.GetCategories(item).Currency;
-            return Currency != Currency.None && config.JourneyRequirement
-                ? CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]
-                : Currency.Requirement();
+        public static int GetCurrencyRequirement(int currency) {
+            // TODO journey requirements
+            Currency Currency = CategoryHelper.GetCategory(currency);
+            return Currency.Requirement();
         }
 
-        public static long GetCurrencyInfinity(this Player player, Item item) {
-            if (!item.IsPartOfACurrency(out int currency)) return 0L;
-            long count = player.CountCurrency(currency);
+        public static long GetCurrencyInfinity(this Player player, int currency)
+            => GetCurrencyInfinity(currency, player.CountCurrency(currency));
 
-            Currency category = Category.GetCategories(item).Currency;
+        public static long GetCurrencyInfinity(int currency, long currencyCount) {
+            Currency category = CategoryHelper.GetCategory(currency);
             return category == Currency.Coin ?
-                Category.CalculateInfinity(item.type, category.MaxStack(), count, Category.GetRequirements(item).Currency, 0.1f, Category.ARIDelegates.LargestPower, 100):
-                Category.CalculateInfinity(item.type, category.MaxStack(), count, Category.GetRequirements(item).Currency, 0.2f, Category.ARIDelegates.LargestMultiple);
+                CategoryHelper.CalculateInfinity(category.MaxStack(), currencyCount, CategoryHelper.GetRequirement(currency), 0.1f, CategoryHelper.ARIDelegates.LargestPower, 100):
+                CategoryHelper.CalculateInfinity(category.MaxStack(), currencyCount, CategoryHelper.GetRequirement(currency), 0.2f, CategoryHelper.ARIDelegates.LargestMultiple);
         }
 
         public static int CurrencyType(this Item item) {
@@ -95,18 +92,21 @@ namespace SPIC {
 
         public static List<KeyValuePair<int,long>> CurrencyCountToItems(int currency, long amount) {
             List<KeyValuePair<int,int>> values = new();
-            if(currency == -1){
-                values = new() {
-                    new(ItemID.PlatinumCoin, 1000000),
-                    new(ItemID.GoldCoin, 10000),
-                    new(ItemID.SilverCoin, 100),
-                    new(ItemID.CopperCoin, 1)
-                };
-            }
-            else {
-                foreach (var v in _currencies[currency].values)
-                    values.Add(v);
-                values.Sort((a, b) => a.Value < b.Value ? 0 : 1);
+            switch (currency) {
+                case -2: return new();
+                case -1:
+                    values = new() {
+                        new(ItemID.PlatinumCoin, 1000000),
+                        new(ItemID.GoldCoin, 10000),
+                        new(ItemID.SilverCoin, 100),
+                        new(ItemID.CopperCoin, 1)
+                    };
+                    break;
+                default:
+                    foreach (var v in _currencies[currency].values)
+                        values.Add(v);
+                    values.Sort((a, b) => a.Value < b.Value ? 0 : 1);
+                    break;
             }
 
             List<KeyValuePair<int, long>> stacks = new();
@@ -127,6 +127,8 @@ namespace SPIC {
                 this.system = system; this.values = values;
             }
         }
+
+        public static List<int> Currencies => new(_currencies.Keys);
         private static Dictionary<int, CustomCurrencyData> _currencies;
         internal static void ClearCurrencies() => _currencies = null;
 

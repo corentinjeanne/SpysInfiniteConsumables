@@ -49,7 +49,7 @@ namespace SPIC.Globals {
             Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
             SpicPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<SpicPlayer>();
 
-            if (spicPlayer.HasInfinitePlaceable(item.tileWand == -1 ? item.type : item.tileWand)) {
+            if (1 <= spicPlayer.GetInfinities(item.tileWand == -1 ? item.type : item.tileWand).Placeable) {
                     TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
                     if (data == null) world.PlaceBlock(i, j);
                     else world.PlaceBlock(i-data.Origin.X, j- data.Origin.Y);

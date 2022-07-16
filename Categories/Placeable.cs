@@ -152,7 +152,7 @@ namespace SPIC {
             Configs.CustomRequirements infinities = config.GetCustomRequirements(item.type);
             if (infinities.Placeable.HasValue) return infinities.Placeable.Value;
 
-            Placeable placeable = Category.GetCategories(item).Placeable;
+            Placeable placeable = CategoryHelper.GetCategories(item).Placeable;
             if (placeable != Placeable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return placeable.Requirement();
         }
@@ -184,8 +184,8 @@ namespace SPIC {
             => item.GetPlaceableInfinity(player.CountItems(item.type), ignoreAllwaysDrop);
 
         public static int GetPlaceableInfinity(this Item item, int count, bool ignoreAllwaysDrop = false)
-            => (int)Category.CalculateInfinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
-                ignoreAllwaysDrop || !Configs.Requirements.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? Category.ARIDelegates.ItemCount : Category.ARIDelegates.NotInfinite
+            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Placeable.MaxStack(), count, CategoryHelper.GetRequirements(item).Placeable, 1,
+                ignoreAllwaysDrop || !Configs.Requirements.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? CategoryHelper.ARIDelegates.ItemCount : CategoryHelper.ARIDelegates.NotInfinite
             );
 
     }

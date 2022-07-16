@@ -44,10 +44,10 @@ namespace SPIC {
         public static int GetGrabBagRequirement(this Item item){
             Configs.Requirements config = Configs.Requirements.Instance;
 
-            Configs.CustomRequirements infinities = config.GetCustomRequirements(item.type);
-            if(infinities.GrabBag.HasValue) return Utility.RequirementToItems(infinities.GrabBag.Value, item.type);
+            Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
+            if(requirements.GrabBag.HasValue) return Utility.RequirementToItems(requirements.GrabBag.Value, item.type);
 
-            GrabBag grabBag = Category.GetCategories(item).GrabBag ?? GrabBag.None;
+            GrabBag grabBag = CategoryHelper.GetCategories(item).GrabBag ?? GrabBag.None;
             if(grabBag != GrabBag.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return grabBag.Requirement();
         }
@@ -56,7 +56,7 @@ namespace SPIC {
             => item.GetGrabBagInfinity(player.CountItems(item.type, true));
 
         public static int GetGrabBagInfinity(this Item item, int count)
-            => (int)Category.CalculateInfinity(item.type, Category.GetCategories(item).GrabBag?.MaxStack() ?? 999, count, Category.GetRequirements(item).GrabBag);
+            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).GrabBag?.MaxStack() ?? 999, count, CategoryHelper.GetRequirements(item).GrabBag, 1);
 
     }
 }

@@ -32,7 +32,7 @@ public class CategoryDetection : ModConfig {
 
     [Header("$Mods.SPIC.Configs.Detection.General.header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
-    public bool AutoCategories;
+    public bool DetectMissing;
 
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
     [Label("$Mods.SPIC.Configs.Detection.Categories.Consumables")]
@@ -41,20 +41,20 @@ public class CategoryDetection : ModConfig {
     public readonly HashSet<ItemDefinition> DetectedExplosives = new();
     [Label("$Mods.SPIC.Configs.Detection.Categories.Bags")]
     public readonly HashSet<ItemDefinition> DetectedGrabBags = new();
-    [Label("$Mods.SPIC.Configs.Detection.Categories.Placeables")]
-    public readonly Dictionary<ItemDefinition, Categories.Placeable> DetectedPlaceables = new();
+    [Label("$Mods.SPIC.Configs.Detection.Categories.WandAmmo")]
+    public readonly Dictionary<ItemDefinition, Categories.Placeable> DetectedWandAmmo = new();
 
     public void DetectedConsumable(Terraria.Item item, Categories.Consumable consumable) {
         ItemDefinition key = new(item.type);
         if (IsExplosive(item.type) || !DetectedConsumables.TryAdd(key, consumable)) return;
-        Category.UpdateItem(item);
+        CategoryHelper.UpdateItem(item);
         _modifiedInGame = true;
     }
 
     public void DetectedPlaceable(Terraria.Item item, Categories.Placeable placeable) {
         ItemDefinition key = new(item.type);
-        if (!DetectedPlaceables.TryAdd(key, placeable)) return;
-        Category.UpdateItem(item);
+        if (!DetectedWandAmmo.TryAdd(key, placeable)) return;
+        CategoryHelper.UpdateItem(item);
         _modifiedInGame = true;
     }
 
@@ -62,7 +62,7 @@ public class CategoryDetection : ModConfig {
         ItemDefinition key = new(item.type);
         if (!DetectedExplosives.Add(key)) return false;
         DetectedConsumables.Remove(key);
-        Category.UpdateItem(item);
+        CategoryHelper.UpdateItem(item);
         _modifiedInGame = true;
         return true;
     }
@@ -71,16 +71,16 @@ public class CategoryDetection : ModConfig {
 
     public void DetectedGrabBag(Terraria.Item item) {
         if (DetectedGrabBags.Add(new(item.type))) _modifiedInGame = true;
-        Category.UpdateItem(item);
+        CategoryHelper.UpdateItem(item);
     }
 
     public DetectedCategories GetDetectedCategories(int type){
-        if(!AutoCategories) return new();
+        if(!DetectMissing) return new();
 
         ItemDefinition key = new(type);
         return new(
             DetectedConsumables.ContainsKey(key) ? DetectedConsumables[key] : null,
-            DetectedPlaceables.ContainsKey(key) ? DetectedPlaceables[key] : null,
+            DetectedWandAmmo.ContainsKey(key) ? DetectedWandAmmo[key] : null,
             DetectedGrabBags.Contains(key),
             DetectedExplosives.Contains(key)
         );

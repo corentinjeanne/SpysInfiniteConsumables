@@ -61,15 +61,15 @@ namespace SPIC {
         }
         public static int GetMaterialRequirement(this Item item){
             Configs.Requirements config = Configs.Requirements.Instance;
-            Material material = Category.GetCategories(item).Material;
+            Material material = CategoryHelper.GetCategories(item).Material;
             if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return material.Requirement();
         }
 
-        public static long GetMaterialInfinity(this Player player, Item item)
+        public static int GetMaterialInfinity(this Player player, Item item)
             => item.GetMaterialInfinity(player.CountItems(item.type, true));
 
-        public static long GetMaterialInfinity(this Item item, long count)
-            => Category.CalculateInfinity(item.type, Category.GetCategories(item).Material.MaxStack(), count, Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
+        public static int GetMaterialInfinity(this Item item, long count)
+            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Material.MaxStack(), count, CategoryHelper.GetRequirements(item).Material, 0.5f, CategoryHelper.ARIDelegates.LargestMultiple);
     }
 }

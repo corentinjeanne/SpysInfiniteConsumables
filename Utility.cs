@@ -87,8 +87,8 @@ namespace SPIC {
             return stats;
         }
 
-        public static int RequirementToItems(int infinity, int type, int theoricalMaxStack = 999) => infinity switch {
-            < 0 => -infinity * (int)System.MathF.Min(Globals.SpicItem.MaxStack(type), theoricalMaxStack),
+        public static int RequirementToItems(int infinity, int maxStack) => infinity switch {
+            < 0 => -infinity * maxStack,
             _ => infinity
         };
 
