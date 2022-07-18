@@ -81,7 +81,7 @@
                         Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Detection.Categories.consumable}"
                         Explosives: "[i:167] {$Mods.SPIC.Configs.Detection.Configs.Detection.explosives}"
                         Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Detection.Categories.grabBag}"
-                        wandAmmo: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.wandAmmo}"
+                        WandAmmo: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.wandAmmo}"
                     }
                 }
                 Tooltip: {
