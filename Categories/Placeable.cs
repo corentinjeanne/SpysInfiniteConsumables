@@ -32,9 +32,9 @@ namespace SPIC {
     }
     public static class PlaceableExtension {
 
-        public static bool IsCommonTile(this Placeable category) => category < Placeable.LightSource;
-        public static bool IsFurniture(this Placeable category) => !category.IsCommonTile() && category < Placeable.Mechanical;
-        public static bool IsMisc(this Placeable category) => !category.IsCommonTile() && !category.IsFurniture();
+        public static bool IsCommonTile(this Placeable category) => category != Placeable.None && category < Placeable.LightSource;
+        public static bool IsFurniture(this Placeable category) => category != Placeable.None && !category.IsCommonTile() && category < Placeable.Mechanical;
+        public static bool IsMisc(this Placeable category) => category != Placeable.None && !category.IsCommonTile() && !category.IsFurniture();
         
         public static int MaxStack(this Placeable category) => category switch {
             Placeable.Block => 999,
@@ -129,7 +129,7 @@ namespace SPIC {
                     if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
                         return Placeable.Functional;
 
-                    if (Globals.SpicRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
+                    if (Globals.InfiniteRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
 
                     if (TileID.Sets.HasOutlines[tileType]) return Placeable.Functional;
 

@@ -30,7 +30,7 @@ namespace SPIC.Globals {
         }
 
         private static void HookReplaceTIle_DoActualReplacement(On.Terraria.WorldGen.orig_ReplaceTIle_DoActualReplacement orig, ushort targetType, int targetStyle, int topLeftX, int topLeftY, Tile t) {
-            Player player = Main.player[Main.myPlayer];
+            Player player = Main.LocalPlayer;
             ModContent.GetInstance<SPICTile>().PlaceInWorld(topLeftX, topLeftY, player.HeldItem.createTile, player.HeldItem);
             orig(targetType, targetStyle, topLeftX, topLeftY, t);
         }

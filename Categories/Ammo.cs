@@ -52,7 +52,6 @@ namespace SPIC {
             if(requirements.Ammo.HasValue) return requirements.Ammo.Value;
 
             Ammo ammo = CategoryHelper.GetCategories(item).Ammo;
-            // TODO move journey requirement sw else
             if(ammo != Ammo.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return ammo.Requirement();
         }

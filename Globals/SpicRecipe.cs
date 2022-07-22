@@ -6,49 +6,37 @@ using Terraria.ID;
 
 namespace SPIC.Globals {
 
-    public class SpicRecipe : GlobalRecipe {
+    public class InfiniteRecipe : ModSystem {
 
-        public static readonly HashSet<int> CraftingStations = new();
-        public override void Load() {
-            On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+        public static readonly HashSet<int> CraftingStations = new();      
+        public override void PostAddRecipes() {
             CraftingStations.Clear();
-        }
-        public override void Unload(){
-            CraftingStations.Clear();
-        }
-        
-        public override void SetStaticDefaults() {
-            CraftingStations.Clear();
-            foreach(Recipe r in Main.recipe) {
-                foreach(int t in r.requiredTile) {
+            for (int i = 0; i < Main.recipe.Length; i++) {
+                Recipe r = Main.recipe[i];
+                foreach (int t in r.requiredTile) 
                     if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
-                }
+                r.AddConsumeItemCallback(OnItemConsume);
             }
         }
-
-        public override void ConsumeItem(Recipe recipe, int type, ref int amount) {
+        public override void Load() {
+            On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+        }
+        
+        public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
             if (!Configs.Requirements.Instance.InfiniteMaterials) return;
 
-            SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
-            if (spicPlayer.GetInfinities(type).Material <= amount) amount = 0;
+            SpicPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<SpicPlayer>();
+            if (amount <= spicPlayer.GetInfinities(type).Material) amount = 0;
         }
+
+        public static readonly Recipe.Condition CanCraft = new(Terraria.Localization.NetworkText.FromKey("Mods.SPIC.Recipe.InfiniteCraft"), i => true);
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
             orig(canDelayCheck);
             if (canDelayCheck) return;
 
             CategoryHelper.ClearAll();
-            Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().FindInfinities();
-
-            // Configs.Infinities infinities = Configs.Infinities.Instance;
-            // if(infinities.InfiniteMaterials && infinities.PreventItemDupication){
-            //     for (int r = 0; r < Recipe.maxRecipes && Main.recipe[r].createItem.type != ItemID.None; r++) {
-            //         if (Main.availableRecipe[r] == 0) continue;
-            //         if (Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>().HasInfiniteMaterial(Main.recipe[Main.availableRecipe[r]].createItem.type))
-            //             Main.availableRecipe[r] = 0;
-            //     }
-            // }
-
+            Main.LocalPlayer.GetModPlayer<SpicPlayer>().ClearInfinities();
         }
     }
 

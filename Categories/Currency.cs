@@ -38,18 +38,19 @@ namespace SPIC {
         }
 
         public static Currency GetCurrencyCategory(int currency) {
+            if(currency == -1) return Currency.Coin;
             if(!_currencies.ContainsKey(currency)) return Currency.None;
-            return currency == -1 ? Currency.Coin : _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
+            return _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
         }
 
         public static int GetCurrencyRequirement(int currency) {
-            // TODO journey requirements
+            // TODO move journey requirements
             Currency Currency = CategoryHelper.GetCategory(currency);
             return Currency.Requirement();
         }
 
         public static long GetCurrencyInfinity(this Player player, int currency)
-            => GetCurrencyInfinity(currency, player.CountCurrency(currency));
+            => GetCurrencyInfinity(currency, player.CountCurrency(currency,true, true));
 
         public static long GetCurrencyInfinity(int currency, long currencyCount) {
             Currency category = CategoryHelper.GetCategory(currency);
@@ -72,7 +73,7 @@ namespace SPIC {
             switch (currency) {
             case -2: return 0L;
             case -1:
-                return container.CountCoins(ignoreSlots);
+                return Utils.CoinsCount(out _, container, ignoreSlots); /* container.CountCoins(ignoreSlots); */
             default: 
                 CustomCurrencySystem system = _currencies[currency].system;
                 long cap = system.CurrencyCap;
@@ -83,10 +84,13 @@ namespace SPIC {
             }
         }
 
-        public static long CountCurrency(this Player player, int currency, bool includeBanks = true) {
+        public static long CountCurrency(this Player player, int currency, bool includeBanks = true, bool includeChest = false) {
             long count = player.inventory.CountCurrency(currency, 58);
+            count += new Item[]{Main.mouseItem}.CountCurrency(currency);
             if(includeBanks)
                 count += player.bank.item.CountCurrency(currency) + player.bank2.item.CountCurrency(currency) + player.bank3.item.CountCurrency(currency) + player.bank4.item.CountCurrency(currency);
+            if (includeChest && player.InChest(out Item[] chest)) count += chest.CountCurrency(currency);
+
             return count;
         }
 

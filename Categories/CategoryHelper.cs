@@ -9,7 +9,7 @@ namespace SPIC {
     namespace Categories {
 
         public enum Category {
-            None, 
+            None,
             Ammo,
             Consumable,
             Placeable,
@@ -41,7 +41,7 @@ namespace SPIC {
             public readonly int Placeable;
             public readonly int Material;
 
-
+            public bool HasAnInfinity => Ammo != 0 ||  Consumable != 0 ||  Placeable != 0 ||  GrabBag != 0 ||  Material != 0;
             public ItemRequirements(Item item){
                 Ammo = item.GetAmmoRequirement();
                 Consumable = item.GetConsumableRequirement();
@@ -54,12 +54,13 @@ namespace SPIC {
         public struct ItemInfinities {
 
             // ? use a cutom struct (nullable, etc)
-            public readonly int Ammo = -1;
-            public readonly int Consumable = -1;
-            public readonly int GrabBag = -1;
-            public readonly int Placeable = -1;
-            public readonly int Material = -1;
+            public readonly int Ammo = -2;
+            public readonly int Consumable = -2;
+            public readonly int GrabBag = -2;
+            public readonly int Placeable = -2;
+            public readonly int Material = -2;
 
+            public bool FullyInfinite => (Ammo == -2 || Ammo >= 0) && (Consumable == -2 || Consumable >= 0) && (Placeable == -2 || Placeable >= 0) && (GrabBag == -2 || GrabBag >= 0) && (Material == -2 || Material >= 0);
             public ItemInfinities(Player player, Item item) {
                 int count = player.CountItems(item.type, true);
                 Ammo = item.GetAmmoInfinity(count);
@@ -115,6 +116,9 @@ namespace SPIC {
             if (!_currencyRequirements.ContainsKey(currency)) _currencyRequirements[currency] = CurrencyExtension.GetCurrencyRequirement(currency);
             return _currencyRequirements[currency];
         }
+        public static bool HasAnInfinity(this Item item)
+            => item.GetRequirements().HasAnInfinity || GetRequirement(item.CurrencyType()) != 0;
+        
 
         public delegate long AboveRequirementInfinity(long count, int requirement, params int[] args);
         public static class ARIDelegates{
@@ -135,11 +139,51 @@ namespace SPIC {
         
         public static long CalculateInfinity(int maxStack, long count, int requirement, float multiplier, AboveRequirementInfinity aboveRequirement = null, params int[] args) {
             requirement = Utility.RequirementToItems(requirement, maxStack);
-            if(requirement == 0 || count < requirement) return -1;
-
+            if(requirement == 0) return -2;
+            if(count < requirement) return -1;
             long infinity = count == requirement ? requirement :
                 (aboveRequirement ?? ARIDelegates.Requirement).Invoke(count, requirement, args);
             return (long)(infinity * multiplier);
+        }
+
+        public static bool CanDisplayInfinities(this Item item, bool isACopy = false){
+            Player player = Main.LocalPlayer;
+            bool crafting = !Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked && !Main.InReforgeMenu && !Main.LocalPlayer.tileEntityAnchor.InUse && !Main.hidePlayerCraftingMenu;
+            Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
+            if (isACopy) {
+                return item.playerIndexTheItemIsReservedFor == Main.myPlayer && (
+                    (Main.mouseItem.type == item.type && Main.mouseItem.stack == item.stack)
+                    || Array.Find(player.inventory, i => i.type == item.type && i.stack == item.stack) is not null
+                    || (player.InChest(out var chest) && Array.Find(chest, i => i.type == item.type && i.stack == item.stack) is not null)
+                    || crafting && (recipe.requiredItem.Find(i => i.type == item.type && i.stack == item.stack) is not null)
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && MagicStorageCountains(item, isACopy))
+                );
+            } else {
+                return item.playerIndexTheItemIsReservedFor == Main.myPlayer && (
+                    Main.mouseItem == item
+                    || Array.IndexOf(player.inventory, item) != -1
+                    || (player.InChest(out Item[] chest) && Array.IndexOf(chest, item) != -1)
+                    || (crafting && recipe.requiredItem.Contains(item))
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && MagicStorageCountains(item, isACopy))
+                );
+            }
+
+        }
+        [Terraria.ModLoader.JITWhenModsEnabled("MagicStorage")]
+        public static bool MagicStorageCountains(Item item, bool isACopy = false){
+            if(!Utility.InMagicStorage(out var heart)) return false;
+            // if(isACopy){
+            foreach(Item i in heart.GetStoredItems()){
+                if(i.type == item.type && i.stack == item.stack) return true;
+            }
+            return false;
+            // }
+            // else {
+            //     foreach (Item i in heart.GetStoredItems()) {
+            //         if (i == item) return true;
+            //     }
+            //     return false;
+            // }
         }
     }
 }

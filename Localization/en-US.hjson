@@ -89,11 +89,15 @@
             }
 
             ItemTooltip: {
-                item: items
-                stack: stacks
+                items: items
+                stacks: stacks
                 infinite: Infinite {0}
                 infiniteFull: Infinite {0} below {1}
                 wandAmmo: Wand ammo
+            }
+
+            Recipe: {
+                InfiniteCraft: "*** WIP *** Disable the crafting of the recipe if it is an infinite material"
             }
 
             Configs: {
@@ -103,7 +107,7 @@
                         header: General
 
                         consumables: Infinite Consumables
-                        bags: Infinite Grab bags
+                        grabBags: Infinite Grab bags
                         placeables: Infinite Placeables
                         currencies: Infinite Currencies
                         materials: Infinite Materials
@@ -174,20 +178,37 @@
                     }
                     Categories: {
                         header: Detected Categories
-                        
+                        detected: Detected
                         consumables: Detected consumables
                         explosives: Detected explosives
-                        grabBags: Detected Grab bags
-                        wandAmmo: Detected Wand ammo
+                        grabBags: Detected grab bags
+                        wandAmmo: Detected wand ammo
                     }
                 }
-                Tooltip: {
-                    name: Item Info Display
-                    Infos:  {
-                        header: Infinity displays
+                InfinityDisplay: {
+                    name: Infinities Display
+                    Tooltip:  {
+                        header: Item Tooltip
                         categories: Show categories
-                        infinities: Show infinities
+                        infinities: Show infinity
                         requirements: Show requirements
+                        missingLines: Add missing lines
+                        itemName: Use names instead of sprites
+                        color: Colored infinity tooltips
+                    }
+                    Glow: {
+                        header: Item Glow
+                        glow: Show infinity colored glow
+                        intensity: Intensity
+                        pulse: Pulse time (ticks)
+                    }
+                    Dots: {
+                        header: Colored Dots
+                        dots: Show infinity colored dots
+                        start: First dot
+                        end: Last dot
+                        count: Number of visible dots
+                        t_count: Non visible dots will cycle every few seconds
                     }
                     Colors: {
                         header: Infinity colors

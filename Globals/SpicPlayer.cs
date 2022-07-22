@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Terraria;
 using Terraria.ID;
@@ -21,14 +22,25 @@ namespace SPIC.Globals {
         public bool InItemCheck { get; private set; }
 
         private readonly Dictionary<int, Categories.ItemInfinities> _infinities = new();
+        private readonly Dictionary<int, long> _infiniteCurrencies = new();
+        public void ClearInfinities(){
+            _infiniteCurrencies.Clear();
+            _infinities.Clear();
+        }
         public Categories.ItemInfinities GetInfinities(Item item) => _infinities.ContainsKey(item.type) ? _infinities[item.type] : new(Player, item);
         public Categories.ItemInfinities GetInfinities(int type) => _infinities.ContainsKey(type) ? _infinities[type] : new(Player, new(type));
-
-        private readonly Dictionary<int, long> _infiniteCurrencies = new();
         public long GetCurrencyInfinity(int currency) => _infiniteCurrencies.ContainsKey(currency) ? _infiniteCurrencies[currency] : CurrencyExtension.GetCurrencyInfinity(Player, currency);
 
         public override void Load() {
             On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
+            ClearInfinities();
+        }
+
+        public override void Unload() {
+            ClearInfinities();
+        }
+        public override void PreUpdate() {
+            SpicItem.IncrementCounters();
         }
 
         public override bool PreItemCheck() {
@@ -48,13 +60,6 @@ namespace SPIC.Globals {
             if (_detectingCategory) TryDetectCategory();
         }
 
-
-        // public static bool IsInfinite(long count) => count != -1;
-        public void FindInfinities() {
-            _infinities.Clear();
-            _infiniteCurrencies.Clear();
-        }
-
         private void SavePreUseItemStats() {
             _preUseMaxLife = Player.statLifeMax2;
             _preUseMaxMana = Player.statManaMax2;
@@ -68,7 +73,7 @@ namespace SPIC.Globals {
             _preUseItemCount = Utility.CountItemsInWorld();
         }
         
-        // BUG recall when at spawn -> err: booster vs Tool
+        // BUG recall when at spawn : no mouvement
         public void TryDetectCategory(bool mustDetect = false) {
             if (!_detectingCategory) return;
 
@@ -89,7 +94,7 @@ namespace SPIC.Globals {
             else return; // Nothing detected
 
             _detectingCategory = false;
-            FindInfinities();
+            ClearInfinities();
         }
 
         private Categories.Consumable? TryDetectConsumable(){
@@ -164,5 +169,8 @@ namespace SPIC.Globals {
             if (infinities.PreventItemDupication) return;
             origin: orig(self, type, selItem);
         }
+
+        public bool HasFullyInfinite(Item item) => GetInfinities(item).FullyInfinite && (GetCurrencyInfinity(item.CurrencyType()) == -2 || GetCurrencyInfinity(item.CurrencyType()) >= 0);
+
     }
 }

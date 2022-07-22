@@ -35,7 +35,7 @@ namespace SPIC {
             var autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
             if(autos.GrabBag) return GrabBag.Crate;
 
-            if (ItemID.Sets.BossBag[item.type] || ItemLoader.IsModBossBag(item)) return GrabBag.TreasureBag;
+            if (ItemID.Sets.BossBag[item.type] || ItemID.Sets.BossBag[item.type]) return GrabBag.TreasureBag;
             if (ItemID.Sets.IsFishingCrate[item.type] || autos.GrabBag)
                 return GrabBag.Crate;
 

@@ -120,9 +120,9 @@ public class Requirements : ModConfig {
     public int placeables_Furnitures;
     [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Mechanical")]
     public int placeables_Mechanical;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Requirements.Requirements.Liquids")]
+    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Liquids")]
     public int placeables_Liquids;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Requirements.Requirements.Seeds")]
+    [Range(-50, 999), DefaultValue(20), Label("$Mods.SPIC.Configs.Requirements.Requirements.Seeds")]
     public int placeables_Seeds;
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Paints")]
     public int placeables_Paints;

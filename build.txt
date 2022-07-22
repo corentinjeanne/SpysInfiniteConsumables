@@ -1,4 +1,6 @@
 displayName = Spy's Infinite Consumables
 author = Spiky
-version = 2.0.0
+version = 2.1.0
 homepage = https://github.com/Spiky-73/SpysInfiniteConsumables
+
+weakReferences = MagicStorage@0.5.6.5

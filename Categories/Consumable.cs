@@ -96,7 +96,7 @@ namespace SPIC {
             Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
             if(requirements.Consumable.HasValue) return requirements.Consumable.Value;
             
-            Consumable consumable = CategoryHelper.GetCategories(item).Consumable ?? Consumable.None;
+            Consumable consumable = CategoryHelper.GetCategories(item).Consumable ?? Consumable.Tool;
             if(consumable != Consumable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return consumable.Requirement();
         }

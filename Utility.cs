@@ -21,6 +21,7 @@ namespace SPIC {
             throw new UsageException("Invalid Name" + name);
         }
 
+        public static bool InChest(this Player player, out Item[] chest) => (chest = player.Chest()) is not null;
         public static Item[] Chest(this Player player) => player.chest switch {
             > -1 => Main.chest[player.chest].item,
             -2 => player.bank.item,
@@ -41,13 +42,21 @@ namespace SPIC {
         
         public static int CountItems(this Player player, int type, bool includeChest = false) {
             int total = player.inventory.CountItems(type, 58);
-            if(Main.mouseItem.type == type) total += Main.mouseItem.stack;
-            Item[] chest = player.Chest();
-
-            if (includeChest && chest is not null)
-                total += chest.CountItems(type);
-
+            total += new Item[] { Main.mouseItem }.CountItems(type);
+            if (!includeChest) return total;
+            if(player.InChest(out Item[] chest)) total += chest.CountItems(type);
+            if(SpysInfiniteConsumables.MagicStorageLoaded && InMagicStorage(out var heart)) total += heart.CountItems(type);
             return total;
+        }
+        [JITWhenModsEnabled("MagicStorage")]
+        public static bool InMagicStorage(out MagicStorage.Components.TEStorageHeart heart) => (heart = MagicStorage.StoragePlayer.LocalPlayer.GetStorageHeart()) is not null;
+        
+        [JITWhenModsEnabled("MagicStorage")]
+        public static int CountItems(this MagicStorage.Components.TEStorageHeart heart, int type){
+            int count = 0;
+            var storedItems = heart.GetStoredItems();
+            foreach(Item i in storedItems)if(i.type == type) count += i.stack;
+            return count;
         }
 
         public static void RemoveFromInventory(this Player player, int type, int count = 1) {
@@ -97,6 +106,5 @@ namespace SPIC {
             foreach(Item item in Main.item) if(!item.IsAir) i++;
             return i;
         }
-
     }
 }

@@ -14,7 +14,7 @@ namespace SPIC.Globals {
 
         private static void HookSetupShop(On.Terraria.Chest.orig_SetupShop orig, Chest self, int type) {
             orig(self, type);
-            SpicPlayer spicPlayer = Main.player[Main.myPlayer].GetModPlayer<SpicPlayer>();
+            SpicPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<SpicPlayer>();
             foreach (Item item in self.item)  {
                 if (item.IsAir) continue;
                 if (item.shopCustomPrice.HasValue) {
