@@ -12,7 +12,6 @@ namespace SPIC {
             CurrencyExtension.GetCurrencies();
         }
 
-        [JITWhenModsEnabled()]
         public override void Unload() {
             PlaceableExtension.ClearWandAmmos();
             CurrencyExtension.ClearCurrencies();

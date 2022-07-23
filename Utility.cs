@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -41,22 +42,11 @@ namespace SPIC {
         }
         
         public static int CountItems(this Player player, int type, bool includeChest = false) {
-            int total = player.inventory.CountItems(type, 58);
-            total += new Item[] { Main.mouseItem }.CountItems(type);
-            if (!includeChest) return total;
-            if(player.InChest(out Item[] chest)) total += chest.CountItems(type);
-            if(SpysInfiniteConsumables.MagicStorageLoaded && InMagicStorage(out var heart)) total += heart.CountItems(type);
+            
+            if(includeChest && CrossMod.MagicStorageIntegration.Enable && CrossMod.MagicStorageIntegration.InMagicStorage) return CrossMod.MagicStorageIntegration.CountItems(type);
+            int total = player.inventory.CountItems(type, 58) + new Item[] { Main.mouseItem }.CountItems(type);
+            if (includeChest && player.InChest(out Item[] chest)) total += chest.CountItems(type);
             return total;
-        }
-        [JITWhenModsEnabled("MagicStorage")]
-        public static bool InMagicStorage(out MagicStorage.Components.TEStorageHeart heart) => (heart = MagicStorage.StoragePlayer.LocalPlayer.GetStorageHeart()) is not null;
-        
-        [JITWhenModsEnabled("MagicStorage")]
-        public static int CountItems(this MagicStorage.Components.TEStorageHeart heart, int type){
-            int count = 0;
-            var storedItems = heart.GetStoredItems();
-            foreach(Item i in storedItems)if(i.type == type) count += i.stack;
-            return count;
         }
 
         public static void RemoveFromInventory(this Player player, int type, int count = 1) {

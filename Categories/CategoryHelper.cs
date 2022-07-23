@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Terraria;
 
 using SPIC.Categories;
+
 namespace SPIC {
 
     namespace Categories {
@@ -156,7 +157,7 @@ namespace SPIC {
                     || Array.Find(player.inventory, i => i.type == item.type && i.stack == item.stack) is not null
                     || (player.InChest(out var chest) && Array.Find(chest, i => i.type == item.type && i.stack == item.stack) is not null)
                     || crafting && (recipe.requiredItem.Find(i => i.type == item.type && i.stack == item.stack) is not null)
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && MagicStorageCountains(item, isACopy))
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item, isACopy))
                 );
             } else {
                 return item.playerIndexTheItemIsReservedFor == Main.myPlayer && (
@@ -164,26 +165,10 @@ namespace SPIC {
                     || Array.IndexOf(player.inventory, item) != -1
                     || (player.InChest(out Item[] chest) && Array.IndexOf(chest, item) != -1)
                     || (crafting && recipe.requiredItem.Contains(item))
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && MagicStorageCountains(item, isACopy))
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item, isACopy))
                 );
             }
 
-        }
-        [Terraria.ModLoader.JITWhenModsEnabled("MagicStorage")]
-        public static bool MagicStorageCountains(Item item, bool isACopy = false){
-            if(!Utility.InMagicStorage(out var heart)) return false;
-            // if(isACopy){
-            foreach(Item i in heart.GetStoredItems()){
-                if(i.type == item.type && i.stack == item.stack) return true;
-            }
-            return false;
-            // }
-            // else {
-            //     foreach (Item i in heart.GetStoredItems()) {
-            //         if (i == item) return true;
-            //     }
-            //     return false;
-            // }
         }
     }
 }

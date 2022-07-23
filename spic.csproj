@@ -10,6 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
-    <Reference Include="../Mod Libraries/MagicStorage_v0.5.6.5.dll" />
+    <Reference Include="lib/MagicStorage_v0.5.6.5.dll"/>
   </ItemGroup>
 </Project>
