@@ -47,9 +47,9 @@ namespace SPIC.Globals {
             if (!PlaceableExtension.CanNoDuplicationWork(item)) return;
 
             Systems.SpicWorld world = ModContent.GetInstance<Systems.SpicWorld>();
-            SpicPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<SpicPlayer>();
+            InfinityPlayer spicPlayer = Main.player[playerIndex].GetModPlayer<InfinityPlayer>();
 
-            if (1 <= spicPlayer.GetInfinities(item.tileWand == -1 ? item.type : item.tileWand).Placeable) {
+            if (1 <= spicPlayer.GetTypeInfinities(item.tileWand == -1 ? item.type : item.tileWand).Placeable) {
                     TileObjectData data = TileObjectData.GetTileData(type, item.placeStyle);
                     if (data == null) world.PlaceBlock(i, j);
                     else world.PlaceBlock(i-data.Origin.X, j- data.Origin.Y);

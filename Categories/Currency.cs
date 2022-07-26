@@ -44,19 +44,21 @@ namespace SPIC {
         }
 
         public static int GetCurrencyRequirement(int currency) {
-            // TODO move journey requirements
-            Currency Currency = CategoryHelper.GetCategory(currency);
-            return Currency.Requirement();
+            Configs.Requirements config = Configs.Requirements.Instance;
+            Currency category = CategoryManager.GetCurrencyCategory(currency);
+            if (category != Currency.None && config.JourneyRequirement) return category.MaxStack();
+            return category.Requirement();
         }
 
         public static long GetCurrencyInfinity(this Player player, int currency)
-            => GetCurrencyInfinity(currency, player.CountCurrency(currency,true, true));
+            => GetCurrencyInfinity(currency, player.CountCurrency(currency,true));
 
         public static long GetCurrencyInfinity(int currency, long currencyCount) {
-            Currency category = CategoryHelper.GetCategory(currency);
+            Currency category = CategoryManager.GetCurrencyCategory(currency);
+            int requirement = CategoryManager.GetCurrencyRequirement(currency);
             return category == Currency.Coin ?
-                CategoryHelper.CalculateInfinity(category.MaxStack(), currencyCount, CategoryHelper.GetRequirement(currency), 0.1f, CategoryHelper.ARIDelegates.LargestPower, 100):
-                CategoryHelper.CalculateInfinity(category.MaxStack(), currencyCount, CategoryHelper.GetRequirement(currency), 0.2f, CategoryHelper.ARIDelegates.LargestMultiple);
+                CategoryManager.CalculateInfinity(category.MaxStack(), currencyCount, requirement, 0.1f, CategoryManager.ARIDelegates.LargestPower, 100):
+                CategoryManager.CalculateInfinity(category.MaxStack(), currencyCount, requirement, 0.2f, CategoryManager.ARIDelegates.LargestMultiple);
         }
 
         public static int CurrencyType(this Item item) {
@@ -73,7 +75,8 @@ namespace SPIC {
             switch (currency) {
             case -2: return 0L;
             case -1:
-                return Utils.CoinsCount(out _, container, ignoreSlots); /* container.CountCoins(ignoreSlots); */
+
+                return Utility.CountCoins(container, ignoreSlots); /* container.CountCoins(ignoreSlots); */
             default: 
                 CustomCurrencySystem system = _currencies[currency].system;
                 long cap = system.CurrencyCap;

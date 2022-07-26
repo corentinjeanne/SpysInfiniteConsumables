@@ -47,16 +47,16 @@ namespace SPIC {
             Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
             if(requirements.GrabBag.HasValue) return Utility.RequirementToItems(requirements.GrabBag.Value, item.type);
 
-            GrabBag grabBag = CategoryHelper.GetCategories(item).GrabBag ?? GrabBag.None;
+            GrabBag grabBag = CategoryManager.GetTypeCategories(item).GrabBag ?? GrabBag.None;
             if(grabBag != GrabBag.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return grabBag.Requirement();
         }
 
         public static int GetGrabBagInfinity(this Player player, Item item)
-            => item.GetGrabBagInfinity(player.CountItems(item.type, true));
+            => item.GetGrabBagInfinity(player.CountItems(item.type));
 
         public static int GetGrabBagInfinity(this Item item, int count)
-            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).GrabBag?.MaxStack() ?? 999, count, CategoryHelper.GetRequirements(item).GrabBag, 1);
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).GrabBag?.MaxStack() ?? 999, count, CategoryManager.GetTypeRequirements(item).GrabBag, 1);
 
     }
 }

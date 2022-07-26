@@ -51,7 +51,7 @@ namespace SPIC {
             Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
             if(requirements.Ammo.HasValue) return requirements.Ammo.Value;
 
-            Ammo ammo = CategoryHelper.GetCategories(item).Ammo;
+            Ammo ammo = CategoryManager.GetTypeCategories(item).Ammo;
             if(ammo != Ammo.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return ammo.Requirement();
         }
@@ -59,7 +59,7 @@ namespace SPIC {
             => item.GetAmmoInfinity(player.CountItems(item.type));
 
         public static int GetAmmoInfinity(this Item item, int count)
-            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Ammo.MaxStack(), count, CategoryHelper.GetRequirements(item).Ammo, 1);
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Ammo.MaxStack(), count, CategoryManager.GetTypeRequirements(item).Ammo, 1);
         
     }
 }

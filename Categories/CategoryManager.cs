@@ -9,24 +9,14 @@ namespace SPIC {
 
     namespace Categories {
 
-        public enum Category {
-            None,
-            Ammo,
-            Consumable,
-            Placeable,
-            GrabBag,
-            Material,
-            Currency
-        }
-
-        public struct ItemCategories {
+        public struct TypeCategories {
             public readonly Ammo Ammo;
             public readonly Consumable? Consumable;
             public readonly Placeable Placeable;
             public readonly GrabBag? GrabBag;
             public readonly Material Material;
 
-            public ItemCategories(Item item){
+            public TypeCategories(Item item){
                 Ammo = item.GetAmmoCategory();
                 Consumable = item.GetConsumableCategory();
                 Placeable = item.GetPlaceableCategory();
@@ -35,7 +25,7 @@ namespace SPIC {
             }
         }
 
-        public struct ItemRequirements {
+        public struct TypeRequirements {
             public readonly int Ammo;
             public readonly int Consumable;
             public readonly int GrabBag;
@@ -43,7 +33,7 @@ namespace SPIC {
             public readonly int Material;
 
             public bool HasAnInfinity => Ammo != 0 ||  Consumable != 0 ||  Placeable != 0 ||  GrabBag != 0 ||  Material != 0;
-            public ItemRequirements(Item item){
+            public TypeRequirements(Item item){
                 Ammo = item.GetAmmoRequirement();
                 Consumable = item.GetConsumableRequirement();
                 GrabBag = item.GetGrabBagRequirement();
@@ -52,17 +42,17 @@ namespace SPIC {
             }
         }
 
-        public struct ItemInfinities {
+        public struct TypeInfinities {
 
-            // ? use a cutom struct (nullable, etc)
-            public readonly int Ammo = -2;
-            public readonly int Consumable = -2;
-            public readonly int GrabBag = -2;
-            public readonly int Placeable = -2;
-            public readonly int Material = -2;
+            // ? use a cutom struct
+            public readonly int Ammo;
+            public readonly int Consumable;
+            public readonly int GrabBag;
+            public readonly int Placeable;
+            public readonly int Material;
 
-            public bool FullyInfinite => (Ammo == -2 || Ammo >= 0) && (Consumable == -2 || Consumable >= 0) && (Placeable == -2 || Placeable >= 0) && (GrabBag == -2 || GrabBag >= 0) && (Material == -2 || Material >= 0);
-            public ItemInfinities(Player player, Item item) {
+            public bool AllInfinite => (Ammo == -2 || Ammo >= 0) && (Consumable == -2 || Consumable >= 0) && (Placeable == -2 || Placeable >= 0) && (GrabBag == -2 || GrabBag >= 0) && (Material == -2 || Material >= 0);
+            public TypeInfinities(Player player, Item item) {
                 int count = player.CountItems(item.type, true);
                 Ammo = item.GetAmmoInfinity(count);
                 Consumable = item.GetConsumableInfinity(count);
@@ -74,53 +64,50 @@ namespace SPIC {
         }
     }
 
-    public static class CategoryHelper {
+    public static class CategoryManager {
 
-        private static readonly Dictionary<int, ItemCategories> _categories = new();
-        private static readonly Dictionary<int, ItemRequirements> _requirements = new();
-        private static readonly Dictionary<int, Currency> _currencyCategories = new();
-        private static readonly Dictionary<int, int> _currencyRequirements = new();
+        public const uint CategoryCount = 6;
+
+        private static readonly Dictionary<int, TypeCategories> _typeCategories = new();
+        private static readonly Dictionary<int, TypeRequirements> _typeRequirements = new();
+        
+        private static readonly Dictionary<int, Currency> _currencyCategory = new();
+        private static readonly Dictionary<int, int> _currencyRequirement = new();
         public static void ClearAll(){
-            _categories.Clear();
-            _requirements.Clear();
-            _currencyCategories.Clear();
-            _currencyRequirements.Clear();
+            _typeCategories.Clear();
+            _typeRequirements.Clear();
+            _currencyCategory.Clear();
+            _currencyRequirement.Clear();
         }
-
-        public static void UpdateItem(Item item){
-            _categories.Remove(item.type, out _);
-            _requirements.Remove(item.type, out _);
-            _categories[item.type] = new(item);
-            _requirements[item.type] = new(item);
+        public static void UpdateType(Item item){
+            _typeCategories[item.type] = new(item);
+            _typeRequirements[item.type] = new(item);
         }
         public static void UpdateCurrency(int currency){
-            _currencyCategories.Remove(currency, out _);
-            _currencyRequirements.Remove(currency, out _);
-            _currencyCategories[currency] = CurrencyExtension.GetCurrencyCategory(currency);
-            _currencyRequirements[currency] = CurrencyExtension.GetCurrencyRequirement(currency);
+            _currencyCategory[currency] = CurrencyExtension.GetCurrencyCategory(currency);
+            _currencyRequirement[currency] = CurrencyExtension.GetCurrencyRequirement(currency);
         }
         
-        public static ItemCategories GetCategories(this Item item){
-            if(!_categories.ContainsKey(item.type)) _categories.Add(item.type, new(item));
-            return _categories[item.type];
+        public static TypeCategories GetTypeCategories(this Item item){
+            if(!_typeCategories.ContainsKey(item.type)) _typeCategories.Add(item.type, new(item));
+            return _typeCategories[item.type];
         }
-        public static ItemRequirements GetRequirements(this Item item){
-            if (!_requirements.ContainsKey(item.type)) _requirements.Add(item.type, new(item));
-            return _requirements[item.type];
+        public static TypeRequirements GetTypeRequirements(this Item item){
+            if (!_typeRequirements.ContainsKey(item.type)) _typeRequirements.Add(item.type, new(item));
+            return _typeRequirements[item.type];
         }
 
-        public static Currency GetCategory(int currency){
-            if(!_currencyCategories.ContainsKey(currency)) _currencyCategories[currency] = CurrencyExtension.GetCurrencyCategory(currency);
-            return _currencyCategories[currency];
+        public static Currency GetCurrencyCategory(int currency){
+            if(!_currencyCategory.ContainsKey(currency)) _currencyCategory[currency] = CurrencyExtension.GetCurrencyCategory(currency);
+            return _currencyCategory[currency];
         }
-        public static int GetRequirement(int currency){
-            if (!_currencyRequirements.ContainsKey(currency)) _currencyRequirements[currency] = CurrencyExtension.GetCurrencyRequirement(currency);
-            return _currencyRequirements[currency];
+        public static int GetCurrencyRequirement(int currency){
+            if (!_currencyRequirement.ContainsKey(currency)) _currencyRequirement[currency] = CurrencyExtension.GetCurrencyRequirement(currency);
+            return _currencyRequirement[currency];
         }
         public static bool HasAnInfinity(this Item item)
-            => item.GetRequirements().HasAnInfinity || GetRequirement(item.CurrencyType()) != 0;
+            => GetTypeRequirements(item).HasAnInfinity || GetCurrencyRequirement(item.CurrencyType()) != 0;
         
-
         public delegate long AboveRequirementInfinity(long count, int requirement, params int[] args);
         public static class ARIDelegates{
             public static long NotInfinite(long count, int requirement, params int[] args) => 0;
@@ -134,7 +121,7 @@ namespace SPIC {
         }
         public static long CalculateInfinity(int type, int theoricalMaxStack, long count, int requirement, float multiplier, AboveRequirementInfinity aboveRequirement = null, params int[] args)
             => CalculateInfinity (
-                (int)MathF.Min(Globals.SpicItem.MaxStack(type), theoricalMaxStack),
+                (int)MathF.Min(Globals.ConsumptionItem.MaxStack(type), theoricalMaxStack),
                 count, requirement, multiplier, aboveRequirement, args
             );
         
@@ -146,29 +133,29 @@ namespace SPIC {
                 (aboveRequirement ?? ARIDelegates.Requirement).Invoke(count, requirement, args);
             return (long)(infinity * multiplier);
         }
+        
 
         public static bool CanDisplayInfinities(this Item item, bool isACopy = false){
             Player player = Main.LocalPlayer;
-            bool crafting = !Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked && !Main.InReforgeMenu && !Main.LocalPlayer.tileEntityAnchor.InUse && !Main.hidePlayerCraftingMenu;
-            Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
+            // bool crafting = !Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked && !Main.InReforgeMenu && !Main.LocalPlayer.tileEntityAnchor.InUse && !Main.hidePlayerCraftingMenu;
+            // Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
             if (isACopy) {
                 return item.playerIndexTheItemIsReservedFor == Main.myPlayer && (
                     (Main.mouseItem.type == item.type && Main.mouseItem.stack == item.stack)
                     || Array.Find(player.inventory, i => i.type == item.type && i.stack == item.stack) is not null
                     || (player.InChest(out var chest) && Array.Find(chest, i => i.type == item.type && i.stack == item.stack) is not null)
-                    || crafting && (recipe.requiredItem.Find(i => i.type == item.type && i.stack == item.stack) is not null)
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item, isACopy))
+                    // || crafting && (recipe.requiredItem.Find(i => i.type == item.type && i.stack == item.stack) is not null)
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item))
                 );
             } else {
                 return item.playerIndexTheItemIsReservedFor == Main.myPlayer && (
                     Main.mouseItem == item
                     || Array.IndexOf(player.inventory, item) != -1
                     || (player.InChest(out Item[] chest) && Array.IndexOf(chest, item) != -1)
-                    || (crafting && recipe.requiredItem.Contains(item))
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item, isACopy))
+                    // || (crafting && recipe.requiredItem.Contains(item))
+                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item))
                 );
             }
-
         }
     }
 }

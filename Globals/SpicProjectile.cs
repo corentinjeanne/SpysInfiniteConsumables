@@ -22,13 +22,15 @@ namespace SPIC.Globals {
 
             if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategoryDetection.Instance.DetectMissing) return;
             
-            SpicPlayer spicPlayer = Main.player[proj.owner].GetModPlayer<SpicPlayer>();
-            int type = spicPlayer.FindPotentialExplosivesType(proj.type);
-            Item item = System.Array.Find(spicPlayer.Player.inventory, i => i.type == type) ?? new(type);
+            DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
+            int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
+            Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
+            // TODO move in DetectionPlayer
             if (!item.IsAir && Configs.CategoryDetection.Instance.DetectedExplosive(item)) {
-                CategoryHelper.UpdateItem(item);
-                spicPlayer.RefilExplosive(proj.type, item);
+                CategoryManager.UpdateType(item);
+                Main.player[proj.owner].GetModPlayer<InfinityPlayer>().UpdateTypeInfinities(item);
+                detectionPlayer.RefilExplosive(proj.type, item);
             }
             _explodedProjTypes.Add(proj.type);
 

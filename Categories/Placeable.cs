@@ -129,7 +129,7 @@ namespace SPIC {
                     if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
                         return Placeable.Functional;
 
-                    if (Globals.InfiniteRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
+                    if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
 
                     if (TileID.Sets.HasOutlines[tileType]) return Placeable.Functional;
 
@@ -149,10 +149,10 @@ namespace SPIC {
         public static int GetPlaceableRequirement(this Item item){
             Configs.Requirements config = Configs.Requirements.Instance;
 
-            Configs.CustomRequirements infinities = config.GetCustomRequirements(item.type);
-            if (infinities.Placeable.HasValue) return infinities.Placeable.Value;
+            Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
+            if (requirements.Placeable.HasValue) return requirements.Placeable.Value;
 
-            Placeable placeable = CategoryHelper.GetCategories(item).Placeable;
+            Placeable placeable = CategoryManager.GetTypeCategories(item).Placeable;
             if (placeable != Placeable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return placeable.Requirement();
         }
@@ -184,8 +184,8 @@ namespace SPIC {
             => item.GetPlaceableInfinity(player.CountItems(item.type), ignoreAllwaysDrop);
 
         public static int GetPlaceableInfinity(this Item item, int count, bool ignoreAllwaysDrop = false)
-            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Placeable.MaxStack(), count, CategoryHelper.GetRequirements(item).Placeable, 1,
-                ignoreAllwaysDrop || !Configs.Requirements.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? CategoryHelper.ARIDelegates.ItemCount : CategoryHelper.ARIDelegates.NotInfinite
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Placeable.MaxStack(), count, CategoryManager.GetTypeRequirements(item).Placeable, 1,
+                ignoreAllwaysDrop || !Configs.Requirements.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? CategoryManager.ARIDelegates.ItemCount : CategoryManager.ARIDelegates.NotInfinite
             );
 
     }

@@ -43,8 +43,8 @@ namespace SPIC {
         
         public static int CountItems(this Player player, int type, bool includeChest = false) {
             
-            if(includeChest && CrossMod.MagicStorageIntegration.Enable && CrossMod.MagicStorageIntegration.InMagicStorage) return CrossMod.MagicStorageIntegration.CountItems(type);
             int total = player.inventory.CountItems(type, 58) + new Item[] { Main.mouseItem }.CountItems(type);
+            if(includeChest && CrossMod.MagicStorageIntegration.Enable && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
             if (includeChest && player.InChest(out Item[] chest)) total += chest.CountItems(type);
             return total;
         }
@@ -67,7 +67,7 @@ namespace SPIC {
             long count = 0L;
             for (int i = 0; i < container.Length; i++) {
                 if(System.Array.IndexOf(ignoreSlots,i) == -1 && container[i].IsACoin)
-                    count += container[i].value / 5 * container[i].stack;
+                    count += (long)container[i].value/5 * container[i].stack;
             }
             return count;
         }
@@ -95,6 +95,14 @@ namespace SPIC {
             int i = 0;
             foreach(Item item in Main.item) if(!item.IsAir) i++;
             return i;
+        }
+
+        public static K[] Reverse<K,V>(this System.Collections.Generic.Dictionary<K,V> dictionary, V value) {
+            System.Collections.Generic.List<K> reverse = new();
+            foreach (var kvp in dictionary) {
+                if(kvp.Value.Equals(value)) reverse.Add(kvp.Key);
+            }
+            return reverse.ToArray();
         }
     }
 }

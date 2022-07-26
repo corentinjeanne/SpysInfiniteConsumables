@@ -41,7 +41,7 @@ public class InfinityDisplay : ModConfig {
     public Vector2 dots_Start;
     [DefaultValue(typeof(Vector2), "0.1, 0.9"), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.End")]
     public Vector2 dots_End;
-    [DefaultValue((int)Categories.Category.Currency), Range(1,(int)Categories.Category.Currency), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
+    [DefaultValue(CategoryManager.CategoryCount), Range(1,CategoryManager.CategoryCount), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
     public int dots_Count;
 
 

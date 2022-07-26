@@ -56,12 +56,15 @@ namespace SPIC {
 
             var categories = Configs.Requirements.Instance.GetCustomCategories(item.type);
             if (categories.Consumable.HasValue) return categories.Consumable.Value;
-            
+
             var autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
             if (autos.Consumable.HasValue) return autos.Consumable;
 
-            if (!item.consumable || item.useStyle == ItemUseStyleID.None) return Consumable.None;
-            if (item.Placeable()) return Consumable.None;
+            if (!item.consumable || item.Placeable()) return Consumable.None;
+
+            if(item.bait != 0) return Consumable.Critter;
+
+            if(item.useStyle == ItemUseStyleID.None) return Consumable.None;
 
             // Vanilla inconsitancies or special items
             switch (item.type) {
@@ -74,7 +77,7 @@ namespace SPIC {
             if (0 < ItemID.Sets.SortingPriorityBossSpawns[item.type] && ItemID.Sets.SortingPriorityBossSpawns[item.type] <= 17 && item.type != ItemID.TreasureMap)
                 return Consumable.Summoner;
             
-            if (item.makeNPC != NPCID.None || item.bait != 0) return Consumable.Critter;
+            if (item.makeNPC != NPCID.None) return Consumable.Critter;
 
             if (item.damage > 0) return Consumable.Weapon;
 
@@ -96,7 +99,7 @@ namespace SPIC {
             Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
             if(requirements.Consumable.HasValue) return requirements.Consumable.Value;
             
-            Consumable consumable = CategoryHelper.GetCategories(item).Consumable ?? Consumable.Tool;
+            Consumable consumable = CategoryManager.GetTypeCategories(item).Consumable ?? Consumable.Tool;
             if(consumable != Consumable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return consumable.Requirement();
         }
@@ -105,6 +108,6 @@ namespace SPIC {
             => item.GetConsumableInfinity(player.CountItems(item.type));
 
         public static int GetConsumableInfinity(this Item item, int count)
-            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Consumable?.MaxStack() ?? 999, count, CategoryHelper.GetRequirements(item).Consumable, 1);
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Consumable?.MaxStack() ?? 999, count, CategoryManager.GetTypeRequirements(item).Consumable, 1);
     }
 }

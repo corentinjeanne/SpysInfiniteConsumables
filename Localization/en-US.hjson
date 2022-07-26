@@ -50,7 +50,7 @@
                     MusicBox: MusicBox
 
                     Mechanical: Mechanical
-                    Bucket: Bucket
+                    Liquid: Liquid
                     Seed: Seed
                     Paint : Paint
                 }
@@ -92,8 +92,11 @@
                 items: items
                 stacks: stacks
                 infinite: Infinite {0}
-                infiniteFull: Infinite {0} below {1}
+                infiniteAmmo: "{0} Infinite {0}"
+                partialyInfinite: Infinite {0} below {1}
                 wandAmmo: Wand ammo
+                weaponAmmo: Consumes {0}
+                noAmmo: No ammo
             }
 
             Recipe: {

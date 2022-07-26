@@ -128,7 +128,7 @@ public class Requirements : ModConfig {
     public int placeables_Paints;
 
     [Header("$Mods.SPIC.Categories.GrabBag.names")]
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Requirements.Requirements.Crates")]
+    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Crates")]
     public int bags_Crates;
     [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boss")]
     public int bags_TreasureBags;

@@ -45,7 +45,7 @@ namespace SPIC {
             
             if (!ItemID.Sets.IsAMaterial[type]) return Material.None;
 
-            if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
+            if (Globals.ConsumptionItem.MaxStack(type) == 1) return Material.NonStackable;
 
             Placeable placeable = item.GetPlaceableCategory();
 
@@ -63,7 +63,7 @@ namespace SPIC {
         }
         public static int GetMaterialRequirement(this Item item){
             Configs.Requirements config = Configs.Requirements.Instance;
-            Material material = CategoryHelper.GetCategories(item).Material;
+            Material material = CategoryManager.GetTypeCategories(item).Material;
             if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return material.Requirement();
         }
@@ -72,6 +72,6 @@ namespace SPIC {
             => item.GetMaterialInfinity(player.CountItems(item.type, true));
 
         public static int GetMaterialInfinity(this Item item, long count)
-            => (int)CategoryHelper.CalculateInfinity(item.type, CategoryHelper.GetCategories(item).Material.MaxStack(), count, CategoryHelper.GetRequirements(item).Material, 0.5f, CategoryHelper.ARIDelegates.LargestMultiple);
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Material.MaxStack(), count, CategoryManager.GetTypeRequirements(item).Material, 0.5f, CategoryManager.ARIDelegates.LargestMultiple);
     }
 }
