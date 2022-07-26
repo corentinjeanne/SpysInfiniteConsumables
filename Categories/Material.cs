@@ -25,8 +25,7 @@ namespace SPIC {
             _ => 999,
         };
         public static int Requirement(this Material material) {
-            Configs.Infinities inf = Configs.Infinities.Instance;
-
+            Configs.Requirements inf = Configs.Requirements.Instance;
             return material switch {
                 Material.Basic => inf.materials_Basics,
                 Material.Ore => inf.materials_Ores,
@@ -42,9 +41,11 @@ namespace SPIC {
             switch (type){
             case ItemID.FallenStar: return Material.Miscellaneous;
             }
-            if (item == null || !ItemID.Sets.IsAMaterial[type]) return Material.None;
+            if(item.IsACoin) return Material.Basic;
+            
+            if (!ItemID.Sets.IsAMaterial[type]) return Material.None;
 
-            if (Globals.SpicItem.MaxStack(type) == 1) return Material.NonStackable;
+            if (Globals.ConsumptionItem.MaxStack(type) == 1) return Material.NonStackable;
 
             Placeable placeable = item.GetPlaceableCategory();
 
@@ -61,13 +62,16 @@ namespace SPIC {
             return Material.Miscellaneous;
         }
         public static int GetMaterialRequirement(this Item item){
-            Configs.Infinities config = Configs.Infinities.Instance;
-            Material material = Category.GetCategories(item).Material;
+            Configs.Requirements config = Configs.Requirements.Instance;
+            Material material = CategoryManager.GetTypeCategories(item).Material;
             if(material != Material.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return material.Requirement();
         }
 
-        public static long GetMaterialInfinity(this Player player, Item item)
-            => Category.Infinity(item.type, Category.GetCategories(item).Material.MaxStack(), player.CountAllItems(item.type, true), Category.GetRequirements(item).Material, 0.5f, Category.ARIDelegates.LargestMultiple);
+        public static int GetMaterialInfinity(this Player player, Item item)
+            => item.GetMaterialInfinity(player.CountItems(item.type, true));
+
+        public static int GetMaterialInfinity(this Item item, long count)
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Material.MaxStack(), count, CategoryManager.GetTypeRequirements(item).Material, 0.5f, CategoryManager.ARIDelegates.LargestMultiple);
     }
 }

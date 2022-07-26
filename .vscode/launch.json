@@ -11,9 +11,14 @@
             "preLaunchTask": "build",
             "program": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/tModLoader.dll",
             "cwd": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/",
-            "args": ["watch"],
             "console": "internalConsole",
             "stopAtEntry": false
+        },
+        {
+            "name": "tModLoader - Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": 28936
         },
         {
             "name": "tModLoader Server",

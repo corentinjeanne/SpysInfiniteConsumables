@@ -2,85 +2,116 @@
 {
     Mods: {
         SPIC: {
+            Categories: {
+                Ammo:       { icon: "[i:3103]"}
+                Consumable: { icon: "[i:3104]"}
+                Placeable:  { icon: "[i:3061]"}
+                GrabBag:    { icon: "[i:4782]"}
+                Currency:   { icon: "[i:855]" }
+                Material:   { icon: "[i:398]" }
+            }
             ItemTooltip: {
-                f_Requirement: "{0} {$Mods.SPIC.Words.Items}"
-                f_RequirementStacks: "{0} {$Mods.SPIC.Words.Stacks}"
+                Requirement: "{0} {$Mods.SPIC.ItemTooltip.items}"
+                RequirementStacks: "{0} {$Mods.SPIC.ItemTooltip.stacks}"
                 
-                f_Infinite: "{$Mods.SPIC.ItemTooltip.Infinite} {0}"
-                f_InfiniteDetail: "{$Mods.SPIC.ItemTooltip.InfiniteMid}"
-                f_InfiniteItems: "{0} {$Mods.SPIC.Words.Items}"
-                f_InfiniteSprite: "{1}[i:{0}] "
+                InfiniteName: "{1} {0}"
+                InfiniteSprite: "{1}[i:{0}]"
             }
 
             Configs: {
-                Icons: {
-                    Ammo: "[i:3103]"
-                    Consumables: "[i:3104]"
-                    Bags: "[i:4782]"
-                    Placeables: "[i:3061]"
-                    Currencies: "[i:855]"
-                    Materials: "[i:398]"
+                Requirements: {
+                    General: {
+                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Requirements.General.consumables}"
+                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Requirements.General.grabBags}"
+                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Requirements.General.placeables}"
+                        Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.Configs.Requirements.General.currencies}"
+                        Materials: "{$Mods.SPIC.Categories.Material.icon} {$Mods.SPIC.Configs.Requirements.General.materials}"
+
+                        Duplication: "[i:1293] {$Mods.SPIC.Configs.Requirements.General.duplication}"
+                        Journey: "[i:2890] {$Mods.SPIC.Configs.Requirements.General.journey}"
+                        Commands: "[i:3617] {$Mods.SPIC.Configs.Requirements.General.commands}"
+                    }
+                    Requirements: {
+                        Weapons: "[i:279] {$Mods.SPIC.Configs.Requirements.Requirements.weapons}"
+                        StandardAmmo: "[i:40] {$Mods.SPIC.Configs.Requirements.Requirements.standardAmmo}"
+                        SpecialAmmo: "[i:75] {$Mods.SPIC.Configs.Requirements.Requirements.specialAmmo}"
+                        Potions: "[i:2348] {$Mods.SPIC.Configs.Requirements.Requirements.potions}"
+                        Boosters: "[i:29] {$Mods.SPIC.Configs.Requirements.Requirements.boosters}"
+
+                        Summoners: "[i:43] {$Mods.SPIC.Configs.Requirements.Requirements.summoners}"
+                        Critters: "[i:2019] {$Mods.SPIC.Configs.Requirements.Requirements.critters}"
+                        Explosives: "[i:166] {$Mods.SPIC.Configs.Requirements.Requirements.explosives}"
+                        Tools: "[i:282] {$Mods.SPIC.Configs.Requirements.Requirements.tools}"
+
+                        Crates: "[i:2334] {$Mods.SPIC.Configs.Requirements.Requirements.crates}"
+                        Boss: "[i:3331] {$Mods.SPIC.Configs.Requirements.Requirements.boss}"
+
+                        Tiles: "[i:3] {$Mods.SPIC.Configs.Requirements.Requirements.tiles}"
+                        Ores: "[i:702] {$Mods.SPIC.Configs.Requirements.Requirements.ores}"
+                        Torches: "[i:8] {$Mods.SPIC.Configs.Requirements.Requirements.torches}"
+                        Furnitures: "[i:32] {$Mods.SPIC.Configs.Requirements.Requirements.furnitures}"
+                        Mechanical: "[i:3603] {$Mods.SPIC.Configs.Requirements.Requirements.mechanical}"
+                        Liquids: "[i:206] {$Mods.SPIC.Configs.Requirements.Requirements.liquids}"
+                        Seeds: "[i:27] {$Mods.SPIC.Configs.Requirements.Requirements.seeds}"
+                        Paints: "[i:1073] {$Mods.SPIC.Configs.Requirements.Requirements.paints}"
+
+                        Wiring: "[i:530] {$Mods.SPIC.Configs.Requirements.Requirements.wiring}"
+
+                        Coins: "[i:73] {$Mods.SPIC.Configs.Requirements.Requirements.coins}"
+                        CustomCoins: "[i:3817] {$Mods.SPIC.Configs.Requirements.Requirements.customCoins}"
+
+                        Basics: "[i:9] {$Mods.SPIC.Configs.Requirements.Requirements.basics}"
+                        Ores: "[i:177] {$Mods.SPIC.Configs.Requirements.Requirements.ores}"
+                        Miscellaneous: "[i:575] {$Mods.SPIC.Configs.Requirements.Requirements.miscellaneous}"
+                        NonStackable: "[i:53] {$Mods.SPIC.Configs.Requirements.Requirements.nonStackable}"
+                    }
+                    Customs: {
+                        Customs: "[i:1913] {$Mods.SPIC.Configs.Requirements.Customs.customs}"
+                        Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.name}"
+                        Consumable: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Categories.Consumable.name}"
+                        Placeable: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.name}"
+                        Bag: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.name}"
+                    }
                 }
-                General: {
-                    f_Consumables: "{$Mods.SPIC.Configs.Icons.Consumables} {$Mods.SPIC.Configs.General.Consumables}"
-                    f_Bags: "{$Mods.SPIC.Configs.Icons.Bags} {$Mods.SPIC.Configs.General.Bags}"
-                    f_Placeables: "{$Mods.SPIC.Configs.Icons.Placeables} {$Mods.SPIC.Configs.General.Placeables}"
-                    f_Currencies: "{$Mods.SPIC.Configs.Icons.Currencies} {$Mods.SPIC.Configs.General.Currencies}"
-                    f_Materials: "{$Mods.SPIC.Configs.Icons.Materials} {$Mods.SPIC.Configs.General.Materials}"
-
-                    f_Duplication: "[i:1293] {$Mods.SPIC.Configs.General.Duplication}"
-                    f_Journey: "[i:2890] {$Mods.SPIC.Configs.General.Journey}"
-                    f_Commands: "[i:3617] {$Mods.SPIC.Configs.General.Commands}"
-
-                    f_Category: "[i:393] {$Mods.SPIC.Configs.General.Category}"
-                    f_Infinites: "[i:3084] {$Mods.SPIC.Configs.General.Infinities}"
-                    f_Requirement: "[i:3102] {$Mods.SPIC.Configs.General.Requirement}"
-                    f_Auto: "[i:38] {$Mods.SPIC.Configs.General.Auto}"
+                Detection: {
+                    General: {
+                        Detect: "[i:38] {$Mods.SPIC.Configs.Detection.General.detect}"
+                    }
+                    Categories:{
+                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Detection.Categories.consumables}"
+                        Explosives: "[i:167] {$Mods.SPIC.Configs.Detection.Categories.explosives}"
+                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Detection.Categories.grabBags}"
+                        WandAmmo: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.wandAmmo}"
+                    }
                 }
-
-                Infinities: {
-                    f_Weapons: "[i:279] {$Mods.SPIC.Configs.Infinities.Weapons}"
-                    f_StandardAmmo: "[i:40] {$Mods.SPIC.Configs.Infinities.StandardAmmo}"
-                    f_SpecialAmmo: "[i:75] {$Mods.SPIC.Configs.Infinities.SpecialAmmo}"
-                    f_Potions: "[i:2348] {$Mods.SPIC.Configs.Infinities.Potions}"
-                    f_Boosters: "[i:29] {$Mods.SPIC.Configs.Infinities.Boosters}"
-
-                    f_Summoners: "[i:43] {$Mods.SPIC.Configs.Infinities.Summoners}"
-                    f_Critters: "[i:2019] {$Mods.SPIC.Configs.Infinities.Critters}"
-                    f_Explosives: "[i:166] {$Mods.SPIC.Configs.Infinities.Explosives}"
-                    f_Tools: "[i:282] {$Mods.SPIC.Configs.Infinities.Tools}"
-
-                    f_Crates: "[i:2334] {$Mods.SPIC.Configs.Infinities.Crates}"
-                    f_Boss: "[i:3331] {$Mods.SPIC.Configs.Infinities.Boss}"
-
-                    f_Tiles: "[i:3] {$Mods.SPIC.Configs.Infinities.Tiles}"
-                    f_Ores: "[i:702] {$Mods.SPIC.Configs.Infinities.Ores}"
-                    f_Torches: "[i:8] {$Mods.SPIC.Configs.Infinities.Torches}"
-                    f_Furnitures: "[i:32] {$Mods.SPIC.Configs.Infinities.Furnitures}"
-                    f_Mechanical: "[i:3603] {$Mods.SPIC.Configs.Infinities.Mechanical}"
-                    f_Liquids: "[i:206] {$Mods.SPIC.Configs.Infinities.Liquids}"
-                    f_Seeds: "[i:27] {$Mods.SPIC.Configs.Infinities.Seeds}"
-                    f_Paints: "[i:1073] {$Mods.SPIC.Configs.Infinities.Paints}"
-
-                    f_Wiring: "[i:530] {$Mods.SPIC.Configs.Infinities.Wiring}"
-
-                    f_Coins: "[i:73] {$Mods.SPIC.Configs.Infinities.Coins}"
-                    f_CustomCoins: "[i:3817] {$Mods.SPIC.Configs.Infinities.CustomCoins}"
-
-                    f_Basics: "[i:9] {$Mods.SPIC.Configs.Infinities.Basics}"
-                    f_Ores: "[i:177] {$Mods.SPIC.Configs.Infinities.Ores}"
-                    f_Miscellaneous: "[i:575] {$Mods.SPIC.Configs.Infinities.Miscellaneous}"
-                    f_NonStackable: "[i:53] {$Mods.SPIC.Configs.Infinities.NonStackable}"
-
-                }
-                
-                Customs: {
-                    f_Customs: "[i:1913] {$Mods.SPIC.Configs.Customs.Customs}"
-                 
-                    f_Ammo: "{$Mods.SPIC.Configs.Icons.Ammo} {$Mods.SPIC.Configs.Customs.Ammo}"
-                    f_Consumable: "{$Mods.SPIC.Configs.Icons.Consumables} {$Mods.SPIC.Configs.Customs.Consumable}"
-                    f_Placeable: "{$Mods.SPIC.Configs.Icons.Placeables} {$Mods.SPIC.Configs.Customs.Placeable}"
-                    f_Bag: "{$Mods.SPIC.Configs.Icons.Bags} {$Mods.SPIC.Configs.Customs.Bag}"
+                InfinityDisplay: {
+                    Tooltip:  {
+                        Categories: "[i:393] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.categories}"
+                        Infinities: "[i:3084] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.infinities}"
+                        Requirements: "[i:3102] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.requirements}"
+                        MissingLines: "[i:530] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.missingLines}"
+                        ItemName: "[i:38] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.itemName}"
+                        Color: "[i:3625] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.color}"
+                    }
+                    Glow: {
+                        Glow: "[i:487] {$Mods.SPIC.Configs.InfinityDisplay.Glow.glow}"
+                        Intensity: "[i:2274] {$Mods.SPIC.Configs.InfinityDisplay.Glow.intensity}"
+                        Pulse: "[i:583] {$Mods.SPIC.Configs.InfinityDisplay.Glow.pulse}"
+                    }
+                    Dots: {
+                        Dots: "[i:3603] {$Mods.SPIC.Configs.InfinityDisplay.Dots.dots}"
+                        Start: "[i:71] {$Mods.SPIC.Configs.InfinityDisplay.Dots.start}"
+                        End: "[i:73] {$Mods.SPIC.Configs.InfinityDisplay.Dots.end}"
+                        Count: "[i:3095] {$Mods.SPIC.Configs.InfinityDisplay.Dots.count}"
+                    }
+                    Colors: {
+                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Categories.Consumable.names}"
+                        Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.names}"
+                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.names}"
+                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.names}"
+                        Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.Categories.Currency.names}"
+                        Materials: "{$Mods.SPIC.Categories.Material.icon} {$Mods.SPIC.Categories.Material.names}"
+                    }
                 }
             }
         }

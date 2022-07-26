@@ -29,39 +29,116 @@ namespace SPIC {
         
 
         public static int Requirement(this Currency Currency) {
-            Configs.Infinities inf = Configs.Infinities.Instance;
+            Configs.Requirements inf = Configs.Requirements.Instance;
             return Currency switch {
                 Currency.Coin => inf.currency_Coins,
                 Currency.SingleCoin => inf.currency_Single,
                 _ => 0,
             };
         }
-        public static int CurrencyType(this Item item) {
-            if (item.IsACoin) {
-                return -1;
-            }
 
+        public static Currency GetCurrencyCategory(int currency) {
+            if(currency == -1) return Currency.Coin;
+            if(!_currencies.ContainsKey(currency)) return Currency.None;
+            return _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
+        }
+
+        public static int GetCurrencyRequirement(int currency) {
+            Configs.Requirements config = Configs.Requirements.Instance;
+            Currency category = CategoryManager.GetCurrencyCategory(currency);
+            if (category != Currency.None && config.JourneyRequirement) return category.MaxStack();
+            return category.Requirement();
+        }
+
+        public static long GetCurrencyInfinity(this Player player, int currency)
+            => GetCurrencyInfinity(currency, player.CountCurrency(currency,true));
+
+        public static long GetCurrencyInfinity(int currency, long currencyCount) {
+            Currency category = CategoryManager.GetCurrencyCategory(currency);
+            int requirement = CategoryManager.GetCurrencyRequirement(currency);
+            return category == Currency.Coin ?
+                CategoryManager.CalculateInfinity(category.MaxStack(), currencyCount, requirement, 0.1f, CategoryManager.ARIDelegates.LargestPower, 100):
+                CategoryManager.CalculateInfinity(category.MaxStack(), currencyCount, requirement, 0.2f, CategoryManager.ARIDelegates.LargestMultiple);
+        }
+
+        public static int CurrencyType(this Item item) {
+            if (item.IsACoin) return -1;
             foreach (int key in _currencies.Keys) {
-                if (_currencies[key].system.Accepts(item)) {
-                    return key;
-                }
+                if (_currencies[key].system.Accepts(item)) return key;
             }
             return -2;
         }
+        public static bool IsPartOfACurrency(this Item item, out int currency) => (currency = item.CurrencyType()) != -2;
 
-        public static bool IsPartOfACurrency(this Item item, out int currency) {
-            return (currency = item.CurrencyType()) != -2;
+
+        public static long CountCurrency(this Item[] container, int currency, params int[] ignoreSlots) {
+            switch (currency) {
+            case -2: return 0L;
+            case -1:
+
+                return Utility.CountCoins(container, ignoreSlots); /* container.CountCoins(ignoreSlots); */
+            default: 
+                CustomCurrencySystem system = _currencies[currency].system;
+                long cap = system.CurrencyCap;
+                system.SetCurrencyCap(long.MaxValue);
+                long count = system.CountCurrency(out _, container, ignoreSlots);
+                system.SetCurrencyCap(cap);
+                return count;
+            }
+        }
+
+        public static long CountCurrency(this Player player, int currency, bool includeBanks = true, bool includeChest = false) {
+            long count = player.inventory.CountCurrency(currency, 58);
+            count += new Item[]{Main.mouseItem}.CountCurrency(currency);
+            if(includeBanks)
+                count += player.bank.item.CountCurrency(currency) + player.bank2.item.CountCurrency(currency) + player.bank3.item.CountCurrency(currency) + player.bank4.item.CountCurrency(currency);
+            if (includeChest && player.InChest(out Item[] chest)) count += chest.CountCurrency(currency);
+
+            return count;
+        }
+
+        public static List<KeyValuePair<int,long>> CurrencyCountToItems(int currency, long amount) {
+            List<KeyValuePair<int,int>> values = new();
+            switch (currency) {
+                case -2: return new();
+                case -1:
+                    values = new() {
+                        new(ItemID.PlatinumCoin, 1000000),
+                        new(ItemID.GoldCoin, 10000),
+                        new(ItemID.SilverCoin, 100),
+                        new(ItemID.CopperCoin, 1)
+                    };
+                    break;
+                default:
+                    foreach (var v in _currencies[currency].values)
+                        values.Add(v);
+                    values.Sort((a, b) => a.Value < b.Value ? 0 : 1);
+                    break;
+            }
+
+            List<KeyValuePair<int, long>> stacks = new();
+            foreach(var coin in values){
+                int count = (int)(amount / coin.Value);
+                if(count == 0) continue;
+                amount -= count * coin.Value;
+                stacks.Add(new(coin.Key, count));
+            }
+            return stacks;
         }
 
         internal struct CustomCurrencyData {
-            public readonly CustomCurrencySystem system = new();
-            public readonly Dictionary<int, int> values = new();
+            public readonly CustomCurrencySystem system;
+            public readonly Dictionary<int, int> values;
 
             public CustomCurrencyData(CustomCurrencySystem system, Dictionary<int, int> values) {
                 this.system = system; this.values = values;
             }
         }
+
+        public static List<int> Currencies => new(_currencies.Keys);
         private static Dictionary<int, CustomCurrencyData> _currencies;
+        internal static void ClearCurrencies() => _currencies = null;
+
         internal static void GetCurrencies() {
             FieldInfo cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static);
             Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)cur.GetValue(null);
@@ -70,83 +147,6 @@ namespace SPIC {
                 FieldInfo values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance);
                 _currencies[key] = new(system, (Dictionary<int, int>)values.GetValue(system));
             }
-        }
-        internal static void ClearCurrencies() => _currencies = null;
-
-        public static Currency GetCurrencyCategory(this Item item) {
-
-            return !item.IsPartOfACurrency(out int currency)
-                ? Currency.None
-
-                : currency == -1 ? Currency.Coin : _currencies[currency].values.Count == 1 ? Currency.SingleCoin : Currency.Coin;
-        }
-
-        public static int GetCurrencyRequirement(this Item item) {
-            Configs.Infinities config = Configs.Infinities.Instance;
-            Currency Currency = Category.GetCategories(item).Currency;
-            return Currency != Currency.None && config.JourneyRequirement
-                ? CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]
-                : Currency.Requirement();
-        }
-
-        public static long GetCurrencyInfinity(this Player player, Item item) {
-            if (!item.IsPartOfACurrency(out int currency)) {
-                return 0;
-            }
-
-            long count;
-            if (currency == -1) {
-                count = Utils.CoinsCombineStacks(out _,
-                    Utils.CoinsCount(out _, player.inventory),
-                    Utils.CoinsCount(out _, player.bank.item),
-                    Utils.CoinsCount(out _, player.bank2.item),
-                    Utils.CoinsCount(out _, player.bank3.item),
-                    Utils.CoinsCount(out _, player.bank4.item)
-                );
-            }
-            else {
-                CustomCurrencySystem system = _currencies[currency].system;
-                long cap = system.CurrencyCap;
-                system.SetCurrencyCap(long.MaxValue);
-                count = system.CombineStacks(out _,
-                    system.CountCurrency(out _, player.inventory),
-                    system.CountCurrency(out _, player.bank.item),
-                    system.CountCurrency(out _, player.bank2.item),
-                    system.CountCurrency(out _, player.bank3.item),
-                    system.CountCurrency(out _, player.bank4.item)
-                );
-                system.SetCurrencyCap(cap);
-            }
-            Currency category = Category.GetCategories(item).Currency;
-            return category == Currency.Coin ?
-                Category.Infinity(item.type, category.MaxStack(), count, Category.GetRequirements(item).Currency, 0.1f, Category.ARIDelegates.LargestPower, 100):
-                Category.Infinity(item.type, category.MaxStack(), count, Category.GetRequirements(item).Currency, 0.2f, Category.ARIDelegates.LargestMultiple);
-        }
-
-        public static List<KeyValuePair<int,int>> ToCurrencyStacks(int currency, long amount) {
-            List<KeyValuePair<int,int>> values = new();
-            if(currency == -1){
-                values = new() {
-                    new(ItemID.PlatinumCoin, 1000000),
-                    new(ItemID.GoldCoin, 10000),
-                    new(ItemID.SilverCoin, 100),
-                    new(ItemID.CopperCoin, 1)
-                };
-            }
-            else {
-                foreach (var v in _currencies[currency].values)
-                    values.Add(v);
-                values.Sort((a, b) => a.Value < b.Value ? 0 : 1);
-            }
-
-            List<KeyValuePair<int, int>> stacks = new();
-            foreach(var coin in values){
-                int count = (int)(amount / coin.Value);
-                if(count == 0) continue;
-                amount -= count * coin.Value;
-                stacks.Add(new(coin.Key, count));
-            }
-            return stacks;
         }
     }
 }

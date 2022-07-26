@@ -32,9 +32,9 @@ namespace SPIC {
     }
     public static class PlaceableExtension {
 
-        public static bool IsCommonTile(this Placeable category) => category < Placeable.LightSource;
-        public static bool IsFurniture(this Placeable category) => !category.IsCommonTile() && category < Placeable.Mechanical;
-        public static bool IsMisc(this Placeable category) => !category.IsCommonTile() && !category.IsFurniture();
+        public static bool IsCommonTile(this Placeable category) => category != Placeable.None && category < Placeable.LightSource;
+        public static bool IsFurniture(this Placeable category) => category != Placeable.None && !category.IsCommonTile() && category < Placeable.Mechanical;
+        public static bool IsMisc(this Placeable category) => category != Placeable.None && !category.IsCommonTile() && !category.IsFurniture();
         
         public static int MaxStack(this Placeable category) => category switch {
             Placeable.Block => 999,
@@ -61,7 +61,7 @@ namespace SPIC {
         };
 
         public static int Requirement(this Placeable category) {
-            Configs.Infinities infs = Configs.Infinities.Instance;
+            Configs.Requirements infs = Configs.Requirements.Instance;
             return category switch {
                 Placeable.Block or Placeable.Wall or Placeable.Wiring => infs.placeables_Tiles,
                 Placeable.Torch => infs.placeables_Torches,
@@ -80,21 +80,22 @@ namespace SPIC {
             };
         }
 
+        internal static void ClearWandAmmos() => _wands.Clear();
         private static readonly System.Collections.Generic.Dictionary<int, Placeable> _wands = new();
+
         public static void RegisterWandAmmo(Item wand) => RegisterWandAmmo(wand.tileWand, GetPlaceableCategory(wand, true));
         public static void RegisterWandAmmo(int type, Placeable category) => _wands.TryAdd(type, category);
 
         public static bool IsWandAmmo(int type) => IsWandAmmo(type, out _);
         public static bool IsWandAmmo(int type, out Placeable placeable) => _wands.TryGetValue(type, out placeable);
-        public static void ClearWandAmmos() => _wands.Clear();
 
 
         public static Placeable GetPlaceableCategory(this Item item, bool checkWandAmmo = false) {
 
             if (!checkWandAmmo) {
-                Configs.CustomCategories categories = Configs.Infinities.Instance.GetCustomCategories(item.type);
+                Configs.CustomCategories categories = Configs.Requirements.Instance.GetCustomCategories(item.type);
                 if (categories.Placeable.HasValue) return categories.Placeable.Value;
-                Configs.AutoCategories autos = Configs.CategorySettings.Instance.GetAutoCategories(item.type);
+                Configs.DetectedCategories autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
                 if (autos.Placeable.HasValue) return autos.Placeable.Value;
 
                 if(item.paint != 0) return Placeable.Paint;
@@ -125,10 +126,10 @@ namespace SPIC {
                     if (TileID.Sets.Torch[tileType]) return Placeable.Torch;
                     if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return Placeable.LightSource;
 
-                    if (Globals.SpicRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
-
                     if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
                         return Placeable.Functional;
+
+                    if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return Placeable.CraftingStation;
 
                     if (TileID.Sets.HasOutlines[tileType]) return Placeable.Functional;
 
@@ -146,20 +147,17 @@ namespace SPIC {
         }
 
         public static int GetPlaceableRequirement(this Item item){
-            Configs.Infinities config = Configs.Infinities.Instance;
+            Configs.Requirements config = Configs.Requirements.Instance;
 
-            Configs.CustomInfinities infinities = config.GetCustomInfinities(item.type);
-            if (infinities.Placeable.HasValue) return infinities.Placeable.Value;
+            Configs.CustomRequirements requirements = config.GetCustomRequirements(item.type);
+            if (requirements.Placeable.HasValue) return requirements.Placeable.Value;
 
-            Placeable placeable = Category.GetCategories(item).Placeable;
+            Placeable placeable = CategoryManager.GetTypeCategories(item).Placeable;
             if (placeable != Placeable.None && config.JourneyRequirement) return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             return placeable.Requirement();
         }
 
-        public static bool CanNoDuplicationWork(int type) => CanNoDuplicationWork(new Item(type));
         public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
-
-        public static bool AlwaysDrop(int type) => AlwaysDrop(new Item(type));
 
         // TODO Update as tml updates
         // Wires and actuators
@@ -170,7 +168,7 @@ namespace SPIC {
         // drop in 2x1 bug : num instead of num3
         public static bool AlwaysDrop(this Item item) {
             if(item.type == ItemID.Wire || item.type == ItemID.Actuator) return true;
-            if (item.createTile < TileID.Dirt || item.createWall != WallID.None || item.createTile == TileID.TallGateClosed) return false;
+            if ((item.createTile < TileID.Dirt && item.createWall != WallID.None) || item.createTile == TileID.TallGateClosed) return false;
             if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
 
             TileObjectData data = TileObjectData.GetTileData(item.createTile, item.placeStyle);
@@ -183,12 +181,12 @@ namespace SPIC {
         }
 
         public static int GetPlaceableInfinity(this Player player, Item item, bool ignoreAllwaysDrop = false)
-            => GetPlaceableInfinity(player.CountAllItems(item.type), item, ignoreAllwaysDrop);
+            => item.GetPlaceableInfinity(player.CountItems(item.type), ignoreAllwaysDrop);
 
-        public static int GetPlaceableInfinity(int count, Item item, bool ignoreAllwaysDrop = false)
-         => (int)Category.Infinity(item.type, Category.GetCategories(item).Placeable.MaxStack(), count, Category.GetRequirements(item).Placeable, 1,
-            !(Configs.Infinities.Instance.PreventItemDupication || ignoreAllwaysDrop) && !CanNoDuplicationWork(item) ? Category.ARIDelegates.NotInfinite : Category.ARIDelegates.ItemCount
-        );
+        public static int GetPlaceableInfinity(this Item item, int count, bool ignoreAllwaysDrop = false)
+            => (int)CategoryManager.CalculateInfinity(item.type, CategoryManager.GetTypeCategories(item).Placeable.MaxStack(), count, CategoryManager.GetTypeRequirements(item).Placeable, 1,
+                ignoreAllwaysDrop || !Configs.Requirements.Instance.PreventItemDupication || CanNoDuplicationWork(item) ? CategoryManager.ARIDelegates.ItemCount : CategoryManager.ARIDelegates.NotInfinite
+            );
 
     }
 }
