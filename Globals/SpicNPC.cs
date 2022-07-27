@@ -14,21 +14,20 @@ namespace SPIC.Globals {
         private static readonly System.Collections.Generic.Dictionary<int, long> _hightestCost = new();
         public static long HighestPrice(int currency) => _hightestCost.ContainsKey(currency) ? _hightestCost[currency] : 0;
 
-
         private static void HookSetupShop(On.Terraria.Chest.orig_SetupShop orig, Chest self, int type) {
             orig(self, type);
-            InfinityPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
+            InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
             _hightestCost.Clear();
             foreach (Item item in self.item)  {
                 if (item.IsAir) continue;
                 if (item.shopCustomPrice.HasValue) {
                     if (!_hightestCost.ContainsKey(item.shopSpecialCurrency) || _hightestCost[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
                         _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                    if (item.shopCustomPrice.Value <= spicPlayer.GetCurrencyInfinity(item.shopSpecialCurrency))
+                    if (item.shopCustomPrice.Value <= infinityPlayer.GetCurrencyInfinity(item.shopSpecialCurrency))
                         item.shopCustomPrice = item.value = 0;
                 } else {
                     if (!_hightestCost.ContainsKey(-1) || _hightestCost[-1] < item.value) _hightestCost[-1] = item.value;
-                    if (item.value <= spicPlayer.GetCurrencyInfinity(-1))
+                    if (item.value <= infinityPlayer.GetCurrencyInfinity(-1))
                         item.value = 0;
                 }
             }

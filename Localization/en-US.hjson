@@ -100,7 +100,7 @@
             }
 
             Recipe: {
-                InfiniteCraft: "*** WIP *** Disable the crafting of the recipe if it is an infinite material"
+                InfiniteCraft: Prevent duplication: Must not be fully infinite 
             }
 
             Configs: {

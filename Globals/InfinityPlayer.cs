@@ -38,6 +38,7 @@ public class InfinityPlayer : ModPlayer {
         InfinityDisplayItem.IncrementCounters();
     }
 
+    // TODO fully infinite only if having more would not allow for more recipies
     public bool HasFullyInfiniteMaterial(Item item) => GetTypeInfinities(item).Material == -2 || GetTypeInfinities(item).Material >= Systems.InfiniteRecipe.HighestCost(item.type);
     public bool HasFullyInfiniteCurrency(int currency) => GetCurrencyInfinity(currency) == -2 || GetCurrencyInfinity(currency) >= (Main.npcShop == 0 ? ConsumptionItem.HighestItemValue : SpicNPC.HighestPrice(currency));
 

@@ -24,7 +24,7 @@ namespace SPIC.Systems {
                 foreach (int t in r.requiredTile) 
                     if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
                 r.AddConsumeItemCallback(OnItemConsume);
-                // r.AddCondition(CanCraft);
+                r.AddCondition(CanCraft);
             }
             CalculateHighestCosts();
         }
@@ -38,21 +38,25 @@ namespace SPIC.Systems {
         }
         public static readonly Recipe.Condition CanCraft = new(Terraria.Localization.NetworkText.Empty,
             recipe => {
-                Globals.InfinityPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
-                return !(Configs.Requirements.Instance.PreventItemDupication && spicPlayer.HasFullyInfinite(recipe.createItem));
+                Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
+                return !(Configs.Requirements.Instance.PreventItemDupication && infinityPlayer.HasFullyInfinite(recipe.createItem));
             }
         );
         
         public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
             if (!Configs.Requirements.Instance.InfiniteMaterials) return;
 
-            Globals.InfinityPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
-            if (amount <= spicPlayer.GetTypeInfinities(type).Material) amount = 0;
-            else {
-                foreach (RecipeGroup group in RecipeGroup.recipeGroups.Values){
-                    if(group.ContainsItem(type)){
-                        foreach (int groupItemType in group.ValidItems){
-                            if(amount <= spicPlayer.GetTypeInfinities(groupItemType).Material) amount = 0;
+            Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
+            if (amount <= infinityPlayer.GetTypeInfinities(type).Material) {
+                amount = 0;
+                return;
+            }
+            foreach (int g in recipe.acceptedGroups) {
+                if (RecipeGroup.recipeGroups[g].ContainsItem(type)) {
+                    foreach (int groupItemType in RecipeGroup.recipeGroups[g].ValidItems) {
+                        if (amount <= infinityPlayer.GetTypeInfinities(groupItemType).Material) {
+                            amount = 0;
+                            return;
                         }
                     }
                 }
@@ -60,11 +64,13 @@ namespace SPIC.Systems {
         }
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
-            orig(canDelayCheck);
-            if (canDelayCheck) return;
-
+            if (canDelayCheck) {
+                orig(canDelayCheck);
+                return;
+            }
             CategoryManager.ClearAll();
             Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>().ClearInfinities();
+            orig(canDelayCheck);
         }
     }
 

@@ -22,15 +22,15 @@ public class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay visuals = Configs.InfinityDisplay.Instance;
 
         Player player = Main.LocalPlayer;
-        InfinityPlayer spicPlayer = player.GetModPlayer<InfinityPlayer>();
+        InfinityPlayer infinityPlayer = player.GetModPlayer<InfinityPlayer>();
         Categories.TypeCategories typeCategories = item.GetTypeCategories();
         Categories.TypeRequirements typeRequirements = item.GetTypeRequirements();
-        Categories.TypeInfinities typeInfinities = spicPlayer.GetTypeInfinities(item);
+        Categories.TypeInfinities typeInfinities = infinityPlayer.GetTypeInfinities(item);
 
         int currencyType = item.CurrencyType();
         Categories.Currency currencyCategories = CategoryManager.GetCurrencyCategory(currencyType);
         int currencyRequirements = CategoryManager.GetCurrencyRequirement(currencyType);
-        long currencyInfinities = spicPlayer.GetCurrencyInfinity(currencyType);
+        long currencyInfinities = infinityPlayer.GetCurrencyInfinity(currencyType);
 
         static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) {
             OverrideColor = new(150, 150, 150)
@@ -71,7 +71,7 @@ public class InfinityDisplayItem : GlobalItem {
             if (total > 0) line.Text += ")";
         }
 
-        if (!noInfinities && spicPlayer.HasFullyInfinite(item)) {
+        if (!noInfinities && infinityPlayer.HasFullyInfinite(item)) {
             TooltipLine name = tooltips.FindLine("ItemName");
             name.Text = Language.GetTextValue($"Mods.SPIC.ItemTooltip.infinite", name.Text);
         }
@@ -87,7 +87,7 @@ public class InfinityDisplayItem : GlobalItem {
                     Categories.TypeCategories wandCategories = wandItem.GetTypeCategories();
                     ModifyLine(AddedLine("WandConsumes", null), "Placeable",
                         wandCategories.Placeable != Categories.Placeable.None, $"Mods.SPIC.Categories.Placeable.{wandCategories.Placeable}",
-                        wandItem.GetTypeRequirements().Placeable, spicPlayer.GetTypeInfinities(wandItem).Placeable > -1, visuals.color_Placeables
+                        wandItem.GetTypeRequirements().Placeable, infinityPlayer.GetTypeInfinities(wandItem).Placeable > -1, visuals.color_Placeables
                     );
                 }
             }
@@ -104,7 +104,7 @@ public class InfinityDisplayItem : GlobalItem {
                     Categories.TypeCategories ammoCategories = ammoItem.GetTypeCategories();
                     ModifyLine(AddedLine("WeaponConsumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammoItem.Name)), "WandConsumes",
                         ammoCategories.Ammo != Categories.Ammo.None, $"Mods.SPIC.Categories.Ammo.{ammoCategories.Ammo}",
-                        ammoItem.GetTypeRequirements().Ammo, spicPlayer.GetTypeInfinities(ammoItem).Ammo > -1, visuals.color_Ammo
+                        ammoItem.GetTypeRequirements().Ammo, infinityPlayer.GetTypeInfinities(ammoItem).Ammo > -1, visuals.color_Ammo
                     );
                 }else {
                     tooltips.AddLine("WandConsumes", AddedLine("WeaponConsumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.noAmmo")));
@@ -120,14 +120,14 @@ public class InfinityDisplayItem : GlobalItem {
             typeRequirements.GrabBag, typeInfinities.GrabBag > -1, visuals.color_Bags
         );
         if (settings.InfiniteCurrencies) {
-            KeyValuePair<int, long>[] c = spicPlayer.HasFullyInfiniteCurrency(currencyType) ? System.Array.Empty<KeyValuePair<int, long>>() : CurrencyExtension.CurrencyCountToItems(item.CurrencyType(), currencyInfinities).ToArray();
+            KeyValuePair<int, long>[] c = infinityPlayer.HasFullyInfiniteCurrency(currencyType) ? System.Array.Empty<KeyValuePair<int, long>>() : CurrencyExtension.CurrencyCountToItems(item.CurrencyType(), currencyInfinities).ToArray();
             ModifyLine(currency, "Consumable",
                 currencyCategories != Categories.Currency.None, $"Mods.SPIC.Categories.Currency.{currencyCategories}",
                 currencyRequirements, currencyInfinities > -1, visuals.color_Currencies, c
             );
         }
         if (settings.InfiniteMaterials) {
-            KeyValuePair<int, long>[] p = spicPlayer.HasFullyInfiniteMaterial(item) ? System.Array.Empty<KeyValuePair<int, long>>() : new[] { new KeyValuePair<int, long>(item.type, typeInfinities.Material) };
+            KeyValuePair<int, long>[] p = infinityPlayer.HasFullyInfiniteMaterial(item) ? System.Array.Empty<KeyValuePair<int, long>>() : new[] { new KeyValuePair<int, long>(item.type, typeInfinities.Material) };
             ModifyLine(material, null,
                 typeCategories.Material != Categories.Material.None, $"Mods.SPIC.Categories.Material.{typeCategories.Material}",
                 typeRequirements.Material, typeInfinities.Material > -1, visuals.color_Materials, p
@@ -158,17 +158,17 @@ public class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.dots_ShowDots && !display.glow_ShowGlow) return;
         Player player = Main.LocalPlayer;
-        if (!player.TryGetModPlayer(out InfinityPlayer spicPlayer)) return;
+        if (!player.TryGetModPlayer(out InfinityPlayer infinityPlayer)) return;
 
         // ? add randomness in the timing
         Configs.Requirements settings = Configs.Requirements.Instance;
-        Categories.TypeInfinities infinities = spicPlayer.GetTypeInfinities(item);
+        Categories.TypeInfinities infinities = infinityPlayer.GetTypeInfinities(item);
 
         List<Color> activeInfinities = new();
         if (settings.InfinitePlaceables) {
             if (item.tileWand != -1) {
                 Item wandItem = System.Array.Find(player.inventory, i => i.type == item.tileWand);
-                if (wandItem is not null && 0 <= spicPlayer.GetTypeInfinities(wandItem).Placeable) activeInfinities.Add(display.color_Placeables);
+                if (wandItem is not null && 0 <= infinityPlayer.GetTypeInfinities(wandItem).Placeable) activeInfinities.Add(display.color_Placeables);
             }
             if (0 <= infinities.Placeable) activeInfinities.Add(display.color_Placeables);
         }
@@ -176,13 +176,13 @@ public class InfinityDisplayItem : GlobalItem {
             if (0 <= infinities.Ammo) activeInfinities.Add(display.color_Ammo);
             if (item.useAmmo > AmmoID.None && player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true)) {
                 Item ammoItem = System.Array.Find(player.inventory, i => i.type == ammoType);
-                if (ammoItem is not null && 0 <= spicPlayer.GetTypeInfinities(ammoItem).Ammo) activeInfinities.Add(display.color_Ammo);
+                if (ammoItem is not null && 0 <= infinityPlayer.GetTypeInfinities(ammoItem).Ammo) activeInfinities.Add(display.color_Ammo);
             }
             if (0 <= infinities.Consumable) activeInfinities.Add(display.color_Consumables);
         }
         if (settings.InfiniteGrabBags && 0 <= infinities.GrabBag) activeInfinities.Add(display.color_Bags);
-        if (settings.InfiniteCurrencies && 0 <= spicPlayer.GetCurrencyInfinity(item.CurrencyType())) activeInfinities.Add(display.color_Currencies * (spicPlayer.HasFullyInfiniteCurrency(item.CurrencyType()) ? 1 : 0.5f));
-        if (settings.InfiniteMaterials && 0 <= infinities.Material) activeInfinities.Add(display.color_Materials * (spicPlayer.HasFullyInfiniteMaterial(item) ? 1 : 0.5f));
+        if (settings.InfiniteCurrencies && 0 <= infinityPlayer.GetCurrencyInfinity(item.CurrencyType())) activeInfinities.Add(display.color_Currencies * (infinityPlayer.HasFullyInfiniteCurrency(item.CurrencyType()) ? 1 : 0.5f));
+        if (settings.InfiniteMaterials && 0 <= infinities.Material) activeInfinities.Add(display.color_Materials * (infinityPlayer.HasFullyInfiniteMaterial(item) ? 1 : 0.5f));
         if (activeInfinities.Count == 0) return;
 
         activeInfinities.Reverse();

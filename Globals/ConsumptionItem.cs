@@ -132,8 +132,8 @@ public class ConsumptionItem : GlobalItem {
             null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        InfinityPlayer spicPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
-        if (reforgePrice > spicPlayer.GetCurrencyInfinity(-1)) return false;
+        InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
+        if (reforgePrice > infinityPlayer.GetCurrencyInfinity(-1)) return false;
         reforgePrice = 0;
         return true;
     }
