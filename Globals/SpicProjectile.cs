@@ -26,10 +26,9 @@ namespace SPIC.Globals {
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            // TODO move in DetectionPlayer
+            // ? move in DetectionPlayer
             if (!item.IsAir && Configs.CategoryDetection.Instance.DetectedExplosive(item)) {
-                CategoryManager.UpdateType(item);
-                Main.player[proj.owner].GetModPlayer<InfinityPlayer>().UpdateTypeInfinities(item);
+                InfinityManager.ClearCache(item);
                 detectionPlayer.RefilExplosive(proj.type, item);
             }
             _explodedProjTypes.Add(proj.type);

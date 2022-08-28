@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-
+using SPIC.Infinities;
 using Terraria;
 using Terraria.ModLoader;
 
 namespace SPIC.Systems {
 
-    //TODO remove recipies crafting a fully infinite item
+    //TODO remove recipes crafting a fully infinite item
     public class InfiniteRecipe : ModSystem {
 
         public static readonly HashSet<int> CraftingStations = new();
@@ -24,7 +24,7 @@ namespace SPIC.Systems {
                 foreach (int t in r.requiredTile) 
                     if (!CraftingStations.Contains(t)) CraftingStations.Add(t);
                 r.AddConsumeItemCallback(OnItemConsume);
-                r.AddCondition(CanCraft);
+                // r.AddCondition(CanCraft);
             }
             CalculateHighestCosts();
         }
@@ -36,25 +36,25 @@ namespace SPIC.Systems {
                 }
             }
         }
-        public static readonly Recipe.Condition CanCraft = new(Terraria.Localization.NetworkText.Empty,
-            recipe => {
-                Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
-                return !(Configs.Requirements.Instance.PreventItemDupication && infinityPlayer.HasFullyInfinite(recipe.createItem));
-            }
-        );
+
+        // public static readonly Recipe.Condition CanCraft = new(Terraria.Localization.NetworkText.Empty,
+        //     recipe => {
+        //         return !(Configs.Requirements.Instance.PreventItemDupication && infinityPlayer.HasFullyInfinite(recipe.createItem));
+        //     }
+        // );
         
         public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
             if (!Configs.Requirements.Instance.InfiniteMaterials) return;
 
-            Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
-            if (amount <= infinityPlayer.GetTypeInfinities(type).Material) {
+            // Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
+            if (!Main.LocalPlayer.HasInfinite(type, amount, Material.ID)) {
                 amount = 0;
                 return;
             }
             foreach (int g in recipe.acceptedGroups) {
                 if (RecipeGroup.recipeGroups[g].ContainsItem(type)) {
                     foreach (int groupItemType in RecipeGroup.recipeGroups[g].ValidItems) {
-                        if (amount <= infinityPlayer.GetTypeInfinities(groupItemType).Material) {
+                        if (!Main.LocalPlayer.HasInfinite(groupItemType, amount, Material.ID)) {
                             amount = 0;
                             return;
                         }
@@ -64,12 +64,12 @@ namespace SPIC.Systems {
         }
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+            SpysInfiniteConsumables.Instance.Logger.Debug("Find recipes");
             if (canDelayCheck) {
                 orig(canDelayCheck);
                 return;
             }
-            CategoryManager.ClearAll();
-            Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>().ClearInfinities();
+            InfinityManager.ClearCache();
             orig(canDelayCheck);
         }
     }

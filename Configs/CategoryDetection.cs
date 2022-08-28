@@ -10,13 +10,13 @@ using Newtonsoft.Json;
 namespace SPIC.Configs;
 
 public struct DetectedCategories {
-    public readonly Categories.Consumable? Consumable;
-    public readonly Categories.Placeable? Placeable;
+    public readonly Infinities.ConsumableCategory? Consumable;
+    public readonly Infinities.PlaceableCategory? Placeable;
 
     public readonly bool GrabBag;
     public readonly bool Explosive;
 
-    public DetectedCategories(Categories.Consumable? consumable, Categories.Placeable? placeable, bool grabBag, bool explosive) {
+    public DetectedCategories(Infinities.ConsumableCategory? consumable, Infinities.PlaceableCategory? placeable, bool grabBag, bool explosive) {
         Consumable = consumable; Placeable = placeable;
         GrabBag = grabBag; Explosive = explosive;
     }
@@ -36,24 +36,24 @@ public class CategoryDetection : ModConfig {
 
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
     [Label("$Mods.SPIC.Configs.Detection.Categories.Consumables")]
-    public Dictionary<ItemDefinition, Categories.Consumable> DetectedConsumables = new();
+    public Dictionary<ItemDefinition, Infinities.ConsumableCategory> DetectedConsumables = new();
     [Label("$Mods.SPIC.Configs.Detection.Categories.Explosives")]
     public HashSet<ItemDefinition> DetectedExplosives = new();
     [Label("$Mods.SPIC.Configs.Detection.Categories.Bags")]
     public HashSet<ItemDefinition> DetectedGrabBags = new();
     [Label("$Mods.SPIC.Configs.Detection.Categories.WandAmmo")]
-    public Dictionary<ItemDefinition, Categories.Placeable> DetectedWandAmmo = new();
-    public void DetectedConsumable(Terraria.Item item, Categories.Consumable consumable) {
+    public Dictionary<ItemDefinition, Infinities.PlaceableCategory> DetectedWandAmmo = new();
+    public void DetectedConsumable(Terraria.Item item, Infinities.ConsumableCategory consumable) {
         ItemDefinition key = new(item.type);
         if (IsExplosive(item.type) || !DetectedConsumables.TryAdd(key, consumable)) return;
-        CategoryManager.UpdateType(item);
+        InfinityManager.ClearCache(item);
         _modifiedInGame = true;
     }
 
-    public void DetectedPlaceable(Terraria.Item item, Categories.Placeable placeable) {
+    public void DetectedPlaceable(Terraria.Item item, Infinities.PlaceableCategory placeable) {
         ItemDefinition key = new(item.type);
         if (!DetectedWandAmmo.TryAdd(key, placeable)) return;
-        CategoryManager.UpdateType(item);
+        InfinityManager.ClearCache(item);
         _modifiedInGame = true;
     }
 
@@ -61,7 +61,7 @@ public class CategoryDetection : ModConfig {
         ItemDefinition key = new(item.type);
         if (!DetectedExplosives.Add(key)) return false;
         DetectedConsumables.Remove(key);
-        CategoryManager.UpdateType(item);
+        InfinityManager.ClearCache(item);
         _modifiedInGame = true;
         return true;
     }
@@ -70,7 +70,7 @@ public class CategoryDetection : ModConfig {
 
     public void DetectedGrabBag(Terraria.Item item) {
         if (DetectedGrabBags.Add(new(item.type))) _modifiedInGame = true;
-        CategoryManager.UpdateType(item);
+        InfinityManager.ClearCache(item);
     }
 
     public DetectedCategories GetDetectedCategories(int type){

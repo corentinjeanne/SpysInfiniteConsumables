@@ -2,6 +2,7 @@
 using Terraria.ModLoader;
 using Terraria.ID;
 
+using SPIC.Infinities;
 namespace SPIC.Globals {
 
     public class SpicNPC : GlobalNPC {
@@ -14,20 +15,26 @@ namespace SPIC.Globals {
         private static readonly System.Collections.Generic.Dictionary<int, long> _hightestCost = new();
         public static long HighestPrice(int currency) => _hightestCost.ContainsKey(currency) ? _hightestCost[currency] : 0;
 
+        public static readonly System.Collections.Generic.Dictionary<int, long> _highestItemValue = new();
+        public static long HighestItemValue(int currency) => _highestItemValue.ContainsKey(currency) ? _highestItemValue[currency] : long.MaxValue;
+
         private static void HookSetupShop(On.Terraria.Chest.orig_SetupShop orig, Chest self, int type) {
             orig(self, type);
-            InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
+            // InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
             _hightestCost.Clear();
             foreach (Item item in self.item)  {
                 if (item.IsAir) continue;
                 if (item.shopCustomPrice.HasValue) {
                     if (!_hightestCost.ContainsKey(item.shopSpecialCurrency) || _hightestCost[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
                         _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                    if (item.shopCustomPrice.Value <= infinityPlayer.GetCurrencyInfinity(item.shopSpecialCurrency))
+                    if (!_highestItemValue.ContainsKey(item.shopSpecialCurrency) || _highestItemValue[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
+                        _highestItemValue[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
+                    if (!Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.ID))
                         item.shopCustomPrice = item.value = 0;
                 } else {
                     if (!_hightestCost.ContainsKey(-1) || _hightestCost[-1] < item.value) _hightestCost[-1] = item.value;
-                    if (item.value <= infinityPlayer.GetCurrencyInfinity(-1))
+                    if (!_highestItemValue.ContainsKey(-1) || _highestItemValue[-1] < item.value) _highestItemValue[-1] = item.value;
+                    if (!Main.LocalPlayer.HasInfinite(-1, item.value, Currency.ID))
                         item.value = 0;
                 }
             }
@@ -63,9 +70,7 @@ namespace SPIC.Globals {
             // Prevent duping
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
-                if (critter.active && critter.type == Type
-                        && Configs.Requirements.Instance.PreventItemDupication
-                        && 1 <= Main.player[who].GetModPlayer<InfinityPlayer>().GetTypeInfinities(critter.catchItem).Consumable)
+                if (critter.active && critter.type == Type && Configs.Requirements.Instance.PreventItemDupication && !Main.player[who].HasInfinite(critter.catchItem, 1, Consumable.ID))
                     critter.SpawnedFromStatue = true;
             }
         }

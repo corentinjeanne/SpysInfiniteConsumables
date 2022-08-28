@@ -14,49 +14,48 @@ public class CustomRequirement<T> where T : System.Enum {
     public int Requirement;
 }
 
-// ? remove
 public class Custom {
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Ammo")]
-    public CustomRequirement<Categories.Ammo> Ammo;
+    public CustomRequirement<Infinities.AmmoCategory> Ammo;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Consumable")]
-    public CustomRequirement<Categories.Consumable> Consumable;
+    public CustomRequirement<Infinities.ConsumableCategory> Consumable;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Placeable")] 
-    public CustomRequirement<Categories.Placeable> Placeable;
+    public CustomRequirement<Infinities.PlaceableCategory> Placeable;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Bag")]
-    public CustomRequirement<Categories.GrabBag> GrabBag;
+    public CustomRequirement<Infinities.GrabBagCategory> GrabBag;
     
     public Custom Set<T>(CustomRequirement<T> customRequirement) where T : System.Enum {
         System.Type type = typeof(T);
-        if (type == typeof(Categories.Consumable)) Consumable = customRequirement as CustomRequirement<Categories.Consumable>;
-        else if (type == typeof(Categories.Ammo)) Ammo = customRequirement as CustomRequirement<Categories.Ammo>;
-        else if (type == typeof(Categories.GrabBag)) GrabBag = customRequirement as CustomRequirement<Categories.GrabBag>;
-        else if (type == typeof(Categories.Placeable)) Placeable = customRequirement as CustomRequirement<Categories.Placeable>;
+        if (type == typeof(Infinities.ConsumableCategory)) Consumable = customRequirement as CustomRequirement<Infinities.ConsumableCategory>;
+        else if (type == typeof(Infinities.AmmoCategory)) Ammo = customRequirement as CustomRequirement<Infinities.AmmoCategory>;
+        else if (type == typeof(Infinities.GrabBagCategory)) GrabBag = customRequirement as CustomRequirement<Infinities.GrabBagCategory>;
+        else if (type == typeof(Infinities.PlaceableCategory)) Placeable = customRequirement as CustomRequirement<Infinities.PlaceableCategory>;
         else throw new UsageException();
         return this;
     }
 
     public CustomCategories Categories() => new(
-        Ammo?.Category == SPIC.Categories.Ammo.None ? null : Ammo?.Category,
-        Consumable?.Category == SPIC.Categories.Consumable.None ? null : Consumable?.Category,
-        GrabBag?.Category == SPIC.Categories.GrabBag.None ? null : GrabBag?.Category,
-        Placeable?.Category == SPIC.Categories.Placeable.None ? null : Placeable?.Category
+        Ammo?.Category == Infinities.AmmoCategory.None ? null : Ammo?.Category,
+        Consumable?.Category == Infinities.ConsumableCategory.None ? null : Consumable?.Category,
+        GrabBag?.Category == Infinities.GrabBagCategory.None ? null : GrabBag?.Category,
+        Placeable?.Category == Infinities.PlaceableCategory.None ? null : Placeable?.Category
     );
     public CustomRequirements Requirements() => new(
-        Ammo?.Category == SPIC.Categories.Ammo.None ? Ammo.Requirement : null,
-        Consumable?.Category == SPIC.Categories.Consumable.None ? Consumable.Requirement : null,
-        GrabBag?.Category == SPIC.Categories.GrabBag.None ? GrabBag.Requirement : null,
-        Placeable?.Category == SPIC.Categories.Placeable.None ? Placeable.Requirement : null
+        Ammo?.Category == Infinities.AmmoCategory.None ? Ammo.Requirement : null,
+        Consumable?.Category == Infinities.ConsumableCategory.None ? Consumable.Requirement : null,
+        GrabBag?.Category == Infinities.GrabBagCategory.None ? GrabBag.Requirement : null,
+        Placeable?.Category == Infinities.PlaceableCategory.None ? Placeable.Requirement : null
     );
 
 }
 
 public struct CustomCategories {
-    public readonly Categories.Ammo? Ammo;
-    public readonly Categories.Consumable? Consumable;
-    public readonly Categories.Placeable? Placeable;
-    public readonly Categories.GrabBag? GrabBag;
+    public readonly Infinities.AmmoCategory? Ammo;
+    public readonly Infinities.ConsumableCategory? Consumable;
+    public readonly Infinities.PlaceableCategory? Placeable;
+    public readonly Infinities.GrabBagCategory? GrabBag;
 
-    public CustomCategories(Categories.Ammo? ammo, Categories.Consumable? consumable, Categories.GrabBag? grabBag, Categories.Placeable? placeable) {
+    public CustomCategories(Infinities.AmmoCategory? ammo, Infinities.ConsumableCategory? consumable, Infinities.GrabBagCategory? grabBag, Infinities.PlaceableCategory? placeable) {
         Ammo = ammo; Consumable = consumable; GrabBag = grabBag; Placeable = placeable;
     }
 }

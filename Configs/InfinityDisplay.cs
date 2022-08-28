@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
-
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -41,8 +40,8 @@ public class InfinityDisplay : ModConfig {
     public Vector2 dots_Start;
     [DefaultValue(typeof(Vector2), "0.1, 0.9"), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.End")]
     public Vector2 dots_End;
-    [DefaultValue(CategoryManager.CategoryCount), Range(1,CategoryManager.CategoryCount), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
-    public int dots_Count;
+    [DefaultValue(6), Range(1,6), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
+    public int dots_PerPage;
 
 
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]

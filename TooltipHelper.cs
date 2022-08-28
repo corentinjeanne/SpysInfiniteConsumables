@@ -67,6 +67,7 @@ namespace SPIC {
         public static TooltipLine AddLine(this List<TooltipLine> tooltips, string after, TooltipLine line) {
             int addIndex = TooltipLinesOrder.FindIndex(n => n == after);
             for (int i = 0; i < tooltips.Count; i++) {
+                if(tooltips[i].Name == line.Name) return tooltips[i];
                 int lookingAt = tooltips[i].Name.StartsWith("Tooltip") ? TooltipLinesOrder.FindIndex(l => l == "Tooltip") : TooltipLinesOrder.FindIndex(l => l == tooltips[i].Name);
                 if (lookingAt <= addIndex) continue;
                 tooltips.Insert(i, line);
@@ -78,7 +79,7 @@ namespace SPIC {
 
         public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after = null) {
             TooltipLine target = tooltips.FindLine(line.Name);
-            if (target == null) tooltips.AddLine(after ?? line.Name, target = line);
+            target ??= tooltips.AddLine(after ?? line.Name, line);
             return target;
         }
     }
