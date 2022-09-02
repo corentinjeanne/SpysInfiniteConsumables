@@ -9,6 +9,10 @@ using SPIC.Infinities;
 namespace SPIC.Globals;
 public class DetectionPlayer : ModPlayer {
 
+    public bool InItemCheck { get; private set; }
+
+    private bool _detectingCategory;
+
     private int _preUseMaxLife, _preUseMaxMana;
     private int _preUseExtraAccessories;
     private Microsoft.Xna.Framework.Vector2 _preUsePosition;
@@ -16,11 +20,9 @@ public class DetectionPlayer : ModPlayer {
     private int _preUseDifficulty;
     private int _preUseInvasion;
     private int _preUseItemCount;
-    private static NPCStats _preUseNPCStats;
+    private static Utility.NPCStats _preUseNPCStats;
 
-    private bool _detectingCategory;
 
-    public bool InItemCheck { get; private set; }
 
     public override void Load() {
         On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
@@ -31,7 +33,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override bool PreItemCheck() {
-        if (Configs.CategoryDetection.Instance.DetectMissing && (ConsumableCategory)Player.HeldItem.GetCategory(Consumable.ID) == ConsumableCategory.Unknown) {
+        if (Configs.CategoryDetection.Instance.DetectMissing && (UsableCategory)Player.HeldItem.GetCategory(Usable.ID) == UsableCategory.Unknown) {
             SavePreUseItemStats();
             _detectingCategory = true;
         } else _detectingCategory = false;
@@ -61,46 +63,46 @@ public class DetectionPlayer : ModPlayer {
     public void TryDetectCategory(bool mustDetect = false) {
         if (!_detectingCategory) return;
 
-        void SaveConsumable(ConsumableCategory category)
-            => Configs.CategoryDetection.Instance.DetectedConsumable(Player.HeldItem, category);
+        void SaveUsable(UsableCategory category)
+            => Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)category, Usable.ID);
 
         void SaveBag() {
-            Configs.CategoryDetection.Instance.DetectedGrabBag(Player.HeldItem);
-            Configs.CategoryDetection.Instance.DetectedConsumable(Player.HeldItem, ConsumableCategory.None);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)GrabBagCategory.Crate, GrabBag.ID);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)UsableCategory.None, Usable.ID);
         }
 
-        ConsumableCategory consumable = TryDetectConsumable();
+        UsableCategory usable = TryDetectUsable();
         GrabBagCategory bag = TryDetectGrabBag();
 
-        if (consumable != ConsumableCategory.Unknown) SaveConsumable(consumable);
+        if (usable != UsableCategory.Unknown) SaveUsable(usable);
         else if (bag != GrabBagCategory.Unkown) SaveBag();
-        else if (mustDetect) SaveConsumable(ConsumableCategory.PlayerBooster);
+        else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
         else return; // Nothing detected
 
         InfinityManager.ClearCache(Player.HeldItem);
         _detectingCategory = false;
     }
 
-    private ConsumableCategory TryDetectConsumable() {
-        NPCStats stats = Utility.GetNPCStats();
-        if (_preUseNPCStats.boss != stats.boss || _preUseInvasion != Main.invasionType)
-            return ConsumableCategory.Summoner;
+    private UsableCategory TryDetectUsable() {
+        Utility.NPCStats stats = Utility.GetNPCStats();
+        if (_preUseNPCStats.Boss != stats.Boss || _preUseInvasion != Main.invasionType)
+            return UsableCategory.Summoner;
 
-        if (_preUseNPCStats.total != stats.total)
-            return ConsumableCategory.Critter;
+        if (_preUseNPCStats.Total != stats.Total)
+            return UsableCategory.Critter;
 
         if (_preUseMaxLife != Player.statLifeMax2 || _preUseMaxMana != Player.statManaMax2
                 || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
-            return ConsumableCategory.PlayerBooster;
+            return UsableCategory.PlayerBooster;
 
         // TODO Other difficulties
         if (_preUseDifficulty != Utility.WorldDifficulty())
-            return ConsumableCategory.WorldBooster;
+            return UsableCategory.WorldBooster;
 
         if (Player.position != _preUsePosition)
-            return ConsumableCategory.Tool;
+            return UsableCategory.Tool;
 
-        return ConsumableCategory.Unknown;
+        return UsableCategory.Unknown;
     }
 
     private GrabBagCategory TryDetectGrabBag() {
@@ -125,7 +127,7 @@ public class DetectionPlayer : ModPlayer {
 
         Configs.Requirements requirements = Configs.Requirements.Instance;
         if (requirements.InfiniteConsumables && (
-                ((ConsumableCategory)refill.GetCategory(Consumable.ID) == ConsumableCategory.Tool && 1 <= Consumable.Instance.GetInfinity(refill, tot + used))
+                ((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= Usable.Instance.GetInfinity(refill, tot + used))
                 || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= Ammo.Instance.GetInfinity(refill, tot + used))
         ))
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
@@ -142,7 +144,7 @@ public class DetectionPlayer : ModPlayer {
 
 
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
-            autos.DetectedPlaceable(item, PlaceableCategory.Liquid);
+            autos.SaveDetectedCategory(item, (byte)PlaceableCategory.Liquid, Usable.ID);
 
         InfinityManager.ClearCache(item);
 

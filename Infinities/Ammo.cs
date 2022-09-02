@@ -38,7 +38,6 @@ public class Ammo : Infinity<Ammo> {
 
     public override byte GetCategory(Item item) {
         if (!item.consumable || item.ammo == AmmoID.None) return (byte)AmmoCategory.None;
-        if (Configs.CategoryDetection.Instance.GetDetectedCategories(item.type).Explosive) return (byte)AmmoCategory.Explosive;
         if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
             return (byte)AmmoCategory.Basic;
         return (byte)AmmoCategory.Special;

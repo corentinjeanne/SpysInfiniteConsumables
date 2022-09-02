@@ -23,7 +23,7 @@ public class InfinityDisplayItem : GlobalItem {
     public override void SetStaticDefaults() {
         static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
         int lcm = 1;
-        for (int i = 2; i < InfinityManager.Infinities.Count; i++) {
+        for (int i = 2; i < InfinityManager.InfinityCount; i++) {
             lcm = i*lcm/GCD(i, lcm);
         }
 
@@ -83,12 +83,14 @@ public class InfinityDisplayItem : GlobalItem {
 
         }
 
-        foreach(Infinity inf in InfinityManager.Infinities){
-            if(!inf.Enabled) continue;
+        for (int i = 0; i < InfinityManager.InfinityCount; i++) {
+            Infinity inf = InfinityManager.Infinity(i);
+            if (!inf.Enabled) continue;
             ModifyLine(() => inf.TooltipLine, inf.MissingLinePosition, inf, item);
 
+            // BUG ammo inf display for other weapons using this ammo
             if(inf.ConsumesAmmo(item)){
-                if(inf.HasAmmo(player, item, out Item ammo)) ModifyLine(() =>  inf.AmmoLine(ammo), "WandConsumes", inf, ammo);
+                if(inf.HasAmmo(player, item, out Item ammo)) ModifyLine(() =>  inf.AmmoLine(item, ammo), "WandConsumes", inf, ammo);
             }
         }
     }
@@ -101,7 +103,8 @@ public class InfinityDisplayItem : GlobalItem {
         // ? add randomness in the timing
 
         List<(Infinity inf, bool fullyInfinity)> infinities = new();
-        foreach (Infinity inf in InfinityManager.Infinities) {
+        for (int i = 0; i < InfinityManager.InfinityCount; i++) {
+            Infinity inf = InfinityManager.Infinity(i);
             if (!inf.Enabled) continue;
 
             Item target = null;

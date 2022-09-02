@@ -1,12 +1,7 @@
-using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.ModLoader;
 
 namespace SPIC {
-
-    public struct NPCStats {
-        public int boss, total;
-    }
 
     public static class Utility {
 
@@ -39,6 +34,19 @@ namespace SPIC {
                     total += container[i].stack;
             }
             return total;
+        }
+
+        public static Item PickPaint(this Player player){
+            for (int i = 54; i < 58; i++) {
+                if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0)
+                    return player.inventory[i];
+            }
+            for (int i = 0; i < 58; i++) {
+                if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0)
+                    return player.inventory[i];
+            }
+            
+            return null;
         }
         
         public static int CountItems(this Player player, int type, bool includeChest = false) {
@@ -76,14 +84,18 @@ namespace SPIC {
 
         public static int WorldDifficulty() => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
 
+        public readonly record struct NPCStats(int Total, int Boss);
+
         public static NPCStats GetNPCStats() {
-            NPCStats stats = new();
+            int total = 0;
+            int boss = 0;
             foreach (NPC npc in Main.npc) {
                 if (!npc.active) continue;
-                stats.total++;
-                if (npc.boss) stats.boss++;
+                total++;
+                if (npc.boss) boss++;
             }
-            return stats;
+            NPCStats a = new(total, boss);
+            return a;
         }
 
         public static int RequirementToItems(int infinity, int maxStack) => infinity switch {

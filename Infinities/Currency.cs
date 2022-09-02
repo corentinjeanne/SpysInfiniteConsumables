@@ -22,12 +22,13 @@ public class Currency : Infinity<Currency> {
         return (CurrencyCategory)category switch {
             CurrencyCategory.Coin => inf.currency_Coins,
             CurrencyCategory.SingleCoin => inf.currency_Single,
-            CurrencyCategory.None or _ => Infinity.NoRequirement
+            CurrencyCategory.None or _ => NoRequirement
         };
     }
 
     public override int Type(Item item) => item.CurrencyType();
     public override Item ItemFromType(int type) {
+        if(type == -2) return new(Terraria.ID.ItemID.None);
         if (type == -1) return new(Terraria.ID.ItemID.CopperCoin);
         foreach ((int key, _) in CurrencyHelper.CurrencySystems(type).values) return new(key);
         return default;
@@ -36,6 +37,8 @@ public class Currency : Infinity<Currency> {
 
 
     public override bool Enabled => Configs.Requirements.Instance.InfiniteCurrencies;
+    public override bool CategoryDetection => false;
+    public override bool Customs => false;
 
     public override byte GetCategory(Item item) => GetCategory(Type(item));
     public override byte GetCategory(int currency) {
@@ -43,16 +46,20 @@ public class Currency : Infinity<Currency> {
         if (!CurrencyHelper.Currencies.Contains(currency)) return (byte)CurrencyCategory.None;
         return CurrencyHelper.CurrencySystems(currency).values.Count == 1 ? (byte)CurrencyCategory.SingleCoin : (byte)CurrencyCategory.Coin;
     }
+    public override int GetRequirement(int type) => Requirement(InfinityManager.GetCategory(type, UID));
+    public override int GetRequirement(Item item) => GetRequirement(Type(item));
 
-    // public override long GetInfinity(Player player, int type) => GetInfinity(..., CountItems(player, type));
-    // public override long GetInfinity(Player player, Item item) => GetInfinity(player, Type(item)); 
 
-    public override long GetInfinity(Item item, long count) {
-        CurrencyCategory category = (CurrencyCategory)InfinityManager.GetCategory(item, ID);
-        int requirement = InfinityManager.GetRequirement(item, ID);
-        return category == CurrencyCategory.Coin ?
-            InfinityManager.CalculateInfinity(MaxStack((byte)category), count, requirement, 0.1f, InfinityManager.ARIDelegates.LargestPower, 100) :
-            InfinityManager.CalculateInfinity(MaxStack((byte)category), count, requirement, 0.2f, InfinityManager.ARIDelegates.LargestMultiple);
+    public override long GetInfinity(Item item, long count) => GetInfinity(Type(item), count);
+    public override long GetInfinity(int type, long count) {
+        CurrencyCategory category = (CurrencyCategory)InfinityManager.GetCategory(type, ID);
+        float mult;
+        InfinityManager.AboveRequirementInfinity del = null;
+        int[] args;
+        if (category == CurrencyCategory.Coin) (mult, del, args) = (0.1f, InfinityManager.ARIDelegates.LargestPower, new[] { 100 });
+        else (mult, del, args) = (0.2f, InfinityManager.ARIDelegates.LargestMultiple, null);
+
+        return InfinityManager.CalculateInfinity(MaxStack((byte)category), count, InfinityManager.GetRequirement(type, ID), mult, del, args);
     }
 
     public override bool IsFullyInfinite(Item item, long infinity) {

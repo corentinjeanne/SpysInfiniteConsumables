@@ -14,11 +14,12 @@ public class CustomRequirement<T> where T : System.Enum {
     public int Requirement;
 }
 
+// TODO rework into dict
 public class Custom {
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Ammo")]
     public CustomRequirement<Infinities.AmmoCategory> Ammo;
-    [Label("$Mods.SPIC.Configs.Requirements.Customs.Consumable")]
-    public CustomRequirement<Infinities.ConsumableCategory> Consumable;
+    [Label("$Mods.SPIC.Configs.Requirements.Customs.Usable")]
+    public CustomRequirement<Infinities.UsableCategory> Usables;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Placeable")] 
     public CustomRequirement<Infinities.PlaceableCategory> Placeable;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Bag")]
@@ -26,7 +27,7 @@ public class Custom {
     
     public Custom Set<T>(CustomRequirement<T> customRequirement) where T : System.Enum {
         System.Type type = typeof(T);
-        if (type == typeof(Infinities.ConsumableCategory)) Consumable = customRequirement as CustomRequirement<Infinities.ConsumableCategory>;
+        if (type == typeof(Infinities.UsableCategory)) Usables = customRequirement as CustomRequirement<Infinities.UsableCategory>;
         else if (type == typeof(Infinities.AmmoCategory)) Ammo = customRequirement as CustomRequirement<Infinities.AmmoCategory>;
         else if (type == typeof(Infinities.GrabBagCategory)) GrabBag = customRequirement as CustomRequirement<Infinities.GrabBagCategory>;
         else if (type == typeof(Infinities.PlaceableCategory)) Placeable = customRequirement as CustomRequirement<Infinities.PlaceableCategory>;
@@ -36,37 +37,22 @@ public class Custom {
 
     public CustomCategories Categories() => new(
         Ammo?.Category == Infinities.AmmoCategory.None ? null : Ammo?.Category,
-        Consumable?.Category == Infinities.ConsumableCategory.None ? null : Consumable?.Category,
+        Usables?.Category == Infinities.UsableCategory.None ? null : Usables?.Category,
         GrabBag?.Category == Infinities.GrabBagCategory.None ? null : GrabBag?.Category,
         Placeable?.Category == Infinities.PlaceableCategory.None ? null : Placeable?.Category
     );
     public CustomRequirements Requirements() => new(
         Ammo?.Category == Infinities.AmmoCategory.None ? Ammo.Requirement : null,
-        Consumable?.Category == Infinities.ConsumableCategory.None ? Consumable.Requirement : null,
+        Usables?.Category == Infinities.UsableCategory.None ? Usables.Requirement : null,
         GrabBag?.Category == Infinities.GrabBagCategory.None ? GrabBag.Requirement : null,
         Placeable?.Category == Infinities.PlaceableCategory.None ? Placeable.Requirement : null
     );
 
 }
 
-public struct CustomCategories {
-    public readonly Infinities.AmmoCategory? Ammo;
-    public readonly Infinities.ConsumableCategory? Consumable;
-    public readonly Infinities.PlaceableCategory? Placeable;
-    public readonly Infinities.GrabBagCategory? GrabBag;
+public readonly record struct CustomCategories(Infinities.AmmoCategory? Ammo, Infinities.UsableCategory? Usable, Infinities.GrabBagCategory? GrabBag, Infinities.PlaceableCategory? Placeable);
 
-    public CustomCategories(Infinities.AmmoCategory? ammo, Infinities.ConsumableCategory? consumable, Infinities.GrabBagCategory? grabBag, Infinities.PlaceableCategory? placeable) {
-        Ammo = ammo; Consumable = consumable; GrabBag = grabBag; Placeable = placeable;
-    }
-}
-
-public struct CustomRequirements {
-    public readonly int? Ammo, Consumable, GrabBag, Placeable;
-
-    public CustomRequirements(int? ammo, int? consumable, int? grabBag, int? placeable) {
-        Ammo = ammo; Consumable = consumable; GrabBag = grabBag; Placeable = placeable;
-    }
-}
+public readonly record struct CustomRequirements(int? Ammo, int? Usable, int? GrabBag, int? Placeable);
 
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class Requirements : ModConfig {
@@ -83,30 +69,31 @@ public class Requirements : ModConfig {
     [Label("$Mods.SPIC.Configs.Requirements.General.Currencies")]
     public bool InfiniteCurrencies;
 
+    // TODO >>> rework infinty order and count
     [DefaultValue(false), Label("$Mods.SPIC.Configs.Requirements.General.Journey"), Tooltip("$Mods.SPIC.Configs.General.t_journey")]
     public bool JourneyRequirement;
 
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.General.t_duplication")]
     public bool PreventItemDupication;
 
-    
-    [Header("$Mods.SPIC.Categories.Consumable.name")]
+    // TODO >>> turn into dict
+    [Header("$Mods.SPIC.Categories.Usable.names")]
     [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Requirements.Requirements.Weapons")]
-    public int consumables_Weapons;
+    public int usables_Weapons;
     [Range(-50, 999), DefaultValue(-4), Label("$Mods.SPIC.Configs.Requirements.Requirements.StandardAmmo")]
     public int ammo_Standard;
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.SpecialAmmo")]
     public int ammo_Special;
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Potions")]
-    public int consumables_Potions;
+    public int usables_Potions;
     [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boosters")]
-    public int consumables_Boosters;
+    public int usables_Boosters;
     [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Summoners")]
-    public int consumables_Summoners;
+    public int usables_Summoners;
     [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Critters")]
-    public int consumables_Critters;
+    public int usables_Critters;
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tools")]
-    public int consumables_Tools;
+    public int usables_Tools;
     
     [Header("$Mods.SPIC.Categories.Placeable.names")]
     [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tiles")]

@@ -29,13 +29,9 @@ public class GrabBag : Infinity<GrabBag> {
     public override bool Enabled => Configs.Requirements.Instance.InfiniteGrabBags;
 
     public override byte GetCategory(Item item) {
-        // var categories = Configs.Requirements.Instance.GetCustomCategories(item.type);
-        // if (categories.GrabBagCategories.HasValue) return categories.GrabBagCategories.Value;
-
         if (ItemID.Sets.BossBag[item.type]) return (byte)GrabBagCategory.TreasureBag;
 
-        var autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
-        if (ItemID.Sets.IsFishingCrate[item.type] || autos.GrabBag)
+        if (ItemID.Sets.IsFishingCrate[item.type])
             return (byte)GrabBagCategory.Crate;
 
         return (byte)GrabBagCategory.Unkown;

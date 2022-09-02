@@ -43,10 +43,10 @@ public class InfinityDisplay : ModConfig {
     [DefaultValue(6), Range(1,6), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
     public int dots_PerPage;
 
-
+    // TODO rework into dict
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "0, 255, 200, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Consumables")]
-    public Color color_Consumables;
+    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "0, 255, 200, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Usable")]
+    public Color color_Usables;
     [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "0, 180, 60, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Ammo")]
     public Color color_Ammo;
     [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "125, 80, 0, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Placeables")]

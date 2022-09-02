@@ -15,7 +15,7 @@ public class SpysInfiniteConsumables : Mod {
         InfinityManager.ClearCache();
 
         Infinities.Ammo.Register();
-        Infinities.Consumable.Register();
+        Infinities.Usable.Register();
         Infinities.Currency.Register();
         Infinities.GrabBag.Register();
         Infinities.Material.Register();
@@ -29,7 +29,10 @@ public class SpysInfiniteConsumables : Mod {
         
         Instance = null;
     }
-    
-    // TODO modcall support
+
+    // TODO Call for RegisterInfinity, ShouldConsumeItem (and more ?)
+    public override object Call(params object[] args) {
+        return base.Call(args);
+    }
 }
 

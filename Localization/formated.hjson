@@ -3,12 +3,12 @@
     Mods: {
         SPIC: {
             Categories: {
-                Ammo:       { icon: "[i:3103]"}
-                Consumable: { icon: "[i:3104]"}
-                Placeable:  { icon: "[i:3061]"}
-                GrabBag:    { icon: "[i:4782]"}
-                Currency:   { icon: "[i:855]" }
-                Material:   { icon: "[i:398]" }
+                Ammo:      { icon: "[i:3103]"}
+                Usable:    { icon: "[i:3104]"}
+                Placeable: { icon: "[i:3061]"}
+                GrabBag:   { icon: "[i:4782]"}
+                Currency:  { icon: "[i:855]" }
+                Material:  { icon: "[i:398]" }
             }
             ItemTooltip: {
                 Requirement: "{0} {$Mods.SPIC.ItemTooltip.items}"
@@ -21,7 +21,7 @@
             Configs: {
                 Requirements: {
                     General: {
-                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Requirements.General.consumables}"
+                        Usables: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Configs.Requirements.General.usables}"
                         Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Requirements.General.grabBags}"
                         Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Requirements.General.placeables}"
                         Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.Configs.Requirements.General.currencies}"
@@ -68,7 +68,7 @@
                     Customs: {
                         Customs: "[i:1913] {$Mods.SPIC.Configs.Requirements.Customs.customs}"
                         Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.name}"
-                        Consumable: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Categories.Consumable.name}"
+                        Usable: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Categories.Usable.name}"
                         Placeable: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.name}"
                         Bag: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.name}"
                     }
@@ -78,7 +78,7 @@
                         Detect: "[i:38] {$Mods.SPIC.Configs.Detection.General.detect}"
                     }
                     Categories:{
-                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Configs.Detection.Categories.consumables}"
+                        Usables: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Configs.Detection.Categories.usables}"
                         Explosives: "[i:167] {$Mods.SPIC.Configs.Detection.Categories.explosives}"
                         Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Configs.Detection.Categories.grabBags}"
                         WandAmmo: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Configs.Detection.Categories.wandAmmo}"
@@ -105,7 +105,7 @@
                         Count: "[i:3095] {$Mods.SPIC.Configs.InfinityDisplay.Dots.count}"
                     }
                     Colors: {
-                        Consumables: "{$Mods.SPIC.Categories.Consumable.icon} {$Mods.SPIC.Categories.Consumable.names}"
+                        Usables: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Categories.Usable.names}"
                         Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.names}"
                         Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.names}"
                         Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.names}"

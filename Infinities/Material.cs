@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace SPIC.Infinities;
 
-// TODO only display material infininity on mat for selected recipe (& if inf mat)
+// TODO only display material infinity on mat for selected recipe (& if inf mat)
 
 public enum MaterialCategory {
     None = Infinity.NoCategory,
@@ -33,11 +33,13 @@ public class Material : Infinity<Material> {
             MaterialCategory.Furniture => inf.materials_Furnitures,
             MaterialCategory.Miscellaneous => inf.materials_Miscellaneous,
             MaterialCategory.NonStackable => inf.materials_NonStackable,
-            MaterialCategory.None or _ => Infinity.NoRequirement,
+            MaterialCategory.None or _ => NoRequirement,
         };
     }
 
     public override bool Enabled => Configs.Requirements.Instance.InfiniteMaterials;
+    public override bool CategoryDetection => false;
+    public override bool Customs => false;
 
     public override byte GetCategory(Item item) {
 

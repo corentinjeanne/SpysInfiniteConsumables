@@ -63,7 +63,7 @@ public class ConsumptionItem : GlobalItem {
     }
 
     public override bool ConsumeItem(Item item, Player player) {
-        Configs.CategoryDetection detected = Configs.CategoryDetection.Instance;
+        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
 
         DetectionPlayer detectionPlayer = player.GetModPlayer<DetectionPlayer>();
 
@@ -71,8 +71,9 @@ public class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             // Consumed by other item
             if (item != player.HeldItem) {
-                if (detected.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
-                    Configs.CategoryDetection.Instance.DetectedPlaceable(item, PlaceableCategory.Block);
+                if (detection.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
+                    Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)PlaceableCategory.Block, Placeable.ID);
+                    // Placeable.SaveDetectedCategory(item, (byte)PlaceableCategory.Block);
 
                 return !player.HasInfinite(item, 1, Placeable.ID); //- !infinities.IsInfinite(Placeable.ID) !(settings.InfinitePlaceables && infinities.Placeable > 0) ;
             }
@@ -82,14 +83,14 @@ public class ConsumptionItem : GlobalItem {
             // RightClick
             if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
 
-                // TODO detect grabbags none for potions
-                if ((GrabBagCategory)item.GetCategory(GrabBag.ID) != GrabBagCategory.Unkown) {
-                    if ((ConsumableCategory)item.GetCategory(Consumable.ID) == ConsumableCategory.Tool)
-                        return !player.HasInfinite(item, 1, Consumable.ID);
+                // ? detect grabbags none for potions or an other right click action has been detected
+                if ((GrabBagCategory)item.GetCategory(GrabBag.ID) == GrabBagCategory.Unkown) {
+                    if ((UsableCategory)item.GetCategory(Usable.ID) == UsableCategory.Tool)
+                        return !player.HasInfinite(item, 1, Usable.ID);
 
-                    if (detected.DetectMissing) Configs.CategoryDetection.Instance.DetectedGrabBag(item);
+                    if (detection.DetectMissing) Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)GrabBagCategory.Crate, GrabBag.ID);
                 }
-                return !player.HasInfinite(item, 1, GrabBag.ID)/*  !(settings.InfiniteGrabBags && 1 <= infinities.GrabBag) */;
+                return !player.HasInfinite(item, 1, GrabBag.ID);
 
             }
 
@@ -98,23 +99,21 @@ public class ConsumptionItem : GlobalItem {
         }
 
         // LeftClick
-        if ((ConsumableCategory)item.GetCategory(Consumable.ID) != ConsumableCategory.None)
-            return !player.HasInfinite(item, 1, Consumable.ID); //-  !(settings.InfiniteConsumables && 1 <= infinities.Consumable)
+        if ((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None)
+            return !player.HasInfinite(item, 1, Usable.ID);
         if (item.Placeable())
-            return !player.HasInfinite(item, 1, Placeable.ID); //- !(settings.InfinitePlaceables && 1 <= infinities.Placeable)
-        return !player.HasInfinite(item, 1, GrabBag.ID); //- !(settings.InfiniteGrabBags && 1 <= infinities.GrabBag)
+            return !player.HasInfinite(item, 1, Placeable.ID);
+        return !player.HasInfinite(item, 1, GrabBag.ID);
     }
 
     public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player)
-        // => !(Configs.Requirements.Instance.InfiniteConsumables && 1 <= player.GetModPlayer<InfinityPlayer>().GetTypeInfinities(ammo).Ammo);
         => !player.HasInfinite(ammo, 1, Ammo.ID);
 
     public override bool? CanConsumeBait(Player player, Item bait)
-        => !player.HasInfinite(bait, 1, Consumable.ID) /* !(Configs.Requirements.Instance.InfiniteConsumables && 1 <= player.GetModPlayer<InfinityPlayer>().GetTypeInfinities(bait).Consumable) */ ?
+        => !player.HasInfinite(bait, 1, Usable.ID) ?
             null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        // InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<InfinityPlayer>();
         if (!Main.LocalPlayer.HasInfinite(-1, reforgePrice, Currency.ID)) return false;
         reforgePrice = 0;
         return true;

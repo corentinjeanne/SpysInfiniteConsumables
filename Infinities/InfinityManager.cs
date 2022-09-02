@@ -33,58 +33,76 @@ internal sealed class InfinityCache {
 
 public static class InfinityManager {
 
-    public static readonly List<Infinity> Infinities = new();
+
+    public static Infinity Infinity(int id) => s_Infinities.Count < id ? s_Infinities[id] : null;
+    public static Infinity Infinity(string Name) => s_Infinities.Find(i => i.Name == Name);
+    public static int InfinityCount => s_Infinities.Count;
+
+    private static readonly List<Infinity> s_Infinities = new();
     private static readonly List<InfinityCache> s_Caches = new();
 
     public static int RegisterInfinity(Infinity infinity) {
-        Infinities.Add(infinity);
+        s_Infinities.Add(infinity);
         s_Caches.Add(new());
-        return Infinities.Count - 1;
+        return s_Infinities.Count - 1;
     }
 
     public static void ClearCache() {
         foreach (InfinityCache cache in s_Caches) cache.ClearAll();
     }
     public static void ClearCache(Item item) {
-        for (int i = 0; i < s_Caches.Count; i++) s_Caches[i].ClearType(Infinities[i].Type(item));
+        for (int i = 0; i < s_Caches.Count; i++) s_Caches[i].ClearType(s_Infinities[i].Type(item));
     }
 
     public static byte GetCategory(this Item item, int infinityID){
-        int type = Infinities[infinityID].Type(item);
+        int type = s_Infinities[infinityID].Type(item);
         if(s_Caches[infinityID].TryGetCategory(type, out byte cat)) return cat;
-        return s_Caches[infinityID].SetCategory(type, Infinities[infinityID].GetCategory(item));
+        if(!HasCategoryOverride(item.type, infinityID, out cat)) cat = s_Infinities[infinityID].GetCategory(item);
+        return s_Caches[infinityID].SetCategory(type, cat);
     }
     public static byte GetCategory(int type, int infinityID){
         if(s_Caches[infinityID].TryGetCategory(type, out byte cat)) return cat;
-        return s_Caches[infinityID].SetCategory(type, Infinities[infinityID].GetCategory(type));
+        if (!HasCategoryOverride(type, infinityID, out cat)) cat = s_Infinities[infinityID].GetCategory(type);
+        return s_Caches[infinityID].SetCategory(type, cat);
+    }
+
+    public static bool HasCategoryOverride(int itemType, int infinityID, out byte category)
+        => (category = CategoryOverride(itemType, infinityID)) != Infinities.Infinity.UnknownCategory;
+
+    // TODO customs
+    public static byte CategoryOverride(int itemType, int infinityID) {
+        Infinity inf = s_Infinities[infinityID];
+        if((inf.Customs && false) || (inf.CategoryDetection && Configs.CategoryDetection.Instance.HasDetectedCategory(itemType, infinityID, out byte cat)))
+            return cat;
+        return Infinities.Infinity.UnknownCategory;
     }
 
     public static int GetRequirement(this Item item, int infinityID){
-        int type = Infinities[infinityID].Type(item);
+        int type = s_Infinities[infinityID].Type(item);
         if(s_Caches[infinityID].TryGetRequirement(type, out int req)) return req;
-        return s_Caches[infinityID].SetRequirement(type, Infinities[infinityID].GetRequirement(item));
+        return s_Caches[infinityID].SetRequirement(type, s_Infinities[infinityID].GetRequirement(item));
     }
     public static int GetRequirement(int type, int infinityID){
         if(s_Caches[infinityID].TryGetRequirement(type, out int req)) return req;
-        return s_Caches[infinityID].SetRequirement(type, Infinities[infinityID].GetRequirement(type));
+        return s_Caches[infinityID].SetRequirement(type, s_Infinities[infinityID].GetRequirement(type));
     }
 
     public static long GetInfinity(this Player player, Item item, int infinityID){
-        int type = Infinities[infinityID].Type(item);
+        int type = s_Infinities[infinityID].Type(item);
         if(s_Caches[infinityID].TryGetInfinity(type, out long inf)) return inf;
-        return s_Caches[infinityID].SetInfinity(type, Infinities[infinityID].GetInfinity(player, item));
+        return s_Caches[infinityID].SetInfinity(type, s_Infinities[infinityID].GetInfinity(player, item));
     }
     public static long GetInfinity(this Player player, int type, int infinityID){
         if(s_Caches[infinityID].TryGetInfinity(type, out long inf)) return inf;
-        return s_Caches[infinityID].SetInfinity(type, Infinities[infinityID].GetInfinity(player, type));
+        return s_Caches[infinityID].SetInfinity(type, s_Infinities[infinityID].GetInfinity(player, type));
     }
 
     public static bool IsInfinite(long consumed, long infinity) => consumed <= infinity;
     
     public static bool HasInfinite(this Player player, Item item, long consumed, int infinityID)
-        => Infinities[infinityID].Enabled && IsInfinite(consumed, player.GetInfinity(item, infinityID));
+        => s_Infinities[infinityID].Enabled && IsInfinite(consumed, player.GetInfinity(item, infinityID));
     public static bool HasInfinite(this Player player, int type, long consumed, int infinityID)
-        => Infinities[infinityID].Enabled && IsInfinite(consumed, player.GetInfinity(type, infinityID));
+        => s_Infinities[infinityID].Enabled && IsInfinite(consumed, player.GetInfinity(type, infinityID));
 
 
     public delegate long AboveRequirementInfinity(long count, int requirement, params int[] args);

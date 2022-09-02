@@ -14,10 +14,10 @@
                     Special: Special
                 }
 
-                Consumable: {
-                    name: Consumable
-                    names: Consumables
-                    None: Not consumable
+                Usables: {
+                    name: Usable
+                    names: Usables
+                    None: Not Usable
 
                     Weapon: Weapon
                     Recovery: Recovery potion
@@ -182,7 +182,7 @@
                     Categories: {
                         header: Detected Categories
                         detected: Detected
-                        consumables: Detected consumables
+                        usables: Detected usables
                         explosives: Detected explosives
                         grabBags: Detected grab bags
                         wandAmmo: Detected wand ammo

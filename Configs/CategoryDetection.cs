@@ -1,7 +1,9 @@
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 
+using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -9,19 +11,9 @@ using Newtonsoft.Json;
 
 namespace SPIC.Configs;
 
-public struct DetectedCategories {
-    public readonly Infinities.ConsumableCategory? Consumable;
-    public readonly Infinities.PlaceableCategory? Placeable;
+public readonly record struct DetectedCategories(Infinities.UsableCategory? Usable, Infinities.PlaceableCategory? Placeable, bool GrabBag, bool Explosive);
 
-    public readonly bool GrabBag;
-    public readonly bool Explosive;
-
-    public DetectedCategories(Infinities.ConsumableCategory? consumable, Infinities.PlaceableCategory? placeable, bool grabBag, bool explosive) {
-        Consumable = consumable; Placeable = placeable;
-        GrabBag = grabBag; Explosive = explosive;
-    }
-}
-
+// TODO InfinityDefinition class
 [Label("$Mods.SPIC.Configs.Detection.name")]
 public class CategoryDetection : ModConfig {
     public override ConfigScope Mode => ConfigScope.ClientSide;
@@ -34,57 +26,34 @@ public class CategoryDetection : ModConfig {
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
     public bool DetectMissing;
 
+    // TODO cutom elements
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
-    [Label("$Mods.SPIC.Configs.Detection.Categories.Consumables")]
-    public Dictionary<ItemDefinition, Infinities.ConsumableCategory> DetectedConsumables = new();
-    [Label("$Mods.SPIC.Configs.Detection.Categories.Explosives")]
-    public HashSet<ItemDefinition> DetectedExplosives = new();
-    [Label("$Mods.SPIC.Configs.Detection.Categories.Bags")]
-    public HashSet<ItemDefinition> DetectedGrabBags = new();
-    [Label("$Mods.SPIC.Configs.Detection.Categories.WandAmmo")]
-    public Dictionary<ItemDefinition, Infinities.PlaceableCategory> DetectedWandAmmo = new();
-    public void DetectedConsumable(Terraria.Item item, Infinities.ConsumableCategory consumable) {
-        ItemDefinition key = new(item.type);
-        if (IsExplosive(item.type) || !DetectedConsumables.TryAdd(key, consumable)) return;
-        InfinityManager.ClearCache(item);
-        _modifiedInGame = true;
-    }
+    public Dictionary<string, Dictionary<ItemDefinition, byte>> DetectedCategories = new();
 
-    public void DetectedPlaceable(Terraria.Item item, Infinities.PlaceableCategory placeable) {
-        ItemDefinition key = new(item.type);
-        if (!DetectedWandAmmo.TryAdd(key, placeable)) return;
-        InfinityManager.ClearCache(item);
-        _modifiedInGame = true;
-    }
+    public bool SaveDetectedCategory(Item item, byte category, int infinityID){
+        if(category == Infinities.Infinity.UnknownCategory) throw new("A detected category cannot be unkonwn");
+        Infinities.Infinity infinity = InfinityManager.Infinity(infinityID);
+        if(!infinity.CategoryDetection) return false;
 
-    public bool DetectedExplosive(Terraria.Item item) {
-        ItemDefinition key = new(item.type);
-        if (!DetectedExplosives.Add(key)) return false;
-        DetectedConsumables.Remove(key);
+        ItemDefinition key = new (item.type);
+        if (!DetectedCategories[infinity.Name].TryAdd(key, category)) return false;
         InfinityManager.ClearCache(item);
         _modifiedInGame = true;
         return true;
     }
-    public bool IsExplosive(int type) => DetectedExplosives.Contains(new(type));
 
+    public bool HasDetectedCategory(int type, int infinityID, out byte category)
+        => (category = GetDetectedCategory(type, infinityID)) != Infinities.Infinity.UnknownCategory;
+    
+    public byte GetDetectedCategory(int type, int infinityID){
+        if(!DetectMissing) return Infinities.Infinity.UnknownCategory;
+        Infinities.Infinity infinity = InfinityManager.Infinity(infinityID);
+        if (!infinity.CategoryDetection) return Infinities.Infinity.UnknownCategory;
 
-    public void DetectedGrabBag(Terraria.Item item) {
-        if (DetectedGrabBags.Add(new(item.type))) _modifiedInGame = true;
-        InfinityManager.ClearCache(item);
+        return DetectedCategories.TryGetValue(infinity.Name, out var categories) && categories.TryGetValue(new(type), out byte category)
+            ? category
+            : Infinities.Infinity.UnknownCategory;
     }
-
-    public DetectedCategories GetDetectedCategories(int type){
-        if(!DetectMissing) return new();
-
-        ItemDefinition key = new(type);
-        return new(
-            DetectedConsumables.ContainsKey(key) ? DetectedConsumables[key] : null,
-            DetectedWandAmmo.ContainsKey(key) ? DetectedWandAmmo[key] : null,
-            DetectedGrabBags.Contains(key),
-            DetectedExplosives.Contains(key)
-        );
-    }
-
 
     private static string _configPath;
     private bool _modifiedInGame = false;

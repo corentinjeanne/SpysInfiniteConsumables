@@ -1,7 +1,7 @@
 --------- Make every consumable item infinite ---------
 Collect enough a consumable item to make it infinite, and not consume it!
 Depending of the item, this requirement may vary.
-There are a wide variety of categorie for all sorts of consumables (consumables, placeables, materials and more) each with their own sub-categories.
+There are a wide variety of categorie for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
 You can also use the journey research cost of items as their infinities.
 Works with modified max stack and most (if not all) modded items.
 

@@ -1,6 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 
+using SPIC.Infinities;
 namespace SPIC.Globals {
 
 	public class SpicProjectile : GlobalProjectile {
@@ -27,7 +28,13 @@ namespace SPIC.Globals {
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
             // ? move in DetectionPlayer
-            if (!item.IsAir && Configs.CategoryDetection.Instance.DetectedExplosive(item)) {
+            bool detected = false;
+            if((AmmoCategory)item.GetCategory(Ammo.ID) != AmmoCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)AmmoCategory.Explosive, Ammo.ID))
+                detected = true;
+            if((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)UsableCategory.Explosive, Usable.ID))
+                detected = true;
+
+            if (detected && !item.IsAir) {
                 InfinityManager.ClearCache(item);
                 detectionPlayer.RefilExplosive(proj.type, item);
             }

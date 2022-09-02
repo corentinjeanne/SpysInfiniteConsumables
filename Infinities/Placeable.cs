@@ -37,7 +37,6 @@ public static class PlaceableExtension {
 
 public class Placeable : Infinity<Placeable> {
 
-
     public override int MaxStack(byte category) => (PlaceableCategory)category switch {
         PlaceableCategory.Block => 999,
         PlaceableCategory.Wall => 999,
@@ -78,7 +77,7 @@ public class Placeable : Infinity<Placeable> {
             PlaceableCategory.Mechanical => infs.placeables_Mechanical,
             PlaceableCategory.Seed => infs.placeables_Seeds,
             PlaceableCategory.Paint => infs.placeables_Paints,
-            PlaceableCategory.None or _ => Infinity.NoRequirement,
+            PlaceableCategory.None or _ => NoRequirement,
         };
     }
 
@@ -86,8 +85,8 @@ public class Placeable : Infinity<Placeable> {
 
     public override byte GetCategory(Item item) {
 
-        Configs.DetectedCategories autos = Configs.CategoryDetection.Instance.GetDetectedCategories(item.type);
-        if (autos.Placeable.HasValue) return (byte)autos.Placeable.Value;
+        byte detected = Configs.CategoryDetection.Instance.GetDetectedCategory(item.type, UID);
+        if (detected != UnknownCategory) return detected;
 
         if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_Ammos.ContainsKey(item.type))
             return (byte)PlaceableCategory.None;
@@ -148,10 +147,30 @@ public class Placeable : Infinity<Placeable> {
     public override TooltipLine TooltipLine => AddedLine("Placeable", Lang.tip[33].Value);
     public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Placeable.{(PlaceableCategory)category}";
 
-    // TODO >>> Paint tools and grand desing
-    public override bool ConsumesAmmo(Item item) => item.tileWand != -1;
-    public override Item GetAmmo(Player player, Item weapon) => System.Array.Find(player.inventory, item => item.type == weapon.tileWand);
-    public override TooltipLine AmmoLine(Item ammo) => AddedLine("WandConsumes", null);
+    public enum WandType {
+        None,
+        Tile,
+        Wire,
+        PaintBrush,
+        PaintRoller
+    }
+
+    public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile,
+        { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
+        { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush,
+        { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
+        _ => WandType.None
+    };
+
+    public override bool ConsumesAmmo(Item item) => GetWandType(item) != WandType.None;
+    public override Item GetAmmo(Player player, Item wand) => GetWandType(wand) switch {
+        WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
+        WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
+        WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
+        WandType.None or _ => null
+    };
+
+    public override TooltipLine AmmoLine(Item weapon, Item ammo) => GetWandType(weapon) == WandType.Tile ? AddedLine("WandConsumes", null) : base.AmmoLine(weapon, ammo);
 
     private static readonly Dictionary<int, byte> s_Ammos = new(); // type, category (ammo)
     internal static void ClearWandAmmos() => s_Ammos.Clear();

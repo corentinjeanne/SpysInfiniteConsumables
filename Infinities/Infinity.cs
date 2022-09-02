@@ -5,6 +5,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 
 
+// TODO journey requirements
+
 namespace SPIC.Infinities;
 
 public enum InfinityDisplayLevel {
@@ -24,9 +26,9 @@ public abstract class Infinity<Type> : Infinity where Type : Infinity<Type>, new
     public static void Register() => Instance.UID = InfinityManager.RegisterInfinity(Instance);
 }
 
-// TODO customs
 public abstract class Infinity {
-    public int UID { get; protected set; }
+    public int UID { get; protected set; } = -1;
+
     public virtual string Name => typeof(Infinity).Name;
 
     public abstract int MaxStack(byte category);
@@ -34,11 +36,15 @@ public abstract class Infinity {
 
     public virtual Item ItemFromType(int type) => new(type);
     public virtual int Type(Item item) => item.type;
-    public virtual long CountItems(Player player, Item item) => CountItems(player, Type(item));
+
     public virtual long CountItems(Player player, int type) => player.CountItems(type, true);
+    public virtual long CountItems(Player player, Item item) => CountItems(player, Type(item));
 
 
     public abstract bool Enabled { get; }
+    public virtual bool Customs => true;
+    public virtual bool CategoryDetection => true;
+
 
     public virtual bool ConsumesAmmo(Item item) => false;
     public virtual Item GetAmmo(Player player, Item weapon) => null;
@@ -50,15 +56,18 @@ public abstract class Infinity {
     public virtual int GetRequirement(int type) => GetRequirement(ItemFromType(type));
     public virtual int GetRequirement(Item item) => Requirement(item.GetCategory(UID));
 
-    public virtual long GetInfinity(Player player, int type) => GetInfinity(player, ItemFromType(type));
-    public virtual long GetInfinity(Player player, Item item) => GetInfinity(item, CountItems(player, Type(item)));
+    public long GetInfinity(Player player, int type) => GetInfinity(type, CountItems(player, type));
+    public long GetInfinity(Player player, Item item) => GetInfinity(item, CountItems(player, item));
     
-    // TODO >>> Multipliers, AIR, etc
-    // TODO >>> infity with type instead of item
-    // public virtual long GetInfinity(int type, long count)
-    //     => InfinityManager.CalculateInfinity(item.type, MaxStack(InfinityManager.GetCategory(type, UID)), count, InfinityManager.GetRequirement(type, UID), 1);
+    public virtual long GetInfinity(int type, long count) => GetInfinity(ItemFromType(type), count);
     public virtual long GetInfinity(Item item, long count)
-        => InfinityManager.CalculateInfinity(item.type, MaxStack(item.GetCategory(UID)), count, item.GetRequirement(UID), 1);
+        => InfinityManager.CalculateInfinity(
+            (int)System.MathF.Min(Globals.ConsumptionItem.MaxStack(item.type), MaxStack(item.GetCategory(UID))),
+            count,
+            item.GetRequirement(UID),
+            1
+        );
+
 
     public virtual bool IsFullyInfinite(Item item, long infinity) => true;
     public virtual KeyValuePair<int, long>[] GetPartialInfinity(Item item, long infinity) => new[] { new KeyValuePair<int, long>(item.type, infinity) };
@@ -69,7 +78,7 @@ public abstract class Infinity {
     
     public abstract TooltipLine TooltipLine { get; }
     public virtual string MissingLinePosition => null;
-    public virtual TooltipLine AmmoLine(Item ammo) => AddedLine(Name + "Consumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
+    public virtual TooltipLine AmmoLine(Item weapon, Item ammo) => AddedLine(Name + "Consumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
     
     public abstract string CategoryKey(byte category);
     public virtual byte[] HiddenCategories => new[] {NoCategory, UnknownCategory};
@@ -96,7 +105,9 @@ public abstract class Infinity {
 
     public const byte NoCategory = 0;
     public const byte UnknownCategory = 255;
-    public const byte NoRequirement = 0;
+
+    public const int NoRequirement = 0;
+
     public const long NoInfinity = -2L;
     public const long NotInfinite = -1L;
 }
