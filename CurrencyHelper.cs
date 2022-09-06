@@ -22,7 +22,16 @@ namespace SPIC {
             -2 => 0,
             -1 => item.value/5,
             int t => _currencies[t].values[item.type]
-        }; 
+        };
+        public static int LowestValueType(int currency){
+            if (currency == -2) return ItemID.None;
+            if (currency == -1) return ItemID.CopperCoin;
+            (int minType, int minValue) = (0, 0);
+            foreach ((int key, int value) in CurrencySystems(currency).values){
+                if(minValue == 0 || value < minValue) (minType, minValue) = (key, value);
+            }
+            return minType;
+        }
 
 
         public static long CountCurrency(this Item[] container, int currency, params int[] ignoreSlots) {

@@ -1,7 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
 namespace SPIC.Globals {
 
 	public class SpicProjectile : GlobalProjectile {
@@ -35,7 +35,7 @@ namespace SPIC.Globals {
                 detected = true;
 
             if (detected && !item.IsAir) {
-                InfinityManager.ClearCache(item);
+                InfinityManager.ClearCache(item.type);
                 detectionPlayer.RefilExplosive(proj.type, item);
             }
             _explodedProjTypes.Add(proj.type);

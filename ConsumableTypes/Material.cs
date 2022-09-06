@@ -1,13 +1,14 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 
-namespace SPIC.Infinities;
+namespace SPIC.ConsumableTypes;
 
 // TODO only display material infinity on mat for selected recipe (& if inf mat)
 
 public enum MaterialCategory {
-    None = Infinity.NoCategory,
+    None = ConsumableType.NoCategory,
     Basic,
     Ore,
     Furniture,
@@ -15,7 +16,20 @@ public enum MaterialCategory {
     NonStackable
 }
 
-public class Material : Infinity<Material> {
+public class MaterialRequirements {
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Basics")]
+    public int Basics = -1;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Ores")]
+    public int Ores = 500;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Furnitures")]
+    public int Furnitures = 20;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Miscellaneous")]
+    public int Miscellaneous = 50;
+    [Range(-50, 0), Label("$Mods.SPIC.Configs.Requirements.Requirements.NonStackable")]
+    public int NonStackable = -2;
+}
+
+public class Material : ConsumableType<Material> {
 
     public override int MaxStack(byte category) => (MaterialCategory)category switch {
         MaterialCategory.Basic => 999,
@@ -26,19 +40,18 @@ public class Material : Infinity<Material> {
         MaterialCategory.None or _ => 999,
     };
     public override int Requirement(byte category) {
-        Configs.Requirements inf = Configs.Requirements.Instance;
+        MaterialRequirements reqs = (MaterialRequirements)Requirements;
         return (MaterialCategory)category switch {
-            MaterialCategory.Basic => inf.materials_Basics,
-            MaterialCategory.Ore => inf.materials_Ores,
-            MaterialCategory.Furniture => inf.materials_Furnitures,
-            MaterialCategory.Miscellaneous => inf.materials_Miscellaneous,
-            MaterialCategory.NonStackable => inf.materials_NonStackable,
+            MaterialCategory.Basic => reqs.Basics,
+            MaterialCategory.Ore => reqs.Ores,
+            MaterialCategory.Furniture => reqs.Furnitures,
+            MaterialCategory.Miscellaneous => reqs.Miscellaneous,
+            MaterialCategory.NonStackable => reqs.NonStackable,
             MaterialCategory.None or _ => NoRequirement,
         };
     }
 
-    public override bool Enabled => Configs.Requirements.Instance.InfiniteMaterials;
-    public override bool CategoryDetection => false;
+    
     public override bool Customs => false;
 
     public override byte GetCategory(Item item) {
@@ -73,8 +86,10 @@ public class Material : Infinity<Material> {
     public override bool IsFullyInfinite(Item item, long infinity) => infinity >= Systems.InfiniteRecipe.HighestCost(item.type);
 
 
-    public override Microsoft.Xna.Framework.Color Color => Configs.InfinityDisplay.Instance.color_Materials;
+    public override Microsoft.Xna.Framework.Color DefaultColor() => new(255, 120, 187);
 
-    public override TooltipLine TooltipLine => AddedLine("Material", Lang.tip[36].Value);
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);
     public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Material.{(MaterialCategory)category}";
+
+    public override MaterialRequirements CreateRequirements() => new();
 }

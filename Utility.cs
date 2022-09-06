@@ -1,5 +1,8 @@
+using System.IO;
+using Newtonsoft.Json;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 
 namespace SPIC {
 
@@ -115,6 +118,11 @@ namespace SPIC {
                 if(kvp.Value.Equals(value)) reverse.Add(kvp.Key);
             }
             return reverse.ToArray();
+        }
+
+        public static void SaveConfig(this ModConfig config){
+            using StreamWriter sw = new(ConfigManager.ModConfigPath + $"\\{config.Mod.Name}_{config.GetType().Name}.json");
+            sw.Write(JsonConvert.SerializeObject(config, ConfigManager.serializerSettings));
         }
     }
 }

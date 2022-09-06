@@ -8,60 +8,68 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using Newtonsoft.Json;
+using SPIC.ConsumableTypes;
 
 namespace SPIC.Configs;
 
-public readonly record struct DetectedCategories(Infinities.UsableCategory? Usable, Infinities.PlaceableCategory? Placeable, bool GrabBag, bool Explosive);
+public readonly record struct DetectedCategories(ConsumableTypes.UsableCategory? Usable, ConsumableTypes.PlaceableCategory? Placeable, bool GrabBag, bool Explosive);
 
-// TODO InfinityDefinition class
+// TODO InfinityDefinition && UI class
 [Label("$Mods.SPIC.Configs.Detection.name")]
 public class CategoryDetection : ModConfig {
-    public override ConfigScope Mode => ConfigScope.ClientSide;
-
-    public static CategoryDetection Instance => _instance ??= ModContent.GetInstance<CategoryDetection>();
-    private static CategoryDetection _instance;
-
 
     // [Header("$Mods.SPIC.Configs.Detection.General.header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
     public bool DetectMissing;
 
-    // TODO cutom elements
+    // TODO UI
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
-    public Dictionary<string, Dictionary<ItemDefinition, byte>> DetectedCategories = new();
 
-    public bool SaveDetectedCategory(Item item, byte category, int infinityID){
-        if(category == Infinities.Infinity.UnknownCategory) throw new("A detected category cannot be unkonwn");
-        Infinities.Infinity infinity = InfinityManager.Infinity(infinityID);
-        if(!infinity.CategoryDetection) return false;
+    private Dictionary<string, Dictionary<ItemDefinition, byte>> _detectedCategories = new();
+    public Dictionary<string, Dictionary<ItemDefinition, byte>> DetectedCategories{
+        get => _detectedCategories;
+        set {
+            // Keep the old ones and add the mising ones
+            for (int i = 0; i < InfinityManager.InfinityCount; i++) {
+                ConsumableType type = InfinityManager.ConsumableType(i);
+                if(type.CategoryDetection) value.TryAdd(type.Name, new());
+                else value.Remove(type.Name);
+            }
+            _detectedCategories = value;
+        }
+    }
+
+    public bool SaveDetectedCategory(Item item, byte category, int typeID){
+        if(category == ConsumableType.UnknownCategory) throw new("A detected category cannot be unkonwn");
+        ConsumableType type = InfinityManager.ConsumableType(typeID);
+        if(!type.CategoryDetection) return false;
 
         ItemDefinition key = new (item.type);
-        if (!DetectedCategories[infinity.Name].TryAdd(key, category)) return false;
-        InfinityManager.ClearCache(item);
+        if (!DetectedCategories[type.Name].TryAdd(key, category)) return false;
+        InfinityManager.ClearCache(item.type);
         _modifiedInGame = true;
         return true;
     }
 
-    public bool HasDetectedCategory(int type, int infinityID, out byte category)
-        => (category = GetDetectedCategory(type, infinityID)) != Infinities.Infinity.UnknownCategory;
+    public bool HasDetectedCategory(int type, int typeID, out byte category)
+        => (category = GetDetectedCategory(type, typeID)) != ConsumableType.UnknownCategory;
     
-    public byte GetDetectedCategory(int type, int infinityID){
-        if(!DetectMissing) return Infinities.Infinity.UnknownCategory;
-        Infinities.Infinity infinity = InfinityManager.Infinity(infinityID);
-        if (!infinity.CategoryDetection) return Infinities.Infinity.UnknownCategory;
+    public byte GetDetectedCategory(int type, int typeID){
+        if(!DetectMissing) return ConsumableType.UnknownCategory;
+        ConsumableType infinity = InfinityManager.ConsumableType(typeID);
+        if (!infinity.CategoryDetection) return ConsumableType.UnknownCategory;
 
         return DetectedCategories.TryGetValue(infinity.Name, out var categories) && categories.TryGetValue(new(type), out byte category)
             ? category
-            : Infinities.Infinity.UnknownCategory;
+            : ConsumableType.UnknownCategory;
     }
 
-    private static string _configPath;
+    public override ConfigScope Mode => ConfigScope.ClientSide;
+    public static CategoryDetection Instance;
+
     private bool _modifiedInGame = false;
-    public override void OnLoaded() => _configPath = ConfigManager.ModConfigPath + $"\\{nameof(SPIC)}_{nameof(CategoryDetection)}.json";
     public void ManualSave() {
-        if (!_modifiedInGame) return;
-        using StreamWriter sw = new(_configPath);
-        sw.Write(JsonConvert.SerializeObject(this, ConfigManager.serializerSettings));
+        if (_modifiedInGame) this.SaveConfig();
         _modifiedInGame = false;
     }
 }

@@ -10,20 +10,30 @@ public class SpysInfiniteConsumables : Mod {
     public override void Load() {
         Instance = this;
 
-        Infinities.Placeable.ClearWandAmmos();
+        ConsumableTypes.Placeable.ClearWandAmmos();
         CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
-        Infinities.Ammo.Register();
-        Infinities.Usable.Register();
-        Infinities.Currency.Register();
-        Infinities.GrabBag.Register();
-        Infinities.Material.Register();
-        Infinities.Placeable.Register();
+        Infinities.Consumables.Register();
+        Infinities.Placeables.Register();
+        Infinities.GrabBags.Register();
+        Infinities.Materials.Register();
+        Infinities.Currencies.Register();
+        Infinities.JourneyResearch.Register();
+
+        ConsumableTypes.Ammo.Register(Infinities.Consumables.ID);
+        ConsumableTypes.Usable.Register(Infinities.Consumables.ID);
+        ConsumableTypes.Placeable.Register(Infinities.Placeables.ID);
+        ConsumableTypes.GrabBag.Register(Infinities.GrabBags.ID);
+        ConsumableTypes.Material.Register(Infinities.Materials.ID);
+        ConsumableTypes.Currency.Register(Infinities.Currencies.ID);
+        ConsumableTypes.JourneySacrifice.Register(Infinities.JourneyResearch.ID);
+
+        Configs.Requirements.Instance.SaveConfig(); // >>> TODO move in a better place
     }
 
     public override void Unload() {
-        Infinities.Placeable.ClearWandAmmos();
+        ConsumableTypes.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         InfinityManager.ClearCache();
         

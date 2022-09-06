@@ -5,7 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
 namespace SPIC.Globals;
 public class DetectionPlayer : ModPlayer {
 
@@ -79,7 +79,7 @@ public class DetectionPlayer : ModPlayer {
         else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
         else return; // Nothing detected
 
-        InfinityManager.ClearCache(Player.HeldItem);
+        InfinityManager.ClearCache(Player.HeldItem.type);
         _detectingCategory = false;
     }
 
@@ -126,10 +126,9 @@ public class DetectionPlayer : ModPlayer {
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
         Configs.Requirements requirements = Configs.Requirements.Instance;
-        if (requirements.InfiniteConsumables && (
-                ((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= Usable.Instance.GetInfinity(refill, tot + used))
+        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= Usable.Instance.GetInfinity(refill, tot + used))
                 || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= Ammo.Instance.GetInfinity(refill, tot + used))
-        ))
+            )
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
 
     }
@@ -146,7 +145,7 @@ public class DetectionPlayer : ModPlayer {
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
             autos.SaveDetectedCategory(item, (byte)PlaceableCategory.Liquid, Usable.ID);
 
-        InfinityManager.ClearCache(item);
+        InfinityManager.ClearCache(item.type);
 
         if (!self.HasInfinite(item, 1, Placeable.ID)) {
             item.stack--;

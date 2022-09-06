@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -44,17 +44,15 @@ namespace SPIC.Systems {
         // );
         
         public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
-            if (!Configs.Requirements.Instance.InfiniteMaterials) return;
-
             // Globals.InfinityPlayer infinityPlayer = Main.LocalPlayer.GetModPlayer<Globals.InfinityPlayer>();
-            if (!Main.LocalPlayer.HasInfinite(type, amount, Material.ID)) {
+            if (Main.LocalPlayer.HasInfinite(type, amount, Material.ID)) {
                 amount = 0;
                 return;
             }
             foreach (int g in recipe.acceptedGroups) {
                 if (RecipeGroup.recipeGroups[g].ContainsItem(type)) {
                     foreach (int groupItemType in RecipeGroup.recipeGroups[g].ValidItems) {
-                        if (!Main.LocalPlayer.HasInfinite(groupItemType, amount, Material.ID)) {
+                        if (Main.LocalPlayer.HasInfinite(groupItemType, amount, Material.ID)) {
                             amount = 0;
                             return;
                         }

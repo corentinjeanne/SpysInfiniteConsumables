@@ -5,7 +5,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
+using System;
+
 namespace SPIC.Globals;
 
 public class ConsumptionItem : GlobalItem {
@@ -14,6 +16,7 @@ public class ConsumptionItem : GlobalItem {
         s_itemMaxStack = new int[ItemID.Count];
         IL.Terraria.Item.SetDefaults_int_bool += Hook_ItemSetDefaults;
     }
+
     public override void Unload() {
         SetDefaultsHook = false;
         s_itemMaxStack = null;
@@ -48,7 +51,7 @@ public class ConsumptionItem : GlobalItem {
 
         SetDefaultsHook = true;
     }
-    
+
     public override void SetDefaults(Item item) {
         if (item.tileWand != -1) Placeable.RegisterWand(item);
     }
@@ -58,7 +61,7 @@ public class ConsumptionItem : GlobalItem {
         for (int type = 0; type < ItemLoader.ItemCount; type++) {
             Item item = new(type);
             if (type >= ItemID.Count || !SetDefaultsHook)
-                s_itemMaxStack[type] = System.Math.Clamp(item.maxStack, 1, 999);
+                s_itemMaxStack[type] = Math.Clamp(item.maxStack, 1, 999);
         }
     }
 
@@ -83,7 +86,6 @@ public class ConsumptionItem : GlobalItem {
             // RightClick
             if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
 
-                // ? detect grabbags none for potions or an other right click action has been detected
                 if ((GrabBagCategory)item.GetCategory(GrabBag.ID) == GrabBagCategory.Unkown) {
                     if ((UsableCategory)item.GetCategory(Usable.ID) == UsableCategory.Tool)
                         return !player.HasInfinite(item, 1, Usable.ID);
@@ -114,8 +116,16 @@ public class ConsumptionItem : GlobalItem {
             null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        if (!Main.LocalPlayer.HasInfinite(-1, reforgePrice, Currency.ID)) return false;
+        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(-1), reforgePrice, Currency.ID)) return false;
         reforgePrice = 0;
         return true;
+    }
+
+    public override void OnResearched(Item item, bool fullyResearched) {
+        int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.SacrificesCountByItemIdCache[item.type];
+        int researchCost = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+        int consumed = Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);
+        if (Main.LocalPlayer.HasInfinite(item, consumed, JourneySacrifice.ID))
+            item.stack += consumed;
     }
 }

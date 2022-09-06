@@ -3,8 +3,13 @@ using System.ComponentModel;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.Configs;
+using System.IO;
+using Newtonsoft.Json;
+using SPIC.ConsumableTypes;
+using Newtonsoft.Json.Linq;
+using SPIC.Infinities;
 
+namespace SPIC.Configs;
 
 [NullAllowed]
 public class CustomRequirement<T> where T : System.Enum {
@@ -14,135 +19,193 @@ public class CustomRequirement<T> where T : System.Enum {
     public int Requirement;
 }
 
-// TODO rework into dict
+// TODO >>> rework into dict
 public class Custom {
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Ammo")]
-    public CustomRequirement<Infinities.AmmoCategory> Ammo;
+    public CustomRequirement<ConsumableTypes.AmmoCategory> Ammo;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Usable")]
-    public CustomRequirement<Infinities.UsableCategory> Usables;
+    public CustomRequirement<ConsumableTypes.UsableCategory> Usables;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Placeable")] 
-    public CustomRequirement<Infinities.PlaceableCategory> Placeable;
+    public CustomRequirement<ConsumableTypes.PlaceableCategory> Placeable;
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Bag")]
-    public CustomRequirement<Infinities.GrabBagCategory> GrabBag;
+    public CustomRequirement<ConsumableTypes.GrabBagCategory> GrabBag;
     
     public Custom Set<T>(CustomRequirement<T> customRequirement) where T : System.Enum {
         System.Type type = typeof(T);
-        if (type == typeof(Infinities.UsableCategory)) Usables = customRequirement as CustomRequirement<Infinities.UsableCategory>;
-        else if (type == typeof(Infinities.AmmoCategory)) Ammo = customRequirement as CustomRequirement<Infinities.AmmoCategory>;
-        else if (type == typeof(Infinities.GrabBagCategory)) GrabBag = customRequirement as CustomRequirement<Infinities.GrabBagCategory>;
-        else if (type == typeof(Infinities.PlaceableCategory)) Placeable = customRequirement as CustomRequirement<Infinities.PlaceableCategory>;
+        if (type == typeof(ConsumableTypes.UsableCategory)) Usables = customRequirement as CustomRequirement<ConsumableTypes.UsableCategory>;
+        else if (type == typeof(ConsumableTypes.AmmoCategory)) Ammo = customRequirement as CustomRequirement<ConsumableTypes.AmmoCategory>;
+        else if (type == typeof(ConsumableTypes.GrabBagCategory)) GrabBag = customRequirement as CustomRequirement<ConsumableTypes.GrabBagCategory>;
+        else if (type == typeof(ConsumableTypes.PlaceableCategory)) Placeable = customRequirement as CustomRequirement<ConsumableTypes.PlaceableCategory>;
         else throw new UsageException();
         return this;
     }
 
     public CustomCategories Categories() => new(
-        Ammo?.Category == Infinities.AmmoCategory.None ? null : Ammo?.Category,
-        Usables?.Category == Infinities.UsableCategory.None ? null : Usables?.Category,
-        GrabBag?.Category == Infinities.GrabBagCategory.None ? null : GrabBag?.Category,
-        Placeable?.Category == Infinities.PlaceableCategory.None ? null : Placeable?.Category
+        Ammo?.Category == ConsumableTypes.AmmoCategory.None ? null : Ammo?.Category,
+        Usables?.Category == ConsumableTypes.UsableCategory.None ? null : Usables?.Category,
+        GrabBag?.Category == ConsumableTypes.GrabBagCategory.None ? null : GrabBag?.Category,
+        Placeable?.Category == ConsumableTypes.PlaceableCategory.None ? null : Placeable?.Category
     );
     public CustomRequirements Requirements() => new(
-        Ammo?.Category == Infinities.AmmoCategory.None ? Ammo.Requirement : null,
-        Usables?.Category == Infinities.UsableCategory.None ? Usables.Requirement : null,
-        GrabBag?.Category == Infinities.GrabBagCategory.None ? GrabBag.Requirement : null,
-        Placeable?.Category == Infinities.PlaceableCategory.None ? Placeable.Requirement : null
+        Ammo?.Category == ConsumableTypes.AmmoCategory.None ? Ammo.Requirement : null,
+        Usables?.Category == ConsumableTypes.UsableCategory.None ? Usables.Requirement : null,
+        GrabBag?.Category == ConsumableTypes.GrabBagCategory.None ? GrabBag.Requirement : null,
+        Placeable?.Category == ConsumableTypes.PlaceableCategory.None ? Placeable.Requirement : null
     );
 
 }
 
-public readonly record struct CustomCategories(Infinities.AmmoCategory? Ammo, Infinities.UsableCategory? Usable, Infinities.GrabBagCategory? GrabBag, Infinities.PlaceableCategory? Placeable);
+public readonly record struct CustomCategories(ConsumableTypes.AmmoCategory? Ammo, ConsumableTypes.UsableCategory? Usable, ConsumableTypes.GrabBagCategory? GrabBag, ConsumableTypes.PlaceableCategory? Placeable);
 
 public readonly record struct CustomRequirements(int? Ammo, int? Usable, int? GrabBag, int? Placeable);
 
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class Requirements : ModConfig {
     
-    [Header("$Mods.SPIC.Configs.Requirements.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Consumables")]
-    public bool InfiniteConsumables;
-    [Label("$Mods.SPIC.Configs.Requirements.General.Placeables")]
-    public bool InfinitePlaceables;
-    [Label("$Mods.SPIC.Configs.Requirements.General.Bags")]
-    public bool InfiniteGrabBags;
-    [Label("$Mods.SPIC.Configs.Requirements.General.Materials")]
-    public bool InfiniteMaterials;
-    [Label("$Mods.SPIC.Configs.Requirements.General.Currencies")]
-    public bool InfiniteCurrencies;
+    public enum InfinityPreset { // ? Rework to be more flexible
+        None,
+        Default,
+        OneForAll,
+        AllOf,
+        AllOn,
+        JourneyCosts
+    }
 
-    // TODO >>> rework infinty order and count
-    [DefaultValue(false), Label("$Mods.SPIC.Configs.Requirements.General.Journey"), Tooltip("$Mods.SPIC.Configs.General.t_journey")]
-    public bool JourneyRequirement;
+    public InfinityPreset Preset {
+        get {
+
+            bool defaults = true;
+            int on = 0;
+            foreach ((string name, bool state) in Infinities) {
+                Infinity inf = InfinityManager.Infinity(name);
+                if (defaults && (inf == null || state != inf.DefaultValue)) defaults = false;
+                if (state) on++;
+            }
+            if (on == 0) return InfinityPreset.AllOf;
+
+            if (MaxInfinities == 0) {
+                if (defaults) return InfinityPreset.Default;
+                if (on == Infinities.Count) return InfinityPreset.AllOn;
+            }
+
+            if (MaxInfinities == 1) {
+                if (ConsumableTypePriority[0] == JourneySacrifice.Instance.Name && Infinities[JourneyResearch.Instance.Name]) return InfinityPreset.JourneyCosts;
+                return InfinityPreset.OneForAll;
+            }
+
+            return InfinityPreset.None;
+        }
+        set {
+            switch (value) {
+            case InfinityPreset.Default: // ? unloaded stuff
+                Infinities = new();
+                ConsumableTypePriority = new();
+                MaxInfinities = 0;
+                break;
+            case InfinityPreset.OneForAll:
+                MaxInfinities = 1;
+                break;
+            case InfinityPreset.JourneyCosts:
+                Infinities[JourneyResearch.Instance.Name] = true;
+                ConsumableTypePriority.Remove(JourneySacrifice.Instance.Name);
+                ConsumableTypePriority.Insert(0, JourneySacrifice.Instance.Name);
+                MaxInfinities = 1;
+                break;
+            case InfinityPreset.AllOn:
+                foreach ((string name, bool _) in Infinities)
+                    Infinities[name] = true;
+                MaxInfinities = 0;
+                break;
+            case InfinityPreset.AllOf:
+                foreach ((string name, bool _) in Infinities)
+                    Infinities[name] = false;
+                break;
+            case InfinityPreset.None:
+            default:
+                break;
+            }
+        }
+    }
+
+    // Dictionary<InfinityDefinition, bool>
+    private Dictionary<string, bool> _infinities = new();
+    public Dictionary<string, bool> Infinities {
+        get => _infinities;
+        set {
+            // Keep the old ones and add the mising ones
+            for (int i = 0; i < InfinityManager.InfinityCount; i++) {
+                Infinity infinity = InfinityManager.Infinity(i);
+                value.TryAdd(infinity.Name, infinity.DefaultValue);
+            }
+            _infinities = value;
+        }
+    }
+
+    // List<ConsumableTypeDefinition>
+    private List<string> _consumableTypePriority = new(); // ? (string, bool) to allow disableing specific types
+    public List<string> ConsumableTypePriority{
+        get => _consumableTypePriority;
+        set {
+            // Keep the old ones and add the mising ones
+            for (int i = 0; i < InfinityManager.ConsumableTypesCount; i++) {
+                ConsumableType infinity = InfinityManager.ConsumableType(i);
+                if (!value.Contains(infinity.Name))value.Add(infinity.Name);
+            }
+            _consumableTypePriority = value;
+        }
+    }
+
+    public int MaxInfinities { get; set; }
 
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.General.t_duplication")]
-    public bool PreventItemDupication;
+    public bool PreventItemDupication { get; set; }
 
-    // TODO >>> turn into dict
-    [Header("$Mods.SPIC.Categories.Usable.names")]
-    [Range(-50, 999), DefaultValue(-2), Label("$Mods.SPIC.Configs.Requirements.Requirements.Weapons")]
-    public int usables_Weapons;
-    [Range(-50, 999), DefaultValue(-4), Label("$Mods.SPIC.Configs.Requirements.Requirements.StandardAmmo")]
-    public int ammo_Standard;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.SpecialAmmo")]
-    public int ammo_Special;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Potions")]
-    public int usables_Potions;
-    [Range(-50, 999), DefaultValue(5), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boosters")]
-    public int usables_Boosters;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Summoners")]
-    public int usables_Summoners;
-    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Critters")]
-    public int usables_Critters;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tools")]
-    public int usables_Tools;
-    
-    [Header("$Mods.SPIC.Categories.Placeable.names")]
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tiles")]
-    public int placeables_Tiles;
-    [Range(-50, 999), DefaultValue(499), Label("$Mods.SPIC.Configs.Requirements.Requirements.Ores")]
-    public int placeables_Ores;
-    [Range(-50, 999), DefaultValue(99), Label("$Mods.SPIC.Configs.Requirements.Requirements.Torches")]
-    public int placeables_Torches;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Furnitures")]
-    public int placeables_Furnitures;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Mechanical")]
-    public int placeables_Mechanical;
-    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Liquids")]
-    public int placeables_Liquids;
-    [Range(-50, 999), DefaultValue(20), Label("$Mods.SPIC.Configs.Requirements.Requirements.Seeds")]
-    public int placeables_Seeds;
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Paints")]
-    public int placeables_Paints;
+    // Dictionary<InfinityFDefinition, Dictionary<ConsumableTypeDefinition, object>>
+    private Dictionary<string, Dictionary<string, object>> _requirements = new();
+    public Dictionary<string, Dictionary<string, object>> Reqs {
+        get => _requirements;
+        set {
+            InfinityManager.ClearCache();
+            // Re-add all past infinties
+            foreach ((string inf, Dictionary<string, object> types) in value) {
+                foreach ((string name, object data) in types) {
+                    string jString = data switch {
+                        string s => s,
+                        JObject jObj => jObj.ToString(),
+                        _ => null,
+                    };
 
-    [Header("$Mods.SPIC.Categories.GrabBag.names")]
-    [Range(-50, 999), DefaultValue(10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Crates")]
-    public int bags_Crates;
-    [Range(-50, 999), DefaultValue(3), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boss")]
-    public int bags_TreasureBags;
+                    if (jString == null) continue;
 
-    [Header("$Mods.SPIC.Categories.Material.names")]
-    [Range(-50, 999), DefaultValue(-1), Label("$Mods.SPIC.Configs.Requirements.Requirements.Basics")]
-    public int materials_Basics;
-    [Range(-50, 999), DefaultValue(499d), Label("$Mods.SPIC.Configs.Requirements.Requirements.Ores")]
-    public int materials_Ores;
-    [Range(-50, 999), DefaultValue(20), Label("$Mods.SPIC.Configs.Requirements.Requirements.Furnitures")]
-    public int materials_Furnitures;
-    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Requirements.Requirements.Miscellaneous")]
-    public int materials_Miscellaneous;
-    [Range(-50, 0), DefaultValue(-2), Label("$Mods.SPIC.Configs.Requirements.Requirements.NonStackable")]
-    public int materials_NonStackable;
+                    ConsumableType type = InfinityManager.ConsumableType(name);
+                    if (type is null) {
+                        types[name] = jString;
+                        continue;
+                    }
+                    JsonConvert.PopulateObject(jString, types[name]=type.Requirements=type.CreateRequirements(), ConfigManager.serializerSettings);
+                }
+            }
+            // Add the mising ones
+            for (int i = 0; i < InfinityManager.InfinityCount; i++){
+                string name = InfinityManager.Infinity(i).Name;
+                value.TryAdd(name, new());
+                foreach (int typeID in InfinityManager.PairedConsumableType(i)) {
+                    ConsumableType type = InfinityManager.ConsumableType(typeID);
+                    if(!value[name].ContainsKey(type.Name))value[name].Add(type.Name, type.Requirements = type.CreateRequirements());
+                }
+            }
+            _requirements = value;
+        }
+    }
 
-    [Header("$Mods.SPIC.Categories.Currency.names")]
-    [Range(-50, 999), DefaultValue(-10), Label("$Mods.SPIC.Configs.Requirements.Requirements.Coins")]
-    public int currency_Coins;
-    [Range(-50, 999), DefaultValue(50), Label("$Mods.SPIC.Configs.Requirements.Requirements.CustomCoins")]
-    public int currency_Single;
 
-    [Header("$Mods.SPIC.Configs.Requirements.Customs.header")]
-    [Label("$Mods.SPIC.Configs.Requirements.Customs.Customs")]
-    public Dictionary<ItemDefinition,Custom> customs = new();
+    // TODO >>> reimplement customs
+    // [Header("$Mods.SPIC.Configs.Requirements.Customs.header")]
+    // [Label("$Mods.SPIC.Configs.Requirements.Customs.Customs")]
+    // public Dictionary<ItemDefinition,Custom> customs = new();
 
-    public CustomCategories GetCustomCategories(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
-    public CustomRequirements GetCustomRequirements(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Requirements() : new();
+    // public CustomCategories GetCustomCategories(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
+    // public CustomRequirements GetCustomRequirements(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Requirements() : new();
 
     // public void InGameSetCustom<T>(int type, CustomInfinity<T> customInfinity) where T : System.Enum{
     //     ItemDefinition key = new(type);
@@ -152,6 +215,11 @@ public class Requirements : ModConfig {
     // }
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
-    public static Requirements Instance => _instance ??= ModContent.GetInstance<Requirements>();
-    private static Requirements _instance;
+    public static Requirements Instance;
+
+    private bool _modifiedInGame = false;
+    public void ManualSave() {
+        if (_modifiedInGame) this.SaveConfig();
+        _modifiedInGame = false;
+    }
 }

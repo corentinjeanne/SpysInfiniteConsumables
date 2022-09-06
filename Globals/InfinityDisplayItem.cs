@@ -9,7 +9,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
 namespace SPIC.Globals;
 
 public class InfinityDisplayItem : GlobalItem {
@@ -23,7 +23,7 @@ public class InfinityDisplayItem : GlobalItem {
     public override void SetStaticDefaults() {
         static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
         int lcm = 1;
-        for (int i = 2; i < InfinityManager.InfinityCount; i++) {
+        for (int i = 2; i < InfinityManager.ConsumableTypesCount; i++) {
             lcm = i*lcm/GCD(i, lcm);
         }
 
@@ -39,25 +39,26 @@ public class InfinityDisplayItem : GlobalItem {
         if (s_DotCount >= s_HighestDot) s_DotCount = 0;
     }
 
+    // TODO display full infinity on name
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         Player player = Main.LocalPlayer;
 
         Configs.InfinityDisplay visuals = Configs.InfinityDisplay.Instance;
 
-        void ModifyLine(System.Func<TooltipLine> lineGetter, string missingLinePosition, Infinity inf, Item item){
+        void ModifyLine(System.Func<TooltipLine> lineGetter, string missingLinePosition, ConsumableType type, Item item){
             if (!visuals.toopltip_ShowMissingLines && tooltips.FindLine(missingLinePosition) is null) return;
 
             TooltipLine line = null;
             TooltipLine Line() => line ??= tooltips.FindorAddLine(lineGetter(), missingLinePosition);
             bool showInfinity = false;
-            InfinityDisplayLevel displayLevel = inf.GetInfinityDisplayLevel(item, true);
+            InfinityDisplayLevel displayLevel = type.GetInfinityDisplayLevel(item, true);
             if (displayLevel >= InfinityDisplayLevel.Infinity){
-                long infinity = InfinityManager.GetInfinity(player, item, inf.UID);
-                if (visuals.toopltip_ShowInfinities && infinity > Infinity.NotInfinite) {
-                    Line().OverrideColor = inf.Color;
+                long infinity = InfinityManager.GetInfinity(player, item, type.UID);
+                if (visuals.toopltip_ShowInfinities && infinity > ConsumableType.NotInfinite) {
+                    Line().OverrideColor = visuals.Colors[type.Name];
                     showInfinity = true;
                     KeyValuePair<int, long>[] partialInfinities = null;
-                    if (inf.IsFullyInfinite(item, infinity) || (partialInfinities = inf.GetPartialInfinity(item, infinity)).Length == 0) {
+                    if (type.IsFullyInfinite(item, infinity) || (partialInfinities = type.GetPartialInfinity(item, infinity)).Length == 0) {
                         line.Text = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line.Text);
                     } else {
                         string items = "";
@@ -73,28 +74,27 @@ public class InfinityDisplayItem : GlobalItem {
             if (displayLevel >= InfinityDisplayLevel.Requirement) {
                 int total = 0;
                 string Separator() => total++ == 0 ? " (" : ", ";
-                byte category = InfinityManager.GetCategory(item, inf.UID);
-                int requirement = InfinityManager.GetRequirement(item, inf.UID);
-                if (visuals.toopltip_ShowCategories && System.Array.IndexOf(inf.HiddenCategories, category) == -1) Line().Text += Separator() + Language.GetTextValue(inf.CategoryKey(category));
-                if (visuals.toopltip_ShowRequirement && requirement != Infinity.NoRequirement && !showInfinity) Line().Text += Separator() + (requirement > 0 ? Language.GetTextValue("Mods.SPIC.ItemTooltip.Requirement", requirement) : Language.GetTextValue("Mods.SPIC.ItemTooltip.RequirementStacks", -requirement));
+                byte category = InfinityManager.GetCategory(item, type.UID);
+                int requirement = InfinityManager.GetRequirement(item, type.UID);
+                if (visuals.toopltip_ShowCategories && System.Array.IndexOf(type.HiddenCategories, category) == -1) Line().Text += Separator() + Language.GetTextValue(type.CategoryKey(category));
+                if (visuals.toopltip_ShowRequirement && requirement != ConsumableType.NoRequirement && !showInfinity) Line().Text += Separator() + (requirement > 0 ? Language.GetTextValue("Mods.SPIC.ItemTooltip.Requirement", requirement) : Language.GetTextValue("Mods.SPIC.ItemTooltip.RequirementStacks", -requirement));
                 if (total > 0) line.Text += ")";
             }
 
 
         }
-
-        for (int i = 0; i < InfinityManager.InfinityCount; i++) {
-            Infinity inf = InfinityManager.Infinity(i);
-            if (!inf.Enabled) continue;
-            ModifyLine(() => inf.TooltipLine, inf.MissingLinePosition, inf, item);
-
-            // BUG ammo inf display for other weapons using this ammo
-            if(inf.ConsumesAmmo(item)){
-                if(inf.HasAmmo(player, item, out Item ammo)) ModifyLine(() =>  inf.AmmoLine(item, ammo), "WandConsumes", inf, ammo);
+        foreach (int usedID in item.UsedConsumableTypes()){
+            ConsumableType type = InfinityManager.ConsumableType(usedID);
+            ModifyLine(() => type.TooltipLine, type.MissingLinePosition, type, item);
+            // BUG ammo inf display for other weapons using this ammo even when not in inventory
+            if(type.ConsumesAmmo(item)){
+                if(type.HasAmmo(player, item, out Item ammo)) ModifyLine(() =>  type.AmmoLine(item, ammo), "WandConsumes", type, ammo);
             }
+
         }
     }
 
+    // TODO display full infinity on sprite
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.dots_ShowDots && !display.glow_ShowGlow) return;
@@ -102,37 +102,35 @@ public class InfinityDisplayItem : GlobalItem {
 
         // ? add randomness in the timing
 
-        List<(Infinity inf, bool fullyInfinity)> infinities = new();
-        for (int i = 0; i < InfinityManager.InfinityCount; i++) {
-            Infinity inf = InfinityManager.Infinity(i);
-            if (!inf.Enabled) continue;
-
+        List<(ConsumableType type, bool fullyInfinity)> infinities = new();
+        foreach (int usedID in item.UsedConsumableTypes()) {
+            ConsumableType type = InfinityManager.ConsumableType(usedID);
             Item target = null;
             long targetInfinity;
-            if((targetInfinity = player.GetInfinity(item, inf.UID)) > Infinity.NotInfinite)
+            if((targetInfinity = player.GetInfinity(item, type.UID)) > ConsumableType.NotInfinite)
                 target = item;
-            else if (inf.ConsumesAmmo(item) && inf.HasAmmo(player, item, out Item ammo) && (targetInfinity = player.GetInfinity(ammo, inf.UID)) > Infinity.NotInfinite)
+            else if (type.ConsumesAmmo(item) && type.HasAmmo(player, item, out Item ammo) && (targetInfinity = player.GetInfinity(ammo, type.UID)) > ConsumableType.NotInfinite)
                 target = ammo;
 
-            if(target != null) infinities.Add((inf, inf.IsFullyInfinite(target, targetInfinity)));
+            if(target != null) infinities.Add((type, type.IsFullyInfinite(target, targetInfinity)));
         }
 
         for (int i = infinities.Count - 1; i >= 0; i--){
-            if(infinities[i].inf.GetInfinityDisplayLevel(item, false) < InfinityDisplayLevel.Infinity)
+            if(infinities[i].type.GetInfinityDisplayLevel(item, false) < InfinityDisplayLevel.Infinity)
                 infinities.RemoveAt(i);
         }
 
         if(infinities.Count == 0) return;
         if (display.glow_ShowGlow) {
             int activeInfinitynumber = s_DotCount % infinities.Count;
-            (Infinity infinity, bool fullyInfinity) = infinities[activeInfinitynumber];
+            (ConsumableType type, bool fullyInfinity) = infinities[activeInfinitynumber];
             float progress = 1 - System.MathF.Abs(display.glow_PulseTime / 2 - s_DotFrame % display.glow_PulseTime) / display.glow_PulseTime * 2;
             float maxScale = fullyInfinity ? ((frame.Size().X + 4) / frame.Size().X - 1) : 0;
             spriteBatch.Draw(
                 TextureAssets.Item[item.type].Value,
                 position + frame.Size() / 2f * scale,
                 frame,
-                infinity.Color * display.glow_Intensity * progress,
+                display.Colors[type.Name] * display.glow_Intensity * progress,
                 0,
                 origin + frame.Size() / 2f,
                 scale * (progress * maxScale + 1f),
@@ -150,12 +148,12 @@ public class InfinityDisplayItem : GlobalItem {
             int pageCount = (infinities.Count+display.dots_PerPage-1) / display.dots_PerPage;
             int displayedPage = s_DotCount / display.dots_PerPage % pageCount;
             for (int i = 0; i + displayedPage * display.dots_PerPage < infinities.Count && i < display.dots_PerPage; i++) {
-                (Infinity infinity, bool fullyInfinity) = infinities[i + displayedPage*display.dots_PerPage];
+                (ConsumableType type, bool fullyInfinity) = infinities[i + displayedPage*display.dots_PerPage];
                 spriteBatch.Draw(
                     s_smallDot.Value,
                     pos + dotFrameSize * (start - delta * i),
                     null,
-                    infinity.Color * (fullyInfinity ? 1f : 0.5f),
+                    display.Colors[type.Name] * (fullyInfinity ? 1f : 0.5f),
                     0f,
                     Vector2.Zero,
                     Main.inventoryScale,

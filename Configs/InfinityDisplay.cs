@@ -1,16 +1,13 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
+using SPIC.ConsumableTypes;
 using Terraria.ModLoader.Config;
 
 
 namespace SPIC.Configs;
 [Label("$Mods.SPIC.Configs.InfinityDisplay.name")]
 public class InfinityDisplay : ModConfig {
-    public override ConfigScope Mode => ConfigScope.ClientSide;
-    public static InfinityDisplay Instance => _instance ??= ModContent.GetInstance<InfinityDisplay>();
-    private static InfinityDisplay _instance;
-
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Infinities")]
     public bool toopltip_ShowInfinities;
@@ -43,18 +40,19 @@ public class InfinityDisplay : ModConfig {
     [DefaultValue(6), Range(1,6), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
     public int dots_PerPage;
 
-    // TODO rework into dict
-    [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "0, 255, 200, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Usable")]
-    public Color color_Usables;
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "0, 180, 60, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Ammo")]
-    public Color color_Ammo;
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "125, 80, 0, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Placeables")]
-    public Color color_Placeables;
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "150, 100, 255, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Bags")]
-    public Color color_Bags;
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "255, 120, 187, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Materials")]
-    public Color color_Materials;
-    [ColorNoAlpha, ColorHSLSlider, DefaultValue(typeof(Color), "255, 255, 70, 255"), Label("$Mods.SPIC.Configs.InfinityDisplay.Colors.Currencies")]
-    public Color color_Currencies;
+    // [ColorNoAlpha, ColorHSLSlider]
+    private Dictionary<string, Color> _colors = new();
+    public Dictionary<string, Color> Colors {
+        get => _colors;
+        set {
+            for (int i = 0; i < InfinityManager.ConsumableTypesCount; i++) {
+                ConsumableType type = InfinityManager.ConsumableType(i);
+                value.TryAdd(type.Name, type.DefaultColor());
+            }
+            _colors = value;
+        }
+    }
+
+    public override ConfigScope Mode => ConfigScope.ClientSide;
+    public static InfinityDisplay Instance;
 }

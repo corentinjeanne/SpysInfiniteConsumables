@@ -1,10 +1,12 @@
-﻿using Terraria;
+﻿using System.ComponentModel;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 
-namespace SPIC.Infinities;
+namespace SPIC.ConsumableTypes;
 public enum UsableCategory : byte {
-    None = Infinity.NoCategory,
+    None = ConsumableType.NoCategory,
 
     Weapon,
     Recovery,
@@ -17,10 +19,28 @@ public enum UsableCategory : byte {
     Explosive,
     Tool,
 
-    Unknown = Infinity.UnknownCategory
+    Unknown = ConsumableType.UnknownCategory
 }
 
-public class Usable : Infinity<Usable> {
+public class UsableRequirements {
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Weapons")]
+    public int Weapons = -2;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Potions")]
+    public int Potions = -1;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boosters")]
+    public int Boosters = 5;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Summoners")]
+    public int Summoners = 3;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Critters")]
+    public int Critters = 10;
+    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tools")]
+    public int Tools = -1;
+}
+
+
+public class Usable : ConsumableType<Usable> {
+
+    public override bool CategoryDetection => true;
 
     public override int MaxStack(byte category) => (UsableCategory)category switch {
         UsableCategory.Weapon => 999,
@@ -38,21 +58,19 @@ public class Usable : Infinity<Usable> {
         UsableCategory.None or _ => 999,
     };
     public override int Requirement(byte category) {
-        Configs.Requirements c = Configs.Requirements.Instance;
+        UsableRequirements reqs = (UsableRequirements)Requirements;
         return (UsableCategory)category switch {
-            UsableCategory.Weapon => c.usables_Weapons,
-            UsableCategory.Recovery or UsableCategory.Buff => c.usables_Potions,
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => c.usables_Boosters,
+            UsableCategory.Weapon => reqs.Weapons,
+            UsableCategory.Recovery or UsableCategory.Buff => reqs.Potions,
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => reqs.Boosters,
 
-            UsableCategory.Summoner => c.usables_Summoners,
-            UsableCategory.Critter => c.usables_Critters,
-            UsableCategory.Tool or UsableCategory.Explosive or UsableCategory.Unknown => c.usables_Tools,
+            UsableCategory.Summoner => reqs.Summoners,
+            UsableCategory.Critter => reqs.Critters,
+            UsableCategory.Tool or UsableCategory.Explosive or UsableCategory.Unknown => reqs.Tools,
 
-            UsableCategory.None or _ => Infinity.NoRequirement,
+            UsableCategory.None or _ => NoRequirement,
         };
     }
-
-    public override bool Enabled => Configs.Requirements.Instance.InfiniteConsumables;
 
     public override byte GetCategory(Item item) {
 
@@ -88,8 +106,11 @@ public class Usable : Infinity<Usable> {
         return (byte)UsableCategory.Unknown;
     }
 
-    public override Microsoft.Xna.Framework.Color Color => Configs.InfinityDisplay.Instance.color_Usables;
-    public override TooltipLine TooltipLine => AddedLine("Consumable", Lang.tip[35].Value);
+    public override Microsoft.Xna.Framework.Color DefaultColor() => new(0, 255, 200);
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
     public override string CategoryKey(byte category) => (UsableCategory)category == UsableCategory.Unknown ? $"Mods.SPIC.Categories.Unknown" : $"Mods.SPIC.Categories.Usable.{(UsableCategory)category}";
+
+    public override UsableRequirements CreateRequirements() => new();
+
     public override byte[] HiddenCategories => new[] { NoCategory };
 }

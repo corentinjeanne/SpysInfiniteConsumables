@@ -2,7 +2,7 @@
 using Terraria.ModLoader;
 using Terraria.ID;
 
-using SPIC.Infinities;
+using SPIC.ConsumableTypes;
 namespace SPIC.Globals {
 
     public class SpicNPC : GlobalNPC {
@@ -29,12 +29,12 @@ namespace SPIC.Globals {
                         _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
                     if (!_highestItemValue.ContainsKey(item.shopSpecialCurrency) || _highestItemValue[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
                         _highestItemValue[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                    if (!Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.ID))
+                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(item.shopSpecialCurrency), item.shopCustomPrice.Value, Currency.ID))
                         item.shopCustomPrice = item.value = 0;
                 } else {
                     if (!_hightestCost.ContainsKey(-1) || _hightestCost[-1] < item.value) _hightestCost[-1] = item.value;
                     if (!_highestItemValue.ContainsKey(-1) || _highestItemValue[-1] < item.value) _highestItemValue[-1] = item.value;
-                    if (!Main.LocalPlayer.HasInfinite(-1, item.value, Currency.ID))
+                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(-1), item.value, Currency.ID))
                         item.value = 0;
                 }
             }
@@ -70,7 +70,7 @@ namespace SPIC.Globals {
             // Prevent duping
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
-                if (critter.active && critter.type == Type && Configs.Requirements.Instance.PreventItemDupication && !Main.player[who].HasInfinite(critter.catchItem, 1, Usable.ID))
+                if (critter.active && critter.type == Type && Configs.Requirements.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, 1, Usable.ID))
                     critter.SpawnedFromStatue = true;
             }
         }
