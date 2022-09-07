@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Terraria;
@@ -112,17 +113,26 @@ namespace SPIC {
             return i;
         }
 
-        public static K[] Reverse<K,V>(this System.Collections.Generic.Dictionary<K,V> dictionary, V value) {
+        public static K[] Reverse<K,V>(this Dictionary<K,V> dictionary, V value) {
             System.Collections.Generic.List<K> reverse = new();
             foreach (var kvp in dictionary) {
                 if(kvp.Value.Equals(value)) reverse.Add(kvp.Key);
             }
             return reverse.ToArray();
         }
+        public static V FindValue<K,V>(this Dictionary<K,V> dictionary, System.Predicate<KeyValuePair<K,V>> pred) {
+            foreach (var kvp in dictionary) {
+                if(pred.Invoke(kvp)) return kvp.Value;
+            }
+            return default;
+        }
 
         public static void SaveConfig(this ModConfig config){
             using StreamWriter sw = new(ConfigManager.ModConfigPath + $"\\{config.Mod.Name}_{config.GetType().Name}.json");
             sw.Write(JsonConvert.SerializeObject(config, ConfigManager.serializerSettings));
         }
+
+        public static bool InRange<T>(this T value, T min_included, T max) where T : System.IComparable<T>
+            => min_included.CompareTo(value) <= 0 && value.CompareTo(max) < 0;
     }
 }

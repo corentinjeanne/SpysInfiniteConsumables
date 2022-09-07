@@ -5,7 +5,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 
-// TODO only display material infinity on mat for selected recipe (& if inf mat)
+// TODO >>> display material infinity on mat for selected recipe (& if inf mat)
 
 public enum MaterialCategory {
     None = ConsumableType.NoCategory,
@@ -29,7 +29,7 @@ public class MaterialRequirements {
     public int NonStackable = -2;
 }
 
-public class Material : ConsumableType<Material> {
+public class Material : ConsumableType<Material>, IPartialInfinity {
 
     public override int MaxStack(byte category) => (MaterialCategory)category switch {
         MaterialCategory.Basic => 999,
@@ -40,7 +40,7 @@ public class Material : ConsumableType<Material> {
         MaterialCategory.None or _ => 999,
     };
     public override int Requirement(byte category) {
-        MaterialRequirements reqs = (MaterialRequirements)Requirements;
+        MaterialRequirements reqs = (MaterialRequirements)ConfigRequirements;
         return (MaterialCategory)category switch {
             MaterialCategory.Basic => reqs.Basics,
             MaterialCategory.Ore => reqs.Ores,
@@ -50,9 +50,6 @@ public class Material : ConsumableType<Material> {
             MaterialCategory.None or _ => NoRequirement,
         };
     }
-
-    
-    public override bool Customs => false;
 
     public override byte GetCategory(Item item) {
 
@@ -83,7 +80,7 @@ public class Material : ConsumableType<Material> {
         => InfinityManager.CalculateInfinity(item.type, MaxStack(InfinityManager.GetCategory(item, ID)), count, InfinityManager.GetRequirement(item, ID), 0.5f, InfinityManager.ARIDelegates.LargestMultiple);
 
     // TODO improve to use the available recipes
-    public override bool IsFullyInfinite(Item item, long infinity) => infinity >= Systems.InfiniteRecipe.HighestCost(item.type);
+    public long GetFullInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
 
     public override Microsoft.Xna.Framework.Color DefaultColor() => new(255, 120, 187);

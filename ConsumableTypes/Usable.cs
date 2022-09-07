@@ -38,9 +38,7 @@ public class UsableRequirements {
 }
 
 
-public class Usable : ConsumableType<Usable> {
-
-    public override bool CategoryDetection => true;
+public class Usable : ConsumableType<Usable>, IDetectable, ICustomizable {
 
     public override int MaxStack(byte category) => (UsableCategory)category switch {
         UsableCategory.Weapon => 999,
@@ -58,7 +56,7 @@ public class Usable : ConsumableType<Usable> {
         UsableCategory.None or _ => 999,
     };
     public override int Requirement(byte category) {
-        UsableRequirements reqs = (UsableRequirements)Requirements;
+        UsableRequirements reqs = (UsableRequirements)ConfigRequirements;
         return (UsableCategory)category switch {
             UsableCategory.Weapon => reqs.Weapons,
             UsableCategory.Recovery or UsableCategory.Buff => reqs.Potions,

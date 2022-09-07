@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -7,7 +5,6 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using Newtonsoft.Json;
 using SPIC.ConsumableTypes;
 
 namespace SPIC.Configs;
@@ -32,7 +29,7 @@ public class CategoryDetection : ModConfig {
             // Keep the old ones and add the mising ones
             for (int i = 0; i < InfinityManager.InfinityCount; i++) {
                 ConsumableType type = InfinityManager.ConsumableType(i);
-                if(type.CategoryDetection) value.TryAdd(type.Name, new());
+                if(type is IDetectable) value.TryAdd(type.Name, new());
                 else value.Remove(type.Name);
             }
             _detectedCategories = value;
@@ -42,7 +39,7 @@ public class CategoryDetection : ModConfig {
     public bool SaveDetectedCategory(Item item, byte category, int typeID){
         if(category == ConsumableType.UnknownCategory) throw new("A detected category cannot be unkonwn");
         ConsumableType type = InfinityManager.ConsumableType(typeID);
-        if(!type.CategoryDetection) return false;
+        if(type is not IDetectable) return false;
 
         ItemDefinition key = new (item.type);
         if (!DetectedCategories[type.Name].TryAdd(key, category)) return false;
@@ -56,10 +53,10 @@ public class CategoryDetection : ModConfig {
     
     public byte GetDetectedCategory(int type, int typeID){
         if(!DetectMissing) return ConsumableType.UnknownCategory;
-        ConsumableType infinity = InfinityManager.ConsumableType(typeID);
-        if (!infinity.CategoryDetection) return ConsumableType.UnknownCategory;
+        ConsumableType consumable = InfinityManager.ConsumableType(typeID);
+        if (consumable is not IDetectable) return ConsumableType.UnknownCategory;
 
-        return DetectedCategories.TryGetValue(infinity.Name, out var categories) && categories.TryGetValue(new(type), out byte category)
+        return DetectedCategories.TryGetValue(consumable.Name, out var categories) && categories.TryGetValue(new(type), out byte category)
             ? category
             : ConsumableType.UnknownCategory;
     }

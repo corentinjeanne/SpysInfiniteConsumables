@@ -97,7 +97,6 @@ public class ConsumptionItem : GlobalItem {
             }
 
             // Hotkey
-            // ? Hotkeys detect buff
         }
 
         // LeftClick

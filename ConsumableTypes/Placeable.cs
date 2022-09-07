@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using Terraria.ObjectData;
@@ -56,9 +57,7 @@ public class PlaceableRequirements {
     public int Paints = -1;
 }
 
-public class Placeable : ConsumableType<Placeable> {
-
-    public override bool CategoryDetection => true;
+public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, IDetectable {
 
     public override int MaxStack(byte category) => (PlaceableCategory)category switch {
         PlaceableCategory.Block => 999,
@@ -85,7 +84,7 @@ public class Placeable : ConsumableType<Placeable> {
     };
 
     public override int Requirement(byte category) {
-        PlaceableRequirements reqs = (PlaceableRequirements)Requirements;
+        PlaceableRequirements reqs = (PlaceableRequirements)ConfigRequirements;
         return (PlaceableCategory)category switch {
             PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => reqs.Tiles,
             PlaceableCategory.Torch => reqs.Torches,
@@ -183,15 +182,15 @@ public class Placeable : ConsumableType<Placeable> {
         _ => WandType.None
     };
 
-    public override bool ConsumesAmmo(Item item) => GetWandType(item) != WandType.None;
-    public override Item GetAmmo(Player player, Item wand) => GetWandType(wand) switch {
+    public bool ConsumesAmmo(Item item) => GetWandType(item) != WandType.None;
+    public Item GetAmmo(Player player, Item wand) => GetWandType(wand) switch {
         WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
         WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
         WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
         WandType.None or _ => null
     };
 
-    public override TooltipLine AmmoLine(Item weapon, Item ammo) => GetWandType(weapon) == WandType.Tile ? TooltipHelper.AddedLine("WandConsumes", null) : base.AmmoLine(weapon, ammo);
+    public TooltipLine AmmoLine(Item weapon, Item ammo) => TooltipHelper.AddedLine("WandConsumes", GetWandType(weapon) == WandType.Tile ? null : Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
 
     private static readonly Dictionary<int, byte> s_Ammos = new(); // type, category (ammo)
     internal static void ClearWandAmmos() => s_Ammos.Clear();

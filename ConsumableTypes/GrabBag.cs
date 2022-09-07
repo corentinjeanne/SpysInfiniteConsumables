@@ -19,9 +19,7 @@ public class GrabBagRequirements {
     public int TreasureBags = 3;
 }
 
-public class GrabBag : ConsumableType<GrabBag> {
-
-    public override bool CategoryDetection => true;
+public class GrabBag : ConsumableType<GrabBag>, ICustomizable, IDetectable {
 
     public override int MaxStack(byte bag) => (GrabBagCategory)bag switch {
         GrabBagCategory.TreasureBag => 999,
@@ -29,7 +27,7 @@ public class GrabBag : ConsumableType<GrabBag> {
         GrabBagCategory.None or GrabBagCategory.Unkown or _ => 999,
     };
     public override int Requirement(byte bag) {
-        GrabBagRequirements reqs = (GrabBagRequirements)Requirements;
+        GrabBagRequirements reqs = (GrabBagRequirements)ConfigRequirements;
         return (GrabBagCategory)bag switch {
             GrabBagCategory.Crate => reqs.Crates,
             GrabBagCategory.TreasureBag => reqs.TreasureBags,

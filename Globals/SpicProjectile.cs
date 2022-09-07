@@ -27,7 +27,6 @@ namespace SPIC.Globals {
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            // ? move in DetectionPlayer
             bool detected = false;
             if((AmmoCategory)item.GetCategory(Ammo.ID) != AmmoCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)AmmoCategory.Explosive, Ammo.ID))
                 detected = true;

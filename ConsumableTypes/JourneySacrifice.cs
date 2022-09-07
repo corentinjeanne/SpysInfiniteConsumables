@@ -40,13 +40,10 @@ public class JourneySacrifice : ConsumableType<JourneySacrifice> {
         return (byte)JourneySacrificeCategory.OnlySacrifice;
     }
 
-    public override bool Customs => false;
-
-
     public override int GetRequirement(Item item) {
         JourneySacrificeCategory category = (JourneySacrificeCategory)item.GetCategory(UID);
         if(category == JourneySacrificeCategory.None
-                || (category == JourneySacrificeCategory.OnlySacrifice && !((JourneySacrificeRequirements)Requirements).IncludeOnlySacrifices))
+                || (category == JourneySacrificeCategory.OnlySacrifice && !((JourneySacrificeRequirements)ConfigRequirements).IncludeOnlySacrifices))
             return 0;
 
         return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];

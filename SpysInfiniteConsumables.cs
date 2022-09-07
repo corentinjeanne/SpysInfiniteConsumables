@@ -21,6 +21,8 @@ public class SpysInfiniteConsumables : Mod {
         Infinities.Currencies.Register();
         Infinities.JourneyResearch.Register();
 
+
+        InfinityManager.RegisterHiddenConsumableType(ConsumableTypes.Mixed.Instance); // Special
         ConsumableTypes.Ammo.Register(Infinities.Consumables.ID);
         ConsumableTypes.Usable.Register(Infinities.Consumables.ID);
         ConsumableTypes.Placeable.Register(Infinities.Placeables.ID);
@@ -29,7 +31,6 @@ public class SpysInfiniteConsumables : Mod {
         ConsumableTypes.Currency.Register(Infinities.Currencies.ID);
         ConsumableTypes.JourneySacrifice.Register(Infinities.JourneyResearch.ID);
 
-        Configs.Requirements.Instance.SaveConfig(); // >>> TODO move in a better place
     }
 
     public override void Unload() {

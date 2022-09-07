@@ -18,7 +18,7 @@ public class CurrencyRequirements {
     public int Single = 50;
 }
 
-public class Currency : ConsumableType<Currency> {
+public class Currency : ConsumableType<Currency>, IPartialInfinity {
 
     
 
@@ -28,7 +28,7 @@ public class Currency : ConsumableType<Currency> {
         CurrencyCategory.None or _ => 999,
     };
     public override int Requirement(byte category) {
-        CurrencyRequirements reqs = (CurrencyRequirements)Requirements;
+        CurrencyRequirements reqs = (CurrencyRequirements)ConfigRequirements;
         return (CurrencyCategory)category switch {
             CurrencyCategory.Coin => reqs.Coins,
             CurrencyCategory.SingleCoin => reqs.Single,
@@ -40,8 +40,6 @@ public class Currency : ConsumableType<Currency> {
         long value = item.CurrencyValue();
         return value == 0 ? 0 : player.CountCurrency(item.CurrencyType(), true) / value;
     }
-
-    public override bool Customs => false;
 
     // public override byte GetCategory(int currency) {
     public override byte GetCategory(Item item) { // => GetCategory(Type(item));
@@ -66,17 +64,17 @@ public class Currency : ConsumableType<Currency> {
         return InfinityManager.CalculateInfinity(MaxStack((byte)category), count, InfinityManager.GetRequirement(item, ID), mult, ari, args);
     }
 
-    public override bool IsFullyInfinite(Item item, long infinity) {
+    public long GetFullInfinity(Player player, Item item) {
         int currency = item.CurrencyType();
         long value = item.CurrencyValue();
         long cost;
         if (Main.InReforgeMenu) cost = Main.reforgeItem.value;
         else if (Main.npcShop != 0) cost = Globals.SpicNPC.HighestPrice(currency);
         else cost = Globals.SpicNPC.HighestItemValue(currency);
-        return value != 0 && infinity*value >= cost;
+        return value == 0 ? NotInfinite : cost / value + (cost % value == 0 ? 0 : 1);
     }
 
-    public override KeyValuePair<int, long>[] GetPartialInfinity(Item item, long infinity)
+    public KeyValuePair<int, long>[] GetPartialInfinity(Item item, long infinity)
         => CurrencyHelper.CurrencyCountToItems(item.CurrencyType(), infinity * item.CurrencyValue()).ToArray();
 
     public override Microsoft.Xna.Framework.Color DefaultColor() => new(255, 255, 70);

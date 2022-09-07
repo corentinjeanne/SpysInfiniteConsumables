@@ -3,7 +3,6 @@ using System.ComponentModel;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using System.IO;
 using Newtonsoft.Json;
 using SPIC.ConsumableTypes;
 using Newtonsoft.Json.Linq;
@@ -19,7 +18,7 @@ public class CustomRequirement<T> where T : System.Enum {
     public int Requirement;
 }
 
-// TODO >>> rework into dict
+// TODO rework into dict
 public class Custom {
     [Label("$Mods.SPIC.Configs.Requirements.Customs.Ammo")]
     public CustomRequirement<ConsumableTypes.AmmoCategory> Ammo;
@@ -55,14 +54,14 @@ public class Custom {
 
 }
 
-public readonly record struct CustomCategories(ConsumableTypes.AmmoCategory? Ammo, ConsumableTypes.UsableCategory? Usable, ConsumableTypes.GrabBagCategory? GrabBag, ConsumableTypes.PlaceableCategory? Placeable);
+public readonly record struct CustomCategories(AmmoCategory? Ammo, UsableCategory? Usable, GrabBagCategory? GrabBag, PlaceableCategory? Placeable);
 
 public readonly record struct CustomRequirements(int? Ammo, int? Usable, int? GrabBag, int? Placeable);
 
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class Requirements : ModConfig {
     
-    public enum InfinityPreset { // ? Rework to be more flexible
+    public enum InfinityPreset { // TODO Rework to be more flexible
         None,
         Default,
         OneForAll,
@@ -97,7 +96,7 @@ public class Requirements : ModConfig {
         }
         set {
             switch (value) {
-            case InfinityPreset.Default: // ? unloaded stuff
+            case InfinityPreset.Default:
                 Infinities = new();
                 ConsumableTypePriority = new();
                 MaxInfinities = 0;
@@ -142,7 +141,7 @@ public class Requirements : ModConfig {
     }
 
     // List<ConsumableTypeDefinition>
-    private List<string> _consumableTypePriority = new(); // ? (string, bool) to allow disableing specific types
+    private List<string> _consumableTypePriority = new();
     public List<string> ConsumableTypePriority{
         get => _consumableTypePriority;
         set {
@@ -182,7 +181,7 @@ public class Requirements : ModConfig {
                         types[name] = jString;
                         continue;
                     }
-                    JsonConvert.PopulateObject(jString, types[name]=type.Requirements=type.CreateRequirements(), ConfigManager.serializerSettings);
+                    JsonConvert.PopulateObject(jString, types[name]=type.ConfigRequirements=type.CreateRequirements(), ConfigManager.serializerSettings);
                 }
             }
             // Add the mising ones
@@ -191,7 +190,7 @@ public class Requirements : ModConfig {
                 value.TryAdd(name, new());
                 foreach (int typeID in InfinityManager.PairedConsumableType(i)) {
                     ConsumableType type = InfinityManager.ConsumableType(typeID);
-                    if(!value[name].ContainsKey(type.Name))value[name].Add(type.Name, type.Requirements = type.CreateRequirements());
+                    if(!value[name].ContainsKey(type.Name))value[name].Add(type.Name, type.ConfigRequirements = type.CreateRequirements());
                 }
             }
             _requirements = value;
@@ -199,20 +198,10 @@ public class Requirements : ModConfig {
     }
 
 
-    // TODO >>> reimplement customs
+    // TODO reimplement customs
     // [Header("$Mods.SPIC.Configs.Requirements.Customs.header")]
     // [Label("$Mods.SPIC.Configs.Requirements.Customs.Customs")]
     // public Dictionary<ItemDefinition,Custom> customs = new();
-
-    // public CustomCategories GetCustomCategories(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Categories() : new();
-    // public CustomRequirements GetCustomRequirements(int type) => customs.TryGetValue(new(type), out var custom) ? custom.Requirements() : new();
-
-    // public void InGameSetCustom<T>(int type, CustomInfinity<T> customInfinity) where T : System.Enum{
-    //     ItemDefinition key = new(type);
-    //     if(Customs.TryGetValue(new(type), out Custom custom)) custom.Set(customInfinity);
-    //     else Customs.Add(key,Custom.CreateWith(customInfinity));
-    //     _modifiedInGame = true;
-    // }
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
     public static Requirements Instance;

@@ -6,7 +6,7 @@ public abstract class Infinity<Type> : Infinity where Type : Infinity<Type>, new
     protected Infinity() { }
     static Infinity() { }
 
-    public static void Register() => Instance.UID = InfinityManager.RegisterInfinity(Instance);
+    public static void Register() => InfinityManager.RegisterInfinity(Instance);
 }
 
 public abstract class Infinity {

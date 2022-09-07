@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 using Terraria.ModLoader.Config;
@@ -18,9 +19,7 @@ public class AmmoRequirements {
     public int Special = -1;
 }
 
-public class Ammo : ConsumableType<Ammo> {
-
-    
+public class Ammo : ConsumableType<Ammo>, IAmmunition, ICustomizable {
 
     public override int MaxStack(byte category) => (AmmoCategory)category switch {
         AmmoCategory.Basic => 999,
@@ -30,7 +29,7 @@ public class Ammo : ConsumableType<Ammo> {
     };
 
     public override int Requirement(byte category) {
-        AmmoRequirements reqs = (AmmoRequirements)Requirements;
+        AmmoRequirements reqs = (AmmoRequirements)ConfigRequirements;
         return (AmmoCategory)category switch {
             AmmoCategory.Basic => reqs.Standard,
             AmmoCategory.Special or AmmoCategory.Explosive => reqs.Special,
@@ -38,11 +37,12 @@ public class Ammo : ConsumableType<Ammo> {
         };
     }
 
-    public override bool ConsumesAmmo(Item item) => item.useAmmo > AmmoID.None;
-    public override Item GetAmmo(Player player, Item item)
+    public bool ConsumesAmmo(Item item) => item.useAmmo > AmmoID.None;
+    public Item GetAmmo(Player player, Item item)
         => player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true)
             ? System.Array.Find(player.inventory, i => i.type == ammoType) : null;
-    
+    public TooltipLine AmmoLine(Item weapon, Item ammo) => TooltipHelper.AddedLine(Name + "Consumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
+
     public override byte GetCategory(Item item) {
         if (!item.consumable || item.ammo == AmmoID.None) return (byte)AmmoCategory.None;
         if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)
@@ -56,4 +56,5 @@ public class Ammo : ConsumableType<Ammo> {
     public override object CreateRequirements() => new AmmoRequirements();
 
     public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Ammo.{(AmmoCategory)category}";
+
 }
