@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -12,15 +14,15 @@ public enum CurrencyCategory {
 }
 
 public class CurrencyRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Coins")]
-    public int Coins = -10;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.CustomCoins")]
-    public int Single = 50;
+    [Label("$Mods.SPIC.Types.Currency.coins")]
+    public Configs.Requirement Coins = -10;
+    [Label("$Mods.SPIC.Types.Currency.custom")]
+    public Configs.Requirement Single = 50;
 }
 
 public class Currency : ConsumableType<Currency>, IPartialInfinity {
-
-    
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Currency.name");
 
     public override int MaxStack(byte category) => (CurrencyCategory)category switch {
         CurrencyCategory.Coin => 100,
@@ -77,11 +79,11 @@ public class Currency : ConsumableType<Currency>, IPartialInfinity {
     public KeyValuePair<int, long>[] GetPartialInfinity(Item item, long infinity)
         => CurrencyHelper.CurrencyCountToItems(item.CurrencyType(), infinity * item.CurrencyValue()).ToArray();
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(255, 255, 70);
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.CoinGold;// new(255, 255, 70);
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Terraria.Localization.Language.GetTextValue("Mods.SPIC.Categories.Currency.name"));
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.Categories.Currency.name"));
     public override string MissingLinePosition => "Consumable";
-    public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Currency.{(CurrencyCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((CurrencyCategory)category).ToString();
 
     public override CurrencyRequirements CreateRequirements() => new();
 }

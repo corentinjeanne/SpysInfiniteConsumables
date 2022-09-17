@@ -1,8 +1,8 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
-
 using SPIC.ConsumableTypes;
+
 namespace SPIC.Globals {
 
     public class SpicNPC : GlobalNPC {
@@ -70,7 +70,7 @@ namespace SPIC.Globals {
             // Prevent duping
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
-                if (critter.active && critter.type == Type && Configs.Requirements.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, 1, Usable.ID))
+                if (critter.active && critter.type == Type && Configs.RequirementSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, 1, Usable.ID))
                     critter.SpawnedFromStatue = true;
             }
         }

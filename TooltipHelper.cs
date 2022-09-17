@@ -1,5 +1,6 @@
-﻿using Terraria.ModLoader;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using Terraria.ModLoader;
 
 namespace SPIC {
     public static class TooltipHelper {

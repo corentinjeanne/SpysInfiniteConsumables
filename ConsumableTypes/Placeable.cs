@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
-using Terraria.ObjectData;
 
 namespace SPIC.ConsumableTypes;
 
@@ -39,25 +37,28 @@ public static class PlaceableExtension {
 }
 
 public class PlaceableRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tiles")]
-    public int Tiles = -1;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Ores")]
-    public int Ores = 499;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Torches")]
-    public int Torches = 99;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Furnitures")]
-    public int Furnitures = 3;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Mechanical")]
-    public int Mechanical = 3;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Liquids")]
-    public int Liquids = 10;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Seeds")]
-    public int Seeds = 20;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Paints")]
-    public int Paints = -1;
+    [Label("$Mods.SPIC.Types.Placeable.tiles")]
+    public Configs.Requirement Tiles = -1;
+    [Label("$Mods.SPIC.Types.Placeable.ores")]
+    public Configs.Requirement Ores = 499;
+    [Label("$Mods.SPIC.Types.Placeable.torches")]
+    public Configs.Requirement Torches = 99;
+    [Label("$Mods.SPIC.Types.Placeable.furnitures")]
+    public Configs.Requirement Furnitures = 3;
+    [Label("$Mods.SPIC.Types.Placeable.mechanical")]
+    public Configs.Requirement Mechanical = 3;
+    [Label("$Mods.SPIC.Types.Placeable.liquids")]
+    public Configs.Requirement Liquids = 10;
+    [Label("$Mods.SPIC.Types.Placeable.seeds")]
+    public Configs.Requirement Seeds = 20;
+    [Label("$Mods.SPIC.Types.Placeable.paints")]
+    public Configs.Requirement Paints = -1;
 }
 
 public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, IDetectable {
+
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Placeable.name");
 
     public override int MaxStack(byte category) => (PlaceableCategory)category switch {
         PlaceableCategory.Block => 999,
@@ -105,10 +106,7 @@ public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, 
 
     public override byte GetCategory(Item item) {
 
-        byte detected = Configs.CategoryDetection.Instance.GetDetectedCategory(item.type, UID);
-        if (detected != UnknownCategory) return detected;
-
-        if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_Ammos.ContainsKey(item.type))
+        if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_ammos.ContainsKey(item.type) && !(item.FitsAmmoSlot() && item.mech))
             return (byte)PlaceableCategory.None;
 
         return GetCategory_NoCheck(item);
@@ -157,15 +155,15 @@ public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, 
         if (item.createWall != -1) return (byte)PlaceableCategory.Wall;
 
         if(item.FitsAmmoSlot() && item.mech) return (byte)PlaceableCategory.Wiring;
-        if (s_Ammos.TryGetValue(item.type, out byte category)) return category;
+        if (s_ammos.TryGetValue(item.type, out byte category)) return category;
 
         return (byte)PlaceableCategory.None;
 
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(125, 80, 0);
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityAmber; // new(125, 80, 0);
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Placeable", Lang.tip[33].Value);
-    public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Placeable.{(PlaceableCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((PlaceableCategory)category).ToString();
 
     public enum WandType {
         None,
@@ -192,9 +190,9 @@ public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, 
 
     public TooltipLine AmmoLine(Item weapon, Item ammo) => TooltipHelper.AddedLine("WandConsumes", GetWandType(weapon) == WandType.Tile ? null : Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
 
-    private static readonly Dictionary<int, byte> s_Ammos = new(); // type, category (ammo)
-    internal static void ClearWandAmmos() => s_Ammos.Clear();
-    public static void RegisterWand(Item wand) => s_Ammos.TryAdd(wand.tileWand, GetCategory_NoCheck(wand));
+    private static readonly Dictionary<int, byte> s_ammos = new(); // type, category (ammo)
+    internal static void ClearWandAmmos() => s_ammos.Clear();
+    public static void RegisterWand(Item wand) => s_ammos.TryAdd(wand.tileWand, GetCategory_NoCheck(wand));
 
     public override PlaceableRequirements CreateRequirements() => new();
 

@@ -1,7 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-
 using SPIC.ConsumableTypes;
+
 namespace SPIC.Globals {
 
 	public class SpicProjectile : GlobalProjectile {

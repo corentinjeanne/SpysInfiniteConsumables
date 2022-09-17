@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -23,22 +23,25 @@ public enum UsableCategory : byte {
 }
 
 public class UsableRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Weapons")]
-    public int Weapons = -2;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Potions")]
-    public int Potions = -1;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boosters")]
-    public int Boosters = 5;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Summoners")]
-    public int Summoners = 3;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Critters")]
-    public int Critters = 10;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Tools")]
-    public int Tools = -1;
+    [Label("$Mods.SPIC.Types.Usable.weapons")]
+    public Configs.Requirement Weapons = -2;
+    [Label("$Mods.SPIC.Types.Usable.potions")]
+    public Configs.Requirement Potions = -1;
+    [Label("$Mods.SPIC.Types.Usable.boosters")]
+    public Configs.Requirement Boosters = 5;
+    [Label("$Mods.SPIC.Types.Usable.summoners")]
+    public Configs.Requirement Summoners = 3;
+    [Label("$Mods.SPIC.Types.Usable.critters")]
+    public Configs.Requirement Critters = 10;
+    [Label("$Mods.SPIC.Types.Usable.tools")]
+    public Configs.Requirement Tools = -1;
 }
 
 
 public class Usable : ConsumableType<Usable>, IDetectable, ICustomizable {
+
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Usable.name");
 
     public override int MaxStack(byte category) => (UsableCategory)category switch {
         UsableCategory.Weapon => 999,
@@ -104,9 +107,9 @@ public class Usable : ConsumableType<Usable>, IDetectable, ICustomizable {
         return (byte)UsableCategory.Unknown;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(0, 255, 200);
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityCyan; // new(0, 255, 200);
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
-    public override string CategoryKey(byte category) => (UsableCategory)category == UsableCategory.Unknown ? $"Mods.SPIC.Categories.Unknown" : $"Mods.SPIC.Categories.Usable.{(UsableCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((UsableCategory)category).ToString();
 
     public override UsableRequirements CreateRequirements() => new();
 

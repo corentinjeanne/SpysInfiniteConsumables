@@ -2,7 +2,6 @@
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-
 using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
@@ -13,13 +12,15 @@ public enum AmmoCategory {
     Special
 }
 public class AmmoRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.StandardAmmo")]
-    public int Standard= -4;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.SpecialAmmo")]
-    public int Special = -1;
+    [Label("$Mods.SPIC.Types.Ammo.standard")]
+    public Configs.Requirement Standard = -4;
+    [Label("$Mods.SPIC.Types.Ammo.special")]
+    public Configs.Requirement Special = -1;
 }
 
 public class Ammo : ConsumableType<Ammo>, IAmmunition, ICustomizable {
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Ammo.name");
 
     public override int MaxStack(byte category) => (AmmoCategory)category switch {
         AmmoCategory.Basic => 999,
@@ -38,7 +39,7 @@ public class Ammo : ConsumableType<Ammo>, IAmmunition, ICustomizable {
     }
 
     public bool ConsumesAmmo(Item item) => item.useAmmo > AmmoID.None;
-    public Item GetAmmo(Player player, Item item)
+    public Item GetAmmo(Player player, Item item) // BUG when called outside of world
         => player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true)
             ? System.Array.Find(player.inventory, i => i.type == ammoType) : null;
     public TooltipLine AmmoLine(Item weapon, Item ammo) => TooltipHelper.AddedLine(Name + "Consumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
@@ -50,11 +51,11 @@ public class Ammo : ConsumableType<Ammo>, IAmmunition, ICustomizable {
         return (byte)AmmoCategory.Special;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(0, 180, 60);
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityLime; // new(0, 180, 60);
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Ammo", Lang.tip[34].Value);
 
     public override object CreateRequirements() => new AmmoRequirements();
 
-    public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Ammo.{(AmmoCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((AmmoCategory)category).ToString();
 
 }

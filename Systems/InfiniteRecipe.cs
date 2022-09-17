@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SPIC.ConsumableTypes;
 using Terraria;
 using Terraria.ModLoader;
+using SPIC.ConsumableTypes;
 
 namespace SPIC.Systems {
 

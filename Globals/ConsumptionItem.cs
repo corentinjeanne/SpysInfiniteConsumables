@@ -1,12 +1,9 @@
 using System.Reflection;
 using MonoMod.Cil;
-
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
 using SPIC.ConsumableTypes;
-using System;
 
 namespace SPIC.Globals;
 
@@ -61,7 +58,7 @@ public class ConsumptionItem : GlobalItem {
         for (int type = 0; type < ItemLoader.ItemCount; type++) {
             Item item = new(type);
             if (type >= ItemID.Count || !SetDefaultsHook)
-                s_itemMaxStack[type] = Math.Clamp(item.maxStack, 1, 999);
+                s_itemMaxStack[type] = System.Math.Clamp(item.maxStack, 1, 999);
         }
     }
 
@@ -123,7 +120,7 @@ public class ConsumptionItem : GlobalItem {
     public override void OnResearched(Item item, bool fullyResearched) {
         int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.SacrificesCountByItemIdCache[item.type];
         int researchCost = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
-        int consumed = Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);
+        int consumed = System.Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);
         if (Main.LocalPlayer.HasInfinite(item, consumed, JourneySacrifice.ID))
             item.stack += consumed;
     }

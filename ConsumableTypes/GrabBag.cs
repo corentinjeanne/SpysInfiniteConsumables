@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -13,13 +13,17 @@ public enum GrabBagCategory {
 }
 
 public class GrabBagRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Crates")]
-    public int Crates = 40;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Boss")]
-    public int TreasureBags = 3;
+    [Label("$Mods.SPIC.Types.GrabBag.crates")]
+    public Configs.Requirement Crates = 10;
+    [Label("$Mods.SPIC.Types.GrabBag.boss")]
+    public Configs.Requirement TreasureBags = 3;
 }
 
 public class GrabBag : ConsumableType<GrabBag>, ICustomizable, IDetectable {
+    
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.GrabBag.name");
 
     public override int MaxStack(byte bag) => (GrabBagCategory)bag switch {
         GrabBagCategory.TreasureBag => 999,
@@ -43,11 +47,11 @@ public class GrabBag : ConsumableType<GrabBag>, ICustomizable, IDetectable {
 
         return (byte)GrabBagCategory.Unkown;
     }
-    
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(150, 100, 255);
+
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityDarkPurple; // new(150, 100, 255);
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Terraria.Localization.Language.GetTextValue("Mods.SPIC.Categories.GrabBag.name"));
     public override string MissingLinePosition => "Consumable";
-    public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.GrabBag.{(GrabBagCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((GrabBagCategory)category).ToString();
 
     public override GrabBagRequirements CreateRequirements() => new();
 }

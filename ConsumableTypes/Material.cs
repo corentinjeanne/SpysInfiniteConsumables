@@ -1,11 +1,10 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
-
-// TODO >>> display material infinity on mat for selected recipe (& if inf mat)
 
 public enum MaterialCategory {
     None = ConsumableType.NoCategory,
@@ -17,19 +16,22 @@ public enum MaterialCategory {
 }
 
 public class MaterialRequirements {
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Basics")]
-    public int Basics = -1;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Ores")]
-    public int Ores = 500;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Furnitures")]
-    public int Furnitures = 20;
-    [Range(-50, 999), Label("$Mods.SPIC.Configs.Requirements.Requirements.Miscellaneous")]
-    public int Miscellaneous = 50;
-    [Range(-50, 0), Label("$Mods.SPIC.Configs.Requirements.Requirements.NonStackable")]
-    public int NonStackable = -2;
+    [Label("$Mods.SPIC.Types.Material.basics")]
+    public Configs.Requirement Basics = -1;
+    [Label("$Mods.SPIC.Types.Placeable.ores")]
+    public Configs.Requirement Ores = 500;
+    [Label("$Mods.SPIC.Types.Placeable.furnitures")]
+    public Configs.Requirement Furnitures = 20;
+    [Label("$Mods.SPIC.Types.Material.misc")]
+    public Configs.Requirement Miscellaneous = 50;
+    [Range(-50, 0), Label("$Mods.SPIC.Types.Material.special")]
+    public Configs.RequirementItems NonStackable = -2;
 }
 
 public class Material : ConsumableType<Material>, IPartialInfinity {
+
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Material.name");
 
     public override int MaxStack(byte category) => (MaterialCategory)category switch {
         MaterialCategory.Basic => 999,
@@ -82,11 +84,19 @@ public class Material : ConsumableType<Material>, IPartialInfinity {
     // TODO improve to use the available recipes
     public long GetFullInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
+    public override InfinityDisplayFlag GetInfinityDisplayLevel(Item item, bool isACopy) {
+        bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => new(255, 120, 187);
+        Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
+        foreach(Item material in recipe.requiredItem){
+            if(AreSameItems(item, material)) return InfinityDisplayFlag.All;
+        }
+        return base.GetInfinityDisplayLevel(item, isACopy);
+    }
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityPink;
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);
-    public override string CategoryKey(byte category) => $"Mods.SPIC.Categories.Material.{(MaterialCategory)category}";
+    public override string LocalizedCategoryName(byte category) => ((MaterialCategory)category).ToString();
 
     public override MaterialRequirements CreateRequirements() => new();
 }

@@ -1,3 +1,5 @@
+using Terraria.ModLoader;
+
 namespace SPIC.Infinities;
 
 public abstract class Infinity<Type> : Infinity where Type : Infinity<Type>, new() {
@@ -10,11 +12,14 @@ public abstract class Infinity<Type> : Infinity where Type : Infinity<Type>, new
 }
 
 public abstract class Infinity {
+    public int UID { get; internal set; }
+    public abstract Mod Mod { get; }
+    public virtual string Name => GetType().Name;
 
-    public int UID { get; internal set; } = -1;
-
-    public abstract string Name { get; }
+    public virtual string LocalizedName => Name;
     public abstract int IconType { get; }
 
-    public virtual bool DefaultValue => true;
+    public abstract bool DefaultValue { get; }
+
+    public override string ToString() => Name;
 }

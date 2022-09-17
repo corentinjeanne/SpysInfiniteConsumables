@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Terraria;
-
 using Terraria.ModLoader;
 
 namespace SPIC.ConsumableTypes;
@@ -13,6 +12,13 @@ public enum InfinityDisplayFlag : byte {
     All = Category | Requirement | Infinity
 }
 
+public interface IConsumableType {
+    byte GetCategory(Item item);
+    int GetRequirement(Item item);
+    long GetInfinity(Player player, Item item);
+}
+
+
 public abstract class ConsumableType<Type> : ConsumableType where Type : ConsumableType<Type>, new() {
     public static readonly Type Instance = new();
     public static int ID => Instance.UID;
@@ -23,9 +29,11 @@ public abstract class ConsumableType<Type> : ConsumableType where Type : Consuma
 }
 
 public abstract class ConsumableType {
-    public int UID { get; internal set; } = -1;
-
+    public int UID { get; internal set; }
+    public abstract Mod Mod { get; }
     public virtual string Name => GetType().Name;
+
+    public virtual string LocalizedName => Name;
 
     public abstract int MaxStack(byte category);
     public abstract int Requirement(byte category);
@@ -58,28 +66,28 @@ public abstract class ConsumableType {
     public abstract TooltipLine TooltipLine { get; }
     public virtual string MissingLinePosition => null;
 
-    public abstract string CategoryKey(byte category);
+    public abstract string LocalizedCategoryName(byte category);
     public virtual byte[] HiddenCategories => new[] { NoCategory, UnknownCategory };
 
     public virtual InfinityDisplayFlag GetInfinityDisplayLevel(Item item, bool isACopy){
         Player player = Main.LocalPlayer;
-        if(item.playerIndexTheItemIsReservedFor != Main.myPlayer) return InfinityDisplayFlag.None;
-        if (isACopy) {
-            static bool AreSimilarItems(Item a, Item b) => a.type == b.type && a.stack == b.stack;
-            if(AreSimilarItems(Main.mouseItem, item)
-                    || System.Array.Find(player.inventory, i => AreSimilarItems(i, item)) is not null
-                    || (player.InChest(out var chest) && System.Array.Find(chest, i => AreSimilarItems(i, item)) is not null)
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item)))
-                return InfinityDisplayFlag.All;
-        } else {
-            if(Main.mouseItem == item
-                    || System.Array.IndexOf(player.inventory, item) != -1
-                    || (player.InChest(out Item[] chest) && System.Array.IndexOf(chest, item) != -1)
-                    || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item)))
-                return InfinityDisplayFlag.All;
-        }
+        bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
+
+        if (item.playerIndexTheItemIsReservedFor != Main.myPlayer) return InfinityDisplayFlag.All & ~InfinityDisplayFlag.Infinity;
+        if(System.Array.Find(player.armor, i => AreSameItems(i, item)) is not null
+                || System.Array.Find(player.miscEquips, i => AreSameItems(i, item)) is not null)
+            return InfinityDisplayFlag.None;
+
+        if(AreSameItems(Main.mouseItem, item)
+                || System.Array.Find(player.inventory, i => AreSameItems(i, item)) is not null
+                || (player.InChest(out var chest) && System.Array.Find(chest, i => AreSameItems(i, item)) is not null)
+                || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item)))
+            return InfinityDisplayFlag.All;
+        
         return InfinityDisplayFlag.All & ~InfinityDisplayFlag.Infinity;
     }
+
+    public override string ToString() => Name;
 
     public const byte NoCategory = 0;
     public const byte UnknownCategory = 255;
@@ -92,7 +100,9 @@ public abstract class ConsumableType {
 
 }
 
+// TODO add more interface
 // public interface IConfigurable {}
+// public interface IConfigurable<T> : IConfigurable {}
 // public interface IDrawable {}
 
 public interface ICustomizable {}
@@ -105,6 +115,7 @@ public interface IAmmunition {
 
     public TooltipLine AmmoLine(Item weapon, Item ammo); //  => TooltipHelper.AddedLine(Name + "Consumes", Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
 }
+
 public interface IPartialInfinity {
     public long GetFullInfinity(Player player, Item item);
     // ? Remove

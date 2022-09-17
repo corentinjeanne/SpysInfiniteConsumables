@@ -1,7 +1,9 @@
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 
 namespace SPIC;
 
+// TODO documentation
 public class SpysInfiniteConsumables : Mod {
     public static SpysInfiniteConsumables Instance { get; private set; }
 
@@ -21,8 +23,7 @@ public class SpysInfiniteConsumables : Mod {
         Infinities.Currencies.Register();
         Infinities.JourneyResearch.Register();
 
-
-        InfinityManager.RegisterHiddenConsumableType(ConsumableTypes.Mixed.Instance); // Special
+        InfinityManager.RegisterGlobalConsumableType(ConsumableTypes.Mixed.Instance); // Special
         ConsumableTypes.Ammo.Register(Infinities.Consumables.ID);
         ConsumableTypes.Usable.Register(Infinities.Consumables.ID);
         ConsumableTypes.Placeable.Register(Infinities.Placeables.ID);
@@ -30,7 +31,6 @@ public class SpysInfiniteConsumables : Mod {
         ConsumableTypes.Material.Register(Infinities.Materials.ID);
         ConsumableTypes.Currency.Register(Infinities.Currencies.ID);
         ConsumableTypes.JourneySacrifice.Register(Infinities.JourneyResearch.ID);
-
     }
 
     public override void Unload() {
@@ -45,5 +45,6 @@ public class SpysInfiniteConsumables : Mod {
     public override object Call(params object[] args) {
         return base.Call(args);
     }
+
 }
 

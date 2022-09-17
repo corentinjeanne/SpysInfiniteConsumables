@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
-using SPIC.ConsumableTypes;
 using Terraria.ModLoader.Config;
-
+using SPIC.ConsumableTypes;
+using SPIC.Configs.UI;
 
 namespace SPIC.Configs;
+
 [Label("$Mods.SPIC.Configs.InfinityDisplay.name")]
 public class InfinityDisplay : ModConfig {
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.header")]
@@ -39,19 +40,21 @@ public class InfinityDisplay : ModConfig {
     public Vector2 dots_End;
     [DefaultValue(6), Range(1,6), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
     public int dots_PerPage;
+    [DefaultValue(120), Range(0, 60 * 5), Slider, Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Pulse")]
+    public int dot_PulseTime;
 
-    // [ColorNoAlpha, ColorHSLSlider]
-    private Dictionary<string, Color> _colors = new();
-    public Dictionary<string, Color> Colors {
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]
+    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys, ColorNoAlpha, ColorHSLSlider]
+    public Dictionary<ConsumableTypeDefinition, Color> Colors {
         get => _colors;
         set {
-            for (int i = 0; i < InfinityManager.ConsumableTypesCount; i++) {
-                ConsumableType type = InfinityManager.ConsumableType(i);
-                value.TryAdd(type.Name, type.DefaultColor());
+            foreach(ConsumableType type in InfinityManager.ConsumableTypes){
+                value.TryAdd(type.ToDefinition(), type.DefaultColor());
             }
             _colors = value;
         }
     }
+    private Dictionary<ConsumableTypeDefinition, Color> _colors = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance;

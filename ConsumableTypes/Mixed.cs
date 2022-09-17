@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -11,9 +10,11 @@ public enum MixedCategory{
 
 internal class Mixed : ConsumableType<Mixed>, IPartialInfinity {
 
-    public override string CategoryKey(byte category) => "";
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    
+    public override string LocalizedCategoryName(byte category) => "";
     public override object CreateRequirements() => null;
-    public override Color DefaultColor() => default;
+    public override Microsoft.Xna.Framework.Color DefaultColor() => default;
     public override TooltipLine TooltipLine => null;
     public override InfinityDisplayFlag GetInfinityDisplayLevel(Item item, bool isACopy) {
         InfinityDisplayFlag flags = InfinityDisplayFlag.All & ~InfinityDisplayFlag.Category;

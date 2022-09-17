@@ -1,12 +1,11 @@
-using System;
 using System.Collections.Generic;
-
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
 using SPIC.ConsumableTypes;
+
 namespace SPIC.Globals;
+
 public class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
@@ -125,7 +124,7 @@ public class DetectionPlayer : ModPlayer {
         foreach (Projectile p in Main.projectile)
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
-        Configs.Requirements requirements = Configs.Requirements.Instance;
+        Configs.RequirementSettings requirements = Configs.RequirementSettings.Instance;
         if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= Usable.Instance.GetInfinity(refill, tot + used))
                 || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= Ammo.Instance.GetInfinity(refill, tot + used))
             )
@@ -139,7 +138,7 @@ public class DetectionPlayer : ModPlayer {
         Item item = self.inventory[selItem];
 
         Configs.CategoryDetection autos = Configs.CategoryDetection.Instance;
-        Configs.Requirements settings = Configs.Requirements.Instance;
+        Configs.RequirementSettings settings = Configs.RequirementSettings.Instance;
 
 
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)

@@ -1,8 +1,9 @@
-using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
+using Terraria.GameContent.Creative;
 using Terraria.ModLoader;
+using Terraria.Localization;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 
@@ -12,22 +13,27 @@ public enum JourneySacrificeCategory {
     Consumable,
 }
 public class JourneySacrificeRequirements {
-    public bool IncludeOnlySacrifices;
+    [Label("$Mods.SPIC.Types.Journey.sacrifices")]
+    public bool includeNonConsumable;
 }
 
 public class JourneySacrifice : ConsumableType<JourneySacrifice> {
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", "Research cost");
+
+    public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Journey.name");
+
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Types.Journey.lineValue"));
 
     public override int MaxStack(byte category) => 999;
 
     public override int Requirement(byte category) => -1;
 
-    public override string CategoryKey(byte category) => ((JourneySacrificeCategory)category).ToString();
+    public override string LocalizedCategoryName(byte category) => ((JourneySacrificeCategory)category).ToString();
     
 
     public override JourneySacrificeRequirements CreateRequirements() => new();
 
-    public override Color DefaultColor() => Colors.JourneyMode;
+    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.JourneyMode;
 
     public override byte GetCategory(Item item) {
         if(!CreativeItemSacrificesCatalog.Instance.TryGetSacrificeCountCapToUnlockInfiniteItems(item.type, out int value) || value == 0)
@@ -43,7 +49,7 @@ public class JourneySacrifice : ConsumableType<JourneySacrifice> {
     public override int GetRequirement(Item item) {
         JourneySacrificeCategory category = (JourneySacrificeCategory)item.GetCategory(UID);
         if(category == JourneySacrificeCategory.None
-                || (category == JourneySacrificeCategory.OnlySacrifice && !((JourneySacrificeRequirements)ConfigRequirements).IncludeOnlySacrifices))
+                || (category == JourneySacrificeCategory.OnlySacrifice && !((JourneySacrificeRequirements)ConfigRequirements).includeNonConsumable))
             return 0;
 
         return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];

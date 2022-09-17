@@ -1,11 +1,8 @@
-using System.Collections.Generic;
-
-using Terraria;
-using Terraria.GameContent.UI;
-
 using System.Reflection;
-
+using System.Collections.Generic;
+using Terraria;
 using Terraria.ID;
+using Terraria.GameContent.UI;
 
 namespace SPIC {
     public static class CurrencyHelper {
