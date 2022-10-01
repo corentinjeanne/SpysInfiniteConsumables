@@ -28,7 +28,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override void PreUpdate() {
-        InfinityDisplayItem.IncrementDotFrame();
+        InfinityDisplayItem.IncrementCounters();
     }
 
     public override bool PreItemCheck() {
@@ -76,7 +76,7 @@ public class DetectionPlayer : ModPlayer {
         if (usable != UsableCategory.Unknown) SaveUsable(usable);
         else if (bag != GrabBagCategory.Unkown) SaveBag();
         else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
-        else return; // Nothing detected
+        else return;
 
         InfinityManager.ClearCache(Player.HeldItem.type);
         _detectingCategory = false;
@@ -125,8 +125,8 @@ public class DetectionPlayer : ModPlayer {
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
         Configs.RequirementSettings requirements = Configs.RequirementSettings.Instance;
-        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= Usable.Instance.GetInfinity(refill, tot + used))
-                || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= Ammo.Instance.GetInfinity(refill, tot + used))
+        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= ((IDefaultInfinity)Usable.Instance).GetInfinity(refill, tot + used))
+                || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= ((IDefaultInfinity)Ammo.Instance).GetInfinity(refill, tot + used))
             )
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
 
@@ -142,7 +142,7 @@ public class DetectionPlayer : ModPlayer {
 
 
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
-            autos.SaveDetectedCategory(item, (byte)PlaceableCategory.Liquid, Usable.ID);
+            autos.SaveDetectedCategory(item, (byte)PlaceableCategory.Liquid, Placeable.ID);
 
         InfinityManager.ClearCache(item.type);
 

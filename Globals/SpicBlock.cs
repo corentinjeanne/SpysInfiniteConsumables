@@ -14,7 +14,6 @@
 //         public bool IsInside(int x, int y) => X <= x && x < X + W && Y <= y && y < Y + H;
 //     }
 
-//     // TODO item dupplication
 //     public class SPICTile : GlobalTile {
 
 //         private readonly List<LargeObject> _noDropCache = new();
@@ -38,7 +37,6 @@
 //         }
 
 
-//         //  TODO Falling tiles
 //         public override void PlaceInWorld(int i, int j, int type, Item item) {
 //             Configs.Requirements infs = Configs.Requirements.Instance;
 

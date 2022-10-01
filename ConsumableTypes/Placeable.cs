@@ -8,7 +8,7 @@ using Terraria.ModLoader.Config;
 namespace SPIC.ConsumableTypes;
 
 public enum PlaceableCategory : byte {
-    None = ConsumableType.NoCategory,
+    None = IConsumableType.NoCategory,
 
     Block,
     Wall,
@@ -55,12 +55,15 @@ public class PlaceableRequirements {
     public Configs.Requirement Paints = -1;
 }
 
-public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, IDetectable {
+public class Placeable : ConsumableType<Placeable>, IStandardConsumableType<PlaceableCategory, PlaceableRequirements>, IDefaultAmmunition, ICustomizable, IDetectable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
-    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Placeable.name");
+    public override int IconType => ItemID.ArchitectGizmoPack;
 
-    public override int MaxStack(byte category) => (PlaceableCategory)category switch {
+    public bool DefaultsToOn => false;
+    public PlaceableRequirements Settings { get; set; }
+
+    public int MaxStack(PlaceableCategory category) => category switch {
         PlaceableCategory.Block => 999,
         PlaceableCategory.Wall => 999,
         PlaceableCategory.Torch => 999,
@@ -83,87 +86,80 @@ public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, 
 
         PlaceableCategory.None or _ => 999,
     };
-
-    public override int Requirement(byte category) {
-        PlaceableRequirements reqs = (PlaceableRequirements)ConfigRequirements;
-        return (PlaceableCategory)category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => reqs.Tiles,
-            PlaceableCategory.Torch => reqs.Torches,
-            PlaceableCategory.Ore => reqs.Ores,
+    public int Requirement(PlaceableCategory category) {
+        return category switch {
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => Settings.Tiles,
+            PlaceableCategory.Torch => Settings.Torches,
+            PlaceableCategory.Ore => Settings.Ores,
 
             PlaceableCategory.LightSource or PlaceableCategory.MusicBox
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => reqs.Furnitures,
+                => Settings.Furnitures,
 
-            PlaceableCategory.Liquid => reqs.Liquids,
-            PlaceableCategory.Mechanical => reqs.Mechanical,
-            PlaceableCategory.Seed => reqs.Seeds,
-            PlaceableCategory.Paint => reqs.Paints,
-            PlaceableCategory.None or _ => NoRequirement,
+            PlaceableCategory.Liquid => Settings.Liquids,
+            PlaceableCategory.Mechanical => Settings.Mechanical,
+            PlaceableCategory.Seed => Settings.Seeds,
+            PlaceableCategory.Paint => Settings.Paints,
+            PlaceableCategory.None or _ => IConsumableType.NoRequirement,
         };
     }
 
-    public override byte GetCategory(Item item) {
-
+    public PlaceableCategory GetCategory(Item item) {
         if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_ammos.ContainsKey(item.type) && !(item.FitsAmmoSlot() && item.mech))
-            return (byte)PlaceableCategory.None;
-
+            return PlaceableCategory.None;
         return GetCategory_NoCheck(item);
-
     }
 
-    private static byte GetCategory_NoCheck(Item item) {
+    private static PlaceableCategory GetCategory_NoCheck(Item item) {
 
-        if (item.paint != 0) return (byte)PlaceableCategory.Paint;
+        if (item.paint != 0) return PlaceableCategory.Paint;
 
         switch (item.type) {
-        case ItemID.Hellstone: return (byte)PlaceableCategory.Ore;
+        case ItemID.Hellstone: return PlaceableCategory.Ore;
         }
 
         if (item.createTile != -1) {
 
             int tileType = item.createTile;
-            if (item.accessory) return (byte)PlaceableCategory.MusicBox;
-            if (TileID.Sets.Platforms[tileType]) return (byte)PlaceableCategory.Block;
+            if (item.accessory) return PlaceableCategory.MusicBox;
+            if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
 
-            if (Main.tileAlch[tileType] || TileID.Sets.TreeSapling[tileType] || TileID.Sets.Grass[tileType]) return (byte)PlaceableCategory.Seed;
-            if (Main.tileContainer[tileType]) return (byte)PlaceableCategory.Container;
+            if (Main.tileAlch[tileType] || TileID.Sets.TreeSapling[tileType] || TileID.Sets.Grass[tileType]) return PlaceableCategory.Seed;
+            if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
 
-            if (item.mech) return (byte)PlaceableCategory.Mechanical;
+            if (item.mech) return PlaceableCategory.Mechanical;
 
             if (Main.tileFrameImportant[tileType]) {
                 bool GoodTile(int t) => t == tileType;
 
-                if (TileID.Sets.Torch[tileType]) return (byte)PlaceableCategory.Torch;
-                if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return (byte)PlaceableCategory.LightSource;
+                if (TileID.Sets.Torch[tileType]) return PlaceableCategory.Torch;
+                if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return PlaceableCategory.LightSource;
 
                 if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
-                    return (byte)PlaceableCategory.Functional;
+                    return PlaceableCategory.Functional;
 
-                if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return (byte)PlaceableCategory.CraftingStation;
+                if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return PlaceableCategory.CraftingStation;
 
-                if (TileID.Sets.HasOutlines[tileType]) return (byte)PlaceableCategory.Functional;
+                if (TileID.Sets.HasOutlines[tileType]) return PlaceableCategory.Functional;
 
-                return (byte)PlaceableCategory.Decoration;
+                return PlaceableCategory.Decoration;
             }
 
-            if (Main.tileSpelunker[tileType]) return (byte)PlaceableCategory.Ore;
+            if (Main.tileSpelunker[tileType]) return PlaceableCategory.Ore;
 
-            return (byte)PlaceableCategory.Block;
+            return PlaceableCategory.Block;
         }
-        if (item.createWall != -1) return (byte)PlaceableCategory.Wall;
+        if (item.createWall != -1) return PlaceableCategory.Wall;
 
-        if(item.FitsAmmoSlot() && item.mech) return (byte)PlaceableCategory.Wiring;
-        if (s_ammos.TryGetValue(item.type, out byte category)) return category;
+        if(item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
+        if (s_ammos.TryGetValue(item.type, out PlaceableCategory category)) return category;
 
-        return (byte)PlaceableCategory.None;
-
+        return PlaceableCategory.None;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityAmber; // new(125, 80, 0);
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Placeable", Lang.tip[33].Value);
-    public override string LocalizedCategoryName(byte category) => ((PlaceableCategory)category).ToString();
+    public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityAmber;
+    public TooltipLine TooltipLine => TooltipHelper.AddedLine("Placeable", Lang.tip[33].Value);
 
     public enum WandType {
         None,
@@ -188,16 +184,9 @@ public class Placeable : ConsumableType<Placeable>, IAmmunition, ICustomizable, 
         WandType.None or _ => null
     };
 
-    public TooltipLine AmmoLine(Item weapon, Item ammo) => TooltipHelper.AddedLine("WandConsumes", GetWandType(weapon) == WandType.Tile ? null : Language.GetTextValue($"Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name));
-
-    private static readonly Dictionary<int, byte> s_ammos = new(); // type, category (ammo)
+    private static readonly Dictionary<int, PlaceableCategory> s_ammos = new(); // type, category (ammo)
     internal static void ClearWandAmmos() => s_ammos.Clear();
     public static void RegisterWand(Item wand) => s_ammos.TryAdd(wand.tileWand, GetCategory_NoCheck(wand));
-
-    public override PlaceableRequirements CreateRequirements() => new();
-
-
-
 
     // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
 

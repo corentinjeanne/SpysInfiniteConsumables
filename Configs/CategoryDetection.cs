@@ -19,7 +19,7 @@ public class CategoryDetection : ModConfig {
     public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, byte>> DetectedCategories {
         get => _detectedCategories;
         set {
-            foreach(ConsumableType type in InfinityManager.ConsumableTypes){
+            foreach(IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)){
                 if(type is IDetectable) value.TryAdd(type.ToDefinition(), new());
                 else value.Remove(type.ToDefinition());
             }
@@ -29,19 +29,18 @@ public class CategoryDetection : ModConfig {
     private Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, byte>> _detectedCategories = new();
 
     public bool SaveDetectedCategory(Item item, byte category, int typeID){
-        if(category == ConsumableType.UnknownCategory) throw new System.ArgumentException("A detected category cannot be unkonwn");
-        ConsumableType type = InfinityManager.ConsumableType(typeID);
+        if(category == IConsumableType.UnknownCategory) throw new System.ArgumentException("A detected category cannot be unkonwn");
+        IConsumableType type = InfinityManager.ConsumableType(typeID);
         if(type is not IDetectable) return false;
 
         ItemDefinition key = new (item.type);
         if (!DetectedCategories[type.ToDefinition()].TryAdd(key, category)) return false;
         InfinityManager.ClearCache(item.type);
-        _modifiedInGame = true;
         return true;
     }
     public bool HasDetectedCategory(int type, int typeID, out byte category){
-        category = ConsumableType.NoCategory;
-        ConsumableType consumableType = InfinityManager.ConsumableType(typeID);
+        IConsumableType consumableType = InfinityManager.ConsumableType(typeID);
+        category = IConsumableType.NoCategory;
         return DetectMissing && consumableType is IDetectable
             && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out var categories)&& categories.TryGetValue(new(type), out category);
     }
@@ -49,9 +48,7 @@ public class CategoryDetection : ModConfig {
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static CategoryDetection Instance;
 
-    private bool _modifiedInGame;
-    public void ManualSave() {
-        if (_modifiedInGame) this.SaveConfig();
-        _modifiedInGame = false;
+    public void UpdateProperties() {
+        this.SaveConfig();
     }
 }

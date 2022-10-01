@@ -9,57 +9,8 @@ namespace SPIC.Globals;
 
 public class ConsumptionItem : GlobalItem {
 
-    public override void Load() {
-        s_itemMaxStack = new int[ItemID.Count];
-        IL.Terraria.Item.SetDefaults_int_bool += Hook_ItemSetDefaults;
-    }
-
-    public override void Unload() {
-        SetDefaultsHook = false;
-        s_itemMaxStack = null;
-    }
-
-    public static bool SetDefaultsHook { get; private set; }
-    private static int[] s_itemMaxStack;
-    public static int MaxStack(int type) => s_itemMaxStack[type];
-
-    private void Hook_ItemSetDefaults(ILContext il) {
-        System.Type[] args = { typeof(Item), typeof(bool) };
-        MethodBase setdefault_item_bool = typeof(ItemLoader).GetMethod(
-            nameof(Item.SetDefaults),
-            BindingFlags.Static | BindingFlags.NonPublic,
-            args
-        );
-
-        // IL code editing
-        ILCursor c = new(il);
-
-        if (setdefault_item_bool == null || !c.TryGotoNext(i => i.MatchCall(setdefault_item_bool))) {
-            Mod.Logger.Error("Unable to apply patch!");
-            SetDefaultsHook = false;
-            return;
-        }
-
-        c.Index -= args.Length;
-        c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-        c.EmitDelegate((Item item) => {
-            if (item.type < ItemID.Count) s_itemMaxStack[item.type] = item.maxStack;
-        });
-
-        SetDefaultsHook = true;
-    }
-
     public override void SetDefaults(Item item) {
         if (item.tileWand != -1) Placeable.RegisterWand(item);
-    }
-
-    public override void SetStaticDefaults() {
-        System.Array.Resize(ref s_itemMaxStack, ItemLoader.ItemCount);
-        for (int type = 0; type < ItemLoader.ItemCount; type++) {
-            Item item = new(type);
-            if (type >= ItemID.Count || !SetDefaultsHook)
-                s_itemMaxStack[type] = System.Math.Clamp(item.maxStack, 1, 999);
-        }
     }
 
     public override bool ConsumeItem(Item item, Player player) {
@@ -71,11 +22,10 @@ public class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             // Consumed by other item
             if (item != player.HeldItem) {
-                if (detection.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
+                if (detection.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
                     Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)PlaceableCategory.Block, Placeable.ID);
-                    // Placeable.SaveDetectedCategory(item, (byte)PlaceableCategory.Block);
 
-                return !player.HasInfinite(item, 1, Placeable.ID); //- !infinities.IsInfinite(Placeable.ID) !(settings.InfinitePlaceables && infinities.Placeable > 0) ;
+                return !player.HasInfinite(item, 1, Placeable.ID);
             }
 
             detectionPlayer.TryDetectCategory();

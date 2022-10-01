@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 public enum UsableCategory : byte {
-    None = ConsumableType.NoCategory,
+    None = IConsumableType.NoCategory,
 
     Weapon,
     Recovery,
@@ -19,7 +19,7 @@ public enum UsableCategory : byte {
     Explosive,
     Tool,
 
-    Unknown = ConsumableType.UnknownCategory
+    Unknown = IConsumableType.UnknownCategory
 }
 
 public class UsableRequirements {
@@ -38,12 +38,15 @@ public class UsableRequirements {
 }
 
 
-public class Usable : ConsumableType<Usable>, IDetectable, ICustomizable {
+public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCategory, UsableRequirements>, IDetectable, ICustomizable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
-    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Usable.name");
+    public override int IconType => ItemID.EndlessMusketPouch;
 
-    public override int MaxStack(byte category) => (UsableCategory)category switch {
+    public bool DefaultsToOn => true;
+    public UsableRequirements Settings { get; set; }
+
+    public int MaxStack(UsableCategory category) => category switch {
         UsableCategory.Weapon => 999,
         UsableCategory.Recovery => 99,
         UsableCategory.Buff => 30,
@@ -58,60 +61,56 @@ public class Usable : ConsumableType<Usable>, IDetectable, ICustomizable {
 
         UsableCategory.None or _ => 999,
     };
-    public override int Requirement(byte category) {
-        UsableRequirements reqs = (UsableRequirements)ConfigRequirements;
-        return (UsableCategory)category switch {
-            UsableCategory.Weapon => reqs.Weapons,
-            UsableCategory.Recovery or UsableCategory.Buff => reqs.Potions,
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => reqs.Boosters,
+    public int Requirement(UsableCategory category) {
+        return category switch {
+            UsableCategory.Weapon => Settings.Weapons,
+            UsableCategory.Recovery or UsableCategory.Buff => Settings.Potions,
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => Settings.Boosters,
 
-            UsableCategory.Summoner => reqs.Summoners,
-            UsableCategory.Critter => reqs.Critters,
-            UsableCategory.Tool or UsableCategory.Explosive or UsableCategory.Unknown => reqs.Tools,
+            UsableCategory.Summoner => Settings.Summoners,
+            UsableCategory.Critter => Settings.Critters,
+            UsableCategory.Tool or UsableCategory.Explosive or UsableCategory.Unknown => Settings.Tools,
 
-            UsableCategory.None or _ => NoRequirement,
+            UsableCategory.None or _ => IConsumableType.NoRequirement,
         };
     }
 
-    public override byte GetCategory(Item item) {
+    public UsableCategory GetCategory(Item item) {
 
-        if (!item.consumable || item.Placeable()) return (byte)UsableCategory.None;
+        if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
-        if (item.bait != 0) return (byte)UsableCategory.Critter;
+        if (item.bait != 0) return UsableCategory.Critter;
 
-        if (item.useStyle == ItemUseStyleID.None) return (byte)UsableCategory.None;
+        if (item.useStyle == ItemUseStyleID.None) return UsableCategory.None;
 
         // Vanilla inconsitancies or special items
         switch (item.type) {
-        case ItemID.FallenStar: return (byte)UsableCategory.None;
-        case ItemID.PirateMap or ItemID.EmpressButterfly: return (byte)UsableCategory.Summoner;
-        case ItemID.LicenseBunny or ItemID.LicenseCat or ItemID.LicenseDog: return (byte)UsableCategory.Critter;
-        case ItemID.CombatBook: return (byte)UsableCategory.WorldBooster;
+        case ItemID.FallenStar: return UsableCategory.None;
+        case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner;
+        case ItemID.LicenseBunny or ItemID.LicenseCat or ItemID.LicenseDog: return UsableCategory.Critter;
+        case ItemID.CombatBook: return UsableCategory.WorldBooster;
         }
 
         if (0 < ItemID.Sets.SortingPriorityBossSpawns[item.type] && ItemID.Sets.SortingPriorityBossSpawns[item.type] <= 17 && item.type != ItemID.TreasureMap)
-            return (byte)UsableCategory.Summoner;
+            return UsableCategory.Summoner;
 
-        if (item.makeNPC != NPCID.None) return (byte)UsableCategory.Critter;
+        if (item.makeNPC != NPCID.None) return UsableCategory.Critter;
 
-        if (item.damage > 0) return (byte)UsableCategory.Weapon;
+        if (item.damage > 0) return UsableCategory.Weapon;
 
-        if (item.buffType != 0 && item.buffTime != 0) return (byte)UsableCategory.Buff;
-        if (item.healLife > 0 || item.healMana > 0 || item.potion) return (byte)UsableCategory.Recovery;
+        if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Buff;
+        if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Recovery;
 
-        if (item.shoot != ProjectileID.None) return (byte)UsableCategory.Tool;
+        if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
-        if (item.hairDye != -1) return (byte)UsableCategory.PlayerBooster;
+        if (item.hairDye != -1) return UsableCategory.PlayerBooster;
 
         // Most modded summoners, booster and non buff potions, modded liquids...
-        return (byte)UsableCategory.Unknown;
+        return UsableCategory.Unknown;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityCyan; // new(0, 255, 200);
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
-    public override string LocalizedCategoryName(byte category) => ((UsableCategory)category).ToString();
+    public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
+    public TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
 
-    public override UsableRequirements CreateRequirements() => new();
-
-    public override byte[] HiddenCategories => new[] { NoCategory };
+    public byte[] HiddenCategories => new[] { IConsumableType.NoCategory };
 }

@@ -16,21 +16,21 @@ public class SpysInfiniteConsumables : Mod {
         CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
-        Infinities.Consumables.Register();
-        Infinities.Placeables.Register();
-        Infinities.GrabBags.Register();
-        Infinities.Materials.Register();
-        Infinities.Currencies.Register();
-        Infinities.JourneyResearch.Register();
+        // Infinities.Consumables.Register();
+        // Infinities.Placeables.Register();
+        // Infinities.GrabBags.Register();
+        // Infinities.Materials.Register();
+        // Infinities.Currencies.Register();
+        // Infinities.JourneyResearch.Register();
 
-        InfinityManager.RegisterGlobalConsumableType(ConsumableTypes.Mixed.Instance); // Special
-        ConsumableTypes.Ammo.Register(Infinities.Consumables.ID);
-        ConsumableTypes.Usable.Register(Infinities.Consumables.ID);
-        ConsumableTypes.Placeable.Register(Infinities.Placeables.ID);
-        ConsumableTypes.GrabBag.Register(Infinities.GrabBags.ID);
-        ConsumableTypes.Material.Register(Infinities.Materials.ID);
-        ConsumableTypes.Currency.Register(Infinities.Currencies.ID);
-        ConsumableTypes.JourneySacrifice.Register(Infinities.JourneyResearch.ID);
+        ConsumableTypes.Mixed.RegisterAsGlobal();
+        ConsumableTypes.Ammo.Register();
+        ConsumableTypes.Usable.Register();
+        ConsumableTypes.Placeable.Register();
+        ConsumableTypes.GrabBag.Register();
+        ConsumableTypes.Material.Register();
+        ConsumableTypes.Currency.Register();
+        ConsumableTypes.JourneySacrifice.Register();
     }
 
     public override void Unload() {

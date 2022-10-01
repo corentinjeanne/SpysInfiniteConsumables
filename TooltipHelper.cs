@@ -80,10 +80,11 @@ namespace SPIC {
             return line;
         }
 
-        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after = null) {
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after, out bool addedLine) {
             TooltipLine target = tooltips.FindLine(line.Name);
-            target ??= tooltips.AddLine(after ?? line.Name, line);
+            if(addedLine = target == null) target = tooltips.AddLine(after ?? line.Name, line);
             return target;
         }
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after = null) => FindorAddLine(tooltips, line, after, out _);
     }
 }

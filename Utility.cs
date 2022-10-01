@@ -5,7 +5,6 @@ using System.IO;
 using Newtonsoft.Json;
 using SPIC.Configs;
 using SPIC.ConsumableTypes;
-using SPIC.Infinities;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
@@ -171,9 +170,22 @@ public static class Utility {
         dict.Remove(key);
         dict.Insert(destIndex, key, value);
     }
+    public static bool TryAdd(this IOrderedDictionary dict, object key, object value){
+        if(dict.Contains(key)) return false;
+        dict.Add(key, value);
+        return true;
+    }
 
-    public static InfinityDefinition ToDefinition(this Infinity infinity) => new(infinity.Mod, infinity.Name);
-    public static ConsumableTypeDefinition ToDefinition(this ConsumableType type) => new(type.Mod, type.Name);
+    // public static InfinityDefinition ToDefinition(this Infinity infinity) => new(infinity.Mod, infinity.Name);
+    public static ConsumableTypeDefinition ToDefinition(this IConsumableType type) => new(type.Mod, type.Name);
+    
+    public static T Find<T>(this IEnumerable<T> collection, System.Predicate<T> predicate) {
+        foreach (T v in collection) {
+            if (predicate(v)) return v;
+        }
+        return default;
+    }
+
     public static int IndexOf<T>(this IEnumerable<T> collection, T value) {
         int i = 0;
         foreach (T v in collection) {

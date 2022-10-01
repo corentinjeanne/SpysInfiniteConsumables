@@ -6,8 +6,8 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 
-public enum MaterialCategory {
-    None = ConsumableType.NoCategory,
+public enum MaterialCategory : byte {
+    None = IConsumableType.NoCategory,
     Basic,
     Ore,
     Furniture,
@@ -28,12 +28,14 @@ public class MaterialRequirements {
     public Configs.RequirementItems NonStackable = -2;
 }
 
-public class Material : ConsumableType<Material>, IPartialInfinity {
-
+public class Material : ConsumableType<Material>, IStandardConsumableType<MaterialCategory, MaterialRequirements> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
-    public override string LocalizedName => Language.GetTextValue("Mods.SPIC.Types.Material.name");
+    public override int IconType => ItemID.TinkerersWorkshop;
 
-    public override int MaxStack(byte category) => (MaterialCategory)category switch {
+    public bool DefaultsToOn => false;
+    public MaterialRequirements Settings { get; set; }
+
+    public int MaxStack(MaterialCategory category) => category switch {
         MaterialCategory.Basic => 999,
         MaterialCategory.Ore => 999,
         MaterialCategory.Furniture => 99,
@@ -41,62 +43,66 @@ public class Material : ConsumableType<Material>, IPartialInfinity {
         MaterialCategory.NonStackable => 1,
         MaterialCategory.None or _ => 999,
     };
-    public override int Requirement(byte category) {
-        MaterialRequirements reqs = (MaterialRequirements)ConfigRequirements;
-        return (MaterialCategory)category switch {
-            MaterialCategory.Basic => reqs.Basics,
-            MaterialCategory.Ore => reqs.Ores,
-            MaterialCategory.Furniture => reqs.Furnitures,
-            MaterialCategory.Miscellaneous => reqs.Miscellaneous,
-            MaterialCategory.NonStackable => reqs.NonStackable,
-            MaterialCategory.None or _ => NoRequirement,
+    public int Requirement(MaterialCategory category) {
+        return category switch {
+            MaterialCategory.Basic => Settings.Basics,
+            MaterialCategory.Ore => Settings.Ores,
+            MaterialCategory.Furniture => Settings.Furnitures,
+            MaterialCategory.Miscellaneous => Settings.Miscellaneous,
+            MaterialCategory.NonStackable => Settings.NonStackable,
+            MaterialCategory.None or _ => IConsumableType.NoRequirement,
         };
     }
 
-    public override byte GetCategory(Item item) {
+    public MaterialCategory GetCategory(Item item) {
 
         int type = item.type;
         switch (type) {
-        case ItemID.FallenStar: return (byte)MaterialCategory.Miscellaneous;
+        case ItemID.FallenStar: return MaterialCategory.Miscellaneous;
         }
-        if (item.IsACoin) return (byte)MaterialCategory.Basic;
+        if (item.IsACoin) return MaterialCategory.Basic;
 
-        if (!ItemID.Sets.IsAMaterial[type]) return (byte)MaterialCategory.None;
+        if (!ItemID.Sets.IsAMaterial[type]) return MaterialCategory.None;
 
-        if (Globals.ConsumptionItem.MaxStack(type) == 1) return (byte)MaterialCategory.NonStackable;
+        if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
         PlaceableCategory placeable = (PlaceableCategory)item.GetCategory(Placeable.ID);
 
-        if (placeable.IsFurniture()) return (byte)MaterialCategory.Furniture;
-        if (placeable == PlaceableCategory.Ore) return (byte)MaterialCategory.Ore;
+        if (placeable.IsFurniture()) return MaterialCategory.Furniture;
+        if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;
         if (placeable.IsCommonTile()
                 || type == ItemID.MusketBall || type == ItemID.EmptyBullet || type == ItemID.WoodenArrow
                 || type == ItemID.Wire || type == ItemID.BottledWater
                 || type == ItemID.DryRocket || type == ItemID.DryBomb || type == ItemID.EmptyDropper)
-            return (byte)MaterialCategory.Basic;
+            return MaterialCategory.Basic;
 
-        return (byte)MaterialCategory.Miscellaneous;
+        return MaterialCategory.Miscellaneous;
     }
 
-    public override long GetInfinity(Item item, long count)
-        => InfinityManager.CalculateInfinity(item.type, MaxStack(InfinityManager.GetCategory(item, ID)), count, InfinityManager.GetRequirement(item, ID), 0.5f, InfinityManager.ARIDelegates.LargestMultiple);
+    public long GetInfinity(Item item, long count)
+        => InfinityManager.CalculateInfinity(
+            (int)System.MathF.Min(item.maxStack, MaxStack(item.GetCategory<MaterialCategory>(UID))),
+            count,
+            InfinityManager.GetRequirement(item, ID),
+            0.5f,
+            InfinityManager.ARIDelegates.LargestMultiple
+        );
 
     // TODO improve to use the available recipes
-    public long GetFullInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
+    public long GetMaxInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
-    public override InfinityDisplayFlag GetInfinityDisplayLevel(Item item, bool isACopy) {
+    public DisplayFlags GetInfinityDisplayFlags(Item item, bool isACopy) {
         bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
-
+        
         Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         foreach(Item material in recipe.requiredItem){
-            if(AreSameItems(item, material)) return InfinityDisplayFlag.All;
+            if(AreSameItems(item, material)) return DisplayFlags.Infinity;
         }
-        return base.GetInfinityDisplayLevel(item, isACopy);
+
+        return DefaultImplementation.GetInfinityDisplayFlags(item, isACopy);
     }
-    public override Microsoft.Xna.Framework.Color DefaultColor() => Colors.RarityPink;
+    public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityPink;
+    public TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);
-    public override string LocalizedCategoryName(byte category) => ((MaterialCategory)category).ToString();
 
-    public override MaterialRequirements CreateRequirements() => new();
 }

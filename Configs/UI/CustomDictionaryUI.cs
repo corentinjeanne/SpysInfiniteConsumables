@@ -25,12 +25,12 @@ public class ValuesAsConfigItemsAttribute : Attribute { }
 public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
     // TODO implement attributes
-    private ConstantKeys _constKeys; // - add, clear, remove
-    private ValuesAsConfigItemsAttribute _asConfigItems; // - collapse, size button, (add, clear, remove)
+    // private ConstantKeys _constKeys; // - add, clear, remove
+    // private ValuesAsConfigItemsAttribute _asConfigItems; // - collapse, size button, (add, clear, remove)
 
-    private FieldInfo _dictWrappersField = typeof(CustomDictionaryUI).GetField(nameof(dictWrappers), BindingFlags.Instance | BindingFlags.Public);
+    // private FieldInfo _dictWrappersField = typeof(CustomDictionaryUI).GetField(nameof(dictWrappers), BindingFlags.Instance | BindingFlags.Public);
 
-    private Attribute[] _memberAttributes;
+    // private Attribute[] _memberAttributes;
 
     public List<IDictionaryEntryWrapper> dictWrappers = new();
     private UIList _dataList;
@@ -39,10 +39,10 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
         object value = Value;
         if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
         
-        _memberAttributes = Attribute.GetCustomAttributes(MemberInfo.MemberInfo).Where(attrib => attrib is not CustomModConfigItemAttribute).ToArray();
+        // _memberAttributes = Attribute.GetCustomAttributes(MemberInfo.MemberInfo).Where(attrib => attrib is not CustomModConfigItemAttribute).ToArray();
         
-        _asConfigItems = ConfigManager.GetCustomAttribute<ValuesAsConfigItemsAttribute>(MemberInfo, value.GetType());
-        _constKeys = ConfigManager.GetCustomAttribute<ConstantKeys>(MemberInfo, value.GetType());
+        // _asConfigItems = ConfigManager.GetCustomAttribute<ValuesAsConfigItemsAttribute>(MemberInfo, value.GetType());
+        // _constKeys = ConfigManager.GetCustomAttribute<ConstantKeys>(MemberInfo, value.GetType());
         // _sortable = ConfigManager.GetCustomAttribute<SortableAttribute>(MemberInfo, value.GetType());
 
         _dataList = new UIList() {
@@ -58,7 +58,7 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
         SetupList();
     }
-
+ 
     // TODO Add attributes to childrens
     public void SetupList(){
         _dataList.Clear();
@@ -99,8 +99,8 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
             string name = key switch {
-                InfinityDefinition inf => $"[i:{inf.Infinity.IconType}] {inf.Infinity.LocalizedName}",
-                ConsumableTypeDefinition type => $"[i:{InfinityManager.Infinity(InfinityManager.PairedInfinity(type.Type)).IconType}] {type.ConsumableType.LocalizedName}",
+                // InfinityDefinition inf => $"[i:{inf.Infinity.IconType}] {inf.Infinity.LocalizedName}",
+                ConsumableTypeDefinition type => $"[i:{type.ConsumableType.IconType}] {type.ConsumableType.Name}",
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
