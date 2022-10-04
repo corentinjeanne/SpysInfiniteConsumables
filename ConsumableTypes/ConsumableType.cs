@@ -16,7 +16,7 @@ public abstract class ConsumableType<TImplementation> where TImplementation : Co
     public static void RegisterAsGlobal() => InfinityManager.Register(Instance, true);
 
     public abstract Mod Mod { get; }
-    public virtual string Name => GetType().Name;
+    public string Name => GetType().Name;
     public abstract int IconType { get; }
 
     public int UID { get; internal set; }
@@ -30,20 +30,3 @@ public abstract class ConsumableType<TImplementation> where TImplementation : Co
 public interface IStandardConsumableType<TCategory, TSettings> : IConsumableType<TCategory>, IToggleable, IColorable, IConfigurable<TSettings>, IDefaultInfinity<TCategory>, IDefaultDisplay
 where TCategory : System.Enum
 where TSettings : new() {}
-
-public abstract class StandardConsumableType<TImplementation, TCategory, TSettings> : ConsumableType<TImplementation>, IConsumableType<TCategory>, IToggleable, IColorable, IConfigurable<TSettings>, IDefaultInfinity<TCategory>, IDefaultDisplay
-where TImplementation : StandardConsumableType<TImplementation, TCategory, TSettings>, new()
-where TCategory : System.Enum
-where TSettings : new() {
-        
-    public abstract int Requirement(TCategory category);
-    public abstract int MaxStack(TCategory category);
-
-    public abstract TCategory GetCategory(Item item);
-    public abstract long GetMaxInfinity(Player player, Item item); // TODO rework
-    
-    public abstract TooltipLine TooltipLine { get; }
-    public abstract bool DefaultsToOn { get; }
-    public abstract Color DefaultColor { get; }
-    public TSettings Settings { get; set; }
-}

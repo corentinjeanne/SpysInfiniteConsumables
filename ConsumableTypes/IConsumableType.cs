@@ -48,10 +48,6 @@ public interface IConsumableType<TCategory> : IConsumableType where TCategory : 
     }
 }
 
-public interface IConfigElement {
-
-} 
-
 public interface IAmmunition : IConsumableType {
     bool ConsumesAmmo(Item item);
     Item GetAmmo(Player player, Item weapon);

@@ -16,13 +16,6 @@ public class SpysInfiniteConsumables : Mod {
         CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
-        // Infinities.Consumables.Register();
-        // Infinities.Placeables.Register();
-        // Infinities.GrabBags.Register();
-        // Infinities.Materials.Register();
-        // Infinities.Currencies.Register();
-        // Infinities.JourneyResearch.Register();
-
         ConsumableTypes.Mixed.RegisterAsGlobal();
         ConsumableTypes.Ammo.Register();
         ConsumableTypes.Usable.Register();
@@ -31,6 +24,12 @@ public class SpysInfiniteConsumables : Mod {
         ConsumableTypes.Material.Register();
         ConsumableTypes.Currency.Register();
         ConsumableTypes.JourneySacrifice.Register();
+
+        Configs.Presets.Defaults.Register();
+        Configs.Presets.AllDisabled.Register();
+        Configs.Presets.AllEnabled.Register();
+        Configs.Presets.OneForAll.Register();
+        Configs.Presets.JourneyCosts.Register();
     }
 
     public override void Unload() {
@@ -42,9 +41,5 @@ public class SpysInfiniteConsumables : Mod {
     }
 
     // TODO Call for RegisterInfinity, ShouldConsumeItem (and more ?)
-    public override object Call(params object[] args) {
-        return base.Call(args);
-    }
-
 }
 

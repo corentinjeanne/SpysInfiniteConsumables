@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -7,10 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI;
 using Terraria.GameContent.UI.States;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ModLoader.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
-using System.Reflection;
 using System.ComponentModel;
 
 namespace SPIC.Configs.UI;
@@ -20,7 +17,6 @@ public class ConstantKeys : Attribute { }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 public class ValuesAsConfigItemsAttribute : Attribute { }
-
 
 public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
@@ -36,6 +32,8 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
     private UIList _dataList;
 
     public override void OnBind() {
+        base.OnBind();
+
         object value = Value;
         if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
         
@@ -81,7 +79,10 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
                 element.Width.Pixels -= 25;
                 element.Left.Pixels += 25;
 
-                if (element.GetType() == ConfigReflectionHelper.ObjectElement) ConfigReflectionHelper.ObjectElement_expanded.SetValue(element, false);
+                if (element.GetType() == ConfigReflectionHelper.ObjectElement) {
+                    ConfigReflectionHelper.ObjectElement_expanded.SetValue(element, false);
+                    ConfigReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+                }
 
                 int index = i;
 

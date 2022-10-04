@@ -49,13 +49,14 @@ public class InfinityDisplayItem : GlobalItem {
 
 
         foreach(IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled)){
+            int dots = s_wouldDisplayDot.Count;
+            int glows = s_wouldDisplayGlow.Count;
             if (display.dots_ShowDots) type.DrawInInventorySlot(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
             if (display.glow_ShowGlow) type.DrawOnItemSprite(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
 
-            // TODO consumable and weapon (somehow) => only 1 dot
             if (type is IAmmunition ammoType && ammoType.ConsumesAmmo(item) && ammoType.HasAmmo(Main.LocalPlayer, item, out Item ammo)) {
-                if (display.dots_ShowDots) ammoType.DrawInInventorySlot(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
-                if (display.glow_ShowGlow) ammoType.DrawOnItemSprite(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+                if (dots == s_wouldDisplayDot.Count && display.dots_ShowDots) ammoType.DrawInInventorySlot(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+                if (glows == s_wouldDisplayGlow.Count && display.glow_ShowGlow) ammoType.DrawOnItemSprite(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
             }
         }
 

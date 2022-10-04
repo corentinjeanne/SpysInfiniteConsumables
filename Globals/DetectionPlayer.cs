@@ -94,7 +94,7 @@ public class DetectionPlayer : ModPlayer {
                 || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
             return UsableCategory.PlayerBooster;
 
-        // TODO Other difficulties
+        // ? Other difficulties
         if (_preUseDifficulty != Utility.WorldDifficulty())
             return UsableCategory.WorldBooster;
 

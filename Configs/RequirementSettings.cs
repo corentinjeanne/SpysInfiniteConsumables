@@ -7,6 +7,8 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableTypes;
 using SPIC.Configs.UI;
 using System.Collections;
+using System.Linq.Expressions;
+using SPIC.Configs.Presets;
 
 namespace SPIC.Configs;
 
@@ -55,73 +57,31 @@ public class Requirement : SingleFieldItem {
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class RequirementSettings : ModConfig {
 
-    public enum InfinityPreset {
-        None,
-        Default,
-        OneForAll,
-        AllOf,
-        AllOn,
-        JourneyCosts
-    }
-
     [Header("$Mods.SPIC.Configs.Requirements.General.header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.Requirements.General.t_duplication")]
     public bool PreventItemDupication { get; set; }
 
+
+    public static IList GetPresets(){
+        List<PresetDefinition> defs = new();
+        foreach(Preset preset in PresetManager.Presets())
+            defs.Add(preset.ToDefinition());
+        return defs;
+    }
+    public static IList GetChoices() => new List<string>() { "One", "Two", "Three" };
+
     [Label("$Mods.SPIC.Configs.Requirements.General.Preset")]
-    public InfinityPreset ActivePreset { // TODO Rework to be more flexible
+    [CustomModConfigItem(typeof(DropDownUI)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), "FullName")]
+    public PresetDefinition Preset {
         get {
-            bool defaults = true;
-            int on = 0;
-            int count = 0;
-            foreach(DictionaryEntry entry in EnabledTypes){
-                IToggleable inf = (IToggleable)((ConsumableTypeDefinition)entry.Key).ConsumableType;
-                bool state = (bool)entry.Value;
-                if(inf is null) continue;
-                if (defaults && state != inf.DefaultsToOn) defaults = false;
-                if (state) on++;
-                count++;
+            if(Requirements.Count == 0) return null;
+            foreach (Preset preset in PresetManager.Presets()){
+                if(preset.MeetsCriterias(this)) return preset.ToDefinition();
             }
-            if (on == 0) return InfinityPreset.AllOf;
-
-            if (MaxConsumableTypes == 0) {
-                if (defaults) return InfinityPreset.Default;
-                if (on == EnabledTypes.Count) return InfinityPreset.AllOn;
-            }
-
-            if (MaxConsumableTypes == 1) {
-                if (((ConsumableTypeDefinition)EnabledTypes.Keys.Index(0)).Name == JourneySacrifice.Instance.Name && (bool)EnabledTypes[JourneySacrifice.Instance.ToDefinition()]) return InfinityPreset.JourneyCosts;
-                return InfinityPreset.OneForAll;
-            }
-
-            return InfinityPreset.None;
-        }
-        set {
-            switch (value) {
-            case InfinityPreset.Default:
-                EnabledTypes = new();
-                MaxConsumableTypes = 0;
-                break;
-            case InfinityPreset.OneForAll:
-                MaxConsumableTypes = 1;
-                break;
-            case InfinityPreset.JourneyCosts:
-                EnabledTypes[JourneySacrifice.Instance.ToDefinition()] = true;
-                ConsumableTypeDefinition journeyDef = JourneySacrifice.Instance.ToDefinition();
-                EnabledTypes.Move(journeyDef, 0);
-                MaxConsumableTypes = 1;
-                break;
-            case InfinityPreset.AllOn:
-                for (int i = 0; i < EnabledTypes.Count; i++) EnabledTypes[i] = true;
-                MaxConsumableTypes = 0;
-                break;
-            case InfinityPreset.AllOf:
-                for (int i = 0; i < EnabledTypes.Count; i++) EnabledTypes[i] = false;
-                break;
-            case InfinityPreset.None:
-            default:
-                break;
-            }
+            return null;
+        } set {
+            if (Requirements.Count == 0) return;
+            value?.Preset.ApplyCriterias(this);
         }
     }
 
@@ -150,6 +110,7 @@ public class RequirementSettings : ModConfig {
     [Label("$Mods.SPIC.Configs.Requirements.General.MaxTypes")]
     public int MaxConsumableTypes { get; set; }
 
+    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, bool> EnabledGlobals {
         get => _globals;
         set {

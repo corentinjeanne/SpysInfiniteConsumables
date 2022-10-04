@@ -111,6 +111,4 @@ public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCate
 
     public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
     public TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
-
-    public byte[] HiddenCategories => new[] { IConsumableType.NoCategory };
 }

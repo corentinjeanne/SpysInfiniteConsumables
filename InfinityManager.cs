@@ -179,6 +179,9 @@ public static class InfinityManager {
             (aboveRequirement ?? ARIDelegates.ItemCount).Invoke(count, requirement, args);
         return (long)(infinity * multiplier);
     }
+
+    public static Configs.ConsumableTypeDefinition ToDefinition(this IConsumableType type) => new(type.Mod, type.Name);
+
 }
 
 internal sealed class ConsumableCache {

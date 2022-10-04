@@ -42,7 +42,7 @@ public class JourneySacrifice : ConsumableType<JourneySacrifice>, IStandardConsu
         JourneySacrificeCategory category = item.GetCategory<JourneySacrificeCategory>(ID);
         if(category == JourneySacrificeCategory.None
                 || (category == JourneySacrificeCategory.OnlySacrifice && !Settings.includeNonConsumable))
-            return 0;
+            return IConsumableType.NoRequirement;
 
         return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
     }

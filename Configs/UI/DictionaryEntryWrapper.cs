@@ -38,7 +38,7 @@ public class DictionaryEntryWrapper<Tkey,Tvalue> : IDictionaryEntryWrapper {
             _key = value;
         }
     }
-    [ColorHSLSlider, ColorNoAlpha]
+    // [ColorHSLSlider, ColorNoAlpha]
     public Tvalue Value {
         get => _value;
         set {

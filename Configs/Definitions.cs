@@ -6,26 +6,27 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableTypes;
+using SPIC.Configs.Presets;
 
 namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-// [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.InfinityDefinition]")]
-// public class InfinityDefinition : EntityDefinition {
-//     public InfinityDefinition() {}
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.PresetDefinition]")]
+public class PresetDefinition : EntityDefinition {
+    public PresetDefinition() {}
+    public PresetDefinition(int type) : base(PresetManager.Preset(type).Mod.Name, PresetManager.Preset(type).Name) {}
+    internal PresetDefinition(string fullName) : base(fullName) {}
+    public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
-//     internal InfinityDefinition(string fullName) : base(fullName) {}
+    public override int Type => Preset?.UID ?? -1;
 
-//     public InfinityDefinition(Mod mod, string name) : base(mod.Name, name) {}
+    [JsonIgnore]
+    public Preset Preset => PresetManager.Preset(Mod, Name);
+    public static ConsumableTypeDefinition FromString(string s) => new(s);
 
-//     public override int Type => Infinity?.UID ?? -1;
-
-//     [JsonIgnore]
-//     public Infinity Infinity => InfinityManager.Infinity(Mod, Name);
-
-//     public static InfinityDefinition FromString(string s) => new(s);
-// }
+    public string FullName() => Name;
+}
 
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableTypeDefinition]")]
 public class ConsumableTypeDefinition : EntityDefinition {

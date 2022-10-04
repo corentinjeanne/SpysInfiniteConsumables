@@ -46,8 +46,8 @@ public static class DefaultImplementation {
 
     public static DisplayFlags GetFlags(byte category, int requirement, long infinity, long maxInfinity) {
         DisplayFlags flags = 0;
-        if (category > IConsumableType.NoCategory) flags |= DisplayFlags.Category;
-        if (requirement != IConsumableType.NoRequirement || maxInfinity <= infinity) flags |= DisplayFlags.Requirement;
+        if (requirement != IConsumableType.NoRequirement || maxInfinity <= infinity)
+            flags |= DisplayFlags.Category | DisplayFlags.Requirement;
         if (infinity > IConsumableType.NotInfinite) flags |= DisplayFlags.Infinity;
         return flags;
     }
@@ -76,12 +76,11 @@ public static class DefaultImplementation {
         long maxInfinity = type.GetMaxInfinity(Main.LocalPlayer, values);
 
         DisplayFlags displayFlags = GetFlags((byte)(object)category, requirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, true) & type.GetInfinityDisplayFlags(item, true);
-        if (System.Array.IndexOf(type.HiddenCategories, category) != -1) displayFlags &= ~DisplayFlags.Category;
         if ((displayFlags & OnLineDisplayFlags) == 0) return;
 
         TooltipLine line = tooltips.FindorAddLine(affectedLine, position, out bool addedLine);
-        if (addedLine) line.OverrideColor *= 0.75f;
         DisplayOnLine(line, type.Color, displayFlags, values, type.CategoryLabel(category), requirement, infinity, maxInfinity);
+        if (addedLine) line.OverrideColor *= 0.75f;
     }
     public static DisplayFlags OnLineDisplayFlags => DisplayFlags.All;
     public static void DisplayOnLine(TooltipLine line, Color color, DisplayFlags displayFlags, Item values, string category, int requirement, long infinity, long maxInfinity) => DisplayOnLine(ref line.Text, ref line.OverrideColor, color, displayFlags, values, category, requirement, infinity, maxInfinity);
@@ -105,7 +104,6 @@ public static class DefaultImplementation {
         if (displayFlags.HasFlag(DisplayFlags.Requirement)){
             if(!displayFlags.HasFlag(DisplayFlags.Infinity))
                 line += Separator() + (requirement > 0 ? Language.GetTextValue("Mods.SPIC.ItemTooltip.items", requirement) : Language.GetTextValue("Mods.SPIC.ItemTooltip.stacks", -requirement));
-                // TODO display next infinity
         }
         if (total > 0) line += ")";
     }
@@ -173,8 +171,7 @@ public interface IDefaultDisplay : IConsumableType{
 
     DisplayFlags GetInfinityDisplayFlags(Item item, bool isACopy) => DefaultImplementation.GetInfinityDisplayFlags(item, isACopy);
 
-    long GetMaxInfinity(Player player, Item item) => NotInfinite;
-    byte[] HiddenCategories => new[] { NoCategory, UnknownCategory };
+    long GetMaxInfinity(Player player, Item item) => NotInfinite; // TODO rework into requirement
 
     string LinePosition => TooltipLine.Name;
     TooltipLine TooltipLine { get; }
