@@ -28,9 +28,9 @@ namespace SPIC.Globals {
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
             bool detected = false;
-            if((AmmoCategory)item.GetCategory(Ammo.ID) != AmmoCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)AmmoCategory.Explosive, Ammo.ID))
+            if((AmmoCategory)item.GetCategory(Ammo.ID) != AmmoCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
                 detected = true;
-            if((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)UsableCategory.Explosive, Usable.ID))
+            if((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID))
                 detected = true;
 
             if (detected && !item.IsAir) {

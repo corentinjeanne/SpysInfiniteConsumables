@@ -63,18 +63,18 @@ public class DetectionPlayer : ModPlayer {
         if (!_detectingCategory) return;
 
         void SaveUsable(UsableCategory category)
-            => Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)category, Usable.ID);
+            => Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.ID);
 
         void SaveBag() {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)GrabBagCategory.Crate, GrabBag.ID);
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, (byte)UsableCategory.None, Usable.ID);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.ID);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.ID);
         }
 
         UsableCategory usable = TryDetectUsable();
         GrabBagCategory bag = TryDetectGrabBag();
 
         if (usable != UsableCategory.Unknown) SaveUsable(usable);
-        else if (bag != GrabBagCategory.Unkown) SaveBag();
+        else if (bag != GrabBagCategory.Unknown) SaveBag();
         else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
         else return;
 
@@ -106,7 +106,7 @@ public class DetectionPlayer : ModPlayer {
 
     private GrabBagCategory TryDetectGrabBag() {
         if (Utility.CountItemsInWorld() != _preUseItemCount) return GrabBagCategory.Crate;
-        return GrabBagCategory.Unkown;
+        return GrabBagCategory.Unknown;
     }
 
     public int FindPotentialExplosivesType(int proj) {
@@ -142,10 +142,11 @@ public class DetectionPlayer : ModPlayer {
 
 
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
-            autos.SaveDetectedCategory(item, (byte)PlaceableCategory.Liquid, Placeable.ID);
+            autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.ID);
 
         InfinityManager.ClearCache(item.type);
 
+        item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.ID)) {
             item.stack--;
         } else {

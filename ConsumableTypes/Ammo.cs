@@ -1,12 +1,11 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 public enum AmmoCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
     Basic,
     Explosive,
     Special
@@ -33,13 +32,12 @@ public class Ammo : ConsumableType<Ammo>, IStandardConsumableType<AmmoCategory, 
         AmmoCategory.None or _ => 999,
     };
 
-    public int Requirement(AmmoCategory category) {
-        return category switch {
-            AmmoCategory.Basic => Settings.Standard,
-            AmmoCategory.Special or AmmoCategory.Explosive => Settings.Special,
-            AmmoCategory.None or _ => IConsumableType.NoRequirement,
-        };
-    }
+    public int Requirement(AmmoCategory category) => category switch {
+        AmmoCategory.Basic => Settings.Standard,
+        AmmoCategory.Special or AmmoCategory.Explosive => Settings.Special,
+        AmmoCategory.None or _ => IConsumableType.NoRequirement,
+    };
+    
     public AmmoCategory GetCategory(Item item) {
         if (!item.consumable || item.ammo == AmmoID.None) return AmmoCategory.None;
         if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)

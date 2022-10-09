@@ -5,7 +5,7 @@ using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs.UI {
 
-    public static class ConfigReflectionHelper {
+    public static class ReflectionHelper {
 
         public static readonly Assembly tModLoader = Assembly.Load("tModLoader");
         public static readonly Type ObjectElement = tModLoader.GetType("Terraria.ModLoader.Config.UI.ObjectElement");

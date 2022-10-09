@@ -8,7 +8,7 @@ using Terraria.ModLoader.Config;
 namespace SPIC.ConsumableTypes;
 
 public enum JourneySacrificeCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
     OnlySacrifice,
     Consumable,
 }

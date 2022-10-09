@@ -8,7 +8,7 @@ using Terraria.ModLoader.Config;
 namespace SPIC.ConsumableTypes;
 
 public enum PlaceableCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
 
     Block,
     Wall,

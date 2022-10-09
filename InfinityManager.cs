@@ -13,6 +13,7 @@ public enum FilterFlags {
     Disabled =  0b1000
 }
 
+
 public static class InfinityManager {
 
     public static int LCM { get; private set; } = 1;
@@ -85,19 +86,19 @@ public static class InfinityManager {
         return s_usedTypes[type] = used;
     }
     
-    public static TCategory GetCategory<TCategory>(this Item item, int consumableID) where TCategory: System.Enum => (TCategory)(object)item.GetCategory(consumableID);
-    public static byte GetCategory(this Item item, int consumableID){
-        if(s_caches[ValidateConsumable(consumableID)].categories.TryGetValue(item.type, out byte cat)) return cat;
+    public static TCategory GetCategory<TCategory>(this Item item, int consumableID) where TCategory: System.Enum => (TCategory)item.GetCategory(consumableID);
+    public static Category GetCategory(this Item item, int consumableID){
+        if(s_caches[ValidateConsumable(consumableID)].categories.TryGetValue(item.type, out Category cat)) return cat;
         if(!HasCategoryOverride(item.type, consumableID, out cat)) cat = s_consumableTypes[consumableID].GetCategory(item);
         return s_caches[consumableID].categories[item.type] = cat;
     }
-    public static TCategory GetCategory<TCategory>(int type, int consumableID) where TCategory : System.Enum => (TCategory)(object)GetCategory(type, consumableID);
-    public static byte GetCategory(int type, int consumableID)
-        => s_caches[ValidateConsumable(consumableID)].categories.TryGetValue(type, out byte cat) ? cat : GetCategory(new Item(type), consumableID);
+    public static TCategory GetCategory<TCategory>(int type, int consumableID) where TCategory : System.Enum => (TCategory)GetCategory(type, consumableID);
+    public static Category GetCategory(int type, int consumableID)
+        => s_caches[ValidateConsumable(consumableID)].categories.TryGetValue(type, out Category cat) ? cat : GetCategory(new Item(type), consumableID);
 
-    public static bool HasCategoryOverride(int itemType, int consumableID, out byte category) {
+    public static bool HasCategoryOverride(int itemType, int consumableID, out Category category) {
         IConsumableType inf = ConsumableType(consumableID);
-        category = IConsumableType.NoCategory;
+        category = Category.None;
         return inf is IDetectable && CategoryDetection.HasDetectedCategory(itemType, consumableID, out category);
     }
 
@@ -185,7 +186,7 @@ public static class InfinityManager {
 }
 
 internal sealed class ConsumableCache {
-    public readonly Dictionary<int, byte> categories = new();
+    public readonly Dictionary<int, Category> categories = new();
     public readonly Dictionary<int, int> requirements = new();
     public readonly Dictionary<int, long> localPlayerInfinities = new();
     public readonly Dictionary<int, long> localPlayerFullInfinities = new();

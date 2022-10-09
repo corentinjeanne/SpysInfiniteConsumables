@@ -14,8 +14,8 @@ public interface IDefaultInfinity : IConsumableType {
     [NoJIT] long IConsumableType.GetInfinity(Player player, Item item) => GetInfinity(item, CountItems(player, item));
     
     long CountItems(Player player, Item item) => player.CountItems(item.type, true);
-    int MaxStack(byte category);
-    int Requirement(byte category);
+    int MaxStack(Category category);
+    int Requirement(Category category);
 
     new int GetRequirement(Item item) => Requirement(item.GetCategory(UID));
     long GetInfinity(Item item, long count) => InfinityManager.CalculateInfinity(
@@ -26,9 +26,10 @@ public interface IDefaultInfinity : IConsumableType {
     );
 }
 
+// ? remove
 public interface IDefaultInfinity<TCategory> : IDefaultInfinity, IConsumableType<TCategory>, IConsumableType where TCategory : System.Enum {
-    [NoJIT] int IDefaultInfinity.MaxStack(byte category) => MaxStack((TCategory)(object)category);
-    [NoJIT] int IDefaultInfinity.Requirement(byte category) => Requirement((TCategory)(object)category);
+    [NoJIT] int IDefaultInfinity.MaxStack(Category category) => MaxStack((TCategory)category);
+    [NoJIT] int IDefaultInfinity.Requirement(Category category) => Requirement((TCategory)category);
 
     int MaxStack(TCategory category);
     int Requirement(TCategory category);
@@ -44,7 +45,7 @@ public enum DisplayFlags {
 
 public static class DefaultImplementation {
 
-    public static DisplayFlags GetFlags(byte category, int requirement, long infinity, long maxInfinity) {
+    public static DisplayFlags GetFlags(Category category, int requirement, long infinity, long maxInfinity) {
         DisplayFlags flags = 0;
         if (requirement != IConsumableType.NoRequirement || maxInfinity <= infinity)
             flags |= DisplayFlags.Category | DisplayFlags.Requirement;
@@ -70,16 +71,16 @@ public static class DefaultImplementation {
     }
     
     public static void ModifyTooltip(IDefaultDisplay type, List<TooltipLine> tooltips, TooltipLine affectedLine, string position, Item item, Item values) {
-        byte category = values.GetCategory(type.UID);
+        Category category = values.GetCategory(type.UID);
         int requirement = values.GetRequirement(type.UID);
         long infinity = Main.LocalPlayer.GetInfinity(values, type.UID);
         long maxInfinity = type.GetMaxInfinity(Main.LocalPlayer, values);
 
-        DisplayFlags displayFlags = GetFlags((byte)(object)category, requirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, true) & type.GetInfinityDisplayFlags(item, true);
+        DisplayFlags displayFlags = GetFlags(category, requirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, true) & type.GetInfinityDisplayFlags(item, true);
         if ((displayFlags & OnLineDisplayFlags) == 0) return;
 
         TooltipLine line = tooltips.FindorAddLine(affectedLine, position, out bool addedLine);
-        DisplayOnLine(line, type.Color, displayFlags, values, type.CategoryLabel(category), requirement, infinity, maxInfinity);
+        DisplayOnLine(line, type.Color, displayFlags, values, category.ToString(), requirement, infinity, maxInfinity);
         if (addedLine) line.OverrideColor *= 0.75f;
     }
     public static DisplayFlags OnLineDisplayFlags => DisplayFlags.All;
@@ -114,7 +115,7 @@ public static class DefaultImplementation {
         long infinity = Main.LocalPlayer.GetInfinity(values, type.UID);
         long maxInfinity = type.GetMaxInfinity(Main.LocalPlayer, values);
 
-        DisplayFlags displayFlags = GetFlags(IConsumableType.NoCategory, IConsumableType.NoRequirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, false) & type.GetInfinityDisplayFlags(item, false);
+        DisplayFlags displayFlags = GetFlags(Category.None, IConsumableType.NoRequirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, false) & type.GetInfinityDisplayFlags(item, false);
         if ((displayFlags & DotsDisplayFlags) != 0)
             Globals.InfinityDisplayItem.s_wouldDisplayDot.Add(new(type.Color, displayFlags, infinity, maxInfinity));
     }
@@ -140,7 +141,7 @@ public static class DefaultImplementation {
         long infinity = Main.LocalPlayer.GetInfinity(values, type.UID);
         long maxInfinity = type.GetMaxInfinity(Main.LocalPlayer, values);
 
-        DisplayFlags displayFlags = GetFlags(IConsumableType.NoCategory, IConsumableType.NoRequirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, false) & type.GetInfinityDisplayFlags(item, false);
+        DisplayFlags displayFlags = GetFlags(Category.None, IConsumableType.NoRequirement, infinity, maxInfinity) & type.GetInfinityDisplayFlags(values, false) & type.GetInfinityDisplayFlags(item, false);
         if ((displayFlags & GlowDisplayFlags) != 0)
             Globals.InfinityDisplayItem.s_wouldDisplayGlow.Add(new(type.Color, displayFlags, infinity, maxInfinity));
     }
@@ -171,7 +172,7 @@ public interface IDefaultDisplay : IConsumableType{
 
     DisplayFlags GetInfinityDisplayFlags(Item item, bool isACopy) => DefaultImplementation.GetInfinityDisplayFlags(item, isACopy);
 
-    long GetMaxInfinity(Player player, Item item) => NotInfinite; // TODO rework into requirement
+    long GetMaxInfinity(Player player, Item item) => NotInfinite;
 
     string LinePosition => TooltipLine.Name;
     TooltipLine TooltipLine { get; }

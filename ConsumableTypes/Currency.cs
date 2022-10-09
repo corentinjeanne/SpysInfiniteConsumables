@@ -8,7 +8,7 @@ using Terraria.ModLoader.Config;
 namespace SPIC.ConsumableTypes;
 
 public enum CurrencyCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
     Coin,
     SingleCoin,
 }
@@ -32,13 +32,13 @@ public class Currency : ConsumableType<Currency>, IStandardConsumableType<Curren
         CurrencyCategory.SingleCoin => 999,
         CurrencyCategory.None or _ => 999,
     };
-    public int Requirement(CurrencyCategory category) {
-        return category switch {
-            CurrencyCategory.Coin => Settings.Coins,
-            CurrencyCategory.SingleCoin => Settings.Single,
-            CurrencyCategory.None or _ => IConsumableType.NoRequirement
-        };
-    }
+
+    public int Requirement(CurrencyCategory category) => category switch {
+        CurrencyCategory.Coin => Settings.Coins,
+        CurrencyCategory.SingleCoin => Settings.Single,
+        CurrencyCategory.None or _ => IConsumableType.NoRequirement
+    };
+    
 
     public long CountItems(Player player, Item item) {
         long value = item.CurrencyValue();
@@ -52,7 +52,7 @@ public class Currency : ConsumableType<Currency>, IStandardConsumableType<Curren
         return CurrencyHelper.CurrencySystems(currency).values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coin;
     }
 
-    public long GetInfinity(Item item, long count) { //  => GetInfinity(Type(item), count);
+    public long GetInfinity(Item item, long count) {
         CurrencyCategory category = InfinityManager.GetCategory<CurrencyCategory>(item, ID);
         float mult;
         InfinityManager.AboveRequirementInfinity ari;
@@ -73,18 +73,8 @@ public class Currency : ConsumableType<Currency>, IStandardConsumableType<Curren
         return value == 0 ? IConsumableType.NotInfinite : cost / value + (cost % value == 0 ? 0 : 1);
     }
 
-    // public KeyValuePair<int, long>[] GetPartialInfinity(Item item, long infinity)
-    //     => CurrencyHelper.CurrencyCountToItems(item.CurrencyType(), infinity * item.CurrencyValue()).ToArray();
-
     public Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
     public TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.Types.Currency.name"));
     public string LinePosition => "Consumable";
 }
-/*
-use type => lowest value (e.g. copper coin)
-use item => in item amount
-Get inf silver coins => 100 
-Get inf gold coins => 1
-... 
-*/

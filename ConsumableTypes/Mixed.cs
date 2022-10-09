@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace SPIC.ConsumableTypes;
 
 public enum MixedCategory : byte {
-    AllNone = IConsumableType.NoCategory,
+    AllNone = Category.None,
     Mixed
 }
 
@@ -21,7 +21,7 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
 
     public MixedCategory GetCategory(Item item) {
         foreach (IConsumableType type in item.UsedConsumableTypes()) {
-            if (item.GetCategory(type.UID) > IConsumableType.NoCategory) return MixedCategory.Mixed;
+            if (!item.GetCategory(type.UID).IsNone) return MixedCategory.Mixed;
         }
         return MixedCategory.AllNone;
     }
@@ -62,7 +62,7 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
     public void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
 
-        byte category = item.GetCategory(UID);
+        Category category = item.GetCategory(UID);
         int requirement = item.GetRequirement(UID);
         long infinity = Main.LocalPlayer.GetInfinity(item, UID);
         long maxInfinity = GetMaxInfinity(Main.LocalPlayer, item);
@@ -75,7 +75,7 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
         Color? color = line.OverrideColor;
         bool names = display.tooltip_UseItemName;
         display.tooltip_UseItemName = true;
-        DefaultImplementation.DisplayOnLine(ref text, ref color, maxInfinity <= infinity ? Color : PartialInfinityColor, displayFlags, item, ((IConsumableType<MixedCategory>)this).CategoryLabel(category), requirement, infinity, maxInfinity);
+        DefaultImplementation.DisplayOnLine(ref text, ref color, maxInfinity <= infinity ? Color : PartialInfinityColor, displayFlags, item, category.ToString(), requirement, infinity, maxInfinity);
         display.tooltip_UseItemName = names;
 
         if(color == line.OverrideColor) return;

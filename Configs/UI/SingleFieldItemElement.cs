@@ -7,7 +7,6 @@ using Terraria.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
 
 namespace SPIC.Configs.UI;
 
@@ -100,13 +99,13 @@ public class SingleFieldItemElement : ConfigElement<SingleFieldItem> {
         Append(_changeButton);
 
         if(!_single.SelectedMember.CanWrite && _single.SelectedValue is null){
-            ConfigReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+            ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
             element.RemoveAllChildren();
         }
 
-        _childTextDisplayFunction = (Func<string>)ConfigReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(element);
-        ConfigReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);
-        ConfigReflectionHelper.ConfigElement_backgroundColor.SetValue(element, new Color(0, 0, 0, 0));
+        _childTextDisplayFunction = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(element);
+        ReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);
+        ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, new Color(0, 0, 0, 0));
 
         _changeButton.HoverTextUp = $"Change to {_single.Member(_single.SelectedIndex+1).Name}";
         _changeButton.HoverTextDown = $"Change to {_single.Member(_single.SelectedIndex-1).Name}";

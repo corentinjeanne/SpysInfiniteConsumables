@@ -23,7 +23,7 @@ public class ConsumptionItem : GlobalItem {
             // Consumed by other item
             if (item != player.HeldItem) {
                 if (detection.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
-                    Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)PlaceableCategory.Block, Placeable.ID);
+                    Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.ID);
 
                 return !player.HasInfinite(item, 1, Placeable.ID);
             }
@@ -33,11 +33,11 @@ public class ConsumptionItem : GlobalItem {
             // RightClick
             if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
 
-                if ((GrabBagCategory)item.GetCategory(GrabBag.ID) == GrabBagCategory.Unkown) {
+                if ((GrabBagCategory)item.GetCategory(GrabBag.ID) == GrabBagCategory.Unknown) {
                     if ((UsableCategory)item.GetCategory(Usable.ID) == UsableCategory.Tool)
                         return !player.HasInfinite(item, 1, Usable.ID);
 
-                    if (detection.DetectMissing) Configs.CategoryDetection.Instance.SaveDetectedCategory(item, (byte)GrabBagCategory.Crate, GrabBag.ID);
+                    if (detection.DetectMissing) Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.ID);
                 }
                 return !player.HasInfinite(item, 1, GrabBag.ID);
 

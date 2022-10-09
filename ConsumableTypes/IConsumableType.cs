@@ -1,16 +1,12 @@
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 
 public interface IConsumableType {
-    public const byte NoCategory = 0;
-    public const byte UnknownCategory = 255;
     public const int NoRequirement = 0;
     public const long NoInfinity = -2L;
     public const long NotInfinite = -1L;
@@ -20,7 +16,7 @@ public interface IConsumableType {
     string Name { get; }
     int UID { get; }
 
-    byte GetCategory(Item item);
+    Category GetCategory(Item item);
     int GetRequirement(Item item);
     long GetInfinity(Player player, Item item);
 
@@ -29,23 +25,14 @@ public interface IConsumableType {
     void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
 
     // ? Move to other interface
-    public string Label();
     int IconType { get; }
-    public string CategoryLabel(byte category);
     Color Color { get; }
 }
 
+// ? remove
 public interface IConsumableType<TCategory> : IConsumableType where TCategory : System.Enum {
-    [NoJIT] string IConsumableType.CategoryLabel(byte category) => CategoryLabel((TCategory)(object)category);
-
-    byte IConsumableType.GetCategory(Item item) => (byte)(object)GetCategory(item);
+    Category IConsumableType.GetCategory(Item item) => GetCategory(item);
     new TCategory GetCategory(Item item);
-
-    string CategoryLabel(TCategory category) {
-        FieldInfo field = typeof(TCategory).GetField(category.ToString());
-        LabelAttribute label = (LabelAttribute)System.Attribute.GetCustomAttribute(field, typeof(LabelAttribute));        
-        return label is not null ? label.Label : category.ToString();
-    }
 }
 
 public interface IAmmunition : IConsumableType {

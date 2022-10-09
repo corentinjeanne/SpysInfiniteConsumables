@@ -79,9 +79,9 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
                 element.Width.Pixels -= 25;
                 element.Left.Pixels += 25;
 
-                if (element.GetType() == ConfigReflectionHelper.ObjectElement) {
-                    ConfigReflectionHelper.ObjectElement_expanded.SetValue(element, false);
-                    ConfigReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+                if (element.GetType() == ReflectionHelper.ObjectElement) {
+                    ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
+                    ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
                 }
 
                 int index = i;
@@ -106,7 +106,7 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
-            ConfigReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
             
             i++;
         }

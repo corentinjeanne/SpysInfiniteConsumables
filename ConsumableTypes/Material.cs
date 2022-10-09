@@ -7,7 +7,7 @@ using Terraria.ModLoader.Config;
 namespace SPIC.ConsumableTypes;
 
 public enum MaterialCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
     Basic,
     Ore,
     Furniture,

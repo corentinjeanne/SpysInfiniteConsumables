@@ -6,10 +6,10 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 public enum GrabBagCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
     Crate,
     TreasureBag,
-    Unkown = IConsumableType.UnknownCategory
+    Unknown = Category.Unknown
 }
 
 public class GrabBagRequirements {
@@ -30,13 +30,13 @@ public class GrabBag : ConsumableType<GrabBag>, IStandardConsumableType<GrabBagC
     public int MaxStack(GrabBagCategory bag) => bag switch {
         GrabBagCategory.TreasureBag => 999,
         GrabBagCategory.Crate => 99,
-        GrabBagCategory.None or GrabBagCategory.Unkown or _ => 999,
+        GrabBagCategory.None or GrabBagCategory.Unknown or _ => 999,
     };
     public int Requirement(GrabBagCategory bag) {
         return bag switch {
             GrabBagCategory.Crate => Settings.Crates,
             GrabBagCategory.TreasureBag => Settings.TreasureBags,
-            GrabBagCategory.None or GrabBagCategory.Unkown or _ => IConsumableType.NoRequirement,
+            GrabBagCategory.None or GrabBagCategory.Unknown or _ => IConsumableType.NoRequirement,
         };
     }
 
@@ -46,7 +46,7 @@ public class GrabBag : ConsumableType<GrabBag>, IStandardConsumableType<GrabBagC
         if (ItemID.Sets.IsFishingCrate[item.type])
             return GrabBagCategory.Crate;
 
-        return GrabBagCategory.Unkown;
+        return GrabBagCategory.Unknown;
     }
 
     public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;

@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 public enum UsableCategory : byte {
-    None = IConsumableType.NoCategory,
+    None = Category.None,
 
     Weapon,
     Recovery,
@@ -19,7 +19,7 @@ public enum UsableCategory : byte {
     Explosive,
     Tool,
 
-    Unknown = IConsumableType.UnknownCategory
+    Unknown = Category.Unknown
 }
 
 public class UsableRequirements {

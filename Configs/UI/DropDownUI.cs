@@ -80,12 +80,12 @@ public class DropDownUI : ConfigElement {
         int top = 30;
         for (int i = 0; i < _choices.Count; i++) {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);
-            ConfigReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => "");
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => "");
             container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(listeningElement);
             string name = (string)_toString.Invoke(_choices[i], null);
             element.RemoveAllChildren();
-            ConfigReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
-            ConfigReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
+            ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
         }
         Recalculate();
     }

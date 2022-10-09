@@ -22,7 +22,7 @@ public class HoverImageSplit : UIImage {
     protected override void DrawSelf(SpriteBatch spriteBatch) {
         base.DrawSelf(spriteBatch);
         if (IsMouseHovering) {
-            ConfigReflectionHelper.UIModConfig_Tooltip.SetValue(null, HoveringUp ? HoverTextUp : HoverTextDown);
+            ReflectionHelper.UIModConfig_Tooltip.SetValue(null, HoveringUp ? HoverTextUp : HoverTextDown);
         }
     }
     public string HoverTextUp {get; set;}
