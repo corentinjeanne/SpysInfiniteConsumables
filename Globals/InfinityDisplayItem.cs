@@ -9,17 +9,29 @@ namespace SPIC.Globals;
 
 public class InfinityDisplayItem : GlobalItem {
 
+    private static IEnumerable<(IConsumableType, bool ammo)> DisplayableTypes(Player player, Item item) {
+        foreach (IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.NonGlobal | FilterFlags.Enabled)) {
+            if (InfinityManager.IsTypeUsed(item, type.UID)) yield return (type, false);
+            else if(type is IAmmunition ammo && ammo.ConsumesAmmo(item) && ammo.HasAmmo(player, item, out Item a) && InfinityManager.IsTypeUsed(a, type.UID))
+                yield return (type, true);
+        }
+        foreach (IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.Global | FilterFlags.Enabled)) {
+            if(InfinityManager.GetRequirement(item, type.UID) is not NoRequirement) yield return (type, false);
+            else if (type is IAmmunition ammo && ammo.ConsumesAmmo(item) && ammo.HasAmmo(player, item, out Item a) && InfinityManager.IsTypeUsed(a, type.UID))
+                yield return (type, true);
+        }
+    }
+
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         if (!Main.PlayerLoaded) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.toopltip_ShowTooltip) return;
 
-        foreach (IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled)) {
-            type.ModifyTooltip(item, tooltips);
+        foreach ((IConsumableType type, bool isAmmo) in DisplayableTypes(Main.LocalPlayer, item)) {
 
-            if (type is IAmmunition ammoType && ammoType.ConsumesAmmo(item) && ammoType.HasAmmo(Main.LocalPlayer, item, out Item ammo))
+            if(!isAmmo) type.ModifyTooltip(item, tooltips);
+            else if (type is IAmmunition ammoType && ammoType.HasAmmo(Main.LocalPlayer, item, out Item ammo))
                 ammoType.ModifyTooltip(item, ammo, tooltips);
-            
         }
     }
 
@@ -35,7 +47,7 @@ public class InfinityDisplayItem : GlobalItem {
         s_focusType = 0;
     }
 
-    internal record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, long Infinity, long MaxInfinity);
+    internal record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, Infinity Infinity, ItemCount Next);
     internal static List<DisplayInfo> s_wouldDisplayDot;
     internal static List<DisplayInfo> s_wouldDisplayGlow;
 
@@ -48,13 +60,14 @@ public class InfinityDisplayItem : GlobalItem {
         s_wouldDisplayGlow = new();
 
 
-        foreach(IConsumableType type in InfinityManager.ConsumableTypes(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled)){
+        foreach((IConsumableType type, bool isAmmo) in DisplayableTypes(Main.LocalPlayer, item)){
             int dots = s_wouldDisplayDot.Count;
             int glows = s_wouldDisplayGlow.Count;
-            if (display.dots_ShowDots) type.DrawInInventorySlot(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
-            if (display.glow_ShowGlow) type.DrawOnItemSprite(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
-
-            if (type is IAmmunition ammoType && ammoType.ConsumesAmmo(item) && ammoType.HasAmmo(Main.LocalPlayer, item, out Item ammo)) {
+            if (!isAmmo) {
+                if (display.dots_ShowDots) type.DrawInInventorySlot(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+                if (display.glow_ShowGlow) type.DrawOnItemSprite(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+            }
+            else if (type is IAmmunition ammoType && ammoType.HasAmmo(Main.LocalPlayer, item, out Item ammo)) {
                 if (dots == s_wouldDisplayDot.Count && display.dots_ShowDots) ammoType.DrawInInventorySlot(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
                 if (glows == s_wouldDisplayGlow.Count && display.glow_ShowGlow) ammoType.DrawOnItemSprite(item, ammo, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
             }
@@ -73,7 +86,7 @@ public class InfinityDisplayItem : GlobalItem {
             
             int startingDot = s_focusType % ((s_wouldDisplayDot.Count+display.dots_PerPage-1)/display.dots_PerPage * display.dots_PerPage) / display.dots_PerPage * display.dots_PerPage;
             for (int i = startingDot; i < startingDot + display.dots_PerPage && i < s_wouldDisplayDot.Count; i++) {
-                DefaultImplementation.DisplayDot(spriteBatch, dotPosition, s_wouldDisplayDot[i].Color, s_wouldDisplayDot[i].DisplayFlags, s_wouldDisplayDot[i].Infinity, s_wouldDisplayDot[i].MaxInfinity);
+                DefaultImplementation.DisplayDot(spriteBatch, dotPosition, s_wouldDisplayDot[i].Color, s_wouldDisplayDot[i].DisplayFlags, s_wouldDisplayDot[i].Infinity, s_wouldDisplayDot[i].Next);
                 dotPosition += dotDelta;
             }
         }
@@ -82,7 +95,7 @@ public class InfinityDisplayItem : GlobalItem {
             int i = s_focusType % s_wouldDisplayGlow.Count;
 
             if (i < s_wouldDisplayGlow.Count) {
-                DefaultImplementation.DisplayGlow(spriteBatch, item, position, origin, frame, scale, s_wouldDisplayGlow[i].Color, (float)s_frame / display.glow_PulseTime, s_wouldDisplayGlow[i].DisplayFlags, s_wouldDisplayGlow[i].Infinity, s_wouldDisplayGlow[i].MaxInfinity);
+                DefaultImplementation.DisplayGlow(spriteBatch, item, position, origin, frame, scale, s_wouldDisplayGlow[i].Color, (float)s_frame / display.glow_PulseTime, s_wouldDisplayGlow[i].DisplayFlags, s_wouldDisplayGlow[i].Infinity, s_wouldDisplayGlow[i].Next);
             }
         }
     }

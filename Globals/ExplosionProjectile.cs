@@ -1,10 +1,10 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.ConsumableTypes;
+using SPIC.VanillaConsumableTypes;
 
 namespace SPIC.Globals {
 
-	public class SpicProjectile : GlobalProjectile {
+	public class ExplosionProjectile : GlobalProjectile {
 
         public override void Load() {
 			On.Terraria.Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
@@ -27,13 +27,11 @@ namespace SPIC.Globals {
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            bool detected = false;
-            if((AmmoCategory)item.GetCategory(Ammo.ID) != AmmoCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
-                detected = true;
-            if((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID))
-                detected = true;
-
-            if (detected && !item.IsAir) {
+            AmmoCategory ammo = (AmmoCategory)item.GetCategory(Ammo.ID);
+            UsableCategory usable = (UsableCategory)item.GetCategory(Usable.ID);
+            if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
+            || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID)))
+            && !item.IsAir) {
                 InfinityManager.ClearCache(item.type);
                 detectionPlayer.RefilExplosive(proj.type, item);
             }

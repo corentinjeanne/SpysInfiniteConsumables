@@ -1,6 +1,7 @@
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
+
 namespace SPIC;
 
 // TODO documentation
@@ -12,18 +13,18 @@ public class SpysInfiniteConsumables : Mod {
     public override void Load() {
         Instance = this;
 
-        ConsumableTypes.Placeable.ClearWandAmmos();
+        VanillaConsumableTypes.Placeable.ClearWandAmmos();
         CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
-        ConsumableTypes.Mixed.RegisterAsGlobal();
-        ConsumableTypes.Ammo.Register();
-        ConsumableTypes.Usable.Register();
-        ConsumableTypes.Placeable.Register();
-        ConsumableTypes.GrabBag.Register();
-        ConsumableTypes.Material.Register();
-        ConsumableTypes.Currency.Register();
-        ConsumableTypes.JourneySacrifice.Register();
+        VanillaConsumableTypes.Mixed.RegisterAsGlobal();
+        VanillaConsumableTypes.Ammo.Register();
+        VanillaConsumableTypes.Usable.Register();
+        VanillaConsumableTypes.Placeable.Register();
+        VanillaConsumableTypes.GrabBag.Register();
+        VanillaConsumableTypes.Material.Register();
+        VanillaConsumableTypes.Currency.Register();
+        VanillaConsumableTypes.JourneySacrifice.Register();
 
         Configs.Presets.Defaults.Register();
         Configs.Presets.AllDisabled.Register();
@@ -33,7 +34,7 @@ public class SpysInfiniteConsumables : Mod {
     }
 
     public override void Unload() {
-        ConsumableTypes.Placeable.ClearWandAmmos();
+        VanillaConsumableTypes.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         InfinityManager.ClearCache();
         

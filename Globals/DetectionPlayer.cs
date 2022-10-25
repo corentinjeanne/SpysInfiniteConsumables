@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.ConsumableTypes;
+using SPIC.VanillaConsumableTypes;
 
 namespace SPIC.Globals;
 
@@ -125,8 +125,8 @@ public class DetectionPlayer : ModPlayer {
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
         Configs.RequirementSettings requirements = Configs.RequirementSettings.Instance;
-        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Tool && 1 <= ((IDefaultInfinity)Usable.Instance).GetInfinity(refill, tot + used))
-                || ((AmmoCategory)refill.GetCategory(Ammo.ID) != AmmoCategory.None && 1 <= ((IDefaultInfinity)Ammo.Instance).GetInfinity(refill, tot + used))
+        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.ID) && !refill.GetInfinity(tot + used, Usable.ID).Value.IsNone)
+                || ((AmmoCategory)refill.GetCategory(Ammo.ID) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.ID).Value.IsNone)
             )
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
 

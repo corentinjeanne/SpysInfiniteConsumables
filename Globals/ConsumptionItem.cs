@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.ConsumableTypes;
+using SPIC.VanillaConsumableTypes;
 
 namespace SPIC.Globals;
 
@@ -20,7 +20,7 @@ public class ConsumptionItem : GlobalItem {
 
         // LeftClick
         if (detectionPlayer.InItemCheck) {
-            // Consumed by other item
+            // Consumed by other item, i.e. wand
             if (item != player.HeldItem) {
                 if (detection.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
                     Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.ID);

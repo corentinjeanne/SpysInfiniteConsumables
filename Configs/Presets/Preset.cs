@@ -1,8 +1,7 @@
-using System.Collections;
 using SPIC.ConsumableTypes;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 
+using SPIC.VanillaConsumableTypes;
 namespace SPIC.Configs.Presets;
 
 // public class Preset
@@ -23,11 +22,6 @@ public abstract class Preset {
 
     public virtual string Name => GetType().Name;
     // public abstract int IconType { get; }
-
-    public string Label() {
-        LabelAttribute label = System.Attribute.GetCustomAttribute(GetType(), typeof(LabelAttribute), true) as LabelAttribute;
-        return label is not null ? label.Label : Name;
-    }
 
     public abstract int CriteriasCount { get; }
     public abstract bool MeetsCriterias(RequirementSettings config);
@@ -60,14 +54,9 @@ public class Defaults : Preset<Defaults> {
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
-        // ? order
-        foreach (DictionaryEntry entry in config.EnabledTypes) {
-            IToggleable inf = (IToggleable)((ConsumableTypeDefinition)entry.Key).ConsumableType;
-            if ((bool)entry.Value != inf.DefaultsToOn) return false;
-        }
-        foreach ((ConsumableTypeDefinition def, bool state) in config.EnabledGlobals) {
-            IToggleable inf = (IToggleable)def.ConsumableType;
-            if (state != inf.DefaultsToOn) return false;
+
+        foreach ((IToggleable type, bool state, bool _) in config.LoadedTypes) {
+            if (state != type.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
@@ -79,17 +68,29 @@ public class OneForAll : Preset<OneForAll> {
 
     public override void ApplyCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        for (int i = 0; i < config.EnabledTypes.Count; i++){
-            if((bool)config.EnabledTypes[i])foundEnabled = true;
+        foreach ((IToggleable type, bool state, bool global) in config.LoadedTypes) {
+            if(global) break;
+            if (state){
+                foundEnabled = true;
+                break;
+            }
         }
-        if(!foundEnabled) config.EnabledTypes[0] = true;
+        if(!foundEnabled) {
+            foreach(object key in config.EnabledTypes){
+                if(!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledTypes[key] = true;
+            }
+        }
         config.MaxConsumableTypes = 1;
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        for (int i = 0; i < config.EnabledTypes.Count; i++) {
-            if ((bool)config.EnabledTypes[i]) foundEnabled = true;
+        foreach ((IToggleable type, bool state, bool global) in config.LoadedTypes) {
+            if (global) break;
+            if (state) {
+                foundEnabled = true;
+                break;
+            }
         }
         return foundEnabled && config.MaxConsumableTypes == 1;
     }
@@ -111,11 +112,8 @@ public class AllEnabled : Preset<AllEnabled> {
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
-        foreach(object state in config.EnabledTypes.Values){
-            if(!(bool)state) return false;
-        }
-        foreach(bool state in config.EnabledGlobals.Values){
-            if(!state) return false;
+        foreach ((IToggleable _, bool state, bool _) in config.LoadedTypes) {
+            if (!state) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
@@ -135,11 +133,8 @@ public class AllDisabled : Preset<AllDisabled> {
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
-        foreach(object state in config.EnabledTypes.Values){
-            if((bool)state) return false;
-        }
-        foreach(bool state in config.EnabledGlobals.Values){
-            if(state) return false;
+        foreach ((IToggleable _, bool state, bool _) in config.LoadedTypes) {
+            if (state) return false;
         }
         return true;
     }

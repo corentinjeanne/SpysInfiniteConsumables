@@ -5,8 +5,8 @@ using Terraria.ModLoader;
 using Terraria.Localization;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
-
+using SPIC.ConsumableTypes;
+namespace SPIC.VanillaConsumableTypes;
 public enum JourneySacrificeCategory : byte {
     None = Category.None,
     OnlySacrifice,
@@ -25,28 +25,27 @@ public class JourneySacrifice : ConsumableType<JourneySacrifice>, IStandardConsu
     public bool DefaultsToOn => false;
     public JourneySacrificeSettings Settings { get; set; }
 
-    public int MaxStack(JourneySacrificeCategory category) => 999;
-    public int Requirement(JourneySacrificeCategory category) => 100;
+    public IRequirement Requirement(JourneySacrificeCategory category) => null;
+
 
     public JourneySacrificeCategory GetCategory(Item item) {
         if(!CreativeItemSacrificesCatalog.Instance.TryGetSacrificeCountCapToUnlockInfiniteItems(item.type, out int value) || value == 0)
             return JourneySacrificeCategory.None;
 
         foreach(IConsumableType type in InfinityManager.ConsumableTypes()){
-            if(type != this && InfinityManager.GetRequirement(item, type.UID) != IConsumableType.NoRequirement) return JourneySacrificeCategory.Consumable;
+            if(type != this && InfinityManager.GetRequirement(item, type.UID) is not NoRequirement) return JourneySacrificeCategory.Consumable;
         }
         return JourneySacrificeCategory.OnlySacrifice;
     }
 
-    public int GetRequirement(Item item) {
+    public IRequirement GetRequirement(Item item) {
         JourneySacrificeCategory category = item.GetCategory<JourneySacrificeCategory>(ID);
         if(category == JourneySacrificeCategory.None
                 || (category == JourneySacrificeCategory.OnlySacrifice && !Settings.includeNonConsumable))
-            return IConsumableType.NoRequirement;
+            return null;
 
-        return CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
+        return new ItemCountRequirement(new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type], item.maxStack));
     }
-
 
     public TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Types.Journey.lineValue"));
 

@@ -7,29 +7,23 @@ using Terraria.ModLoader;
 namespace SPIC.ConsumableTypes;
 
 public interface IConsumableType {
-    public const int NoRequirement = 0;
-    public const long NoInfinity = -2L;
-    public const long NotInfinite = -1L;
-    public const long MinInfinity = 0L;
-
+    
     Mod Mod { get; }
     string Name { get; }
     int UID { get; }
 
     Category GetCategory(Item item);
-    int GetRequirement(Item item);
-    long GetInfinity(Player player, Item item);
+    IRequirement GetRequirement(Item item);
+    long CountItems(Player player, Item item);
 
     void ModifyTooltip(Item item, List<TooltipLine> tooltips);
     void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
     void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
 
-    // ? Move to other interface
     int IconType { get; }
     Color Color { get; }
 }
 
-// ? remove
 public interface IConsumableType<TCategory> : IConsumableType where TCategory : System.Enum {
     Category IConsumableType.GetCategory(Item item) => GetCategory(item);
     new TCategory GetCategory(Item item);

@@ -1,40 +1,40 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
+using SPIC.ConsumableTypes;
+namespace SPIC.VanillaConsumableTypes; 
 public enum UsableCategory : byte {
     None = Category.None,
 
     Weapon,
     Recovery,
-    Buff,
+    Buff, // red potion
     PlayerBooster,
     WorldBooster,
 
-    Summoner,
+    Summoner, // power cell, truffle worm, ethernia crystal, torch god
     Critter,
     Explosive,
-    Tool,
+    Tool, //confetti and cannon ammo, tree globes
 
     Unknown = Category.Unknown
 }
 
 public class UsableRequirements {
     [Label("$Mods.SPIC.Types.Usable.weapons")]
-    public Configs.Requirement Weapons = -2;
+    public ItemCountWrapper Weapons = new(2.0f);
     [Label("$Mods.SPIC.Types.Usable.potions")]
-    public Configs.Requirement Potions = -1;
+    public ItemCountWrapper Potions = new(1.0f, 30);
     [Label("$Mods.SPIC.Types.Usable.boosters")]
-    public Configs.Requirement Boosters = 5;
+    public ItemCountWrapper Boosters = new(5, 20);
     [Label("$Mods.SPIC.Types.Usable.summoners")]
-    public Configs.Requirement Summoners = 3;
+    public ItemCountWrapper Summoners = new(3, 20);
     [Label("$Mods.SPIC.Types.Usable.critters")]
-    public Configs.Requirement Critters = 10;
+    public ItemCountWrapper Critters = new(10, 99);
     [Label("$Mods.SPIC.Types.Usable.tools")]
-    public Configs.Requirement Tools = -1;
+    public ItemCountWrapper Tools = new(1.0f);
 }
 
 
@@ -45,33 +45,19 @@ public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCate
 
     public bool DefaultsToOn => true;
     public UsableRequirements Settings { get; set; }
-
-    public int MaxStack(UsableCategory category) => category switch {
-        UsableCategory.Weapon => 999,
-        UsableCategory.Recovery => 99,
-        UsableCategory.Buff => 30,
-
-        UsableCategory.PlayerBooster => 99,
-        UsableCategory.WorldBooster => 20,
-
-        UsableCategory.Summoner => 20,
-        UsableCategory.Critter => 99,
-        UsableCategory.Explosive => 99,
-        UsableCategory.Tool or UsableCategory.Unknown => 999,
-
-        UsableCategory.None or _ => 999,
-    };
-    public int Requirement(UsableCategory category) {
+    public IRequirement Requirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => Settings.Weapons,
-            UsableCategory.Recovery or UsableCategory.Buff => Settings.Potions,
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => Settings.Boosters,
+            UsableCategory.Weapon => new ItemCountRequirement (Settings.Weapons),
+            UsableCategory.Recovery => new ItemCountRequirement (new(Settings.Potions){MaxStack = 99}),
+            UsableCategory.Buff => new ItemCountRequirement (Settings.Potions),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new ItemCountRequirement (Settings.Boosters),
 
-            UsableCategory.Summoner => Settings.Summoners,
-            UsableCategory.Critter => Settings.Critters,
-            UsableCategory.Tool or UsableCategory.Explosive or UsableCategory.Unknown => Settings.Tools,
+            UsableCategory.Summoner => new ItemCountRequirement (Settings.Summoners),
+            UsableCategory.Critter => new ItemCountRequirement (Settings.Critters),
+            UsableCategory.Explosive => new ItemCountRequirement (new(Settings.Tools){MaxStack=99}),
+            UsableCategory.Tool or UsableCategory.Unknown => new ItemCountRequirement (Settings.Tools),
 
-            UsableCategory.None or _ => IConsumableType.NoRequirement,
+            UsableCategory.None or _ => null,
         };
     }
 

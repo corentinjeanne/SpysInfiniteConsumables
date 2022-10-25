@@ -1,7 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
-using SPIC.ConsumableTypes;
+using SPIC.VanillaConsumableTypes;
 
 namespace SPIC.Globals {
 

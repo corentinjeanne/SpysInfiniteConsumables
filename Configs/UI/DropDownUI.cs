@@ -35,8 +35,6 @@ public class DropDownUI : ConfigElement {
     private ValuesProviderAttribute _provider;
     private MethodInfo _toString;
 
-
-    private static readonly FieldInfo s_choicesField = typeof(DropDownUI).GetField(nameof(_choices), BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly FieldInfo s_dummyField = typeof(DropDownUI).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
     private EmptyClass _dummy = new();
     private bool _expanded;

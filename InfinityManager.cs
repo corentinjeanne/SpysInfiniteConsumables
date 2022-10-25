@@ -6,17 +6,17 @@ using SPIC.ConsumableTypes;
 namespace SPIC;
 
 public enum FilterFlags {
-    Default =   NonGlobal | Enabled,
+    Default   = NonGlobal | Enabled,
     NonGlobal = 0b0001,
-    Global =    0b0010,
-    Enabled =   0b0100,
-    Disabled =  0b1000
+    Global    = 0b0010,
+    Enabled   = 0b0100,
+    Disabled  = 0b1000,
 }
 
 
 public static class InfinityManager {
 
-    public static int LCM { get; private set; } = 1;
+    internal static int LCM { get; private set; } = 1;
 
     public static void Register<TImplementation>(ConsumableType<TImplementation> type, bool global = false) where TImplementation : ConsumableType<TImplementation>, IConsumableType, new() {
         
@@ -39,15 +39,15 @@ public static class InfinityManager {
     public static bool IsTypeUsed(this Item item, int typeID) => item.UsedConsumableTypes().Find(t => t.UID == typeID) != null;
     public static bool IsTypeUsed(int type, int typeID) => UsedConsumableTypes(type).Find(t => t.UID == typeID) != null;
 
-    public static IEnumerable<IConsumableType> ConsumableTypes(FilterFlags flags = FilterFlags.Default, bool disableOrdering = false) => ConsumableTypes<IConsumableType>(flags, disableOrdering);
-    public static IEnumerable<TConsumableType> ConsumableTypes<TConsumableType>(FilterFlags filters = FilterFlags.Default, bool disableOrdering = false) where TConsumableType: IConsumableType {
+    public static IEnumerable<IConsumableType> ConsumableTypes(FilterFlags flags = FilterFlags.Default, bool noOrdering = false) => ConsumableTypes<IConsumableType>(flags, noOrdering);
+    public static IEnumerable<TConsumableType> ConsumableTypes<TConsumableType>(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) where TConsumableType: IConsumableType {
         bool enabled = filters.HasFlag(FilterFlags.Enabled);
         bool disabled = filters.HasFlag(FilterFlags.Disabled);
 
-        bool MatchsFlags(int id, IConsumableType t) => t is TConsumableType && ((enabled && disabled) || (disabled == !IsTypeEnabled(id)));
+        bool MatchsFlags(int id, IConsumableType t) => t is TConsumableType && ((enabled && disabled) || (enabled == IsTypeEnabled(id)));
 
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
-            if (!disableOrdering) {
+            if (!noOrdering) {
                 foreach (DictionaryEntry entry in Requirements.EnabledTypes) {
                     IConsumableType type = ((Configs.ConsumableTypeDefinition)entry.Key).ConsumableType;
                     if (MatchsFlags(type.UID, type)) yield return (TConsumableType)type;
@@ -69,7 +69,7 @@ public static class InfinityManager {
         if(s_usedTypes.TryGetValue(item.type, out IReadOnlyList<IDefaultDisplay> types)) return types;
         List<IDefaultDisplay> used = new();
         foreach (IDefaultDisplay consumableType in ConsumableTypes<IDefaultDisplay>()) {
-            if(item.GetRequirement(consumableType.UID) == IConsumableType.NoRequirement) continue;
+            if(item.GetRequirement(consumableType.UID) is NoRequirement) continue;
             used.Add(consumableType);
             if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
         }
@@ -78,8 +78,29 @@ public static class InfinityManager {
     public static IReadOnlyList<IDefaultDisplay> UsedConsumableTypes(int type){
         if (s_usedTypes.TryGetValue(type, out IReadOnlyList<IDefaultDisplay> types)) return types;
         List<IDefaultDisplay> used = new();
-        foreach (IDefaultDisplay consumableType in ConsumableTypes<IDefaultDisplay>()) { // ordered
-            if (GetRequirement(type, consumableType.UID) == IConsumableType.NoRequirement) continue;
+        foreach (IDefaultDisplay consumableType in ConsumableTypes<IDefaultDisplay>()) {
+            if (GetRequirement(type, consumableType.UID) is NoRequirement) continue;
+            used.Add(consumableType);
+            if(Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
+        }
+        return s_usedTypes[type] = used;
+    }
+
+    public static IReadOnlyList<IDefaultDisplay> UsedAmmoTypes(this Item item){
+        if(s_usedTypes.TryGetValue(item.type, out IReadOnlyList<IDefaultDisplay> types)) return types;
+        List<IDefaultDisplay> used = new();
+        foreach (IDefaultDisplay consumableType in ConsumableTypes<IDefaultDisplay>()) {
+            if(item.GetRequirement(consumableType.UID) is NoRequirement) continue;
+            used.Add(consumableType);
+            if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
+        }
+        return s_usedTypes[item.type] = used;
+    }
+    public static IReadOnlyList<IDefaultDisplay> UsedAmmoTypes(int type){
+        if (s_usedTypes.TryGetValue(type, out IReadOnlyList<IDefaultDisplay> types)) return types;
+        List<IDefaultDisplay> used = new();
+        foreach (IDefaultDisplay consumableType in ConsumableTypes<IDefaultDisplay>()) {
+            if (GetRequirement(type, consumableType.UID) is NoRequirement) continue;
             used.Add(consumableType);
             if(Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
         }
@@ -102,36 +123,40 @@ public static class InfinityManager {
         return inf is IDetectable && CategoryDetection.HasDetectedCategory(itemType, consumableID, out category);
     }
 
-    public static int GetRequirement(this Item item, int consumableID) {
-        if (s_caches[ValidateConsumable(consumableID)].requirements.TryGetValue(item.type, out int req)) return req;
-        if (!HasRequirementOverride(item.type, consumableID, out req)) req = s_consumableTypes[consumableID].GetRequirement(item);
+    public static IRequirement GetRequirement(this Item item, int consumableID) {
+        if (s_caches[ValidateConsumable(consumableID)].requirements.TryGetValue(item.type, out IRequirement req)) return req;
+        if (!HasRequirementOverride(item.type, consumableID, out req)) req = s_consumableTypes[consumableID].GetRequirement(item) ?? new NoRequirement();
         return s_caches[consumableID].requirements[item.type] = req;
     }
-    public static int GetRequirement(int type, int consumableID)
-        => s_caches[ValidateConsumable(consumableID)].requirements.TryGetValue(type, out int req) ? req : GetRequirement(new Item(type), consumableID);
+    public static IRequirement GetRequirement(int type, int consumableID)
+        => s_caches[ValidateConsumable(consumableID)].requirements.TryGetValue(type, out IRequirement req) ? req : GetRequirement(new Item(type), consumableID);
 
-    public static bool HasRequirementOverride(int itemType, int consumableID, out int requirement) {
-        requirement = IConsumableType.NoRequirement;
+    public static bool HasRequirementOverride(int itemType, int consumableID, out IRequirement requirement) {
+        requirement = null;
         return false;
     }
 
-    public static long GetInfinity(this Player player, Item item, int consumableID){
+    public static Infinity GetInfinity(this Player player, Item item, int consumableID) {
         ValidateConsumable(consumableID);
         bool useCache = UseCache(player);
-        if(useCache && s_caches[consumableID].localPlayerInfinities.TryGetValue(item.type, out long inf)) return inf;
-        inf = s_consumableTypes[consumableID].GetInfinity(player, item);
+        if(useCache && s_caches[consumableID].localPlayerInfinities.TryGetValue(item.type, out Infinity inf)) return inf;
+        inf = item.GetInfinity(s_consumableTypes[consumableID].CountItems(player, item), consumableID);
         return useCache ? s_caches[consumableID].localPlayerInfinities[item.type] = inf : inf;
     }
-    public static long GetInfinity(this Player player, int type, int consumableID)
-        => ValidateConsumable(consumableID) == consumableID && UseCache(player) && s_caches[consumableID].localPlayerInfinities.TryGetValue(type, out long inf) ? inf : player.GetInfinity(new Item(type), consumableID);
+    public static Infinity GetInfinity(this Player player, int type, int consumableID)
+        => ValidateConsumable(consumableID) == consumableID && UseCache(player) && s_caches[consumableID].localPlayerInfinities.TryGetValue(type, out Infinity eff) ? eff : player.GetInfinity(new Item(type), consumableID);
+    public static Infinity GetInfinity(this Item item, long count, int consumableID) {
+        IRequirement req = GetRequirement(item, ValidateConsumable(consumableID));
+        return req.Infinity(item, new(count, item.maxStack));
+    } 
 
     public static bool HasInfinite(this Player player, Item item, long consumablesConsumed, int id) {
         return IsTypeEnabled(id) && (id < 0 || item.IsTypeUsed(id) ?
-            consumablesConsumed <= player.GetInfinity(item, id) : player.HasInfinite(item, consumablesConsumed, Mixed.ID));
+            new ItemCount(consumablesConsumed, item.maxStack) <= player.GetInfinity(item, id).Value : player.HasInfinite(item, consumablesConsumed, VanillaConsumableTypes.Mixed.ID));
     }
     public static bool HasInfinite(this Player player, int type, long consumablesConsumed, int id) {
         return IsTypeEnabled(id) && (id < 0 || IsTypeUsed(type, id) ?
-            consumablesConsumed <= player.GetInfinity(type, id) : player.HasInfinite(type, consumablesConsumed, Mixed.ID));
+            new ItemCount(consumablesConsumed, new Item(type).maxStack) <= player.GetInfinity(type, id).Value : player.HasInfinite(type, consumablesConsumed, VanillaConsumableTypes.Mixed.ID));
     }
 
     private static int ValidateConsumable(int id) => s_consumableTypes.ContainsKey(id) ? id :
@@ -160,47 +185,25 @@ public static class InfinityManager {
     private static Configs.RequirementSettings Requirements => Configs.RequirementSettings.Instance;
     private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
 
-    public delegate long AboveRequirementInfinity(long count, int requirement, params int[] args);
-    public static class ARIDelegates {
-        public static long NotInfinite(long _, int _1, params int[] _2) => 0;
-        public static long ItemCount(long count, int _, params int[] _1) => count;
-        public static long Requirement(long _, int requirement, params int[] _1) => requirement;
-
-        public static long LargestMultiple(long count, int requirement, params int[] _)
-            => count / requirement * requirement;
-        public static long LargestPower(long count, int requirement, params int[] args)
-            => requirement * (long)System.MathF.Pow(args[0], (int)System.MathF.Log(count / (float)requirement, args[0]));
-    }
-
-    public static long CalculateInfinity(int maxStack, long count, int requirement, float multiplier, AboveRequirementInfinity aboveRequirement = null, params int[] args) {
-        requirement = Utility.RequirementToItems(requirement, maxStack);
-        if (requirement == 0) return IConsumableType.NoInfinity;
-        if (count < requirement) return IConsumableType.NotInfinite;
-        long infinity = count == requirement ? requirement :
-            (aboveRequirement ?? ARIDelegates.ItemCount).Invoke(count, requirement, args);
-        return (long)(infinity * multiplier);
-    }
-
     public static Configs.ConsumableTypeDefinition ToDefinition(this IConsumableType type) => new(type.Mod, type.Name);
-
 }
 
 internal sealed class ConsumableCache {
     public readonly Dictionary<int, Category> categories = new();
-    public readonly Dictionary<int, int> requirements = new();
-    public readonly Dictionary<int, long> localPlayerInfinities = new();
-    public readonly Dictionary<int, long> localPlayerFullInfinities = new();
+    public readonly Dictionary<int, IRequirement> requirements = new();
+    public readonly Dictionary<int, Infinity> localPlayerInfinities = new();
+    // public readonly Dictionary<int, long> localPlayerFullInfinities = new();
 
     public void ClearAll() {
         categories.Clear();
         requirements.Clear();
         localPlayerInfinities.Clear();
-        localPlayerFullInfinities.Clear();
+        // localPlayerFullInfinities.Clear();
     }
     public void ClearType(int type) {
         categories.Remove(type);
         requirements.Remove(type);
         localPlayerInfinities.Remove(type);
-        localPlayerFullInfinities.Remove(type);
+        // localPlayerFullInfinities.Remove(type);
     }
 }

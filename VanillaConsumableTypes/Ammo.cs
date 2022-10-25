@@ -3,7 +3,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
+using SPIC.ConsumableTypes;
+namespace SPIC.VanillaConsumableTypes;
 public enum AmmoCategory : byte {
     None = Category.None,
     Basic,
@@ -12,12 +13,12 @@ public enum AmmoCategory : byte {
 }
 public class AmmoRequirements {
     [Label("$Mods.SPIC.Types.Ammo.standard")]
-    public Configs.Requirement Standard = -4;
+    public ItemCountWrapper Standard = new(4.0f);
     [Label("$Mods.SPIC.Types.Ammo.special")]
-    public Configs.Requirement Special = -1;
+    public ItemCountWrapper Special = new(1.0f);
 }
 
-public class Ammo : ConsumableType<Ammo>, IStandardConsumableType<AmmoCategory, AmmoRequirements>, IDefaultAmmunition, ICustomizable {
+public class Ammo : ConsumableType<Ammo>, IStandardConsumableType<AmmoCategory, AmmoRequirements>, IDefaultAmmunition, ICustomizable, IDetectable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessQuiver;
     
@@ -25,19 +26,12 @@ public class Ammo : ConsumableType<Ammo>, IStandardConsumableType<AmmoCategory, 
 
     public AmmoRequirements Settings { get; set; }
 
-    public int MaxStack(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => 999,
-        AmmoCategory.Special => 999,
-        AmmoCategory.Explosive => 999,
-        AmmoCategory.None or _ => 999,
+    public IRequirement Requirement(AmmoCategory category) => category switch {
+        AmmoCategory.Basic => new ItemCountRequirement(Settings.Standard),
+        AmmoCategory.Special or AmmoCategory.Explosive => new ItemCountRequirement(Settings.Special),
+        AmmoCategory.None or _ => null,
     };
 
-    public int Requirement(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => Settings.Standard,
-        AmmoCategory.Special or AmmoCategory.Explosive => Settings.Special,
-        AmmoCategory.None or _ => IConsumableType.NoRequirement,
-    };
-    
     public AmmoCategory GetCategory(Item item) {
         if (!item.consumable || item.ammo == AmmoID.None) return AmmoCategory.None;
         if (item.ammo == AmmoID.Arrow || item.ammo == AmmoID.Bullet || item.ammo == AmmoID.Rocket || item.ammo == AmmoID.Dart)

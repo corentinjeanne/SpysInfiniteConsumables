@@ -25,7 +25,10 @@ public class PresetDefinition : EntityDefinition {
     public Preset Preset => PresetManager.Preset(Mod, Name);
     public static ConsumableTypeDefinition FromString(string s) => new(s);
 
-    public string FullName() => Name;
+    public string Label() {
+        Preset preset = Preset;
+        return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label;
+    }
 }
 
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableTypeDefinition]")]
@@ -39,6 +42,11 @@ public class ConsumableTypeDefinition : EntityDefinition {
 
     [JsonIgnore]
     public IConsumableType ConsumableType => InfinityManager.ConsumableType(Mod, Name);
+    public string Label() {
+        IConsumableType type = ConsumableType;
+        if(IsUnloaded) return $"(Unloaded) {this}";
+        return $"[i:{type.IconType}] {(System.Attribute.GetCustomAttribute(type.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
+    }
 
     public static ConsumableTypeDefinition FromString(string s) => new(s);
 }

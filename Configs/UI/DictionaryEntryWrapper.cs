@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Reflection;
 using Newtonsoft.Json;
-using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs.UI;
 
@@ -12,8 +11,8 @@ public interface IDictionaryEntryWrapper {
     object Key { get; set;}
 
     object Value { get; set;}
-
 }
+
 public class DictionaryEntryWrapper<Tkey,Tvalue> : IDictionaryEntryWrapper {
 
     [JsonIgnore]
@@ -29,21 +28,19 @@ public class DictionaryEntryWrapper<Tkey,Tvalue> : IDictionaryEntryWrapper {
                     index++;
                 }
                 ordered.RemoveAt(index);
-                ordered.Insert(index, value, _value);
+                ordered.Insert(index, value, _dict[_key]);
             } else {
                 _dict.Remove(_key);
-                _dict.Add(value, _value);
+                _dict.Add(value, _dict[_key]);
             }
 
             _key = value;
         }
     }
-    // [ColorHSLSlider, ColorNoAlpha]
     public Tvalue Value {
-        get => _value;
+        get => (Tvalue)_dict[_key];
         set {
-            _value = value;
-            _dict[_key] = _value;
+            _dict[_key] = value;
         }
     }
 
@@ -56,13 +53,11 @@ public class DictionaryEntryWrapper<Tkey,Tvalue> : IDictionaryEntryWrapper {
         set => Value = (Tvalue)value;
     }
 
-    public DictionaryEntryWrapper(IDictionary dict, Tkey key, Tvalue value) {
+    public DictionaryEntryWrapper(IDictionary dict, Tkey key) {
         _key = key;
-        _value = value;
         _dict = dict;
     }
 
     private readonly IDictionary _dict;
     private Tkey _key;
-    private Tvalue _value;
 }

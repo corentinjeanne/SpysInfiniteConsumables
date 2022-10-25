@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using SPIC.ConsumableTypes;
+using SPIC.VanillaConsumableTypes;
 
 namespace SPIC.Systems {
 
@@ -16,7 +16,6 @@ namespace SPIC.Systems {
             On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
         }
 
-        
         public override void PostAddRecipes() {
             CraftingStations.Clear();
             for (int i = 0; i < Main.recipe.Length; i++) {
@@ -62,11 +61,11 @@ namespace SPIC.Systems {
         }
 
         private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
-            SpysInfiniteConsumables.Instance.Logger.Debug("Find recipes");
             if (canDelayCheck) {
                 orig(canDelayCheck);
                 return;
             }
+            SpysInfiniteConsumables.Instance.Logger.Debug("Find recipes");
             InfinityManager.ClearCache();
             orig(canDelayCheck);
         }

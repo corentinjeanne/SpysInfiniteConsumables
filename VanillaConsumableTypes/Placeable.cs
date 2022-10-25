@@ -5,8 +5,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
-
+using SPIC.ConsumableTypes;
+namespace SPIC.VanillaConsumableTypes;
 public enum PlaceableCategory : byte {
     None = Category.None,
 
@@ -14,8 +14,7 @@ public enum PlaceableCategory : byte {
     Wall,
     Wiring,
     Torch,
-    Ore,
-    Gem,
+    Ore, //demonite and crymtane, hellstone
 
     LightSource,
     Container,
@@ -24,9 +23,9 @@ public enum PlaceableCategory : byte {
     Decoration,
     MusicBox,
 
-    Mechanical,
+    Mechanical, // statues
     Liquid,
-    Seed,
+    Seed, //gemtrees, mud seeds
     Paint
 }
 
@@ -38,21 +37,21 @@ public static class PlaceableExtension {
 
 public class PlaceableRequirements {
     [Label("$Mods.SPIC.Types.Placeable.tiles")]
-    public Configs.Requirement Tiles = -1;
+    public ItemCountWrapper Tiles = new(1.0f);
     [Label("$Mods.SPIC.Types.Placeable.ores")]
-    public Configs.Requirement Ores = 499;
+    public ItemCountWrapper Ores = new(499);
     [Label("$Mods.SPIC.Types.Placeable.torches")]
-    public Configs.Requirement Torches = 99;
+    public ItemCountWrapper Torches = new(99);
     [Label("$Mods.SPIC.Types.Placeable.furnitures")]
-    public Configs.Requirement Furnitures = 3;
+    public ItemCountWrapper Furnitures = new(3, 99);
     [Label("$Mods.SPIC.Types.Placeable.mechanical")]
-    public Configs.Requirement Mechanical = 3;
+    public ItemCountWrapper Mechanical = new(3);
     [Label("$Mods.SPIC.Types.Placeable.liquids")]
-    public Configs.Requirement Liquids = 10;
+    public ItemCountWrapper Liquids = new(10);
     [Label("$Mods.SPIC.Types.Placeable.seeds")]
-    public Configs.Requirement Seeds = 20;
+    public ItemCountWrapper Seeds = new(20, 99);
     [Label("$Mods.SPIC.Types.Placeable.paints")]
-    public Configs.Requirement Paints = -1;
+    public ItemCountWrapper Paints = new(1.0f, 999);
 }
 
 public class Placeable : ConsumableType<Placeable>, IStandardConsumableType<PlaceableCategory, PlaceableRequirements>, IDefaultAmmunition, ICustomizable, IDetectable {
@@ -63,48 +62,25 @@ public class Placeable : ConsumableType<Placeable>, IStandardConsumableType<Plac
     public bool DefaultsToOn => false;
     public PlaceableRequirements Settings { get; set; }
 
-    public int MaxStack(PlaceableCategory category) => category switch {
-        PlaceableCategory.Block => 999,
-        PlaceableCategory.Wall => 999,
-        PlaceableCategory.Torch => 999,
-        PlaceableCategory.Ore => 999,
-        PlaceableCategory.Gem => 999,
-        PlaceableCategory.Wiring => 999,
-
-        PlaceableCategory.LightSource => 99,
-        PlaceableCategory.Container => 99,
-        PlaceableCategory.CraftingStation => 99,
-        PlaceableCategory.Functional => 99,
-        PlaceableCategory.Decoration => 99,
-        PlaceableCategory.MusicBox => 1,
-
-        PlaceableCategory.Mechanical => 999,
-        PlaceableCategory.Liquid => 99,
-        PlaceableCategory.Seed => 99,
-
-        PlaceableCategory.Paint => 999,
-
-        PlaceableCategory.None or _ => 999,
-    };
-    public int Requirement(PlaceableCategory category) {
+    public IRequirement Requirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => Settings.Tiles,
-            PlaceableCategory.Torch => Settings.Torches,
-            PlaceableCategory.Ore => Settings.Ores,
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new ItemCountRequirement(Settings.Tiles),
+            PlaceableCategory.Torch => new ItemCountRequirement(Settings.Torches),
+            PlaceableCategory.Ore => new ItemCountRequirement(Settings.Ores),
 
-            PlaceableCategory.LightSource or PlaceableCategory.MusicBox
+            PlaceableCategory.LightSource
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => Settings.Furnitures,
-
-            PlaceableCategory.Liquid => Settings.Liquids,
-            PlaceableCategory.Mechanical => Settings.Mechanical,
-            PlaceableCategory.Seed => Settings.Seeds,
-            PlaceableCategory.Paint => Settings.Paints,
-            PlaceableCategory.None or _ => IConsumableType.NoRequirement,
+                => new ItemCountRequirement(Settings.Furnitures),
+            PlaceableCategory.MusicBox => new ItemCountRequirement(new(Settings.Furnitures){MaxStack = 1}),
+            PlaceableCategory.Liquid => new ItemCountRequirement(Settings.Liquids),
+            PlaceableCategory.Mechanical => new ItemCountRequirement(Settings.Mechanical),
+            PlaceableCategory.Seed => new ItemCountRequirement(Settings.Seeds),
+            PlaceableCategory.Paint => new ItemCountRequirement(Settings.Paints),
+            PlaceableCategory.None or _ => null,
         };
     }
-
+    
     public PlaceableCategory GetCategory(Item item) {
         if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_ammos.ContainsKey(item.type) && !(item.FitsAmmoSlot() && item.mech))
             return PlaceableCategory.None;
@@ -168,6 +144,12 @@ public class Placeable : ConsumableType<Placeable>, IStandardConsumableType<Plac
         PaintBrush,
         PaintRoller
     }
+
+    TooltipLine IDefaultAmmunition.WeaponTooltipLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
+        WandType.Tile => new(Mod, $"WanndConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
+        WandType.Wire => new(Mod, $"Tooltip0", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
+        WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> new(Mod, $"PaintConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
+    };
 
     public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile,
         { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,

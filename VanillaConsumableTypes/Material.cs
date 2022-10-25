@@ -4,8 +4,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
-
+using SPIC.ConsumableTypes;
+namespace SPIC.VanillaConsumableTypes;
 public enum MaterialCategory : byte {
     None = Category.None,
     Basic,
@@ -17,15 +17,15 @@ public enum MaterialCategory : byte {
 
 public class MaterialRequirements {
     [Label("$Mods.SPIC.Types.Material.basics")]
-    public Configs.Requirement Basics = -1;
+    public ItemCountWrapper Basics = new(1.0f);
     [Label("$Mods.SPIC.Types.Placeable.ores")]
-    public Configs.Requirement Ores = 500;
+    public ItemCountWrapper Ores = new(500);
     [Label("$Mods.SPIC.Types.Placeable.furnitures")]
-    public Configs.Requirement Furnitures = 20;
+    public ItemCountWrapper Furnitures = new(20,99);
     [Label("$Mods.SPIC.Types.Material.misc")]
-    public Configs.Requirement Miscellaneous = 50;
-    [Range(-50, 0), Label("$Mods.SPIC.Types.Material.special")]
-    public Configs.RequirementItems NonStackable = -2;
+    public ItemCountWrapper Miscellaneous = new(50);
+    [Label("$Mods.SPIC.Types.Material.special"), Configs.UI.NoSwapping]
+    public ItemCountWrapper NonStackable = new(2,1);
 }
 
 public class Material : ConsumableType<Material>, IStandardConsumableType<MaterialCategory, MaterialRequirements> {
@@ -35,24 +35,14 @@ public class Material : ConsumableType<Material>, IStandardConsumableType<Materi
     public bool DefaultsToOn => false;
     public MaterialRequirements Settings { get; set; }
 
-    public int MaxStack(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => 999,
-        MaterialCategory.Ore => 999,
-        MaterialCategory.Furniture => 99,
-        MaterialCategory.Miscellaneous => 999,
-        MaterialCategory.NonStackable => 1,
-        MaterialCategory.None or _ => 999,
+    public IRequirement Requirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => new MultipleRequirement(Settings.Basics, 0.5f),
+        MaterialCategory.Ore => new MultipleRequirement(Settings.Ores, 0.5f),
+        MaterialCategory.Furniture => new MultipleRequirement(Settings.Furnitures, 0.5f),
+        MaterialCategory.Miscellaneous => new MultipleRequirement(Settings.Miscellaneous, 0.5f),
+        MaterialCategory.NonStackable => new MultipleRequirement(Settings.NonStackable, 0.5f),
+        MaterialCategory.None or _ => null,
     };
-    public int Requirement(MaterialCategory category) {
-        return category switch {
-            MaterialCategory.Basic => Settings.Basics,
-            MaterialCategory.Ore => Settings.Ores,
-            MaterialCategory.Furniture => Settings.Furnitures,
-            MaterialCategory.Miscellaneous => Settings.Miscellaneous,
-            MaterialCategory.NonStackable => Settings.NonStackable,
-            MaterialCategory.None or _ => IConsumableType.NoRequirement,
-        };
-    }
 
     public MaterialCategory GetCategory(Item item) {
 
@@ -79,27 +69,18 @@ public class Material : ConsumableType<Material>, IStandardConsumableType<Materi
         return MaterialCategory.Miscellaneous;
     }
 
-    public long GetInfinity(Item item, long count)
-        => InfinityManager.CalculateInfinity(
-            (int)System.MathF.Min(item.maxStack, MaxStack(item.GetCategory<MaterialCategory>(UID))),
-            count,
-            InfinityManager.GetRequirement(item, ID),
-            0.5f,
-            InfinityManager.ARIDelegates.LargestMultiple
-        );
-
     // TODO improve to use the available recipes
     public long GetMaxInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
-    public DisplayFlags GetInfinityDisplayFlags(Item item, bool isACopy) {
+    public bool OwnsItem(Player player, Item item, bool isACopy) {
         bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
         
         Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         foreach(Item material in recipe.requiredItem){
-            if(AreSameItems(item, material)) return DisplayFlags.Infinity;
+            if(AreSameItems(item, material)) return true;
         }
 
-        return DefaultImplementation.GetInfinityDisplayFlags(item, isACopy);
+        return DefaultImplementation.OwnsItem(player, item, isACopy);
     }
     public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityPink;
     public TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);

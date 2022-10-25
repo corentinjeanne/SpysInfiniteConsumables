@@ -37,15 +37,15 @@ public class CategoryElement : ConfigElement<Category> {
             Type genType = typeof(EnumProp<>).MakeGenericType(value.Enum.GetType());
             PropertyInfo enumProp = genType.GetProperty(nameof(Enum), BindingFlags.Public | BindingFlags.Instance);
             Func<Enum> getter = () => Value.Enum;
-            Action<Enum> setter = (Enum e) => Value = new(e);
+            Action<Enum> setter = (Enum e) => Value = new(e){SaveEnumType = Value.SaveEnumType};
             _enum = Activator.CreateInstance(genType, new object[] { getter, setter });
             (container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);
             string label = LabelAttribute?.Label ?? MemberInfo.Name;
-            Configs.UI.ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Value.ToString());
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Value.Label());
         } else {
             (container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_byteProp), this, 0);
             string label = LabelAttribute?.Label ?? MemberInfo.Name;
-            Configs.UI.ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Byte.ToString());
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Byte.ToString());
         }
         container.Left.Pixels -= 20;
         container.Width.Pixels += 20;

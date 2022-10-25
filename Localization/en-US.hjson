@@ -62,6 +62,7 @@
             }
 
             ItemTooltip: {
+                curency: Currency
                 items: "{0} items"
                 stacks: "{0} stacks"
                 infinite: Infinite {0}

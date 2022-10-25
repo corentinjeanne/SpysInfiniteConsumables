@@ -9,6 +9,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace SPIC.Configs.UI;
 
@@ -20,13 +21,17 @@ public class ValuesAsConfigItemsAttribute : Attribute { }
 
 public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
-    // TODO implement attributes
+    // TODO implement attributes to finish class
     // private ConstantKeys _constKeys; // - add, clear, remove
     // private ValuesAsConfigItemsAttribute _asConfigItems; // - collapse, size button, (add, clear, remove)
 
     // private FieldInfo _dictWrappersField = typeof(CustomDictionaryUI).GetField(nameof(dictWrappers), BindingFlags.Instance | BindingFlags.Public);
 
     // private Attribute[] _memberAttributes;
+
+    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryUI).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
+    private readonly EmptyClass _dummy = new();
+
 
     public List<IDictionaryEntryWrapper> dictWrappers = new();
     private UIList _dataList;
@@ -36,9 +41,10 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
         object value = Value;
         if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
-        
+
         // _memberAttributes = Attribute.GetCustomAttributes(MemberInfo.MemberInfo).Where(attrib => attrib is not CustomModConfigItemAttribute).ToArray();
-        
+
+        // _hideUnloaded = ConfigManager.GetCustomAttribute<HideUnloadedAttribute>(MemberInfo, value.GetType());
         // _asConfigItems = ConfigManager.GetCustomAttribute<ValuesAsConfigItemsAttribute>(MemberInfo, value.GetType());
         // _constKeys = ConfigManager.GetCustomAttribute<ConstantKeys>(MemberInfo, value.GetType());
         // _sortable = ConfigManager.GetCustomAttribute<SortableAttribute>(MemberInfo, value.GetType());
@@ -62,13 +68,19 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
         _dataList.Clear();
         dictWrappers.Clear();
 
+        int unloaded = 0;
+
         IDictionary dict = Value;
         int top = 0;
         int i = 0;
         foreach (DictionaryEntry entry in dict) {
             (object key, object value) = entry;
+            if(key is EntityDefinition entity && entity.IsUnloaded){
+                unloaded++;
+                goto endLoop;
+            }
             Type genericType = typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType());
-            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key, value);
+            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key);
 
             dictWrappers.Add(wrapper);
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(wrapper.ValueProp), wrapper, i);
@@ -99,16 +111,24 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
                 };
                 container.Append(moveButton);
             }
+
             string name = key switch {
-                // InfinityDefinition inf => $"[i:{inf.Infinity.IconType}] {inf.Infinity.LocalizedName}",
-                ConsumableTypeDefinition type => $"[i:{type.ConsumableType.IconType}] {type.ConsumableType.Name}",
+                ConsumableTypeDefinition type => type.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
-            
+        endLoop:
             i++;
+        }
+        if(unloaded > 0){
+            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);
+            string text = $"{unloaded} unloaded consumable types";
+            element.RemoveAllChildren();
+            ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => text);
+
         }
         Recalculate();
     }

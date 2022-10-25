@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableTypes;
 using SPIC.Configs.UI;
 using Newtonsoft.Json;
+using Terraria.ModLoader;
 
 namespace SPIC.Configs;
 
@@ -23,8 +24,8 @@ public class InfinityDisplay : ModConfig {
     public bool toopltip_ShowTooltip;
     [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.MissingLines")]
     public bool toopltip_AddMissingLines;
-    [Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.ItemName")]
-    public bool tooltip_UseItemName;
+    // [Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.ItemName")]
+    // public bool tooltip_UseItemName;
 
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Glow.header")]
     [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Glow")]
@@ -53,12 +54,16 @@ public class InfinityDisplay : ModConfig {
     public Dictionary<ConsumableTypeDefinition, Color> Colors {
         get => _colors;
         set {
+            _colors.Clear();
+            foreach((ConsumableTypeDefinition def, Color color) in value){
+                if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
+                _colors.Add(def, color);
+            }
             foreach(IColorable type in InfinityManager.ConsumableTypes<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
                 value.TryAdd(type.ToDefinition(), type.DefaultColor);
-            _colors = value;
         }
     }
-    private Dictionary<ConsumableTypeDefinition, Color> _colors = new();
+    private readonly Dictionary<ConsumableTypeDefinition, Color> _colors = new();
 
     [JsonIgnore]
     public DisplayFlags DisplayFlags {

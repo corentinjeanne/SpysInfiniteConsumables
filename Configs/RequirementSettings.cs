@@ -1,59 +1,18 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableTypes;
 using SPIC.Configs.UI;
-using System.Collections;
-using System.Linq.Expressions;
 using SPIC.Configs.Presets;
 
 namespace SPIC.Configs;
 
-public class RequirementItems : SingleFieldItem {
-    [Range(0, 9999)]
-    public int items;
-    public object Disabled => null;
-
-    public static implicit operator int(RequirementItems r) => r.items;
-    public static implicit operator RequirementItems(long i) {
-        RequirementItems r = new();
-        if(i == 0) r.Select(nameof(Disabled));
-        else {
-            r.items = (int)i;
-            r.Select(nameof(items));
-        }
-        return r;
-    }
-}
-public class Requirement : SingleFieldItem {
-    [Range(0, 9999)]
-    public int items;
-    [Range(0, 50)]
-    public int stacks;
-    public object Disabled => null; // TODO find another way using allow null
-
-    public static implicit operator int(Requirement r) => r.SelectedMember.Name == nameof(items) ? r.items : -r.stacks;
-    public static implicit operator Requirement(long i) {
-        Requirement r = new();
-        if(i == 0) r.Select(nameof(Disabled));
-        else if(i > 0){
-            r.items = (int)i;
-            r.Select(nameof(items));
-        } else {
-            r.stacks = (int)-i;
-            r.Select(nameof(stacks));
-        }
-        return r;
-    }
-    public override string ToString() {
-        return $"{(int)this}";
-    }
-}
-
-// TODO Unloaded infinities
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class RequirementSettings : ModConfig {
 
@@ -61,26 +20,24 @@ public class RequirementSettings : ModConfig {
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.Requirements.General.t_duplication")]
     public bool PreventItemDupication { get; set; }
 
-
-    public static IList GetPresets(){
+    public static List<PresetDefinition> GetPresets(){
         List<PresetDefinition> defs = new();
         foreach(Preset preset in PresetManager.Presets())
             defs.Add(preset.ToDefinition());
         return defs;
     }
-    public static IList GetChoices() => new List<string>() { "One", "Two", "Three" };
 
     [Label("$Mods.SPIC.Configs.Requirements.General.Preset")]
-    [CustomModConfigItem(typeof(DropDownUI)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), "FullName")]
+    [CustomModConfigItem(typeof(DropDownUI)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition Preset {
         get {
-            if(Requirements.Count == 0) return null;
+            if(EnabledTypes.Count == 0) return null;
             foreach (Preset preset in PresetManager.Presets()){
                 if(preset.MeetsCriterias(this)) return preset.ToDefinition();
             }
             return null;
         } set {
-            if (Requirements.Count == 0) return;
+            if (EnabledTypes.Count == 0) return;
             value?.Preset.ApplyCriterias(this);
         }
     }
@@ -92,7 +49,10 @@ public class RequirementSettings : ModConfig {
             _types.Clear();
             foreach (DictionaryEntry entry in value) {
                 ConsumableTypeDefinition def = new((string)entry.Key);
-                if (def.IsUnloaded || def.ConsumableType is not IToggleable config) continue;
+                if (def.IsUnloaded) {
+                    if (!ModLoader.HasMod(def.Mod)) _types.Add(def, entry.Value);
+                    continue;
+                }
                 bool state = entry.Value switch {
                     JObject jobj => (bool)jobj,
                     bool b => b,
@@ -114,14 +74,30 @@ public class RequirementSettings : ModConfig {
     public Dictionary<ConsumableTypeDefinition, bool> EnabledGlobals {
         get => _globals;
         set {
-            foreach (IToggleable type in InfinityManager.ConsumableTypes<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                value.TryAdd(type.ToDefinition(), type.DefaultsToOn);
+            _globals.Clear();
+            foreach ((ConsumableTypeDefinition def, bool state) in value) {
+                if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
+                _globals.Add(def, state);
             }
-            _globals = value;
+            foreach (IToggleable type in InfinityManager.ConsumableTypes<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                _globals.TryAdd(type.ToDefinition(), type.DefaultsToOn);
+            }
         }
     }
-    private Dictionary<ConsumableTypeDefinition, bool> _globals = new();
+    private readonly Dictionary<ConsumableTypeDefinition, bool> _globals = new();
 
+    [JsonIgnore]
+    public IEnumerable<(IToggleable type, bool enabled, bool global)> LoadedTypes {
+        get {
+            foreach(DictionaryEntry entry in EnabledTypes){
+                ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
+                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value, false);
+            }
+            foreach((ConsumableTypeDefinition def, bool state) in EnabledGlobals){
+                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
+            }
+        }
+    }
 
     [Header("$Mods.SPIC.Configs.Requirements.Requirements.header")]
     [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
@@ -130,12 +106,16 @@ public class RequirementSettings : ModConfig {
         set {
             _requirements.Clear();
             foreach((ConsumableTypeDefinition def, object data) in value) {
-                if(def.IsUnloaded || def.ConsumableType is not IConfigurable config) continue;
+                if (def.IsUnloaded) {
+                    if (!ModLoader.HasMod(def.Mod)) _requirements.Add(def, data);
+                    continue;
+                }
+                if(def.ConsumableType is not IConfigurable config) continue;
 
                 if(data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType);
                 else if(data.GetType() == config.SettingsType) config.Settings = data;
                 else throw new NotImplementedException();
-                
+
                 _requirements.Add(def, config.Settings);
             }
             foreach (IConfigurable type in InfinityManager.ConsumableTypes<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {

@@ -9,7 +9,7 @@ public static class PresetManager {
 
     public static void Register<TImplementation>(Preset<TImplementation> type) where TImplementation : Preset<TImplementation>, new() {
 
-        if (type.UID != 0) throw new System.ArgumentException("This preset has already been registered", nameof(type));
+        if (type.UID != 0) throw new ArgumentException("This preset has already been registered", nameof(type));
         int id = type.UID = s_nextPresetID++;
         s_presets[id] = type;
 
@@ -40,7 +40,7 @@ public static class PresetManager {
     }
 
     private static int ValidatePreset(int id) => s_presets.ContainsKey(id) ? id :
-        throw new System.ArgumentOutOfRangeException(nameof(id), id, "No Preset with this id exists");
+        throw new ArgumentOutOfRangeException(nameof(id), id, "No Preset with this id exists");
 
 
     private static int s_nextPresetID = 1;
