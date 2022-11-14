@@ -8,7 +8,7 @@ using SPIC.ConsumableTypes;
 
 namespace SPIC.Configs.UI;
 
-public class CategoryElement : ConfigElement<Category> {
+public class CategoryElement : ConfigElement<CategoryWrapper> {
 
     public class EnumProp<TEnum> where TEnum : Enum {
 
@@ -24,19 +24,19 @@ public class CategoryElement : ConfigElement<Category> {
 
     private static readonly PropertyInfo s_byteProp = typeof(CategoryElement).GetProperty(nameof(Byte), BindingFlags.NonPublic | BindingFlags.Instance);
 
-    private byte Byte { get => Value; set => Value = new(value); }
+    private byte Byte { get => (byte)Value.value; set => Value.value = value; }
     private object _enum;
 
     public override void OnBind() {
         base.OnBind();
-        Category value = (Category)MemberInfo.GetValue(Item);
+        CategoryWrapper value = (CategoryWrapper)MemberInfo.GetValue(Item);
 
         int top = 0;
         UIElement container;
         if (value.IsEnum) {
-            Type genType = typeof(EnumProp<>).MakeGenericType(value.Enum.GetType());
+            Type genType = typeof(EnumProp<>).MakeGenericType(((Enum)value.value).GetType());
             PropertyInfo enumProp = genType.GetProperty(nameof(Enum), BindingFlags.Public | BindingFlags.Instance);
-            Func<Enum> getter = () => Value.Enum;
+            Func<Enum> getter = () => (Enum)value.value;
             Action<Enum> setter = (Enum e) => Value = new(e){SaveEnumType = Value.SaveEnumType};
             _enum = Activator.CreateInstance(genType, new object[] { getter, setter });
             (container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);

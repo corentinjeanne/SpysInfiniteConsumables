@@ -17,11 +17,11 @@ public class CategoryDetection : ModConfig {
 
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
     [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, Category>> DetectedCategories {
+    public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedCategories {
         get => _detectedCategories;
         set {
             _detectedCategories.Clear();
-            foreach((ConsumableTypeDefinition def, Dictionary<ItemDefinition, Category> items) in value){
+            foreach((ConsumableTypeDefinition def, Dictionary<ItemDefinition, CategoryWrapper> items) in value){
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _detectedCategories.Add(def, items);
                     continue;
@@ -32,9 +32,9 @@ public class CategoryDetection : ModConfig {
                 if (iConsumableGeneric != null) {
                     _detectedCategories[def] = new();
                     foreach (ItemDefinition item in value[def].Keys) {
-                        _detectedCategories[def][item] = !value[def][item].IsEnum
-                            ? (Category)(System.Enum)System.Enum.ToObject(iConsumableGeneric.GenericTypeArguments[0], value[def][item])
-                            : value[def][item];
+                        _detectedCategories[def][item] = value[def][item].IsEnum ?
+                            value[def][item] :
+                            new(System.Enum.ToObject(iConsumableGeneric.GenericTypeArguments[0], value[def][item].value));
                         _detectedCategories[def][item].SaveEnumType = false;
                     }
                 } else 
@@ -45,7 +45,7 @@ public class CategoryDetection : ModConfig {
             }
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, Category>> _detectedCategories = new();
+    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> _detectedCategories = new();
 
     public bool SaveDetectedCategory(Item item, Category category, int typeID){
         if(category.IsUnknown) throw new System.ArgumentException("A detected category cannot be unkonwn");
@@ -53,15 +53,19 @@ public class CategoryDetection : ModConfig {
         if(type is not IDetectable) return false;
 
         ItemDefinition key = new (item.type);
-        if (!DetectedCategories[type.ToDefinition()].TryAdd(key, category)) return false;
+        if (!DetectedCategories[type.ToDefinition()].TryAdd(key, new(category.Value))) return false;
         InfinityManager.ClearCache(item.type);
         return true;
     }
     public bool HasDetectedCategory(int type, int typeID, out Category category){
         IConsumableType consumableType = InfinityManager.ConsumableType(typeID);
         category = Category.None;
-        return DetectMissing && consumableType is IDetectable
-            && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out Dictionary<ItemDefinition, Category> categories) && categories.TryGetValue(new(type), out category);
+        if(DetectMissing && consumableType is IDetectable
+                && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper> categories) && categories.TryGetValue(new(type), out CategoryWrapper wrapper)){
+            category = wrapper;
+            return true;
+        }
+        return false;
     }
 
     public override ConfigScope Mode => ConfigScope.ClientSide;

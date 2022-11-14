@@ -7,17 +7,17 @@ namespace SPIC.ConsumableTypes;
 public class ItmeCountConverter : JsonConverter<ItemCountWrapper> {
 
     public override ItemCountWrapper ReadJson(JsonReader reader, Type objectType, ItemCountWrapper existingValue, bool hasExistingValue, JsonSerializer serializer) {
-        JValue category = (JValue)JToken.Load(reader);
+        JValue count = (JValue)JToken.Load(reader);
 
-        if (!hasExistingValue) return new ItemCountWrapper(category.Value, 999);
-        if (category.Value is long v && v >= 0) existingValue.value = v;
-        else existingValue.value = -(float)(double)category.Value;
+        if (!hasExistingValue) existingValue = new ItemCountWrapper(count.Value, 999);
+        if (count.Value is long v && v >= 0) existingValue.value = v;
+        else existingValue.value = -(float)(double)count.Value;
         return existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, ItemCountWrapper value, JsonSerializer serializer) {
         if(value.UseItems)writer.WriteValue((long)value.value);
-        else writer.WriteValue(-(float) value.value);
+        else writer.WriteValue(-(float)value.value);
     }
 }
 
@@ -34,10 +34,6 @@ public sealed class ItemCountWrapper {
         else value = ((ItemCount)this).Items;
     }
 
-    public ItemCountWrapper(ItemCount value) {
-        this.value = value.Value;
-        maxStack = value.MaxStack;
-    }
     public ItemCountWrapper(long items, int maxStack = 999) {
         value = items;
         this.maxStack = maxStack;
@@ -46,7 +42,8 @@ public sealed class ItemCountWrapper {
         value = stacks;
         this.maxStack = maxStack;
     }
-    public ItemCountWrapper(object value, int maxStack = 999) {
+    internal ItemCountWrapper(object value, int maxStack = 999) {
+        if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
         this.value = value;
         this.maxStack = maxStack;
     }
@@ -58,6 +55,7 @@ public sealed class ItemCountWrapper {
 /// DO NOT use for config, use <see cref="ItemCountWrapper"/> instead
 /// </summary>
 public struct ItemCount {
+    
     public ItemCount(ItemCount count) {
         Value = count.Value;
         MaxStack = count.MaxStack;
@@ -70,21 +68,13 @@ public struct ItemCount {
         Value = stacks;
         MaxStack = maxStack;
     }
-    public ItemCount(object value, int maxStack = 999) {
+    internal ItemCount(object value, int maxStack = 999) {
         if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
         Value = value;
         MaxStack = maxStack;
     }
 
     public object Value { get; init; }
-    // public object Value {
-    //     get => _value;
-    //     set {
-    //         if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
-    //         _value = value;
-    //     }
-    // }
-    // private object _value;
     public int MaxStack { get; set; }
 
     public bool IsNone => Items == 0;

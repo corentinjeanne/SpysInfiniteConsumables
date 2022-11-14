@@ -6,61 +6,78 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.ConsumableTypes;
 
-public class CategoryConverter : JsonConverter<Category> {
+public class CategoryConverter : JsonConverter<CategoryWrapper> {
 
-    public override Category ReadJson(JsonReader reader, Type objectType, Category existingValue, bool hasExistingValue, JsonSerializer serializer) {
+    public override CategoryWrapper ReadJson(JsonReader reader, Type objectType, CategoryWrapper existingValue, bool hasExistingValue, JsonSerializer serializer) {
         JValue category = (JValue)JToken.Load(reader);
+        if(!hasExistingValue) existingValue = new(byte.MinValue);
         if (category.Value is string fullName) {
             string[] parts = fullName.Split(", ", 3);
-            existingValue = (Enum)Enum.Parse(Assembly.Load(parts[0]).GetType(parts[1]), parts[2]);
+            existingValue.value = Enum.Parse(Assembly.Load(parts[0]).GetType(parts[1]), parts[2]);
             existingValue.SaveEnumType = true;
-            return existingValue;
         }
-        return Convert.ToByte(category.Value);
+        else existingValue.value = Convert.ToByte(category.Value);
+        return existingValue;
     }
 
-    public override void WriteJson(JsonWriter writer, Category value, JsonSerializer serializer) {
+    public override void WriteJson(JsonWriter writer, CategoryWrapper value, JsonSerializer serializer) {
         if (!value.IsEnum || !value.SaveEnumType) {
-            writer.WriteValue(value.Byte);
+            writer.WriteValue(value.value);
             return;
         }
-        string[] parts = value.Enum.GetType().AssemblyQualifiedName.Split(", ");
-        string fullID = $"{parts[1]}, {parts[0]}, {value.Enum}";
+        string[] parts = value.value.GetType().AssemblyQualifiedName.Split(", ");
+        string fullID = $"{parts[1]}, {parts[0]}, {value.value}";
         writer.WriteValue(fullID);
     }
 }
 
 [CustomModConfigItem(typeof(Configs.UI.CategoryElement))]
 [JsonConverter(typeof(CategoryConverter))]
-public sealed class Category {
-    public Category() {
-        Byte = 0;
-        Enum = null;
+public sealed class CategoryWrapper {
+
+    public CategoryWrapper() => value = byte.MinValue;
+    public CategoryWrapper(Enum value) => this.value = value;
+    public CategoryWrapper(byte value) => this.value = value;
+    internal CategoryWrapper(object value) {
+        if (value is not (byte or Enum)) throw new ArgumentException("The type of value must be byte or enum");
+        this.value = value;
     }
+
+    public object value;
+    public bool IsEnum => value is Enum;
+    public bool SaveEnumType { get; set; } = true;
+
+    public string Label() => ((Category)this).Label();
+
+    public static implicit operator Category(CategoryWrapper category) => new(category.value);
+}
+
+
+/// <summary>
+/// DO NOT use for config, use <see cref="CategoryWrapper"/> instead
+/// </summary>
+public struct Category {
+
     public Category(Enum value) {
-        Enum = value;
-        Byte = Convert.ToByte(value);
+        Value = value;
     }
     public Category(byte value) {
-        Byte = value;
-        Enum = null;
+        Value = value;
     }
-    
-    public byte Byte { get; init; }
-    public Enum Enum { get; init; }
+    internal Category(object value) {
+        if (value is not (byte or System.Enum)) throw new ArgumentException("The type of value must be byte or enum");
+        Value = value;
+    }
 
-    [JsonIgnore] public bool SaveEnumType { get; set; } = true;
+    public object Value { get; init; }
 
-    public bool IsEnum => Enum is not null;
+    public byte Byte => Convert.ToByte(Value);
+    public Enum Enum => Value as Enum;
+
+    public bool IsEnum => Value is Enum;
     public bool IsNone => Byte == None;
     public bool IsUnknown => Byte == Unknown;
 
-    public string Label() {
-        if (!IsEnum) return Byte.ToString();
-        MemberInfo enumFieldMemberInfo = Enum.GetType().GetMember(Enum.ToString())[0];
-        LabelAttribute labelAttribute = (LabelAttribute)Attribute.GetCustomAttribute(enumFieldMemberInfo, typeof(LabelAttribute));
-        return labelAttribute?.Label ?? Enum.ToString();
-    }
     public override string ToString() => Enum?.ToString() ?? Byte.ToString();
 
     public static implicit operator byte(Category value) => value.Byte;
@@ -72,9 +89,10 @@ public sealed class Category {
     public const byte None = 0;
     public const byte Unknown = 255;
 
-    public static bool operator ==(Category l, Category r) => l.Equals(r);
-    public static bool operator !=(Category l, Category r) => !(l == r);
-
-    public override bool Equals(object obj) => obj is Category c && Enum == c.Enum && Byte == c.Byte;
-    public override int GetHashCode() => HashCode.Combine(Byte, Enum);
+    public string Label() {
+        if (!IsEnum) return Byte.ToString();
+        MemberInfo enumFieldMemberInfo = Enum.GetType().GetMember(Enum.ToString())[0];
+        LabelAttribute labelAttribute = (LabelAttribute)Attribute.GetCustomAttribute(enumFieldMemberInfo, typeof(LabelAttribute));
+        return labelAttribute?.Label ?? Enum.ToString();
+    }
 }

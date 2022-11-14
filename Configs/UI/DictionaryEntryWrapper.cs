@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Reflection;
 using Newtonsoft.Json;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs.UI;
 
@@ -37,6 +38,8 @@ public class DictionaryEntryWrapper<Tkey,Tvalue> : IDictionaryEntryWrapper {
             _key = value;
         }
     }
+
+    [ColorNoAlpha, ColorHSLSlider]
     public Tvalue Value {
         get => (Tvalue)_dict[_key];
         set {
