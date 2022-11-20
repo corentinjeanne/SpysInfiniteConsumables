@@ -4,7 +4,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 namespace SPIC.VanillaConsumableTypes; 
 public enum GrabBagCategory : byte {
     None = Category.None,
@@ -20,29 +20,28 @@ public class GrabBagRequirements {
     public ItemCountWrapper TreasureBags = new(3);
 }
 
-public class GrabBag : ConsumableType<GrabBag>, IStandardConsumableType<GrabBagCategory, GrabBagRequirements>, ICustomizable, IDetectable {
+public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBagRequirements>, ICustomizable, IDetectable {
     
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.FairyQueenBossBag;
 
-    public bool DefaultsToOn => false;
+    public override bool DefaultsToOn => false;
     public GrabBagRequirements Settings { get; set; }
 
-    public IRequirement Requirement(GrabBagCategory bag) => bag switch {
+    public override IRequirement Requirement(GrabBagCategory bag) => bag switch {
         GrabBagCategory.Crate => new ItemCountRequirement(Settings.Crates),
         GrabBagCategory.TreasureBag => new ItemCountRequirement(Settings.TreasureBags),
         GrabBagCategory.None or GrabBagCategory.Unknown or _ => null,
     };
 
-
-    public GrabBagCategory GetCategory(Item item) {
+    public override GrabBagCategory GetCategory(Item item) {
         if (ItemID.Sets.BossBag[item.type]) return GrabBagCategory.TreasureBag;
         if (ItemID.Sets.IsFishingCrate[item.type]) return GrabBagCategory.Crate;
 
         return GrabBagCategory.Unknown;
     }
 
-    public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;
-    public TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Categories.GrabBag.name"));
-    public string LinePosition => "Consumable";
+    public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Categories.GrabBag.name"));
+    public override string LinePosition => "Consumable";
 }

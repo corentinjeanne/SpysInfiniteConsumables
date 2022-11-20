@@ -10,8 +10,67 @@ using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.ComponentModel;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace SPIC.Configs.UI;
+
+
+
+public interface IDictionaryEntryWrapper {
+    [JsonIgnore] public PropertyInfo ValueProp { get; }
+    object Key { get; set; }
+    object Value { get; set; }
+}
+
+public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper {
+    public PropertyInfo ValueProp => typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+
+    public Tkey Key {
+        get => _key;
+        set {
+            if (_dict is IOrderedDictionary ordered) {
+                int index = 0;
+                foreach (DictionaryEntry entry in ordered) {
+                    if (entry.Key.Equals(_key)) break;
+                    index++;
+                }
+                ordered.RemoveAt(index);
+                ordered.Insert(index, value, _dict[_key]);
+            } else {
+                _dict.Remove(_key);
+                _dict.Add(value, _dict[_key]);
+            }
+
+            _key = value;
+        }
+    }
+
+    [ColorNoAlpha, ColorHSLSlider]
+    public Tvalue Value {
+        get => (Tvalue)_dict[_key];
+        set {
+            _dict[_key] = value;
+        }
+    }
+
+    object IDictionaryEntryWrapper.Key {
+        get => Key;
+        set => Key = (Tkey)value;
+    }
+    object IDictionaryEntryWrapper.Value {
+        get => Value;
+        set => Value = (Tvalue)value;
+    }
+
+    public DictionaryEntryWrapper(IDictionary dict, Tkey key) {
+        _key = key;
+        _dict = dict;
+    }
+
+    private readonly IDictionary _dict;
+    private Tkey _key;
+}
+
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 public class ConstantKeys : Attribute { }
@@ -19,7 +78,7 @@ public class ConstantKeys : Attribute { }
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 public class ValuesAsConfigItemsAttribute : Attribute { }
 
-public class CustomDictionaryUI : ConfigElement<IDictionary> {
+public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
     // TODO implement attributes to finish class
     // private ConstantKeys _constKeys; // - add, clear, remove
@@ -29,7 +88,7 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
     // private Attribute[] _memberAttributes;
 
-    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryUI).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
     private readonly EmptyClass _dummy = new();
 
 
@@ -75,7 +134,7 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
         int i = 0;
         foreach (DictionaryEntry entry in dict) {
             (object key, object value) = entry;
-            if(key is EntityDefinition entity && entity.IsUnloaded){
+            if(key is ConsumableTypeDefinition entity && entity.IsUnloaded){
                 unloaded++;
                 goto endLoop;
             }
@@ -135,7 +194,7 @@ public class CustomDictionaryUI : ConfigElement<IDictionary> {
 
     public override void Recalculate() {
         base.Recalculate();
-        int defaultHeight = -5;
+        int defaultHeight = _dataList.Count > 1 ? -5 : 0;
         float h = (_dataList.Parent != null) ? (_dataList.GetTotalHeight() + defaultHeight) : defaultHeight;
         Height.Set(h, 0f);
         if (Parent != null && Parent is UISortableElement) Parent.Height.Set(h, 0f);

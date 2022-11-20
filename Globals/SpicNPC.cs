@@ -29,12 +29,12 @@ namespace SPIC.Globals {
                         _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
                     if (!_highestItemValue.ContainsKey(item.shopSpecialCurrency) || _highestItemValue[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
                         _highestItemValue[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(item.shopSpecialCurrency), item.shopCustomPrice.Value, Currency.ID))
+                    if (Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.ID))
                         item.shopCustomPrice = item.value = 0;
                 } else {
-                    if (!_hightestCost.ContainsKey(-1) || _hightestCost[-1] < item.value) _hightestCost[-1] = item.value;
-                    if (!_highestItemValue.ContainsKey(-1) || _highestItemValue[-1] < item.value) _highestItemValue[-1] = item.value;
-                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(-1), item.value, Currency.ID))
+                    if (!_hightestCost.ContainsKey(CurrencyHelper.Coins) || _hightestCost[CurrencyHelper.Coins] < item.value) _hightestCost[CurrencyHelper.Coins] = item.value;
+                    if (!_highestItemValue.ContainsKey(CurrencyHelper.Coins) || _highestItemValue[CurrencyHelper.Coins] < item.value) _highestItemValue[CurrencyHelper.Coins] = item.value;
+                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, item.value, Currency.ID))
                         item.value = 0;
                 }
             }

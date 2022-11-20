@@ -62,7 +62,7 @@ public class ConsumptionItem : GlobalItem {
             null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.LowestValueType(-1), reforgePrice, Currency.ID)) return false;
+        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Currency.ID)) return false;
         reforgePrice = 0;
         return true;
     }

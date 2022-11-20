@@ -173,6 +173,14 @@ public static class Utility {
         dict.Add(key, value);
         return true;
     }
+    public static bool TryGet(IDictionary dict, object key, out object value) {
+        if (dict.Contains(key)) {
+            value = dict[key];
+            return true;
+        }
+        value = default;
+        return false;
+    }
 
     public static T Find<T>(this IEnumerable<T> collection, System.Predicate<T> predicate) {
         foreach (T v in collection) {

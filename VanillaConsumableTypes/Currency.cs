@@ -1,11 +1,11 @@
-using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
+using Terraria.Localization;
+
 namespace SPIC.VanillaConsumableTypes;
 
 public enum CurrencyCategory : byte {
@@ -22,45 +22,45 @@ public class CurrencyRequirements {
 }
 
 // TODO >>> fix display
-public class Currency : ConsumableType<Currency>, IStandardConsumableType<CurrencyCategory, CurrencyRequirements> {
+public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigurable<CurrencyRequirements> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.LuckyCoin;
 
-    public bool DefaultsToOn => false;
+    public override bool DefaultsToOn => false;
     public CurrencyRequirements Settings { get; set; }
     
-    public IRequirement Requirement(CurrencyCategory category) => category switch {
+    public override IRequirement Requirement(CurrencyCategory category) => category switch {
         CurrencyCategory.Coin => new PowerRequirement(((ItemCount)Settings.Coins) * 100, 100, 0.1f),
         CurrencyCategory.SingleCoin => new MultipleRequirement(Settings.Single, 0.2f),
         CurrencyCategory.None or _ => null     
     };
 
-    public long CountItems(Player player, Item item) {
-        long value = item.CurrencyValue();
-        return value == 0 ? 0 : player.CountCurrency(item.CurrencyType(), true) / value;
-    }
+    public override long CountConsumables(Player player, int currency) => currency == CurrencyHelper.None ? 0 : player.CountCurrency(currency, true);
 
-    public CurrencyCategory GetCategory(Item item) {
-        int currency = item.CurrencyType();
-        if (currency == -1) return CurrencyCategory.Coin;
+    public override CurrencyCategory GetCategory(int currency) {
+        if (currency == CurrencyHelper.Coins) return CurrencyCategory.Coin;
         if (!CurrencyHelper.Currencies.Contains(currency)) return CurrencyCategory.None;
         return CurrencyHelper.CurrencySystems(currency).values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coin;
     }
 
-    public long GetMaxInfinity(Player player, Item item) {
-        int currency = item.CurrencyType();
-        long value = item.CurrencyValue();
-        long cost;
-        if (Main.InReforgeMenu) cost = Main.reforgeItem.value;
-        else if (Main.npcShop != 0) cost = Globals.SpicNPC.HighestPrice(currency);
-        else cost = Globals.SpicNPC.HighestItemValue(currency);
-        return value == 0 ? Infinity.None.EffectiveRequirement.Items : cost / value + (cost % value == 0 ? 0 : 1);
+    public override int ToConsumable(Item item) => item.CurrencyType();
+
+    public override int CacheID(int consumable) => consumable;
+
+    public override bool OwnsConsumable(Player player, int currency, bool isACopy) => CountConsumables(player, currency) > 0;
+
+    public override Item ToItem(int consumable) => new(CurrencyHelper.LowestValueType(consumable));
+
+    public override long GetMaxInfinity(Player player, int currency) {
+        if (Main.InReforgeMenu) return Main.reforgeItem.value;
+        else if (Main.npcShop != 0) return Globals.SpicNPC.HighestPrice(currency);
+        else return Globals.SpicNPC.HighestItemValue(currency);
     }
 
-    public Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
+    public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
-    public TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.curency"));
-    public string LinePosition => "Consumable";
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.curency"));
+    public override string LinePosition => "Consumable";
 
     // void IConsumableType.ModifyTooltip(Item item, List<TooltipLine> tooltips) {
     //     Player player = Main.LocalPlayer;

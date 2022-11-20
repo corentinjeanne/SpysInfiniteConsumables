@@ -1,16 +1,16 @@
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using Terraria.ModLoader;
 
 using SPIC.VanillaConsumableTypes;
 namespace SPIC.Configs.Presets;
 
 // public class Preset
-public abstract class Preset<TImplementation> : Preset where TImplementation: Preset<TImplementation>, new() {
+public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation>, new() {
     public static TImplementation Instance => _instance ??= new TImplementation();
     public static int ID => Instance.UID;
     private static TImplementation _instance;
-    static Preset() { }
-    protected Preset() { }
+    static StaticPreset() { }
+    protected StaticPreset() { }
 
     public static void Register() => PresetManager.Register(Instance);
 
@@ -42,7 +42,7 @@ public class NoPreset : Preset {
 }
 
 
-public class Defaults : Preset<Defaults> {
+public class Defaults : StaticPreset<Defaults> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
 
     public override int CriteriasCount => 3;
@@ -62,7 +62,7 @@ public class Defaults : Preset<Defaults> {
     }
 }
 
-public class OneForAll : Preset<OneForAll> {
+public class OneForAll : StaticPreset<OneForAll> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int CriteriasCount => 2;
 
@@ -97,7 +97,7 @@ public class OneForAll : Preset<OneForAll> {
 }
 
 
-public class AllEnabled : Preset<AllEnabled> {
+public class AllEnabled : StaticPreset<AllEnabled> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int CriteriasCount => 3;
 
@@ -119,7 +119,7 @@ public class AllEnabled : Preset<AllEnabled> {
     }
 }
 
-public class AllDisabled : Preset<AllDisabled> {
+public class AllDisabled : StaticPreset<AllDisabled> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int CriteriasCount => 2;
 
@@ -140,7 +140,7 @@ public class AllDisabled : Preset<AllDisabled> {
     }
 }
 
-public class JourneyCosts : Preset<JourneyCosts> {
+public class JourneyCosts : StaticPreset<JourneyCosts> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int CriteriasCount => 3;
 

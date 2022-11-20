@@ -1,5 +1,4 @@
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 
 
 namespace SPIC;
@@ -17,15 +16,16 @@ public class SpysInfiniteConsumables : Mod {
         CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
-        VanillaConsumableTypes.Mixed.RegisterAsGlobal();
         VanillaConsumableTypes.Ammo.Register();
         VanillaConsumableTypes.Usable.Register();
         VanillaConsumableTypes.Placeable.Register();
         VanillaConsumableTypes.GrabBag.Register();
         VanillaConsumableTypes.Material.Register();
-        VanillaConsumableTypes.Currency.Register();
         VanillaConsumableTypes.JourneySacrifice.Register();
 
+        VanillaConsumableTypes.Currency.RegisterAsGlobal();
+        VanillaConsumableTypes.Mixed.RegisterAsGlobal();
+        
         Configs.Presets.Defaults.Register();
         Configs.Presets.AllDisabled.Register();
         Configs.Presets.AllEnabled.Register();

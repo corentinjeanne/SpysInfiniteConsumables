@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 namespace SPIC.VanillaConsumableTypes;
 public enum MixedCategory : byte {
     AllNone = Category.None,
@@ -21,8 +21,8 @@ public class MixedRequirement : IRequirement {
 
 
     public Infinity Infinity(Item item, ItemCount itemCount) {
-        Infinity min = ConsumableTypes.Infinity.None;
-        foreach(IConsumableType type in InfinityManager.ConsumableTypes()){
+        Infinity min = ConsumableGroup.Infinity.None;
+        foreach(IConsumableGroup type in InfinityManager.ConsumableGroups()){
             if(type.UID == Mixed.ID) continue;
             IRequirement requirement = item.GetRequirement(type.UID);
             if(requirement is NoRequirement) continue;
@@ -34,7 +34,7 @@ public class MixedRequirement : IRequirement {
 
     public ItemCount NextRequirement(ItemCount count){
         ItemCount min = ItemCount.None;
-        foreach(IConsumableType type in InfinityManager.ConsumableTypes()){
+        foreach(IConsumableGroup type in InfinityManager.ConsumableGroups()){
             if(type.UID == Mixed.ID) continue;
             IRequirement requirement = Item.GetRequirement(type.UID);
             if(requirement is NoRequirement) continue;
@@ -46,30 +46,30 @@ public class MixedRequirement : IRequirement {
 }
 
 // ? amunition
-internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
+internal class Mixed : ConsumableGroup<Mixed, Item> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => Terraria.ID.ItemID.LunarHook;
 
-    public Color Color => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
+    public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);
 
-    public MixedCategory GetCategory(Item item) {
-        foreach (IConsumableType type in item.UsedConsumableTypes()) {
-            if (!item.GetCategory(type.UID).IsNone) return MixedCategory.Mixed;
-        }
-        return MixedCategory.AllNone;
-    }
+    // public MixedCategory GetCategory(Item item) {
+    //     foreach (IConsumableGroup type in item.UsedConsumableTypes()) {
+    //         if (!item.GetCategory(type.UID).IsNone) return MixedCategory.Mixed;
+    //     }
+    //     return MixedCategory.AllNone;
+    // }
 
-    public IRequirement GetRequirement(Item item) {
+    public override IRequirement GetRequirement(Item item) {
         return new MixedRequirement(item);
     }
 
-    static DisplayFlags DisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement;
+    static Globals.DisplayFlags DisplayFlags => Globals.DisplayFlags.Infinity | Globals.DisplayFlags.Requirement;
 
-    public long CountItems(Player player, Item item) {
+    public override long CountConsumables(Player player, Item item) {
         long count = long.MaxValue;
-        foreach (IConsumableType type in item.UsedConsumableTypes()) {
-            long c = type.CountItems(player, item);
+        foreach (IConsumableGroup type in item.UsedConsumableTypes()) {
+            long c = type.CountConsumables(player, item);
             if (c < count) count = c;
         }
         return count;
@@ -77,7 +77,7 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
 
     public static long GetMaxInfinity(Player player, Item item) {
         long mixed = Infinity.None.EffectiveRequirement.Items;
-        foreach (IDefaultDisplay type in item.UsedConsumableTypes()) {
+        foreach (IStandardGroup type in item.UsedConsumableTypes()) {
             long inf = type.GetMaxInfinity(player, item);
             if (inf > mixed) mixed = inf;
         }
@@ -85,18 +85,18 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
     }
 
     public static bool OwnsItem(Player player, Item item, bool isACopy){
-        foreach (IDefaultDisplay type in item.UsedConsumableTypes()){
-            if(!type.OwnsItem(player, item, isACopy)) return false;
+        foreach (IStandardGroup type in item.UsedConsumableTypes()){
+            if(!type.OwnsConsumable(player, item, isACopy)) return false;
         }
         return true;
     }
 
     // TODO >>> test requiremeent display
-    public void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
+    public override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
         if(Configs.RequirementSettings.Instance.MaxConsumableTypes == 0) return;
 
         Player player = Main.LocalPlayer;
-        Category category = item.GetCategory(UID);
+        Category category = 0;
         IRequirement root = item.GetRequirement(UID);
         // ItemCount effective;
         Infinity infinity;
@@ -104,8 +104,8 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
 
         if (OwnsItem(player, item, true) && OwnsItem(player, item, true)) {
             // effective = player.GetEffectiveRequirement(item, UID);
-            infinity = InfinityManager.GetInfinity(player, item, UID);
-            itemCount = new(CountItems(player, item), item.maxStack);
+            infinity = player.GetInfinity(item, UID);
+            itemCount = new(CountConsumables(player, item), item.maxStack);
         } else {
             // effective = ItemCount.None;
             infinity = Infinity.None;
@@ -115,14 +115,19 @@ internal class Mixed : ConsumableType<Mixed>, IConsumableType<MixedCategory> {
         ItemCount next = infinity.Value.IsNone || infinity.Value.Items < GetMaxInfinity(player, item) ?
             root.NextRequirement(infinity.EffectiveRequirement) : ItemCount.None;
 
-        DisplayFlags displayFlags = DefaultImplementation.GetDisplayFlags(category, infinity, next) & DisplayFlags & Configs.InfinityDisplay.Instance.DisplayFlags;
-        if ((displayFlags & DisplayFlags.Infinity) == 0) return;
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & DisplayFlags & Configs.InfinityDisplay.Instance.DisplayFlags;
+        if ((displayFlags & Globals.DisplayFlags.Infinity) == 0) return;
 
         TooltipLine line = tooltips.AddLine("Material", TooltipHelper.AddedLine("Mixed", ""));
-        DefaultImplementation.DisplayOnLine(ref line.Text, ref line.OverrideColor, next.IsNone ? Color : PartialInfinityColor, displayFlags, category, infinity, next, itemCount);
+        Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, next.IsNone ? InfinityColor : PartialInfinityColor, displayFlags, category, infinity, next, itemCount);
         line.Text = line.Text.Replace("  ", " ");
     }
 
-    public void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
-    public void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
+    public override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
+    public override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
+
+    public override Item ToConsumable(Item item) => item;
+    public override int CacheID(Item consumable) => consumable.type;
+
+    public override Item ToItem(Item consumable) => consumable;
 }

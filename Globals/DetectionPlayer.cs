@@ -78,7 +78,7 @@ public class DetectionPlayer : ModPlayer {
         else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
         else return;
 
-        InfinityManager.ClearCache(Player.HeldItem.type);
+        InfinityManager.ClearCache(Player.HeldItem);
         _detectingCategory = false;
     }
 
@@ -125,8 +125,8 @@ public class DetectionPlayer : ModPlayer {
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
         Configs.RequirementSettings requirements = Configs.RequirementSettings.Instance;
-        if (((UsableCategory)refill.GetCategory(Usable.ID) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.ID) && !refill.GetInfinity(tot + used, Usable.ID).Value.IsNone)
-                || ((AmmoCategory)refill.GetCategory(Ammo.ID) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.ID).Value.IsNone)
+        if ((refill.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.ID) && !refill.GetInfinity(tot + used, Usable.ID).Value.IsNone)
+                || (refill.GetCategory<AmmoCategory>(Ammo.ID) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.ID).Value.IsNone)
             )
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
 
@@ -144,7 +144,7 @@ public class DetectionPlayer : ModPlayer {
         if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
             autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.ID);
 
-        InfinityManager.ClearCache(item.type);
+        InfinityManager.ClearCache(item);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.ID)) {

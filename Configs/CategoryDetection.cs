@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Terraria;
 using Terraria.ModLoader.Config;
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using Terraria.ModLoader;
 
@@ -16,7 +16,7 @@ public class CategoryDetection : ModConfig {
     public bool DetectMissing;
 
     [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedCategories {
         get => _detectedCategories;
         set {
@@ -28,19 +28,19 @@ public class CategoryDetection : ModConfig {
                 }
                 if (def.ConsumableType is not IDetectable type) continue;
 
-                System.Type iConsumableGeneric = type.GetType().GetInterfaces().Find(t => t.GetGenericTypeDefinition() == typeof(IConsumableType<>));
-                if (iConsumableGeneric != null) {
+                System.Type iCategoryGen2 = type.GetType().GetInterfaces().Find(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICategory<,>));
+                if (iCategoryGen2 != null) {
                     _detectedCategories[def] = new();
                     foreach (ItemDefinition item in value[def].Keys) {
                         _detectedCategories[def][item] = value[def][item].IsEnum ?
                             value[def][item] :
-                            new(System.Enum.ToObject(iConsumableGeneric.GenericTypeArguments[0], value[def][item].value));
+                            new(System.Enum.ToObject(iCategoryGen2.GenericTypeArguments[1], value[def][item].value));
                         _detectedCategories[def][item].SaveEnumType = false;
                     }
                 } else 
                     _detectedCategories[def] = items;
             }
-            foreach(IDetectable type in InfinityManager.ConsumableTypes<IDetectable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)){
+            foreach(IDetectable type in InfinityManager.ConsumableGroups<IDetectable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)){
                 _detectedCategories.TryAdd(type.ToDefinition(), new());
             }
         }
@@ -49,16 +49,16 @@ public class CategoryDetection : ModConfig {
 
     public bool SaveDetectedCategory(Item item, Category category, int typeID){
         if(category.IsUnknown) throw new System.ArgumentException("A detected category cannot be unkonwn");
-        IConsumableType type = InfinityManager.ConsumableType(typeID);
+        IConsumableGroup type = InfinityManager.ConsumableGroup(typeID);
         if(type is not IDetectable) return false;
 
         ItemDefinition key = new (item.type);
         if (!DetectedCategories[type.ToDefinition()].TryAdd(key, new(category.Value))) return false;
-        InfinityManager.ClearCache(item.type);
+        InfinityManager.ClearCache(item);
         return true;
     }
     public bool HasDetectedCategory(int type, int typeID, out Category category){
-        IConsumableType consumableType = InfinityManager.ConsumableType(typeID);
+        IConsumableGroup consumableType = InfinityManager.ConsumableGroup(typeID);
         category = Category.None;
         if(DetectMissing && consumableType is IDetectable
                 && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper> categories) && categories.TryGetValue(new(type), out CategoryWrapper wrapper)){

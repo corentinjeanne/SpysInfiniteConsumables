@@ -1,6 +1,6 @@
 using Terraria;
 
-namespace SPIC.ConsumableTypes;
+namespace SPIC.ConsumableGroup;
 
 public interface IRequirement {
     ItemCount NextRequirement(ItemCount count);

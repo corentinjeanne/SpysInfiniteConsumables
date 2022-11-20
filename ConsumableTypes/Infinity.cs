@@ -1,4 +1,4 @@
-namespace SPIC.ConsumableTypes;
+namespace SPIC.ConsumableGroup;
 
 public struct Infinity {
     public Infinity(ItemCount effectiveRequirement, float multiplier) {

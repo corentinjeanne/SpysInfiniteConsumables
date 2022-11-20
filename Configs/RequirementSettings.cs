@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using SPIC.Configs.Presets;
 
@@ -28,7 +28,7 @@ public class RequirementSettings : ModConfig {
     }
 
     [Label("$Mods.SPIC.Configs.Requirements.General.Preset")]
-    [CustomModConfigItem(typeof(DropDownUI)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
+    [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition Preset {
         get {
             if(EnabledTypes.Count == 0) return null;
@@ -42,7 +42,7 @@ public class RequirementSettings : ModConfig {
         }
     }
 
-    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public OrderedDictionary/*<ConsumableTypeDefinition, bool>*/ EnabledTypes {
         get => _types;
         set {
@@ -60,7 +60,7 @@ public class RequirementSettings : ModConfig {
                 };
                 _types.Add(def, state);
             }
-            foreach (IToggleable type in InfinityManager.ConsumableTypes<IToggleable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+            foreach (IToggleable type in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 _types.TryAdd(type.ToDefinition(), type.DefaultsToOn);
             }
         }
@@ -70,7 +70,7 @@ public class RequirementSettings : ModConfig {
     [Label("$Mods.SPIC.Configs.Requirements.General.MaxTypes")]
     public int MaxConsumableTypes { get; set; }
 
-    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, bool> EnabledGlobals {
         get => _globals;
         set {
@@ -79,7 +79,7 @@ public class RequirementSettings : ModConfig {
                 if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
                 _globals.Add(def, state);
             }
-            foreach (IToggleable type in InfinityManager.ConsumableTypes<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+            foreach (IToggleable type in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 _globals.TryAdd(type.ToDefinition(), type.DefaultsToOn);
             }
         }
@@ -100,7 +100,7 @@ public class RequirementSettings : ModConfig {
     }
 
     [Header("$Mods.SPIC.Configs.Requirements.Requirements.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, object> Requirements {
         get => _requirements;
         set {
@@ -118,7 +118,7 @@ public class RequirementSettings : ModConfig {
 
                 _requirements.Add(def, config.Settings);
             }
-            foreach (IConfigurable type in InfinityManager.ConsumableTypes<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+            foreach (IConfigurable type in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 ConsumableTypeDefinition def = type.ToDefinition();
                 if(!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType));
             }

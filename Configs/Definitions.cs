@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using SPIC.Configs.Presets;
 
 namespace SPIC.Configs;
@@ -18,6 +18,7 @@ public class PresetDefinition : EntityDefinition {
     public PresetDefinition(int type) : base(PresetManager.Preset(type).Mod.Name, PresetManager.Preset(type).Name) {}
     internal PresetDefinition(string fullName) : base(fullName) {}
     public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
+
 
     public override int Type => Preset?.UID ?? -1;
 
@@ -34,16 +35,17 @@ public class PresetDefinition : EntityDefinition {
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableTypeDefinition]")]
 public class ConsumableTypeDefinition : EntityDefinition {
     public ConsumableTypeDefinition() {}
-    public ConsumableTypeDefinition(int type) : base(InfinityManager.ConsumableType(type).Mod.Name, InfinityManager.ConsumableType(type).Name) {}
+    public ConsumableTypeDefinition(int type) : base(InfinityManager.ConsumableGroup(type).Mod.Name, InfinityManager.ConsumableGroup(type).Name) {}
     internal ConsumableTypeDefinition(string fullName) : base(fullName) {}
     public ConsumableTypeDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
+    public new bool IsUnloaded => Type == 0;
     public override int Type => ConsumableType?.UID ?? -1;
 
     [JsonIgnore]
-    public IConsumableType ConsumableType => InfinityManager.ConsumableType(Mod, Name);
+    public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name);
     public string Label() {
-        IConsumableType type = ConsumableType;
+        IConsumableGroup type = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";
         return $"[i:{type.IconType}] {(System.Attribute.GetCustomAttribute(type.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
     }

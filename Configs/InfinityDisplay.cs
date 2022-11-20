@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader.Config;
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
@@ -50,7 +50,7 @@ public class InfinityDisplay : ModConfig {
     public int dot_PulseTime;
 
     [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryUI)), ValuesAsConfigItems, ConstantKeys, ColorNoAlpha, ColorHSLSlider]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys, ColorNoAlpha, ColorHSLSlider]
     public Dictionary<ConsumableTypeDefinition, Color> Colors {
         get => _colors;
         set {
@@ -59,19 +59,19 @@ public class InfinityDisplay : ModConfig {
                 if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
                 _colors.Add(def, color);
             }
-            foreach(IColorable type in InfinityManager.ConsumableTypes<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
-                value.TryAdd(type.ToDefinition(), type.DefaultColor);
+            foreach(IColorable type in InfinityManager.ConsumableGroups<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
+                _colors.TryAdd(type.ToDefinition(), type.DefaultColor);
         }
     }
     private readonly Dictionary<ConsumableTypeDefinition, Color> _colors = new();
 
     [JsonIgnore]
-    public DisplayFlags DisplayFlags {
+    public Globals.DisplayFlags DisplayFlags {
         get {
-            DisplayFlags flags = 0;
-            if (general_ShowCategories) flags |= DisplayFlags.Category;
-            if (general_ShowRequirement) flags |= DisplayFlags.Requirement;
-            if (general_ShowInfinities) flags |= DisplayFlags.Infinity;
+            Globals.DisplayFlags flags = 0;
+            if (general_ShowCategories) flags |= Globals.DisplayFlags.Category;
+            if (general_ShowRequirement) flags |= Globals.DisplayFlags.Requirement;
+            if (general_ShowInfinities) flags |= Globals.DisplayFlags.Infinity;
             return flags;
         }
     }

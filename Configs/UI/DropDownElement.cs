@@ -30,12 +30,12 @@ sealed class ValuesProviderAttribute : Attribute {
 
 public class EmptyClass {}
 
-public class DropDownUI : ConfigElement {
+public class DropDownElement : ConfigElement {
 
     private ValuesProviderAttribute _provider;
     private MethodInfo _toString;
 
-    private static readonly FieldInfo s_dummyField = typeof(DropDownUI).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo s_dummyField = typeof(DropDownElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
     private EmptyClass _dummy = new();
     private bool _expanded;
 

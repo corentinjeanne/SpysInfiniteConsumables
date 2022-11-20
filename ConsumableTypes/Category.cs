@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.ConsumableTypes;
+namespace SPIC.ConsumableGroup;
 
 public class CategoryConverter : JsonConverter<CategoryWrapper> {
 
@@ -38,10 +38,8 @@ public sealed class CategoryWrapper {
     public CategoryWrapper() => value = byte.MinValue;
     public CategoryWrapper(Enum value) => this.value = value;
     public CategoryWrapper(byte value) => this.value = value;
-    internal CategoryWrapper(object value) {
-        if (value is not (byte or Enum)) throw new ArgumentException("The type of value must be byte or enum");
-        this.value = value;
-    }
+    internal CategoryWrapper(object value) => this.value = value is byte or Enum ? value : throw new ArgumentException("The type of value must be byte or enum");
+
 
     public object value;
     public bool IsEnum => value is Enum;
@@ -56,18 +54,12 @@ public sealed class CategoryWrapper {
 /// <summary>
 /// DO NOT use for config, use <see cref="CategoryWrapper"/> instead
 /// </summary>
+// ? replace by System.Enum
 public struct Category {
 
-    public Category(Enum value) {
-        Value = value;
-    }
-    public Category(byte value) {
-        Value = value;
-    }
-    internal Category(object value) {
-        if (value is not (byte or System.Enum)) throw new ArgumentException("The type of value must be byte or enum");
-        Value = value;
-    }
+    public Category(Enum value) => Value = value;
+    public Category(byte value) => Value = value;
+    internal Category(object value) => Value = value is byte or System.Enum ? value : throw new ArgumentException("The type of value must be byte or enum");
 
     public object Value { get; init; }
 

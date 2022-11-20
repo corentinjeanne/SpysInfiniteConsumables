@@ -7,7 +7,7 @@ namespace SPIC;
 public static class PresetManager {
 
 
-    public static void Register<TImplementation>(Preset<TImplementation> type) where TImplementation : Preset<TImplementation>, new() {
+    public static void Register<TImplementation>(StaticPreset<TImplementation> type) where TImplementation : StaticPreset<TImplementation>, new() {
 
         if (type.UID != 0) throw new ArgumentException("This preset has already been registered", nameof(type));
         int id = type.UID = s_nextPresetID++;

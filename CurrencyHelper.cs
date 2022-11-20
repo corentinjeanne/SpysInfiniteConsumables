@@ -7,22 +7,26 @@ using Terraria.GameContent.UI;
 namespace SPIC {
     public static class CurrencyHelper {
 
+        public const int Coins = -1;
+        public const int None = -2;
+
+
         public static int CurrencyType(this Item item) {
-            if (item.IsACoin) return -1;
+            if (item.IsACoin) return Coins;
             foreach (int key in _currencies.Keys) {
                 if (_currencies[key].system.Accepts(item)) return key;
             }
-            return -2;
+            return None;
         }
-        public static bool IsPartOfACurrency(this Item item, out int currency) => (currency = item.CurrencyType()) != -2;
+        public static bool IsPartOfACurrency(this Item item, out int currency) => (currency = item.CurrencyType()) != None;
         public static long CurrencyValue(this Item item) => item.CurrencyType() switch {
-            -2 => 0,
-            -1 => item.value/5,
+            None => 0,
+            Coins => item.value/5,
             int t => _currencies[t].values[item.type]
         };
         public static int LowestValueType(int currency){
-            if (currency == -2) return ItemID.None;
-            if (currency == -1) return ItemID.CopperCoin;
+            if (currency == None) return ItemID.None;
+            if (currency == Coins) return ItemID.CopperCoin;
             (int minType, int minValue) = (0, 0);
             foreach ((int key, int value) in CurrencySystems(currency).values){
                 if(minValue == 0 || value < minValue) (minType, minValue) = (key, value);
@@ -33,9 +37,8 @@ namespace SPIC {
 
         public static long CountCurrency(this Item[] container, int currency, params int[] ignoreSlots) {
             switch (currency) {
-            case -2: return 0L;
-            case -1:
-
+            case None: return 0L;
+            case Coins:
                 return Utility.CountCoins(container, ignoreSlots); /* container.CountCoins(ignoreSlots); */
             default:
                 CustomCurrencySystem system = _currencies[currency].system;
@@ -60,8 +63,8 @@ namespace SPIC {
         public static List<KeyValuePair<int, long>> CurrencyCountToItems(int currency, long amount) {
             List<KeyValuePair<int, int>> values = new();
             switch (currency) {
-            case -2: return new();
-            case -1:
+            case None: return new();
+            case Coins:
                 values = new() {
                         new(ItemID.PlatinumCoin, 1000000),
                         new(ItemID.GoldCoin, 10000),

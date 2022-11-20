@@ -3,7 +3,7 @@ using Terraria.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using Microsoft.Xna.Framework;
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 using System.Reflection;
 
 namespace SPIC.Configs.UI;

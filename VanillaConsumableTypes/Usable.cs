@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableTypes;
+using SPIC.ConsumableGroup;
 namespace SPIC.VanillaConsumableTypes; 
 public enum UsableCategory : byte {
     None = Category.None,
@@ -38,14 +38,14 @@ public class UsableRequirements {
 }
 
 
-public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCategory, UsableRequirements>, IDetectable, ICustomizable {
+public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableRequirements>, IDetectable, ICustomizable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessMusketPouch;
 
-    public bool DefaultsToOn => true;
     public UsableRequirements Settings { get; set; }
-    public IRequirement Requirement(UsableCategory category) {
+    
+    public override IRequirement Requirement(UsableCategory category) {
         return category switch {
             UsableCategory.Weapon => new ItemCountRequirement (Settings.Weapons),
             UsableCategory.Recovery => new ItemCountRequirement (new(Settings.Potions){MaxStack = 99}),
@@ -61,7 +61,7 @@ public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCate
         };
     }
 
-    public UsableCategory GetCategory(Item item) {
+    public override UsableCategory GetCategory(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
@@ -95,6 +95,6 @@ public class Usable : ConsumableType<Usable>, IStandardConsumableType<UsableCate
         return UsableCategory.Unknown;
     }
 
-    public Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
-    public TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
+    public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
 }

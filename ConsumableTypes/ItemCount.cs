@@ -2,9 +2,9 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPIC.ConsumableTypes;
+namespace SPIC.ConsumableGroup;
 
-public class ItmeCountConverter : JsonConverter<ItemCountWrapper> {
+public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
 
     public override ItemCountWrapper ReadJson(JsonReader reader, Type objectType, ItemCountWrapper existingValue, bool hasExistingValue, JsonSerializer serializer) {
         JValue count = (JValue)JToken.Load(reader);
@@ -22,7 +22,7 @@ public class ItmeCountConverter : JsonConverter<ItemCountWrapper> {
 }
 
 [Terraria.ModLoader.Config.CustomModConfigItem(typeof(Configs.UI.ItemCountElement))]
-[JsonConverter(typeof(ItmeCountConverter))]
+[JsonConverter(typeof(ItemCountConverter))]
 public sealed class ItemCountWrapper {
 
     public object value;
