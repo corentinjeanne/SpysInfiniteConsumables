@@ -9,7 +9,7 @@ namespace SPIC.Config;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.PresetDefinition]")]
+[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.PresetDefinition]")]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
     public PresetDefinition(int type) : base(PresetManager.Preset(type).Mod.Name, PresetManager.Preset(type).Name) {}
@@ -29,7 +29,7 @@ public class PresetDefinition : EntityDefinition {
     }
 }
 
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableTypeDefinition]")]
+[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.ConsumableTypeDefinition]")]
 public class ConsumableTypeDefinition : EntityDefinition {
     public ConsumableTypeDefinition() {}
     public ConsumableTypeDefinition(int type) : base(InfinityManager.ConsumableGroup(type).Mod.Name, InfinityManager.ConsumableGroup(type).Name) {}

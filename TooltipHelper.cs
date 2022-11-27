@@ -62,7 +62,8 @@ namespace SPIC {
             "Price"
         };
 
-        internal static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) { OverrideColor = Terraria.ID.Colors.RarityTrash };
+        public static TooltipLine AddedLine(Mod mod, string name, string value) => new(mod, name, value) { OverrideColor = Terraria.ID.Colors.RarityTrash };
+        internal static TooltipLine AddedLine(string name, string value) => AddedLine(SpysInfiniteConsumables.Instance, name, value);
         
         public static TooltipLine? FindLine(this List<TooltipLine> tooltips, string name)
             => tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);

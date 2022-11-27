@@ -22,7 +22,7 @@ public abstract class FixedRequirement : IRequirement {
 
     public abstract ICount EffectiveRequirement(ICount count);
     public Infinity Infinity(ICount count) => new(EffectiveRequirement(count), Multiplier);
-    public ICount NextRequirement(ICount count) => Root.CompareTo(count) >= 0 ? Root.AdaptTo(count) : count.None;
+    public ICount NextRequirement(ICount count) => Root.CompareTo(count) > 0 ? Root.AdaptTo(count) : count.None;
 }
 
 public abstract class RecursiveRequirement : IRequirement {

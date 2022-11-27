@@ -7,6 +7,7 @@ using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
 using SPIC.Config;
+using Terraria.Localization;
 
 namespace SPIC.VanillaConsumableTypes;
 
@@ -57,7 +58,7 @@ public class PlaceableRequirements {
     public ItemCountWrapper Paints = new(1.0f, 999);
 }
 
-public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<PlaceableRequirements>, ICustomizable, IDetectable {
+public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisplay<Item>, IConfigurable<PlaceableRequirements>, ICustomizable, IDetectable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.ArchitectGizmoPack;
@@ -150,11 +151,11 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         PaintRoller
     }
 
-    // TooltipLine IDefaultAmmunition.WeaponTooltipLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
-    //     WandType.Tile => new(Mod, $"WanndConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
-    //     WandType.Wire => new(Mod, $"Tooltip0", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
-    //     WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> new(Mod, $"PaintConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
-    // };
+    public TooltipLine AlternateTooltipLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
+        WandType.Tile => TooltipHelper.AddedLine($"WandConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
+        WandType.Wire => TooltipHelper.AddedLine($"Tooltip0", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
+        WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> TooltipHelper.AddedLine($"PaintConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
+    };
 
     public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile,
         { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
@@ -163,15 +164,15 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         _ => WandType.None
     };
 
-    // public bool TryGetAlternate(Player player, Item wand, [MaybeNullWhen(false)] out Item alt){
-    //     alt = GetWandType(wand) switch {
-    //         WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
-    //         WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
-    //         WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
-    //         WandType.None or _ => null
-    //     };
-    //     return alt is not null;
-    // }
+    public bool HasAlternate(Player player, Item wand, [MaybeNullWhen(false)] out Item tile){
+        tile = GetWandType(wand) switch {
+            WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
+            WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
+            WandType.None or _ => null
+        };
+        return tile is not null;
+    }
 
     private static readonly Dictionary<int, PlaceableCategory> s_ammos = new(); // type, category (ammo)
     internal static void ClearWandAmmos() => s_ammos.Clear();

@@ -3,7 +3,7 @@ namespace SPIC.ConsumableGroup;
 public sealed class CountRequirement : FixedRequirement {
     public CountRequirement(ICount root, float multiplier = 1) : base(root, multiplier) { }
 
-    public override ICount EffectiveRequirement(ICount count) => Root.CompareTo(count) >= 0 ? count.None : count;
+    public override ICount EffectiveRequirement(ICount count) => Root.CompareTo(count) > 0 ? count.None : count;
 }
 
 public sealed class DisableAboveRequirement : FixedRequirement {

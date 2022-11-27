@@ -3,6 +3,10 @@
         {
             "name": "SPIC",
             "path": "."
+        },
+        {
+            "name": "Configs",
+            "path": "../../../tModLoader-preview/ModConfigs"
         }
     ],
     "settings": {

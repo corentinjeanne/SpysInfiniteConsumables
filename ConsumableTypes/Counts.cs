@@ -94,11 +94,10 @@ public struct ItemCount : ICount {
     }
     public int CompareTo(ICount? other) {
         ItemCount value = (ItemCount)other;
-        return value.UseItems ? Items.CompareTo(value.Items) : ((ItemCount)AdaptTo(other)).Stacks.CompareTo(value.Stacks);
+        return UseItems ? Items.CompareTo(value.Items) : ((ItemCount)AdaptTo(other)).Stacks.CompareTo(value.Stacks);
     }
 
     public string Display() => $"{Items} items";
     public string DisplayRatio(ICount other) => $"{Items}/{other.Display()}";
-
-    public override string ToString() => string.Join("", "{ Value=", Value, ", MaxStack=", MaxStack, "}");
+    public override string ToString() => $"{(UseItems? $"Items={Items}" : $"Stacks={Stacks}")}, MaxStack={MaxStack}";
 }

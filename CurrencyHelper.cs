@@ -107,11 +107,8 @@ namespace SPIC {
 
         // TODO test currencies registered after SPIC
         internal static void GetCurrencies() {
-            FieldInfo? cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static);
-            FieldInfo? values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance);
-            if(cur is null || values is null){
-                return; // TODO thrown expception
-            }
+            FieldInfo cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static)!;
+            FieldInfo values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance)!;
             Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)cur.GetValue(null)!;
             _currencies = new();
             foreach (var (key, system) in currencies) {

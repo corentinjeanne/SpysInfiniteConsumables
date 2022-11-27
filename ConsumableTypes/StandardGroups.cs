@@ -12,9 +12,19 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
     public virtual bool DefaultsToOn => true;
 
     public sealed override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
-        TConsumable consumable = ToConsumable(item);
-        TConsumable values = consumable; // TODO >>> alternate (x3)
         Player player = Main.LocalPlayer;
+        TConsumable consumable = ToConsumable(item);
+
+        bool addedLine;
+        TConsumable values;
+        TooltipLine line;
+        if(this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt)){
+            values = alt;
+            line = tooltips.FindorAddLine(altDisplay!.AlternateTooltipLine(consumable, values), "WandConsumes", out addedLine);
+        }else{
+            values = consumable;
+            line = tooltips.FindorAddLine(TooltipLine, LinePosition, out addedLine);
+        }
 
         Category category = this is ICategory ? InfinityManager.GetCategory(values, UID) : Category.None;
         IRequirement requirement = InfinityManager.GetRequirement(values, UID);
@@ -36,14 +46,14 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
         if ((displayFlags & Globals.InfinityDisplayItem.OnLineDisplayFlags) == 0) return;
 
-        TooltipLine line = tooltips.FindorAddLine(TooltipLine, LinePosition, out bool addedLine);
         Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IColorable)this).Color, displayFlags, category, infinity, next, consumableCount);
         if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }
     public sealed override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        TConsumable consumable = ToConsumable(item);
-        TConsumable values = consumable;
         Player player = Main.LocalPlayer;
+        
+        TConsumable consumable = ToConsumable(item);
+        TConsumable values = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt)? alt : consumable;
         IRequirement root = InfinityManager.GetRequirement(values, UID);
 
         Infinity infinity;
@@ -62,9 +72,9 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
 
     }
     public sealed override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        TConsumable consumable = ToConsumable(item);
-        TConsumable values = consumable;
         Player player = Main.LocalPlayer;
+        TConsumable consumable = ToConsumable(item);
+        TConsumable values = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt) ? alt : consumable;
 
         IRequirement root = InfinityManager.GetRequirement(values, UID);
         Infinity infinity;

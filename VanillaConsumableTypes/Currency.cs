@@ -60,32 +60,4 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.curency"));
     public override string LinePosition => "Consumable";
-
-    // void IConsumableType.ModifyTooltip(Item item, List<TooltipLine> tooltips) {
-    //     Player player = Main.LocalPlayer;
-    //     Category category = item.GetCategory(UID);
-    //     IRequirement requirement = item.GetRequirement(UID);
-
-    //     Infinity infinity;
-    //     ItemCount itemCount;
-
-    //     if (((IDefaultDisplay)this).OwnsItem(player, item, true)) {
-    //         infinity = InfinityManager.GetInfinity(player, item, UID);
-    //         itemCount = new(CountItems(player, item), item.maxStack);
-    //     } else {
-    //         infinity = Infinity.None;
-    //         itemCount = ItemCount.None;
-    //     }
-
-    //     ItemCount next = infinity.Value.IsNone || infinity.Value.Items < GetMaxInfinity(player, item) ?
-    //         requirement.NextRequirement(infinity.EffectiveRequirement) :
-    //         null;
-
-    //     DisplayFlags displayFlags = DefaultImplementation.GetDisplayFlags(category, infinity, next) & ((IDefaultDisplay)this).DisplayFlags & Configs.InfinityDisplay.Instance.DisplayFlags;
-    //     if ((displayFlags & DefaultImplementation.OnLineDisplayFlags) == 0) return;
-
-    //     TooltipLine line = tooltips.FindorAddLine(TooltipLine, LinePosition, out bool addedLine);
-    //     DefaultImplementation.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IDefaultDisplay)this).Color, displayFlags, category, infinity, next, itemCount);
-    //     if (addedLine) line.OverrideColor *= 0.75f;
-    // }
 }
