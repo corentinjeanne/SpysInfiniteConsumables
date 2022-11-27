@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using Terraria.ModLoader.Config.UI;
 
-namespace SPIC.Configs.UI {
+namespace SPIC.Config.UI {
 
     public static class ReflectionHelper {
 

@@ -33,7 +33,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override bool PreItemCheck() {
-        if (Configs.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Unknown) {
+        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Unknown) {
             SavePreUseItemStats();
             _detectingCategory = true;
         } else _detectingCategory = false;
@@ -64,11 +64,11 @@ public class DetectionPlayer : ModPlayer {
         if (!_detectingCategory) return;
 
         void SaveUsable(UsableCategory category)
-            => Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.ID);
+            => Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.ID);
 
         void SaveBag() {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.ID);
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.ID);
+            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.ID);
+            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.ID);
         }
 
         UsableCategory usable = TryDetectUsable();
@@ -125,7 +125,7 @@ public class DetectionPlayer : ModPlayer {
         foreach (Projectile p in Main.projectile)
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
-        Configs.RequirementSettings requirements = Configs.RequirementSettings.Instance;
+        Config.RequirementSettings requirements = Config.RequirementSettings.Instance;
         if ((refill.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.ID) && !refill.GetInfinity(tot + used, Usable.ID).Value.IsNone)
                 || (refill.GetCategory<AmmoCategory>(Ammo.ID) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.ID).Value.IsNone)
             )
@@ -138,8 +138,8 @@ public class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Configs.CategoryDetection autos = Configs.CategoryDetection.Instance;
-        Configs.RequirementSettings settings = Configs.RequirementSettings.Instance;
+        Config.CategoryDetection autos = Config.CategoryDetection.Instance;
+        Config.RequirementSettings settings = Config.RequirementSettings.Instance;
 
 
         if (autos.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)

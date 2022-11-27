@@ -3,11 +3,11 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Configs.UI;
+using SPIC.Config.UI;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
 
-namespace SPIC.Configs;
+namespace SPIC.Config;
 
 [Label("$Mods.SPIC.Configs.InfinityDisplay.name")]
 public class InfinityDisplay : ModConfig {

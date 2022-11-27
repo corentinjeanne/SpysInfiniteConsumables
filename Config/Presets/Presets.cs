@@ -2,33 +2,7 @@ using SPIC.ConsumableGroup;
 using Terraria.ModLoader;
 
 using SPIC.VanillaConsumableTypes;
-namespace SPIC.Configs.Presets;
-
-// public class Preset
-public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation>, new() {
-    public static TImplementation Instance => _instance ??= new TImplementation();
-    public static int ID => Instance.UID;
-    private static TImplementation? _instance;
-    static StaticPreset() { }
-    protected StaticPreset() { }
-
-    public static void Register() => PresetManager.Register(Instance);
-
-
-}
-public abstract class Preset {
-    public abstract Mod Mod { get; }
-    public int UID { get; internal set; }
-
-    public virtual string Name => GetType().Name;
-    // public abstract int IconType { get; }
-
-    public abstract int CriteriasCount { get; }
-    public abstract bool MeetsCriterias(RequirementSettings config);
-    public abstract void ApplyCriterias(RequirementSettings config);
-
-    public static NoPreset None => new();
-}
+namespace SPIC.Config.Presets;
 
 public class NoPreset : Preset {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
@@ -69,15 +43,15 @@ public class OneForAll : StaticPreset<OneForAll> {
     public override void ApplyCriterias(RequirementSettings config) {
         bool foundEnabled = false;
         foreach ((IToggleable type, bool state, bool global) in config.LoadedTypes) {
-            if(global) break;
-            if (state){
+            if (global) break;
+            if (state) {
                 foundEnabled = true;
                 break;
             }
         }
-        if(!foundEnabled) {
-            foreach(object key in config.EnabledTypes){
-                if(!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledTypes[key] = true;
+        if (!foundEnabled) {
+            foreach (object key in config.EnabledTypes) {
+                if (!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledTypes[key] = true;
             }
         }
         config.MaxConsumableTypes = 1;
@@ -96,13 +70,12 @@ public class OneForAll : StaticPreset<OneForAll> {
     }
 }
 
-
 public class AllEnabled : StaticPreset<AllEnabled> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        for (int i = 0; i < config.EnabledTypes.Count; i++){
+        for (int i = 0; i < config.EnabledTypes.Count; i++) {
             config.EnabledTypes[i] = true;
         }
         foreach (var key in config.EnabledGlobals.Keys) {
@@ -124,7 +97,7 @@ public class AllDisabled : StaticPreset<AllDisabled> {
     public override int CriteriasCount => 2;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        for (int i = 0; i < config.EnabledTypes.Count; i++){
+        for (int i = 0; i < config.EnabledTypes.Count; i++) {
             config.EnabledTypes[i] = false;
         }
         foreach (var key in config.EnabledGlobals.Keys) {
@@ -154,5 +127,5 @@ public class JourneyCosts : StaticPreset<JourneyCosts> {
         => config.MaxConsumableTypes == 1
             && (bool)config.EnabledTypes[0]!
             && ((ConsumableTypeDefinition)config.EnabledTypes.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
-    
+
 }

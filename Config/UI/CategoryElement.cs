@@ -4,9 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
-using SPIC.ConsumableGroup;
 
-namespace SPIC.Configs.UI;
+namespace SPIC.Config.UI;
 
 public class CategoryElement : ConfigElement<CategoryWrapper> {
 

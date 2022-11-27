@@ -6,6 +6,8 @@ using SPIC.ConsumableGroup;
 using Microsoft.Xna.Framework;
 using System.Diagnostics.CodeAnalysis;
 
+using SPIC.Config;
+
 namespace SPIC.VanillaConsumableTypes;
 public enum AmmoCategory : byte {
     None = Category.None,

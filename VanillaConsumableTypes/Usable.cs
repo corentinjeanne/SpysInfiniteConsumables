@@ -4,7 +4,10 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
+using SPIC.Config;
+
 namespace SPIC.VanillaConsumableTypes; 
+
 public enum UsableCategory : byte {
     None = Category.None,
 

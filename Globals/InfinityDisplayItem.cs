@@ -30,7 +30,7 @@ public class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         if (!Main.PlayerLoaded) return;
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
+        Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
         if (!display.toopltip_ShowTooltip) return;
 
         foreach (IConsumableGroup type in DisplayableTypes(item)) {
@@ -43,7 +43,7 @@ public class InfinityDisplayItem : GlobalItem {
     private static int s_focusType;
     public static void IncrementCounters(){
         s_frame++;
-        if(s_frame < Configs.InfinityDisplay.Instance.dot_PulseTime) return;
+        if(s_frame < Config.InfinityDisplay.Instance.dot_PulseTime) return;
         s_frame = 0;
         s_focusType++;
         if(s_focusType < InfinityManager.LCM) return;
@@ -56,7 +56,7 @@ public class InfinityDisplayItem : GlobalItem {
 
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         if(!Main.PlayerLoaded) return;
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
+        Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
         if (!display.dots_ShowDots && !display.glow_ShowGlow) return;
 
         s_wouldDisplayDot.Clear();
@@ -69,15 +69,15 @@ public class InfinityDisplayItem : GlobalItem {
         }
 
         if (display.dots_ShowDots && s_wouldDisplayDot.Count > 0) {
-            Vector2 delta = Configs.InfinityDisplay.Instance.dots_Start switch {
-                Configs.InfinityDisplay.Corner.TopLeft =>     new( 1, 1),
-                Configs.InfinityDisplay.Corner.TopRight =>    new(-1, 1),
-                Configs.InfinityDisplay.Corner.BottomLeft =>  new( 1,-1),
-                Configs.InfinityDisplay.Corner.BottomRight => new(-1,-1),
+            Vector2 delta = Config.InfinityDisplay.Instance.dots_Start switch {
+                Config.InfinityDisplay.Corner.TopLeft =>     new( 1, 1),
+                Config.InfinityDisplay.Corner.TopRight =>    new(-1, 1),
+                Config.InfinityDisplay.Corner.BottomLeft =>  new( 1,-1),
+                Config.InfinityDisplay.Corner.BottomRight => new(-1,-1),
                 _ =>                                          new( 0, 0)
             };
             Vector2 dotPosition = position + frame.Size() / 2f * scale - SmallDot.Size() / 2 * Main.inventoryScale - (TextureAssets.InventoryBack.Value.Size() * Main.inventoryScale / 2 - SmallDot.Size() * 2 / 3) * delta;
-            Vector2 dotDelta = SmallDot.Size() * (Configs.InfinityDisplay.Instance.dots_vertical ? new Vector2(0, delta.Y) : new Vector2(delta.X, 0)) * Main.inventoryScale;
+            Vector2 dotDelta = SmallDot.Size() * (Config.InfinityDisplay.Instance.dots_vertical ? new Vector2(0, delta.Y) : new Vector2(delta.X, 0)) * Main.inventoryScale;
             
             int startingDot = s_focusType % ((s_wouldDisplayDot.Count+display.dots_PerPage-1)/display.dots_PerPage * display.dots_PerPage) / display.dots_PerPage * display.dots_PerPage;
             for (int i = startingDot; i < startingDot + display.dots_PerPage && i < s_wouldDisplayDot.Count; i++) {
@@ -148,7 +148,7 @@ public class InfinityDisplayItem : GlobalItem {
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, float ratio, DisplayFlags displayFlags, Infinity infinity, ICount next) {
         if (!displayFlags.HasFlag(DisplayFlags.Infinity)) return;
         if (infinity.Value.IsNone) return;
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
+        Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
         float increase = (ratio < 0.5f ? ratio : 1 - ratio) * 2;
         float maxScale = next.IsNone ? ((frame.Size().X + 4) / frame.Size().X - 1) : 0;
         spriteBatch.Draw(

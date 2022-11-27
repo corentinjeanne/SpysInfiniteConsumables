@@ -1,10 +1,11 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
+using SPIC.Config;
+
 namespace SPIC.VanillaConsumableTypes;
 public enum MaterialCategory : byte {
     None = Category.None,
@@ -24,7 +25,7 @@ public class MaterialRequirements {
     public ItemCountWrapper Furnitures = new(20,99);
     [Label("$Mods.SPIC.Types.Material.misc")]
     public ItemCountWrapper Miscellaneous = new(50);
-    [Label("$Mods.SPIC.Types.Material.special"), Configs.UI.NoSwapping]
+    [Label("$Mods.SPIC.Types.Material.special"), Config.UI.NoSwapping]
     public ItemCountWrapper NonStackable = new(2,1);
 }
 

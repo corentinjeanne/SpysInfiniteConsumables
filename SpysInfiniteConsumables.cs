@@ -29,11 +29,11 @@ public class SpysInfiniteConsumables : Mod {
         VanillaConsumableTypes.Currency.RegisterAsGlobal();
         VanillaConsumableTypes.Mixed.RegisterAsGlobal();
         
-        Configs.Presets.Defaults.Register();
-        Configs.Presets.AllDisabled.Register();
-        Configs.Presets.AllEnabled.Register();
-        Configs.Presets.OneForAll.Register();
-        Configs.Presets.JourneyCosts.Register();
+        Config.Presets.Defaults.Register();
+        Config.Presets.AllDisabled.Register();
+        Config.Presets.AllEnabled.Register();
+        Config.Presets.OneForAll.Register();
+        Config.Presets.JourneyCosts.Register();
     }
 
     public override void Unload() {

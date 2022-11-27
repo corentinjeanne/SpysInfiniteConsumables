@@ -105,7 +105,7 @@ namespace SPIC.Systems {
     //     }
 
         public override void SaveWorldData(TagCompound tag) {
-            Configs.CategoryDetection.Instance.SaveConfig();
+            Config.CategoryDetection.Instance.SaveConfig();
 
             // if (_chunks.Count != 0) {
             //     tag.Add(TAG_SIZE, _chunkSize);
@@ -119,9 +119,9 @@ namespace SPIC.Systems {
             // }
         }
         public override void OnWorldUnload(){
-            Configs.RequirementSettings.Instance.UpdateProperties();
-            Configs.CategoryDetection.Instance.UpdateProperties();
-            Configs.InfinityDisplay.Instance.UpdateProperties();
+            Config.RequirementSettings.Instance.UpdateProperties();
+            Config.CategoryDetection.Instance.UpdateProperties();
+            Config.InfinityDisplay.Instance.UpdateProperties();
 
             // _chunks.Clear();
         }

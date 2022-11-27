@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ModLoader;
 
 using SPIC.ConsumableGroup;
+
 namespace SPIC.VanillaConsumableTypes;
 public enum MixedCategory : byte {
     AllNone = Category.None,

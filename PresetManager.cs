@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SPIC.Configs.Presets;
+using SPIC.Config.Presets;
 
 namespace SPIC;
 
@@ -46,6 +46,6 @@ public static class PresetManager {
     private static int s_nextPresetID = 1;
     private static readonly Dictionary<int, Preset> s_presets = new();
 
-    public static Configs.PresetDefinition ToDefinition(this Preset type) => new(type.Mod, type.Name);
+    public static Config.PresetDefinition ToDefinition(this Preset type) => new(type.Mod, type.Name);
 
 }

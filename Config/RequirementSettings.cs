@@ -8,10 +8,10 @@ using Newtonsoft.Json.Linq;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Configs.UI;
-using SPIC.Configs.Presets;
+using SPIC.Config.UI;
+using SPIC.Config.Presets;
 
-namespace SPIC.Configs;
+namespace SPIC.Config;
 
 [Label("$Mods.SPIC.Configs.Requirements.name")]
 public class RequirementSettings : ModConfig {

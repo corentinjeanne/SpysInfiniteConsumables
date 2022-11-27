@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using SPIC.ConsumableGroup;
 using System.Reflection;
 
-namespace SPIC.Configs.UI;
+namespace SPIC.Config.UI;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 public class NoSwappingAttribute : Attribute { }

@@ -14,7 +14,7 @@ public class ConsumptionItem : GlobalItem {
     }
 
     public override bool ConsumeItem(Item item, Player player) {
-        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
+        Config.CategoryDetection detection = Config.CategoryDetection.Instance;
 
         DetectionPlayer detectionPlayer = player.GetModPlayer<DetectionPlayer>();
 
@@ -23,7 +23,7 @@ public class ConsumptionItem : GlobalItem {
             // Consumed by other item, i.e. wand
             if (item != player.HeldItem) {
                 if (detection.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
-                    Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.ID);
+                    Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.ID);
 
                 return !player.HasInfinite(item, 1, Placeable.ID);
             }
@@ -37,7 +37,7 @@ public class ConsumptionItem : GlobalItem {
                     if (item.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Tool)
                         return !player.HasInfinite(item, 1, Usable.ID);
 
-                    if (detection.DetectMissing) Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.ID);
+                    if (detection.DetectMissing) Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.ID);
                 }
                 return !player.HasInfinite(item, 1, GrabBag.ID);
 

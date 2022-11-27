@@ -49,22 +49,3 @@ public interface IStandardGroup<TConsumable> : IConsumableGroup<TConsumable>, IS
 
     long GetMaxInfinity(Player player, TConsumable consumable);
 }
-
-public interface ICategory : IConsumableGroup {
-    Category GetCategory(object consumable);
-    IRequirement Requirement(Category category);
-}
-public interface ICategory<TConsumable> : IConsumableGroup<TConsumable>, ICategory where TConsumable : notnull {
-    Category ICategory.GetCategory(object consumable) => GetCategory((TConsumable)consumable);
-    IRequirement ICategory.Requirement(Category category) => Requirement(category);
-
-    new IRequirement Requirement(Category category);
-    Category GetCategory(TConsumable consumable);
-}
-public interface ICategory<TConsumable, TCategory> : ICategory<TConsumable> where TConsumable : notnull where TCategory : System.Enum {
-    Category ICategory<TConsumable>.GetCategory(TConsumable consumable) => GetCategory(consumable);
-    IRequirement ICategory<TConsumable>.Requirement(Category category) => Requirement((TCategory)category);
-
-    new TCategory GetCategory(TConsumable consumable);
-    IRequirement Requirement(TCategory category);
-}

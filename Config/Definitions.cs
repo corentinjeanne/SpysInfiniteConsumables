@@ -1,14 +1,11 @@
-
 using System.ComponentModel;
 using Newtonsoft.Json;
-
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
-
 using SPIC.ConsumableGroup;
-using SPIC.Configs.Presets;
+using SPIC.Config.Presets;
 
-namespace SPIC.Configs;
+namespace SPIC.Config;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 

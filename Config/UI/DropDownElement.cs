@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using Terraria.UI;
 
-namespace SPIC.Configs.UI;
+namespace SPIC.Config.UI;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 sealed class ValuesProviderAttribute : Attribute {

@@ -5,6 +5,8 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
+using SPIC.Config;
+
 namespace SPIC.VanillaConsumableTypes; 
 public enum GrabBagCategory : byte {
     None = Category.None,

@@ -8,11 +8,10 @@ using Terraria.GameContent.UI.States;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
-using System.ComponentModel;
 using System.Reflection;
 using Newtonsoft.Json;
 
-namespace SPIC.Configs.UI;
+namespace SPIC.Config.UI;
 
 
 

@@ -21,7 +21,7 @@ namespace SPIC.Globals {
 
         private static void Explode(Projectile proj){
 
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategoryDetection.Instance.DetectMissing) return;
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Config.CategoryDetection.Instance.DetectMissing) return;
             
             DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
@@ -29,8 +29,8 @@ namespace SPIC.Globals {
 
             AmmoCategory ammo = item.GetCategory<AmmoCategory>(Ammo.ID);
             UsableCategory usable = item.GetCategory<UsableCategory>(Usable.ID);
-            if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
-            || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID)))
+            if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
+            || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID)))
             && !item.IsAir) {
                 InfinityManager.ClearCache(item);
                 detectionPlayer.RefilExplosive(proj.type, item);

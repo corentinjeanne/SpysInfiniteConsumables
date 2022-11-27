@@ -1,71 +1,7 @@
-using System;
-using System.Text;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Terraria;
 
 namespace SPIC.ConsumableGroup;
-
-public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
-
-    public override ItemCountWrapper ReadJson(JsonReader reader, Type objectType, ItemCountWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
-        JValue count = (JValue)JToken.Load(reader);
-
-        existingValue ??= new ItemCountWrapper(count.Value!, 999);
-        if (count.Value is long v && v >= 0) existingValue.value = v;
-        else existingValue.value = -(float)(double)count.Value!;
-        return existingValue;
-    }
-
-    public override void WriteJson(JsonWriter writer, ItemCountWrapper? value, JsonSerializer serializer) {
-        if(value is null) return;
-        if(value.UseItems)writer.WriteValue((long)value.value);
-        else writer.WriteValue(-(float)value.value);
-    }
-}
-
-[Terraria.ModLoader.Config.CustomModConfigItem(typeof(Configs.UI.ItemCountElement))]
-[JsonConverter(typeof(ItemCountConverter))]
-public sealed class ItemCountWrapper {
-
-    public object value;
-    public int maxStack;
-    public bool UseItems => value is long;
-
-    public void SwapItemsAndStacks(){
-        if(UseItems) value = ((ItemCount)this).Stacks;
-        else value = ((ItemCount)this).Items;
-    }
-
-    public ItemCountWrapper(long items, int maxStack = 999) {
-        value = items;
-        this.maxStack = maxStack;
-    }
-    public ItemCountWrapper(float stacks, int maxStack = 999) {
-        value = stacks;
-        this.maxStack = maxStack;
-    }
-    internal ItemCountWrapper(object value, int maxStack = 999) {
-        if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
-        this.value = value;
-        this.maxStack = maxStack;
-    }
-
-    public static implicit operator ItemCount(ItemCountWrapper count) => new(0, count.value, count.maxStack);
-}
-
-public interface ICount : IComparable<ICount> {
-    ICount Multiply(float value);
-    ICount Add(ICount count);
-    ICount AdaptTo(ICount reference);
-
-    bool IsNone { get; }
-    ICount None { get; }
-
-    string DisplayRatio(ICount other);
-    string Display();
-}
 
 public struct CurrencyCount : ICount {
 
@@ -77,7 +13,6 @@ public struct CurrencyCount : ICount {
         Currency = other.Currency;
         Value = other.Value;
     }
-    
     public CurrencyCount(int currency, long value) {
         Currency = currency;
         Value = value;
@@ -90,7 +25,7 @@ public struct CurrencyCount : ICount {
     public ICount Add(ICount count) => new CurrencyCount(this) { Value = Value + ((CurrencyCount)count).Value };
     public ICount Multiply(float value) => new CurrencyCount(this) { Value = (long)(Value * value) };
 
-    public ICount AdaptTo(ICount reference) => new CurrencyCount((CurrencyCount)reference) { Value = Value};
+    public ICount AdaptTo(ICount reference) => new CurrencyCount((CurrencyCount)reference) { Value = Value };
 
 
     public ICount None => new CurrencyCount(Currency, 0);
@@ -100,8 +35,8 @@ public struct CurrencyCount : ICount {
     public string Display() {
         List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(Currency, Value);
         List<string> parts = new();
-        foreach((int type, long count) in items) parts.Add($"{count}[i:{type}]");        
-        return string.Join(" ",parts);
+        foreach ((int type, long count) in items) parts.Add($"{count}[i:{type}]");
+        return string.Join(" ", parts);
     }
     public string DisplayRatio(ICount other) => $"{Display()}/{other.Display()}";
 }
@@ -121,7 +56,6 @@ public struct ItemCount : ICount {
         Value = other.Value;
         MaxStack = other.MaxStack;
     }
-
     public ItemCount(Item item, long items) {
         Type = item.type;
         Value = items;
@@ -132,9 +66,8 @@ public struct ItemCount : ICount {
         Value = stacks;
         MaxStack = item.maxStack;
     }
-
     internal ItemCount(int type, object value, int maxStack) {
-        if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
+        if (value is not (long or float)) throw new System.ArgumentException("The type of value must be string or long");
         Type = type;
         Value = value;
         MaxStack = maxStack;
@@ -156,7 +89,7 @@ public struct ItemCount : ICount {
 
     public ICount AdaptTo(ICount reference) {
         ItemCount other = (ItemCount)reference;
-        object value = UseItems ? (object)Math.Min(Items, other.MaxStack) : (Stacks * MathF.Min(1.0f, (float)MaxStack / other.MaxStack));
+        object value = UseItems ? (object)System.Math.Min(Items, other.MaxStack) : (Stacks * System.MathF.Min(1.0f, (float)MaxStack / other.MaxStack));
         return new ItemCount(other) { Value = value };
     }
     public int CompareTo(ICount? other) {

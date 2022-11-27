@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
-using System.Diagnostics.CodeAnalysis;
+using SPIC.Config;
 
 namespace SPIC.VanillaConsumableTypes;
+
 public enum PlaceableCategory : byte {
     None = Category.None,
 

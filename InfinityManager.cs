@@ -46,7 +46,7 @@ public static class InfinityManager {
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
             if (!noOrdering) {
                 foreach (DictionaryEntry entry in Requirements.EnabledTypes) {
-                    IConsumableGroup group = ((Configs.ConsumableTypeDefinition)entry.Key).ConsumableType;
+                    IConsumableGroup group = ((Config.ConsumableTypeDefinition)entry.Key).ConsumableType;
                     if (MatchsFlags(group)) yield return (TConsumableGroup)group;
                 }
             } else {
@@ -117,7 +117,7 @@ public static class InfinityManager {
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, int groupID) where TConsumable : notnull
         => IsEnabled(groupID) && ((groupID < 0 || (consumable as Item)!.IsUsed(groupID)) ? ConsumableGroup(groupID).LongToCount(consumable, consumed).CompareTo(player.GetInfinity(consumable, groupID).Value) <= 0 : player.HasInfinite(consumable, consumed, VanillaConsumableTypes.Mixed.ID ));
     
-    public static Configs.ConsumableTypeDefinition ToDefinition(this IConsumableGroup type) => new(type.Mod, type.Name);
+    public static Config.ConsumableTypeDefinition ToDefinition(this IConsumableGroup type) => new(type.Mod, type.Name);
 
     private static int s_nextTypeID = 1;
     private static int s_nextGlobalID = -1;
@@ -145,7 +145,7 @@ public static class InfinityManager {
     private static readonly Dictionary<int, IReadOnlyList<IStandardGroup<Item>>> s_usedTypes = new();
     private static readonly Dictionary<int, IReadOnlyList<(IConsumableGroup, Item ammo)>> s_usedAmmoTypes = new();
 
-    private static Configs.RequirementSettings Requirements => Configs.RequirementSettings.Instance;
+    private static Config.RequirementSettings Requirements => Config.RequirementSettings.Instance;
     // private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
 
 }
