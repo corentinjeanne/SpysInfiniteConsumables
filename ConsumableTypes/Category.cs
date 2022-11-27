@@ -8,24 +8,25 @@ namespace SPIC.ConsumableGroup;
 
 public class CategoryConverter : JsonConverter<CategoryWrapper> {
 
-    public override CategoryWrapper ReadJson(JsonReader reader, Type objectType, CategoryWrapper existingValue, bool hasExistingValue, JsonSerializer serializer) {
+    public override CategoryWrapper ReadJson(JsonReader reader, Type objectType, CategoryWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         JValue category = (JValue)JToken.Load(reader);
-        if(!hasExistingValue) existingValue = new(byte.MinValue);
+        existingValue ??= new(byte.MinValue);
         if (category.Value is string fullName) {
             string[] parts = fullName.Split(", ", 3);
-            existingValue.value = Enum.Parse(Assembly.Load(parts[0]).GetType(parts[1]), parts[2]);
+            existingValue.value = Enum.Parse(Assembly.Load(parts[0]).GetType(parts[1])!, parts[2]);
             existingValue.SaveEnumType = true;
         }
         else existingValue.value = Convert.ToByte(category.Value);
         return existingValue;
     }
 
-    public override void WriteJson(JsonWriter writer, CategoryWrapper value, JsonSerializer serializer) {
+    public override void WriteJson(JsonWriter writer, CategoryWrapper? value, JsonSerializer serializer) {
+        if(value is null) return;
         if (!value.IsEnum || !value.SaveEnumType) {
             writer.WriteValue(value.value);
             return;
         }
-        string[] parts = value.value.GetType().AssemblyQualifiedName.Split(", ");
+        string[] parts = value.value.GetType().AssemblyQualifiedName!.Split(", ");
         string fullID = $"{parts[1]}, {parts[0]}, {value.value}";
         writer.WriteValue(fullID);
     }
@@ -64,7 +65,7 @@ public struct Category {
     public object Value { get; init; }
 
     public byte Byte => Convert.ToByte(Value);
-    public Enum Enum => Value as Enum;
+    public Enum? Enum => Value as Enum;
 
     public bool IsEnum => Value is Enum;
     public bool IsNone => Byte == None;
@@ -76,15 +77,15 @@ public struct Category {
     public static implicit operator Category(byte value) => new(value);
 
     public static implicit operator Category(Enum value) => new(value);
-    public static implicit operator Enum(Category value) => value.Enum;
+    public static implicit operator Enum?(Category value) => value.Enum;
 
     public const byte None = 0;
     public const byte Unknown = 255;
 
     public string Label() {
         if (!IsEnum) return Byte.ToString();
-        MemberInfo enumFieldMemberInfo = Enum.GetType().GetMember(Enum.ToString())[0];
-        LabelAttribute labelAttribute = (LabelAttribute)Attribute.GetCustomAttribute(enumFieldMemberInfo, typeof(LabelAttribute));
+        MemberInfo enumFieldMemberInfo = Enum!.GetType().GetMember(Enum.ToString())[0];
+        LabelAttribute? labelAttribute = (LabelAttribute?)Attribute.GetCustomAttribute(enumFieldMemberInfo, typeof(LabelAttribute));
         return labelAttribute?.Label ?? Enum.ToString();
     }
 }

@@ -29,7 +29,7 @@ public class RequirementSettings : ModConfig {
 
     [Label("$Mods.SPIC.Configs.Requirements.General.Preset")]
     [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
-    public PresetDefinition Preset {
+    public PresetDefinition? Preset {
         get {
             if(EnabledTypes.Count == 0) return null;
             foreach (Preset preset in PresetManager.Presets()){
@@ -91,7 +91,7 @@ public class RequirementSettings : ModConfig {
         get {
             foreach(DictionaryEntry entry in EnabledTypes){
                 ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
-                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value, false);
+                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
             }
             foreach((ConsumableTypeDefinition def, bool state) in EnabledGlobals){
                 if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
@@ -112,7 +112,7 @@ public class RequirementSettings : ModConfig {
                 }
                 if(def.ConsumableType is not IConfigurable config) continue;
 
-                if(data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType);
+                if(data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType)!;
                 else if(data.GetType() == config.SettingsType) config.Settings = data;
                 else throw new NotImplementedException();
 
@@ -120,7 +120,7 @@ public class RequirementSettings : ModConfig {
             }
             foreach (IConfigurable type in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 ConsumableTypeDefinition def = type.ToDefinition();
-                if(!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType));
+                if(!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType)!);
             }
         }
     }
@@ -129,8 +129,9 @@ public class RequirementSettings : ModConfig {
     // TODO Reimplement customs
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
+#nullable disable
     public static RequirementSettings Instance;
-
+#nullable restore
     public void UpdateProperties(){
         // EnabledTypes = EnabledTypes;
         // Requirements = Requirements;

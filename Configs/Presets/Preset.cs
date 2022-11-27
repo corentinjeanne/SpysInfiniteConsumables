@@ -8,7 +8,7 @@ namespace SPIC.Configs.Presets;
 public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation>, new() {
     public static TImplementation Instance => _instance ??= new TImplementation();
     public static int ID => Instance.UID;
-    private static TImplementation _instance;
+    private static TImplementation? _instance;
     static StaticPreset() { }
     protected StaticPreset() { }
 
@@ -152,7 +152,7 @@ public class JourneyCosts : StaticPreset<JourneyCosts> {
 
     public override bool MeetsCriterias(RequirementSettings config)
         => config.MaxConsumableTypes == 1
-            && (bool)config.EnabledTypes[0]
+            && (bool)config.EnabledTypes[0]!
             && ((ConsumableTypeDefinition)config.EnabledTypes.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
     
 }

@@ -16,23 +16,24 @@ public enum CurrencyCategory : byte {
 
 public class CurrencyRequirements {
     [Label("$Mods.SPIC.Types.Currency.coins")]
-    public ItemCountWrapper Coins = new(10, 100);
+    public int Coins = 10;
     [Label("$Mods.SPIC.Types.Currency.custom")]
-    public ItemCountWrapper Single = new(50);
+    public int Single = 50;
 }
 
-// TODO >>> fix display
 public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigurable<CurrencyRequirements> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.LuckyCoin;
 
     public override bool DefaultsToOn => false;
+#nullable disable
     public CurrencyRequirements Settings { get; set; }
-    
+#nullable restore
+
     public override IRequirement Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement(((ItemCount)Settings.Coins) * 100, 100, 0.1f),
-        CurrencyCategory.SingleCoin => new MultipleRequirement(Settings.Single, 0.2f),
-        CurrencyCategory.None or _ => null     
+        CurrencyCategory.Coin => new PowerRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Coins * 100), 100, 0.1f),
+        CurrencyCategory.SingleCoin => new MultipleRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Single), 0.2f),
+        CurrencyCategory.None or _ => new NoRequirement()     
     };
 
     public override long CountConsumables(Player player, int currency) => currency == CurrencyHelper.None ? 0 : player.CountCurrency(currency, true);
@@ -47,15 +48,13 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
 
     public override int CacheID(int consumable) => consumable;
 
-    public override bool OwnsConsumable(Player player, int currency, bool isACopy) => CountConsumables(player, currency) > 0;
-
-    public override Item ToItem(int consumable) => new(CurrencyHelper.LowestValueType(consumable));
-
     public override long GetMaxInfinity(Player player, int currency) {
         if (Main.InReforgeMenu) return Main.reforgeItem.value;
         else if (Main.npcShop != 0) return Globals.SpicNPC.HighestPrice(currency);
         else return Globals.SpicNPC.HighestItemValue(currency);
     }
+
+    public override ICount LongToCount(int consumable, long count) => new CurrencyCount(consumable, count);
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 

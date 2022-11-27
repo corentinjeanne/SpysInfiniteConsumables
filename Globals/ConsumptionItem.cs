@@ -33,8 +33,8 @@ public class ConsumptionItem : GlobalItem {
             // RightClick
             if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
 
-                if ((GrabBagCategory)item.GetCategory(GrabBag.ID) == GrabBagCategory.Unknown) {
-                    if ((UsableCategory)item.GetCategory(Usable.ID) == UsableCategory.Tool)
+                if (item.GetCategory<GrabBagCategory>(GrabBag.ID) == GrabBagCategory.Unknown) {
+                    if (item.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Tool)
                         return !player.HasInfinite(item, 1, Usable.ID);
 
                     if (detection.DetectMissing) Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.ID);
@@ -47,7 +47,7 @@ public class ConsumptionItem : GlobalItem {
         }
 
         // LeftClick
-        if ((UsableCategory)item.GetCategory(Usable.ID) != UsableCategory.None)
+        if (item.GetCategory<UsableCategory>(Usable.ID) != UsableCategory.None)
             return !player.HasInfinite(item, 1, Usable.ID);
         if (item.Placeable())
             return !player.HasInfinite(item, 1, Placeable.ID);

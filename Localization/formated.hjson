@@ -2,13 +2,6 @@
 {
     Mods: {
         SPIC: {
-
-            Types : {
-                Ammo : {
-                    Standard: "[i:40] {$Mods.SPIC.Types.Ammo.standard}"
-                    Special: "[i:75] {$Mods.SPIC.Types.Ammo.special}"
-                }
-            }
             ItemTooltip: {
                 InfiniteName: "{1} {0}"
                 InfiniteSprite: "{1}[i:{0}]"
@@ -24,10 +17,6 @@
                     }
                     Customs: {
                         Customs: "[i:1913] {$Mods.SPIC.Configs.Requirements.Customs.customs}"
-                        Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.name}"
-                        Usable: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Categories.Usable.name}"
-                        Placeable: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.name}"
-                        Bag: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.name}"
                     }
                 }
                 Detection: {
@@ -54,14 +43,6 @@
                         Start: "[i:71] {$Mods.SPIC.Configs.InfinityDisplay.Dots.start}"
                         End: "[i:73] {$Mods.SPIC.Configs.InfinityDisplay.Dots.end}"
                         Count: "[i:3095] {$Mods.SPIC.Configs.InfinityDisplay.Dots.count}"
-                    }
-                    Colors: {
-                        Usables: "{$Mods.SPIC.Categories.Usable.icon} {$Mods.SPIC.Categories.Usable.names}"
-                        Ammo: "{$Mods.SPIC.Categories.Ammo.icon} {$Mods.SPIC.Categories.Ammo.names}"
-                        Bags: "{$Mods.SPIC.Categories.GrabBag.icon} {$Mods.SPIC.Categories.GrabBag.names}"
-                        Placeables: "{$Mods.SPIC.Categories.Placeable.icon} {$Mods.SPIC.Categories.Placeable.names}"
-                        Currencies: "{$Mods.SPIC.Categories.Currency.icon} {$Mods.SPIC.Categories.Currency.names}"
-                        Materials: "{$Mods.SPIC.Categories.Material.icon} {$Mods.SPIC.Categories.Material.names}"
                     }
                 }
             }

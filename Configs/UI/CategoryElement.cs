@@ -22,10 +22,10 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
         public TEnum Enum { get => (TEnum)_getter(); set => _setter(value); }
     }
 
-    private static readonly PropertyInfo s_byteProp = typeof(CategoryElement).GetProperty(nameof(Byte), BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly PropertyInfo s_byteProp = typeof(CategoryElement).GetProperty(nameof(Byte), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private byte Byte { get => (byte)Value.value; set => Value.value = value; }
-    private object _enum;
+    private object? _enum;
 
     public override void OnBind() {
         base.OnBind();
@@ -35,7 +35,7 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
         UIElement container;
         if (value.IsEnum) {
             Type genType = typeof(EnumProp<>).MakeGenericType(((Enum)value.value).GetType());
-            PropertyInfo enumProp = genType.GetProperty(nameof(Enum), BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo enumProp = genType.GetProperty(nameof(EnumProp<Enum>.Enum), BindingFlags.Public | BindingFlags.Instance)!;
             Func<Enum> getter = () => (Enum)value.value;
             Action<Enum> setter = (Enum e) => Value = new(e){SaveEnumType = Value.SaveEnumType};
             _enum = Activator.CreateInstance(genType, new object[] { getter, setter });

@@ -5,7 +5,10 @@ namespace SPIC;
 
 // TODO documentation
 public class SpysInfiniteConsumables : Mod {
+
+#nullable disable
     public static SpysInfiniteConsumables Instance { get; private set; }
+#nullable restore
 
     public const string LocalizationKeyBase = "Mods.SPIC";
     public static bool MagicStorageLoaded => ModLoader.TryGetMod("MagicStorage", out _);

@@ -64,7 +64,7 @@ namespace SPIC {
 
         internal static TooltipLine AddedLine(string name, string value) => new(SpysInfiniteConsumables.Instance, name, value) { OverrideColor = Terraria.ID.Colors.RarityTrash };
         
-        public static TooltipLine FindLine(this List<TooltipLine> tooltips, string name)
+        public static TooltipLine? FindLine(this List<TooltipLine> tooltips, string name)
             => tooltips.Find(l => (l.Mod == "Terraria" || l.Mod == nameof(SpysInfiniteConsumables)) && l.Name == name);
         
         public static TooltipLine AddLine(this List<TooltipLine> tooltips, string after, TooltipLine line) {
@@ -80,11 +80,12 @@ namespace SPIC {
             return line;
         }
 
-        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after, out bool addedLine) {
-            TooltipLine target = tooltips.FindLine(line.Name);
-            if(addedLine = target == null) target = tooltips.AddLine(after ?? line.Name, line);
-            return target;
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string? after, out bool addedLine) {
+            TooltipLine? target = tooltips.FindLine(line.Name);
+            if (addedLine = target is null)
+                target = tooltips.AddLine(after ?? line.Name, line);
+            return target!;
         }
-        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string after = null) => FindorAddLine(tooltips, line, after, out _);
+        public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, string? after = null) => FindorAddLine(tooltips, line, after, out _);
     }
 }

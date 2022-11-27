@@ -19,7 +19,7 @@ public enum DisplayFlags {
 
 public class InfinityDisplayItem : GlobalItem {
 
-    private static IEnumerable<IConsumableGroup> DisplayableTypes(Player player, Item item) {
+    private static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
         foreach (IConsumableGroup type in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Enabled)) {
             if (InfinityManager.IsUsed(item, type.UID)) yield return type;
         }
@@ -33,7 +33,7 @@ public class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.toopltip_ShowTooltip) return;
 
-        foreach (IConsumableGroup type in DisplayableTypes(Main.LocalPlayer, item)) {
+        foreach (IConsumableGroup type in DisplayableTypes(item)) {
             type.ModifyTooltip(item, tooltips);
         }
     }
@@ -50,22 +50,20 @@ public class InfinityDisplayItem : GlobalItem {
         s_focusType = 0;
     }
 
-    internal record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, Infinity Infinity, ItemCount Next);
-    internal static List<DisplayInfo> s_wouldDisplayDot;
-    internal static List<DisplayInfo> s_wouldDisplayGlow;
+    internal record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, Infinity Infinity, ICount Next);
+    internal static List<DisplayInfo> s_wouldDisplayDot = new();
+    internal static List<DisplayInfo> s_wouldDisplayGlow = new();
 
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         if(!Main.PlayerLoaded) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.dots_ShowDots && !display.glow_ShowGlow) return;
 
-        s_wouldDisplayDot = new();
-        s_wouldDisplayGlow = new();
+        s_wouldDisplayDot.Clear();
+        s_wouldDisplayGlow.Clear();
 
 
-        foreach(IConsumableGroup type in DisplayableTypes(Main.LocalPlayer, item)){
-            int dots = s_wouldDisplayDot.Count;
-            int glows = s_wouldDisplayGlow.Count;
+        foreach(IConsumableGroup type in DisplayableTypes(item)){
             if (display.dots_ShowDots) type.DrawInInventorySlot(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
             if (display.glow_ShowGlow) type.DrawOnItemSprite(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
         }
@@ -98,41 +96,38 @@ public class InfinityDisplayItem : GlobalItem {
     }
 
     public static DisplayFlags OnLineDisplayFlags => DisplayFlags.All;
-    public static void DisplayOnLine(ref string line, ref Color? lineColor, Color color, DisplayFlags displayFlags, Category category, Infinity infinity, ItemCount nextrequirement, ItemCount itemCount) {
+    public static void DisplayOnLine(ref string line, ref Color? lineColor, Color color, DisplayFlags displayFlags, Category category, Infinity infinity, ICount nextRequirement, ICount consumableCount) {
 
         if (displayFlags.HasFlag(DisplayFlags.Infinity)) {
             lineColor = color;
-            if (nextrequirement.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
-            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line,
-                    Language.GetTextValue("Mods.SPIC.ItemTooltip.items", infinity.Value.IsNone)
-                );
+            if (nextRequirement.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
+            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, infinity.Value.Display());
         }
 
         int total = 0;
         string Separator() => total++ == 0 ? " (" : ", ";
 
-        if (displayFlags.HasFlag(DisplayFlags.Category) && !displayFlags.HasFlag(DisplayFlags.Infinity)) line += Separator() + category.Label();
+        if (displayFlags.HasFlag(DisplayFlags.Category)) line += Separator() + category.Label();
 
         if (displayFlags.HasFlag(DisplayFlags.Requirement)) {
-            line += Separator() + (itemCount != ItemCount.None ?
-                Language.GetTextValue("Mods.SPIC.ItemTooltip.items", $"{itemCount.Items}/{nextrequirement.Items}") :
-                Language.GetTextValue("Mods.SPIC.ItemTooltip.items", nextrequirement.Items));
+            line += Separator() + (consumableCount.IsNone ?
+                nextRequirement.Display() : consumableCount.DisplayRatio(nextRequirement));
         }
         if (total > 0) line += ")";
     }
 
-    public static DisplayFlags GetDisplayFlags(Category category, Infinity infinity, ItemCount next) {
+    public static DisplayFlags GetDisplayFlags(Category category, Infinity infinity, ICount next) {
         DisplayFlags flags = 0;
         if (!category.IsNone) flags |= DisplayFlags.Category;
         if (!next.IsNone) flags |= DisplayFlags.Requirement;
-        if (infinity.Value != ItemCount.None) flags |= DisplayFlags.Infinity;
+        if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
         return flags;
     }
 
     public static readonly Asset<Texture2D> SmallDot = ModContent.Request<Texture2D>("SPIC/Textures/Small_Dot");
     public static readonly Asset<Texture2D> TinyDot = ModContent.Request<Texture2D>("SPIC/Textures/Tiny_Dot");
     public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity;
-    public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayFlags displayFlags, Infinity infinity, ItemCount next) {
+    public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayFlags displayFlags, Infinity infinity, ICount next) {
         if (displayFlags.HasFlag(DisplayFlags.Infinity)) {
             if (infinity.Value.IsNone) return;
             spriteBatch.Draw(
@@ -150,7 +145,7 @@ public class InfinityDisplayItem : GlobalItem {
     }
 
     public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
-    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, float ratio, DisplayFlags displayFlags, Infinity infinity, ItemCount next) {
+    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, float ratio, DisplayFlags displayFlags, Infinity infinity, ICount next) {
         if (!displayFlags.HasFlag(DisplayFlags.Infinity)) return;
         if (infinity.Value.IsNone) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;

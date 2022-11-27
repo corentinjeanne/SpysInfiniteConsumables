@@ -77,7 +77,9 @@ public class InfinityDisplay : ModConfig {
     }
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
+#nullable disable
     public static InfinityDisplay Instance;
+#nullable restore
 
     public void UpdateProperties() {
         this.SaveConfig();

@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.VanillaConsumableTypes;
+using SPIC.ConsumableGroup;
 
 namespace SPIC.Globals;
 
@@ -32,7 +33,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override bool PreItemCheck() {
-        if (Configs.CategoryDetection.Instance.DetectMissing && (UsableCategory)Player.HeldItem.GetCategory(Usable.ID) == UsableCategory.Unknown) {
+        if (Configs.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Unknown) {
             SavePreUseItemStats();
             _detectingCategory = true;
         } else _detectingCategory = false;
@@ -141,7 +142,7 @@ public class DetectionPlayer : ModPlayer {
         Configs.RequirementSettings settings = Configs.RequirementSettings.Instance;
 
 
-        if (autos.DetectMissing && (PlaceableCategory)item.GetCategory(Placeable.ID) == PlaceableCategory.None)
+        if (autos.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
             autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.ID);
 
         InfinityManager.ClearCache(item);

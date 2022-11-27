@@ -55,7 +55,7 @@ namespace SPIC {
             count += new Item[] { Main.mouseItem }.CountCurrency(currency);
             if (includeBanks)
                 count += player.bank.item.CountCurrency(currency) + player.bank2.item.CountCurrency(currency) + player.bank3.item.CountCurrency(currency) + player.bank4.item.CountCurrency(currency);
-            if (includeChest && player.InChest(out Item[] chest)) count += chest.CountCurrency(currency);
+            if (includeChest && player.InChest(out Item[]? chest)) count += chest.CountCurrency(currency);
 
             return count;
         }
@@ -99,17 +99,23 @@ namespace SPIC {
         }
 
         public static List<int> Currencies => new(_currencies.Keys);
+#nullable disable
         private static Dictionary<int, CustomCurrencyData> _currencies;
+#nullable restore
         public static CustomCurrencyData CurrencySystems(int id) => _currencies[id];
         internal static void ClearCurrencies() => _currencies = null;
 
+        // TODO test currencies registered after SPIC
         internal static void GetCurrencies() {
-            FieldInfo cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static);
-            Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)cur.GetValue(null);
+            FieldInfo? cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo? values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance);
+            if(cur is null || values is null){
+                return; // TODO thrown expception
+            }
+            Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)cur.GetValue(null)!;
             _currencies = new();
             foreach (var (key, system) in currencies) {
-                FieldInfo values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance);
-                _currencies[key] = new(system, (Dictionary<int, int>)values.GetValue(system));
+                _currencies[key] = new(system, (Dictionary<int, int>)values.GetValue(system)!);
             }
         }
     }

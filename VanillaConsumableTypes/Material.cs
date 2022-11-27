@@ -33,15 +33,17 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
     public override int IconType => ItemID.TinkerersWorkshop;
 
     public override bool DefaultsToOn => false;
+#nullable disable
     public MaterialRequirements Settings { get; set; }
+#nullable restore
 
     public override IRequirement Requirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new MultipleRequirement(Settings.Basics, 0.5f),
-        MaterialCategory.Ore => new MultipleRequirement(Settings.Ores, 0.5f),
-        MaterialCategory.Furniture => new MultipleRequirement(Settings.Furnitures, 0.5f),
-        MaterialCategory.Miscellaneous => new MultipleRequirement(Settings.Miscellaneous, 0.5f),
-        MaterialCategory.NonStackable => new MultipleRequirement(Settings.NonStackable, 0.5f),
-        MaterialCategory.None or _ => null,
+        MaterialCategory.Basic => new MultipleRequirement((ItemCount)Settings.Basics, 0.5f),
+        MaterialCategory.Ore => new MultipleRequirement((ItemCount)Settings.Ores, 0.5f),
+        MaterialCategory.Furniture => new MultipleRequirement((ItemCount)Settings.Furnitures, 0.5f),
+        MaterialCategory.Miscellaneous => new MultipleRequirement((ItemCount)Settings.Miscellaneous, 0.5f),
+        MaterialCategory.NonStackable => new MultipleRequirement((ItemCount)Settings.NonStackable, 0.5f),
+        MaterialCategory.None or _ => new NoRequirement(),
     };
 
     public override MaterialCategory GetCategory(Item item) {
@@ -72,15 +74,17 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
     // TODO improve to use the available recipes
     public override long GetMaxInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
-    public override bool OwnsConsumable(Player player, Item item, bool isACopy) {
-        bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
-        
-        Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
-        foreach(Item material in recipe.requiredItem){
-            if(AreSameItems(item, material)) return true;
-        }
+    public override bool OwnsItem(Player player, Item item, bool isACopy) {
+        // bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
 
-        return base.OwnsConsumable(player, item, isACopy);
+        // if (!Main.craftingHide) {
+        //     Recipe recipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
+        //     foreach (Item material in recipe.requiredItem) {
+        //         if (AreSameItems(item, material)) return true;
+        //     }
+        // }
+
+        return base.OwnsItem(player, item, isACopy);
     }
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityPink;
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);

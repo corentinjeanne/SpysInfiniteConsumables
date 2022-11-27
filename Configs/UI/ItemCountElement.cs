@@ -13,8 +13,8 @@ public class NoSwappingAttribute : Attribute { }
 
 public class ItemCountElement : ConfigElement<ItemCountWrapper> {
 
-    private static readonly PropertyInfo ItemProp = typeof(ItemCountElement).GetProperty(nameof(Items), BindingFlags.Instance | BindingFlags.NonPublic);
-    private static readonly PropertyInfo StacksProp = typeof(ItemCountElement).GetProperty(nameof(Stacks), BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly PropertyInfo ItemProp = typeof(ItemCountElement).GetProperty(nameof(Items), BindingFlags.Instance | BindingFlags.NonPublic)!;
+    private static readonly PropertyInfo StacksProp = typeof(ItemCountElement).GetProperty(nameof(Stacks), BindingFlags.Instance | BindingFlags.NonPublic)!;
     private int Items {
         get => (int)(long)Value.value;
         set => Value.value = (long)value;
@@ -23,10 +23,11 @@ public class ItemCountElement : ConfigElement<ItemCountWrapper> {
         get => (int)(float)Value.value;
         set => Value.value = (float)value;
     }
+#nullable disable
     private Func<string> _parentDisplayFunction;
     private Func<string> _childTextDisplayFunction;
     private UIElement _selectedElement;
-
+#nullable restore
     public override void OnBind() {
         base.OnBind();
 
@@ -52,7 +53,7 @@ public class ItemCountElement : ConfigElement<ItemCountWrapper> {
         _selectedElement.Left.Pixels -= 20;
         _selectedElement.Width.Pixels += 20;
 
-        _childTextDisplayFunction = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(element);
+        _childTextDisplayFunction = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(element)!;
         ReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);
         ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, new Color(0, 0, 0, 0));
 

@@ -82,7 +82,7 @@
                             /!\ WIP /!\
                             Tiles and walls won't drop their item when broken
                             Critters will turn into smoke when caught
-                            Buckets won't create empty or full buckets when used
+                            Buckets won't fill or empty on use
                             '''
                         commands: Commands
                         t_commands: Adds the '/spic' command to edit the category of items in-game
@@ -92,8 +92,8 @@
                         t_maxTypes :
                             '''
                             The maximum number of requirements taken into account directly.
-                            Consumable type that are not used take the minimum infinity as their infinity (shown in the item tooltip).
-                            Set to 0 to use allConsumable types.
+                            Consumable type that are not used take the minimum infinity as their infinity.
+                            Set to 0 to use all groups.
                             '''
                     }
                     Requirements: {

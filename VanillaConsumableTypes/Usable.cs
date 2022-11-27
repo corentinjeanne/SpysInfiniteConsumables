@@ -43,21 +43,23 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessMusketPouch;
 
+#nullable disable
     public UsableRequirements Settings { get; set; }
+#nullable restore
     
     public override IRequirement Requirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new ItemCountRequirement (Settings.Weapons),
-            UsableCategory.Recovery => new ItemCountRequirement (new(Settings.Potions){MaxStack = 99}),
-            UsableCategory.Buff => new ItemCountRequirement (Settings.Potions),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new ItemCountRequirement (Settings.Boosters),
+            UsableCategory.Weapon => new CountRequirement((ItemCount)Settings.Weapons),
+            UsableCategory.Recovery => new CountRequirement(new ItemCount(Settings.Potions){MaxStack = 99}),
+            UsableCategory.Buff => new CountRequirement((ItemCount)Settings.Potions),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new CountRequirement((ItemCount)Settings.Boosters),
 
-            UsableCategory.Summoner => new ItemCountRequirement (Settings.Summoners),
-            UsableCategory.Critter => new ItemCountRequirement (Settings.Critters),
-            UsableCategory.Explosive => new ItemCountRequirement (new(Settings.Tools){MaxStack=99}),
-            UsableCategory.Tool or UsableCategory.Unknown => new ItemCountRequirement (Settings.Tools),
+            UsableCategory.Summoner => new CountRequirement((ItemCount)Settings.Summoners),
+            UsableCategory.Critter => new CountRequirement((ItemCount)Settings.Critters),
+            UsableCategory.Explosive => new CountRequirement(new ItemCount(Settings.Tools){MaxStack=99}),
+            UsableCategory.Tool or UsableCategory.Unknown => new CountRequirement((ItemCount)Settings.Tools),
 
-            UsableCategory.None or _ => null,
+            UsableCategory.None or _ => new NoRequirement(),
         };
     }
 

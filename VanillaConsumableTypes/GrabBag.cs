@@ -26,12 +26,13 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override int IconType => ItemID.FairyQueenBossBag;
 
     public override bool DefaultsToOn => false;
+#nullable disable
     public GrabBagRequirements Settings { get; set; }
-
+#nullable restore
     public override IRequirement Requirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Crate => new ItemCountRequirement(Settings.Crates),
-        GrabBagCategory.TreasureBag => new ItemCountRequirement(Settings.TreasureBags),
-        GrabBagCategory.None or GrabBagCategory.Unknown or _ => null,
+        GrabBagCategory.Crate => new CountRequirement((ItemCount)Settings.Crates),
+        GrabBagCategory.TreasureBag => new CountRequirement((ItemCount)Settings.TreasureBags),
+        GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement(),
     };
 
     public override GrabBagCategory GetCategory(Item item) {

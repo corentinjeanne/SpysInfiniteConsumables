@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using Microsoft.Xna.Framework;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.VanillaConsumableTypes;
 public enum AmmoCategory : byte {
@@ -23,15 +23,17 @@ public class AmmoRequirements {
 public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirements>, ICustomizable, IDetectable{
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessQuiver;
-    
+
+#nullable disable
     public AmmoRequirements Settings { get; set; }
+#nullable restore
 
     public override Color DefaultColor => Colors.RarityLime;
 
     public override IRequirement Requirement(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => new ItemCountRequirement(Settings.Standard),
-        AmmoCategory.Special or AmmoCategory.Explosive => new ItemCountRequirement(Settings.Special),
-        AmmoCategory.None or _ => null,
+        AmmoCategory.Basic => new CountRequirement((ItemCount)Settings.Standard),
+        AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement((ItemCount)Settings.Special),
+        AmmoCategory.None or _ => new NoRequirement(),
     };
 
     public override AmmoCategory GetCategory(Item weapon) {
@@ -41,12 +43,12 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirement
         return AmmoCategory.Special;
     }
 
-    public bool TryGetAlternate(Player player, Item item, out Item alt) {
-        alt = item.useAmmo > AmmoID.None && player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true)
-            ? System.Array.Find(player.inventory, i => i.type == ammoType) ?? null
-            : null;
-        return alt is null;
-    }
+    // public bool TryGetAlternate(Player player, Item item, [MaybeNullWhen(false)] out Item alt) {
+    //     alt = item.useAmmo > AmmoID.None && player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true)
+    //-         ? System.Array.Find(player.inventory, i => i.type == ammoType) ?? null
+    //         : null;
+    //     return alt is not null;
+    // }
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Ammo", Lang.tip[34].Value);
 }

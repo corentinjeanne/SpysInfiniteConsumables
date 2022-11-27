@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Newtonsoft.Json;
 using Terraria;
@@ -23,8 +24,8 @@ public static class Utility {
         throw new UsageException("Invalid Name" + name);
     }
 
-    public static bool InChest(this Player player, out Item[] chest) => (chest = player.Chest()) is not null;
-    public static Item[] Chest(this Player player) => player.chest switch {
+    public static bool InChest(this Player player, [MaybeNullWhen(false)] out Item[] chest) => (chest = player.Chest()) is not null;
+    public static Item[]? Chest(this Player player) => player.chest switch {
         > -1 => Main.chest[player.chest].item,
         -2 => player.bank.item,
         -3 => player.bank2.item,
@@ -42,7 +43,7 @@ public static class Utility {
         return total;
     }
 
-    public static Item PickPaint(this Player player) {
+    public static Item? PickPaint(this Player player) {
         for (int i = 54; i < 58; i++) {
             if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0)
                 return player.inventory[i];
@@ -59,7 +60,7 @@ public static class Utility {
 
         int total = player.inventory.CountItems(type, 58) + new Item[] { Main.mouseItem }.CountItems(type);
         if (includeChest && CrossMod.MagicStorageIntegration.Enable && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
-        if (includeChest && player.InChest(out Item[] chest)) total += chest.CountItems(type);
+        if (includeChest && player.InChest(out Item[]? chest)) total += chest.CountItems(type);
         return total;
     }
 
@@ -114,20 +115,20 @@ public static class Utility {
         return i;
     }
 
-    public static K[] Reverse<K, V>(this Dictionary<K, V> dictionary, V value) {
+    public static K[] Reverse<K, V>(this Dictionary<K, V> dictionary, V value) where K: notnull where V : notnull {
         List<K> reverse = new();
-        foreach (var kvp in dictionary) {
-            if (kvp.Value.Equals(value)) reverse.Add(kvp.Key);
+        foreach (KeyValuePair<K,V> kvp in dictionary) {
+            if (value.Equals(kvp.Value)) reverse.Add(kvp.Key);
         }
         return reverse.ToArray();
     }
-    public static K FindKey<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) {
+    public static K? FindKey<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) where K: notnull {
         foreach (KeyValuePair<K, V> kvp in dictionary) {
             if (pred(kvp)) return kvp.Key;
         }
         return default;
     }
-    public static V FindValue<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) {
+    public static V? FindValue<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) where K: notnull {
         foreach (var kvp in dictionary) {
             if (pred(kvp)) return kvp.Value;
         }
@@ -164,7 +165,7 @@ public static class Utility {
         => dict.Move(dict.Keys.Index(origIndex), destIndex);
 
     public static void Move(this IOrderedDictionary dict, object key, int destIndex){
-        object value = dict[key];
+        object? value = dict[key];
         dict.Remove(key);
         dict.Insert(destIndex, key, value);
     }
@@ -173,7 +174,7 @@ public static class Utility {
         dict.Add(key, value);
         return true;
     }
-    public static bool TryGet(IDictionary dict, object key, out object value) {
+    public static bool TryGet(IDictionary dict, object key, out object? value) {
         if (dict.Contains(key)) {
             value = dict[key];
             return true;
@@ -182,7 +183,7 @@ public static class Utility {
         return false;
     }
 
-    public static T Find<T>(this IEnumerable<T> collection, System.Predicate<T> predicate) {
+    public static T? Find<T>(this IEnumerable<T> collection, System.Predicate<T> predicate) {
         foreach (T v in collection) {
             if (predicate(v)) return v;
         }
@@ -192,7 +193,7 @@ public static class Utility {
     public static int IndexOf<T>(this IEnumerable<T> collection, T value) {
         int i = 0;
         foreach (T v in collection) {
-            if (v.Equals(value)) return i;
+            if (value is null ? v is null : value.Equals(v)) return i;
             i++;
         }
         return -1;

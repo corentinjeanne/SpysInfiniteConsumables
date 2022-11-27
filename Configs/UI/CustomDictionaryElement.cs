@@ -19,11 +19,11 @@ namespace SPIC.Configs.UI;
 public interface IDictionaryEntryWrapper {
     [JsonIgnore] public PropertyInfo ValueProp { get; }
     object Key { get; set; }
-    object Value { get; set; }
+    object? Value { get; set; }
 }
 
-public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper {
-    public PropertyInfo ValueProp => typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty("Value", BindingFlags.Instance | BindingFlags.Public);
+public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper where Tkey : notnull{
+    public PropertyInfo ValueProp => typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty(nameof(Value), BindingFlags.Instance | BindingFlags.Public)!;
 
     public Tkey Key {
         get => _key;
@@ -46,8 +46,8 @@ public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper {
     }
 
     [ColorNoAlpha, ColorHSLSlider]
-    public Tvalue Value {
-        get => (Tvalue)_dict[_key];
+    public Tvalue? Value {
+        get => (Tvalue?)_dict[_key];
         set {
             _dict[_key] = value;
         }
@@ -57,9 +57,9 @@ public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper {
         get => Key;
         set => Key = (Tkey)value;
     }
-    object IDictionaryEntryWrapper.Value {
+    object? IDictionaryEntryWrapper.Value {
         get => Value;
-        set => Value = (Tvalue)value;
+        set => Value = (Tvalue?)value;
     }
 
     public DictionaryEntryWrapper(IDictionary dict, Tkey key) {
@@ -88,13 +88,12 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
     // private Attribute[] _memberAttributes;
 
-    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
     private readonly EmptyClass _dummy = new();
 
 
     public List<IDictionaryEntryWrapper> dictWrappers = new();
-    private UIList _dataList;
-
+    private readonly UIList _dataList = new();
     public override void OnBind() {
         base.OnBind();
 
@@ -108,14 +107,12 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         // _constKeys = ConfigManager.GetCustomAttribute<ConstantKeys>(MemberInfo, value.GetType());
         // _sortable = ConfigManager.GetCustomAttribute<SortableAttribute>(MemberInfo, value.GetType());
 
-        _dataList = new UIList() {
-            Top = new(0, 0f),
-            Left = new(0, 0f),
-            Height = new(-5, 1f),
-            Width = new(0, 1f),
-            ListPadding = 5f,
-            PaddingBottom = -5f
-        };
+        _dataList.Top = new(0, 0f);
+        _dataList.Left = new(0, 0f);
+        _dataList.Height = new(-5, 1f);
+        _dataList.Width = new(0, 1f);
+        _dataList.ListPadding = 5f;
+        _dataList.PaddingBottom = -5f;
 
         Append(_dataList);
 
@@ -131,15 +128,17 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
         IDictionary dict = Value;
         int top = 0;
-        int i = 0;
+        int i = -1;
         foreach (DictionaryEntry entry in dict) {
-            (object key, object value) = entry;
+            i++;
+            (object key, object? value) = entry;
+            if(value is null) continue;
             if(key is ConsumableTypeDefinition entity && entity.IsUnloaded){
                 unloaded++;
-                goto endLoop;
+                continue;
             }
             Type genericType = typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType());
-            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key);
+            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key)!;
 
             dictWrappers.Add(wrapper);
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(wrapper.ValueProp), wrapper, i);
@@ -171,15 +170,13 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
 
-            string name = key switch {
+            string? name = key switch {
                 ConsumableTypeDefinition type => type.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
-        endLoop:
-            i++;
         }
         if(unloaded > 0){
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);

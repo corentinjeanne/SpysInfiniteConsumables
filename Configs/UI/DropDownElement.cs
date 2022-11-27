@@ -1,9 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
@@ -14,13 +11,13 @@ namespace SPIC.Configs.UI;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 sealed class ValuesProviderAttribute : Attribute {
 
-    public IList Values() => (IList)_provider.Invoke(null, null);
+    public IList Values() => (IList)_provider.Invoke(null, null)!;
     public readonly string ParseToString;
 
     public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString"){
-        MethodInfo method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>());
+        MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>());
         if(method is null) throw new ArgumentException("No public static method with this name was found");
-        if(method.ReturnType != typeof(IList) && Array.IndexOf(method.ReturnType.GetInterfaces(), typeof(IList)) == -1) throw new ArgumentException("The return type of the method must be object[]");
+        if(method.Invoke(null, null) is not IList) throw new ArgumentException("The return type of the method must be object[]");
         _provider = method;
         ParseToString = toSTring;
     }
@@ -32,23 +29,27 @@ public class EmptyClass {}
 
 public class DropDownElement : ConfigElement {
 
+#nullable disable
     private ValuesProviderAttribute _provider;
     private MethodInfo _toString;
+    private IList _choices;
+#nullable restore
 
-    private static readonly FieldInfo s_dummyField = typeof(DropDownElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance);
-    private EmptyClass _dummy = new();
+    private static readonly FieldInfo s_dummyField = typeof(DropDownElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private readonly EmptyClass _dummy = new();
     private bool _expanded;
 
     private int _index;
-    private IList _choices;
 
     public override void OnBind() {
 
         base.OnBind();
         object value = MemberInfo.GetValue(Item);
 
-        _provider = (ValuesProviderAttribute)Attribute.GetCustomAttribute(MemberInfo.MemberInfo, typeof(ValuesProviderAttribute));
+        _provider = (ValuesProviderAttribute?)Attribute.GetCustomAttribute(MemberInfo.MemberInfo, typeof(ValuesProviderAttribute));
+        if(_provider is null) throw new MissingMemberException($"Drop down element requires the Atrribute {nameof(ValuesProviderAttribute)}");
         _toString = (value?.GetType() ?? MemberInfo.Type).GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
+        if(_toString is null) throw new ArgumentException($"Reflexion failed");
         _choices = _provider.Values();
         _index = _choices.IndexOf(value);
         TextDisplayFunction = () => (LabelAttribute?.Label ?? MemberInfo.Name) + ": " + (_index == -1 ? "None" : _toString.Invoke(_choices[_index], null));
@@ -80,7 +81,7 @@ public class DropDownElement : ConfigElement {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => "");
             container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(listeningElement);
-            string name = (string)_toString.Invoke(_choices[i], null);
+            string? name = (string?)_toString.Invoke(_choices[i], null);
             element.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);

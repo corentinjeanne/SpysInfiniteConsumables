@@ -6,6 +6,8 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
+using System.Diagnostics.CodeAnalysis;
+
 namespace SPIC.VanillaConsumableTypes;
 public enum PlaceableCategory : byte {
     None = Category.None,
@@ -60,24 +62,26 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
     public override int IconType => ItemID.ArchitectGizmoPack;
 
     public override bool DefaultsToOn => false;
+#nullable disable
     public PlaceableRequirements Settings { get; set; }
+#nullable restore
 
     public override IRequirement Requirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new ItemCountRequirement(Settings.Tiles),
-            PlaceableCategory.Torch => new ItemCountRequirement(Settings.Torches),
-            PlaceableCategory.Ore => new ItemCountRequirement(Settings.Ores),
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement((ItemCount)Settings.Tiles),
+            PlaceableCategory.Torch => new CountRequirement((ItemCount)Settings.Torches),
+            PlaceableCategory.Ore => new CountRequirement((ItemCount)Settings.Ores),
 
             PlaceableCategory.LightSource
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => new ItemCountRequirement(Settings.Furnitures),
-            PlaceableCategory.MusicBox => new ItemCountRequirement(new(Settings.Furnitures){MaxStack = 1}),
-            PlaceableCategory.Liquid => new ItemCountRequirement(Settings.Liquids),
-            PlaceableCategory.Mechanical => new ItemCountRequirement(Settings.Mechanical),
-            PlaceableCategory.Seed => new ItemCountRequirement(Settings.Seeds),
-            PlaceableCategory.Paint => new ItemCountRequirement(Settings.Paints),
-            PlaceableCategory.None or _ => null,
+                => new CountRequirement((ItemCount)Settings.Furnitures),
+            PlaceableCategory.MusicBox => new CountRequirement(new ItemCount(Settings.Furnitures){MaxStack = 1}),
+            PlaceableCategory.Liquid => new CountRequirement((ItemCount)Settings.Liquids),
+            PlaceableCategory.Mechanical => new CountRequirement((ItemCount)Settings.Mechanical),
+            PlaceableCategory.Seed => new CountRequirement((ItemCount)Settings.Seeds),
+            PlaceableCategory.Paint => new CountRequirement((ItemCount)Settings.Paints),
+            PlaceableCategory.None or _ => new NoRequirement(),
         };
     }
     
@@ -158,15 +162,15 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         _ => WandType.None
     };
 
-    public bool TryGetAlternate(Player player, Item wand, out Item alt){
-        alt = GetWandType(wand) switch {
-            WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
-            WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
-            WandType.None or _ => null
-        };
-        return alt is null;
-    }
+    // public bool TryGetAlternate(Player player, Item wand, [MaybeNullWhen(false)] out Item alt){
+    //     alt = GetWandType(wand) switch {
+    //         WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
+    //         WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
+    //         WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
+    //         WandType.None or _ => null
+    //     };
+    //     return alt is not null;
+    // }
 
     private static readonly Dictionary<int, PlaceableCategory> s_ammos = new(); // type, category (ammo)
     internal static void ClearWandAmmos() => s_ammos.Clear();

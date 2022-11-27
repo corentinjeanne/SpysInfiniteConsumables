@@ -23,7 +23,7 @@ public class PresetDefinition : EntityDefinition {
     public override int Type => Preset?.UID ?? -1;
 
     [JsonIgnore]
-    public Preset Preset => PresetManager.Preset(Mod, Name);
+    public Preset Preset => PresetManager.Preset(Mod, Name)!;
     public static ConsumableTypeDefinition FromString(string s) => new(s);
 
     public string Label() {
@@ -40,10 +40,10 @@ public class ConsumableTypeDefinition : EntityDefinition {
     public ConsumableTypeDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
     public new bool IsUnloaded => Type == 0;
-    public override int Type => ConsumableType?.UID ?? -1;
+    public override int Type => ConsumableType?.UID ?? 0;
 
     [JsonIgnore]
-    public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name);
+    public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
     public string Label() {
         IConsumableGroup type = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";

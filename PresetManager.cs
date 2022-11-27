@@ -16,11 +16,11 @@ public static class PresetManager {
     }
 
     public static Preset Preset(int id) => s_presets[ValidatePreset(id)];
-    public static Preset Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Key > 0 && kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
+    public static Preset? Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Key > 0 && kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
 
     private class DescendingComparer<T> : IComparer<T> where T : IComparable<T> {
-        public int Compare(T x, T y) {
-            return y.CompareTo(x);
+        public int Compare(T? x, T? y) {
+            return y is null ? 1 : y.CompareTo(x);
         }
     }
 

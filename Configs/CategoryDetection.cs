@@ -28,7 +28,7 @@ public class CategoryDetection : ModConfig {
                 }
                 if (def.ConsumableType is not IDetectable type) continue;
 
-                System.Type iCategoryGen2 = type.GetType().GetInterfaces().Find(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICategory<,>));
+                System.Type? iCategoryGen2 = type.GetType().GetInterfaces().Find(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICategory<,>));
                 if (iCategoryGen2 != null) {
                     _detectedCategories[def] = new();
                     foreach (ItemDefinition item in value[def].Keys) {
@@ -61,7 +61,7 @@ public class CategoryDetection : ModConfig {
         IConsumableGroup consumableType = InfinityManager.ConsumableGroup(typeID);
         category = Category.None;
         if(DetectMissing && consumableType is IDetectable
-                && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper> categories) && categories.TryGetValue(new(type), out CategoryWrapper wrapper)){
+                && DetectedCategories.TryGetValue(consumableType.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? categories) && categories.TryGetValue(new(type), out CategoryWrapper? wrapper)){
             category = wrapper;
             return true;
         }
@@ -69,7 +69,9 @@ public class CategoryDetection : ModConfig {
     }
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
+#nullable disable
     public static CategoryDetection Instance;
+#nullable restore
 
     public void UpdateProperties() {
         this.SaveConfig();
