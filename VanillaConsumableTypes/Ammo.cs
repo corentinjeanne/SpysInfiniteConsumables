@@ -23,7 +23,7 @@ public class AmmoRequirements {
     public ItemCountWrapper Special = new(1.0f);
 }
 
-public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, ICustomizable, IDetectableItem {
+public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, IDetectable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessQuiver;
 

@@ -89,7 +89,7 @@ public class CategoryDetection : ModConfig {
             if (!DetectedItem[group.ToDefinition()].TryAdd(new(item.type), new(category.Value){SaveEnumType = false})) return false;
         }
         else if(groupID < 0 && group is IDetectable detectable){
-            if (!DetectedGlobals[group.ToDefinition()].TryAdd(detectable.ToKey(detectable.ToConsumable(item)), new(category.Value){ SaveEnumType = false })) return false;
+            if (!DetectedGlobals[group.ToDefinition()].TryAdd(detectable.Key(detectable.ToConsumable(item)), new(category.Value){ SaveEnumType = false })) return false;
         }
         else return false;
 
@@ -102,7 +102,7 @@ public class CategoryDetection : ModConfig {
         if(DetectMissing && group is IDetectable detectable &&
             (groupID > 0 ?
                 DetectedItem.TryGetValue(group.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? itemCats) && itemCats.TryGetValue(new(item.type), out CategoryWrapper? wrapper) : 
-                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.ToKey(group.ToConsumable(item)), out wrapper)) ){
+                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.Key(group.ToConsumable(item)), out wrapper)) ){
             category = wrapper;
             return true;
         }
@@ -114,7 +114,7 @@ public class CategoryDetection : ModConfig {
         if(DetectMissing && group is IDetectable detectable &&
             (groupID > 0 ?
                 DetectedItem.TryGetValue(group.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? itemCats) && itemCats.TryGetValue(new(((Item)consumable).type), out CategoryWrapper? wrapper) : 
-                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.ToKey(consumable), out wrapper)) ){
+                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.Key(consumable), out wrapper)) ){
             category = wrapper;
             return true;
         }
@@ -127,7 +127,4 @@ public class CategoryDetection : ModConfig {
     public static CategoryDetection Instance;
 #nullable restore
 
-    public void UpdateProperties() {
-        this.SaveConfig();
-    }
 }

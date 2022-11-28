@@ -20,6 +20,7 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable> where TCon
     public abstract int IconType { get; }
 
     public abstract TConsumable ToConsumable(Item item);
+    public abstract string Key(TConsumable consumable);
     public abstract int CacheID(TConsumable consumable);
 
     public abstract IRequirement GetRequirement(TConsumable consumable);

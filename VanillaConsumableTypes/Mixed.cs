@@ -81,8 +81,10 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
         return true;
     }
 
+
     public override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {}
     public override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
     public override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
 
+    public override string Key(Item consumable) => new Item(consumable.type).ToString();
 }

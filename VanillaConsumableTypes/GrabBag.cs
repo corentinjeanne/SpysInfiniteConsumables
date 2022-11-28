@@ -22,7 +22,7 @@ public class GrabBagRequirements {
     public ItemCountWrapper TreasureBags = new(3);
 }
 
-public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBagRequirements>, ICustomizable, IDetectableItem {
+public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBagRequirements>, IDetectable {
     
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.FairyQueenBossBag;

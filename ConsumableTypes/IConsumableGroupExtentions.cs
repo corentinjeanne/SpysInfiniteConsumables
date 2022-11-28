@@ -61,19 +61,7 @@ public interface IConfigurable : IConsumableGroup {
 public interface IConfigurable<TSettings> : IConfigurable where TSettings : notnull, new() {
     System.Type IConfigurable.SettingsType => typeof(TSettings);
     object IConfigurable.Settings { get => Settings; set => Settings = (TSettings)value; } //? look into the config
-    new TSettings Settings { get; internal set; }
+    new TSettings Settings { get; set; }
 }
 
-public interface ICustomizable : IConsumableGroup { }
-
-public interface IDetectable : IConsumableGroup {
-    string ToKey(object consumable);
-}
-public interface IDetectable<TConsumable> : IDetectable where TConsumable : notnull{
-    string IDetectable.ToKey(object consumable) => ToKey((TConsumable)consumable);
-    string ToKey(TConsumable consumable);
-}
-public interface IDetectableItem : IDetectable<Item>{
-    [NoJIT] string IDetectable<Item>.ToKey(Item item) => new Terraria.ModLoader.Config.ItemDefinition(item.type).ToString();
-}
-
+public interface IDetectable : IConsumableGroup { }

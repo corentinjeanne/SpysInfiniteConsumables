@@ -13,6 +13,7 @@ public interface IConsumableGroup {
     int IconType { get; }
 
     object ToConsumable(Item item);
+    string Key(object consumable);
     int CacheID(object consumable);
     IRequirement GetRequirement(object consumable);
     long CountConsumables(Player player, object consumable);
@@ -25,12 +26,14 @@ public interface IConsumableGroup {
 }
 public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsumable : notnull {
     object IConsumableGroup.ToConsumable(Item item) => ToConsumable(item);
+    string IConsumableGroup.Key(object consumable) => Key((TConsumable) consumable);
     int IConsumableGroup.CacheID(object consumable) => CacheID((TConsumable)consumable);
     IRequirement IConsumableGroup.GetRequirement(object consumable) => GetRequirement((TConsumable)consumable);
     long IConsumableGroup.CountConsumables(Player player, object consumable) => CountConsumables(player, (TConsumable)consumable);
     ICount IConsumableGroup.LongToCount(object consumable, long count) => LongToCount((TConsumable)consumable, count);
 
     new TConsumable ToConsumable(Item item);
+    string Key(TConsumable consumable);
     int CacheID(TConsumable consumable);
     IRequirement GetRequirement(TConsumable consumable);
     long CountConsumables(Player player, TConsumable consumable);

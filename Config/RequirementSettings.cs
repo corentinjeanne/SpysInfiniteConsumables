@@ -10,6 +10,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Config.UI;
 using SPIC.Config.Presets;
+using Terraria;
 
 namespace SPIC.Config;
 
@@ -20,9 +21,9 @@ public class RequirementSettings : ModConfig {
     [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.Requirements.General.t_duplication")]
     public bool PreventItemDupication { get; set; }
 
-    public static List<PresetDefinition> GetPresets(){
+    public static List<PresetDefinition> GetPresets() {
         List<PresetDefinition> defs = new();
-        foreach(Preset preset in PresetManager.Presets())
+        foreach (Preset preset in PresetManager.Presets())
             defs.Add(preset.ToDefinition());
         return defs;
     }
@@ -31,12 +32,13 @@ public class RequirementSettings : ModConfig {
     [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition? Preset {
         get {
-            if(EnabledTypes.Count == 0) return null;
-            foreach (Preset preset in PresetManager.Presets()){
-                if(preset.MeetsCriterias(this)) return preset.ToDefinition();
+            if (EnabledTypes.Count == 0) return null;
+            foreach (Preset preset in PresetManager.Presets()) {
+                if (preset.MeetsCriterias(this)) return preset.ToDefinition();
             }
             return null;
-        } set {
+        }
+        set {
             if (EnabledTypes.Count == 0) return;
             value?.Preset.ApplyCriterias(this);
         }
@@ -89,11 +91,11 @@ public class RequirementSettings : ModConfig {
     [JsonIgnore]
     public IEnumerable<(IToggleable type, bool enabled, bool global)> LoadedTypes {
         get {
-            foreach(DictionaryEntry entry in EnabledTypes){
+            foreach (DictionaryEntry entry in EnabledTypes) {
                 ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
                 if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
             }
-            foreach((ConsumableTypeDefinition def, bool state) in EnabledGlobals){
+            foreach ((ConsumableTypeDefinition def, bool state) in EnabledGlobals) {
                 if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
             }
         }
@@ -105,36 +107,50 @@ public class RequirementSettings : ModConfig {
         get => _requirements;
         set {
             _requirements.Clear();
-            foreach((ConsumableTypeDefinition def, object data) in value) {
+            foreach ((ConsumableTypeDefinition def, object data) in value) {
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _requirements.Add(def, data);
                     continue;
                 }
-                if(def.ConsumableType is not IConfigurable config) continue;
+                if (def.ConsumableType is not IConfigurable config) continue;
 
-                if(data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType)!;
-                else if(data.GetType() == config.SettingsType) config.Settings = data;
+                if (data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType)!;
+                else if (data.GetType() == config.SettingsType) config.Settings = data;
                 else throw new NotImplementedException();
 
                 _requirements.Add(def, config.Settings);
             }
             foreach (IConfigurable type in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 ConsumableTypeDefinition def = type.ToDefinition();
-                if(!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType)!);
+                if (!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType)!);
             }
         }
     }
     private readonly Dictionary<ConsumableTypeDefinition, object> _requirements = new();
 
-    // TODO Reimplement customs
+
+    [Header("Blacklisted consumables")] // TODO loc
+    public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
+
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    public Dictionary<ConsumableTypeDefinition,HashSet<string>> BlackListedConsumables { 
+        get => _blackListedConsumables;
+        set {
+            _blackListedConsumables.Clear();
+            foreach ((ConsumableTypeDefinition def, HashSet<string> consumables) in value) {
+                if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
+                _blackListedConsumables.Add(def, consumables);
+            }
+            foreach (IConsumableGroup type in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                _blackListedConsumables.TryAdd(type.ToDefinition(), new());
+            }
+        }
+    }
+    private readonly Dictionary<ConsumableTypeDefinition, HashSet<string>> _blackListedConsumables = new();
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
 #nullable disable
     public static RequirementSettings Instance;
 #nullable restore
-    public void UpdateProperties(){
-        // EnabledTypes = EnabledTypes;
-        // Requirements = Requirements;
-        this.SaveConfig();
-    }
+
 }

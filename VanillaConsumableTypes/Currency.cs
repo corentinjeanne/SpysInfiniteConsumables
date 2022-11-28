@@ -56,6 +56,8 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
 
     public override ICount LongToCount(int consumable, long count) => new CurrencyCount(consumable, count);
 
+    public override string Key(int consumable) => new ItemDefinition(CurrencyHelper.LowestValueType(consumable)).ToString();
+
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.curency"));

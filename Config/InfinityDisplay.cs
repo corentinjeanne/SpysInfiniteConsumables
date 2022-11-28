@@ -81,7 +81,4 @@ public class InfinityDisplay : ModConfig {
     public static InfinityDisplay Instance;
 #nullable restore
 
-    public void UpdateProperties() {
-        this.SaveConfig();
-    }
 }

@@ -20,11 +20,14 @@ public enum DisplayFlags {
 public class InfinityDisplayItem : GlobalItem {
 
     private static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
-        foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Enabled)) {
-            if (InfinityManager.IsUsed(item, group.UID)) yield return group;
-            if(group is IAlternateDisplay altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, group.ToConsumable(item), out _)) yield return group;
+        if (!InfinityManager.IsBlacklisted(item)) {
+            foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Enabled)) {
+                if (InfinityManager.IsUsed(item, group.UID)) yield return group;
+                if (group is IAlternateDisplay altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, group.ToConsumable(item), out _)) yield return group;
+            }
         }
         foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled)) {
+            if(InfinityManager.IsBlacklisted(group.ToConsumable(item), group.UID)) continue;
             if(item.GetRequirement(group.UID) is not NoRequirement) yield return group;
             if(group is IAlternateDisplay altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, group.ToConsumable(item), out _)) yield return group;
         }

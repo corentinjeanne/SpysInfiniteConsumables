@@ -58,7 +58,7 @@ public class PlaceableRequirements {
     public ItemCountWrapper Paints = new(1.0f, 999);
 }
 
-public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisplay<Item>, IConfigurable<PlaceableRequirements>, ICustomizable, IDetectableItem {
+public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisplay<Item>, IConfigurable<PlaceableRequirements>, IDetectable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.ArchitectGizmoPack;

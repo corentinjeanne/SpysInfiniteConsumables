@@ -66,10 +66,12 @@ public static class InfinityManager {
     public static IReadOnlyList<IStandardGroup<Item>> UsedConsumableGroups(this Item item){
         if(s_usedTypes.TryGetValue(item.type, out IReadOnlyList<IStandardGroup<Item>>? types)) return types;
         List<IStandardGroup<Item>> used = new();
-        foreach (IStandardGroup<Item> consumableType in ConsumableGroups<IStandardGroup<Item>>()) {
-            if(GetRequirement(item, consumableType.UID) is NoRequirement) continue;
-            used.Add(consumableType);
-            if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
+        if (!IsBlacklisted(item)) {
+            foreach (IStandardGroup<Item> consumableType in ConsumableGroups<IStandardGroup<Item>>()) {
+                if (GetRequirement(item, consumableType.UID) is NoRequirement) continue;
+                used.Add(consumableType);
+                if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
+            }
         }
         return s_usedTypes[item.type] = used;
     }
@@ -97,10 +99,14 @@ public static class InfinityManager {
     public static IRequirement GetRequirement(this Item item, int groupID) => GetRequirement(ConsumableGroup(groupID).ToConsumable(item), groupID);
     public static IRequirement GetRequirement<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => GetRequirement((object)consumable, groupID);
 
-    // public static bool HasRequirementOverride(int cacheID, int consumableID, out IRequirement requirement) {
-    //     requirement = new NoRequirement();
-    //     return false;
-    // }
+    public static bool IsBlacklisted(Item item) => Requirements.BlackListedItems.Contains(new(item.type));
+
+    internal static bool IsBlacklisted(object consumable, int groupID){
+        if(groupID > 0) return IsBlacklisted((consumable as Item)!);
+        IConsumableGroup group = ConsumableGroup(groupID);
+        return Requirements.BlackListedConsumables[group.ToDefinition()].Contains(group.Key(consumable));
+    }
+    public static bool IsBlacklisted<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => IsBlacklisted((object)consumable, groupID);
 
     public static Infinity GetInfinity<TConsumable>(this Player player, TConsumable consumable, int groupID) where TConsumable : notnull {
         IConsumableGroup<TConsumable> group = (IConsumableGroup<TConsumable>)ConsumableGroup(groupID);
@@ -116,7 +122,7 @@ public static class InfinityManager {
     public static Infinity GetInfinity<TConsumable>(TConsumable consumable, long count, int groupID) where TConsumable : notnull => GetInfinity((object)consumable, count, groupID);
 
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, int groupID) where TConsumable : notnull
-        => IsEnabled(groupID) && ((groupID < 0 || (consumable as Item)!.IsUsed(groupID)) ? ConsumableGroup(groupID).LongToCount(consumable, consumed).CompareTo(player.GetInfinity(consumable, groupID).Value) <= 0 : player.HasInfinite(consumable, consumed, VanillaConsumableTypes.Mixed.ID ));
+        => ! IsBlacklisted(consumable, groupID) && IsEnabled(groupID) && ((groupID < 0 || (consumable as Item)!.IsUsed(groupID)) ? ConsumableGroup(groupID).LongToCount(consumable, consumed).CompareTo(player.GetInfinity(consumable, groupID).Value) <= 0 : player.HasInfinite(consumable, consumed, VanillaConsumableTypes.Mixed.ID));
     
     public static Config.ConsumableTypeDefinition ToDefinition(this IConsumableGroup type) => new(type.Mod, type.Name);
 
@@ -164,7 +170,6 @@ internal sealed class ConsumableCache {
     private readonly Dictionary<int, IRequirement> _requirements = new();
     private readonly Dictionary<int, Infinity> _infinities = new();
 
-    // TODO >>> category and requirement overrides
     public T GetOrAdd<T>(CacheType type, int id, System.Func<T> getter) where T : notnull{
         IDictionary cache = type switch {
             CacheType.Category => _categories,

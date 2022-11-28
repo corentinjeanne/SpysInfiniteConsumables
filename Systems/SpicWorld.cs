@@ -119,9 +119,9 @@ namespace SPIC.Systems {
             // }
         }
         public override void OnWorldUnload(){
-            Config.RequirementSettings.Instance.UpdateProperties();
-            Config.CategoryDetection.Instance.UpdateProperties();
-            Config.InfinityDisplay.Instance.UpdateProperties();
+            Config.RequirementSettings.Instance.SaveConfig();
+            Config.CategoryDetection.Instance.SaveConfig();
+            Config.InfinityDisplay.Instance.SaveConfig();
 
             // _chunks.Clear();
         }

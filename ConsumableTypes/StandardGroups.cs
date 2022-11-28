@@ -126,7 +126,7 @@ public abstract class ItemGroup<TImplementation> : StandardGroup<TImplementation
 where TImplementation : ItemGroup<TImplementation> {
     public static void Register() => InfinityManager.Register(Instance);
 
-
+    public sealed override string Key(Item consumable) => new Terraria.ModLoader.Config.ItemDefinition(consumable.type).ToString();
     public sealed override int CacheID(Item consumable) => consumable.type;
     public sealed override Item ToConsumable(Item item) => item;
 
