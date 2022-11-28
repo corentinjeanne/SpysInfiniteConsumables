@@ -66,5 +66,14 @@ public interface IConfigurable<TSettings> : IConfigurable where TSettings : notn
 
 public interface ICustomizable : IConsumableGroup { }
 
-public interface IDetectable : IConsumableGroup { }
+public interface IDetectable : IConsumableGroup {
+    string ToKey(object consumable);
+}
+public interface IDetectable<TConsumable> : IDetectable where TConsumable : notnull{
+    string IDetectable.ToKey(object consumable) => ToKey((TConsumable)consumable);
+    string ToKey(TConsumable consumable);
+}
+public interface IDetectableItem : IDetectable<Item>{
+    [NoJIT] string IDetectable<Item>.ToKey(Item item) => new Terraria.ModLoader.Config.ItemDefinition(item.type).ToString();
+}
 

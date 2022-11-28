@@ -138,5 +138,5 @@ where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
     public abstract TCategory GetCategory(Item consumable);
     public abstract IRequirement Requirement(TCategory category);
-    public sealed override IRequirement GetRequirement(Item consumable) => Requirement(GetCategory(consumable));
+    public sealed override IRequirement GetRequirement(Item consumable) => Requirement(consumable.GetCategory<TCategory>(UID));
 }

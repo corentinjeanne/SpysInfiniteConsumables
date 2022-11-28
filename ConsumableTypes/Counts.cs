@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SPIC.VanillaConsumableTypes;
 using Terraria;
 
 namespace SPIC.ConsumableGroup;
@@ -38,7 +39,8 @@ public struct CurrencyCount : ICount {
         foreach ((int type, long count) in items) parts.Add($"{count}[i:{type}]");
         return string.Join(" ", parts);
     }
-    public string DisplayRatio(ICount other) => $"{Display()}/{other.Display()}";
+    public string DisplayRatio(ICount other) => InfinityManager.GetCategory<int, CurrencyCategory>(Currency, VanillaConsumableTypes.Currency.ID) == CurrencyCategory.Coin ?
+        $"{Display()}/{other.Display()}" : $"{Value}/{other.Display()}";
 }
 
 /// <summary>

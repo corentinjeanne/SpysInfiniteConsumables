@@ -23,7 +23,7 @@ public class AmmoRequirements {
     public ItemCountWrapper Special = new(1.0f);
 }
 
-public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, ICustomizable, IDetectable{
+public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, ICustomizable, IDetectableItem {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessQuiver;
 
@@ -33,7 +33,6 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, ICon
 
     public override Color DefaultColor => Colors.RarityLime;
 
-    // BUG >>> ammo with <999 max stack sill have a 999 item requirement
     public override IRequirement Requirement(AmmoCategory category) => category switch {
         AmmoCategory.Basic => new CountRequirement((ItemCount)Settings.Standard),
         AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement((ItemCount)Settings.Special),

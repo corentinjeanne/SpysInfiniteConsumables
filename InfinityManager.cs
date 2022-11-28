@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Terraria;
 using SPIC.ConsumableGroup;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC;
 
@@ -34,7 +35,7 @@ public static class InfinityManager {
 
     public static bool IsEnabled(IConsumableGroup group) => group is not IToggleable toogleable || toogleable.Enabled;
     public static bool IsEnabled(int groupID) => IsEnabled(ConsumableGroup(groupID));
-    public static bool IsUsed(this Item item, int groupID) => item.UsedConsumableTypes().Find(t => t.UID == groupID) != null;
+    public static bool IsUsed(this Item item, int groupID) => item.UsedConsumableGroups().Find(t => t.UID == groupID) != null;
 
     public static IEnumerable<IConsumableGroup> ConsumableGroups(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) => ConsumableGroups<IConsumableGroup>(filters, noOrdering);
     public static IEnumerable<TConsumableGroup> ConsumableGroups<TConsumableGroup>(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) where TConsumableGroup: IConsumableGroup {
@@ -62,7 +63,7 @@ public static class InfinityManager {
         }
     }
 
-    public static IReadOnlyList<IStandardGroup<Item>> UsedConsumableTypes(this Item item){
+    public static IReadOnlyList<IStandardGroup<Item>> UsedConsumableGroups(this Item item){
         if(s_usedTypes.TryGetValue(item.type, out IReadOnlyList<IStandardGroup<Item>>? types)) return types;
         List<IStandardGroup<Item>> used = new();
         foreach (IStandardGroup<Item> consumableType in ConsumableGroups<IStandardGroup<Item>>()) {
@@ -77,17 +78,17 @@ public static class InfinityManager {
     // TODO reduce boxing
     internal static Category GetCategory(object consumable, int groupID){
         ICategory group = (ICategory)ConsumableGroup(groupID);
-        return s_caches[groupID].GetOrAdd(CacheType.Category, group.CacheID(consumable), () => group.GetCategory(consumable));
+        return s_caches[groupID].GetOrAdd(CacheType.Category, group.CacheID(consumable), () => HasCategoryOverride(consumable, groupID, out Category? c) ? c.Value :  group.GetCategory(consumable));
     }
     public static TCategory GetCategory<TCategory>(this Item item, int groupID) where TCategory : System.Enum => (TCategory)GetCategory(ConsumableGroup(groupID).ToConsumable(item), groupID);
     public static Category GetCategory<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => GetCategory((object)consumable, groupID);
-    public static Category GetCategory<TConsumable, TCategory>(TConsumable consumable, int groupID) where TConsumable : notnull where TCategory : System.Enum => (TCategory)GetCategory(consumable, groupID);
+    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, int groupID) where TConsumable : notnull where TCategory : System.Enum => (TCategory)GetCategory(consumable, groupID);
     
-    // private static bool HasCategoryOverride(Item consumable, int groupID, out Category category) {
-    //     IConsumableGroup inf = ConsumableGroup(groupID);
-    //     category = Category.None;
-    //     return inf is IDetectable && CategoryDetection.HasDetectedCategory(cacheID, groupID, out category);
-    // }
+    private static bool HasCategoryOverride(object consumable, int groupID, [NotNullWhen(true), MaybeNullWhen(false)] out Category? category) {
+        IConsumableGroup group = ConsumableGroup(groupID);
+        category = null;
+        return group is IDetectable && CategoryDetection.HasDetectedCategory(consumable, groupID, out category);
+    }
 
     internal static IRequirement GetRequirement(object consumable, int groupID) {
         IConsumableGroup group = ConsumableGroup(groupID);
@@ -146,7 +147,7 @@ public static class InfinityManager {
     private static readonly Dictionary<int, IReadOnlyList<(IConsumableGroup, Item ammo)>> s_usedAmmoTypes = new();
 
     private static Config.RequirementSettings Requirements => Config.RequirementSettings.Instance;
-    // private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
+    private static Config.CategoryDetection CategoryDetection => Config.CategoryDetection.Instance;
 
 }
 
@@ -163,7 +164,7 @@ internal sealed class ConsumableCache {
     private readonly Dictionary<int, IRequirement> _requirements = new();
     private readonly Dictionary<int, Infinity> _infinities = new();
 
-    // TODO category and requirement overrides
+    // TODO >>> category and requirement overrides
     public T GetOrAdd<T>(CacheType type, int id, System.Func<T> getter) where T : notnull{
         IDictionary cache = type switch {
             CacheType.Category => _categories,

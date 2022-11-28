@@ -59,7 +59,7 @@ public class DetectionPlayer : ModPlayer {
         _preUseItemCount = Utility.CountItemsInWorld();
     }
 
-    // BUG recall when at spawn : use hook on teleport funcs ?
+    // BUG >>> recall when at spawn : use hook on teleport funcs ?
     public void TryDetectCategory(bool mustDetect = false) {
         if (!_detectingCategory) return;
 

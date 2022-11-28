@@ -41,7 +41,7 @@ public class UsableRequirements {
 }
 
 
-public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableRequirements>, IDetectable, ICustomizable {
+public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableRequirements>, IDetectableItem, ICustomizable {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessMusketPouch;
