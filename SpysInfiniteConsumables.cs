@@ -16,7 +16,6 @@ public class SpysInfiniteConsumables : Mod {
         Instance = this;
 
         VanillaConsumableTypes.Placeable.ClearWandAmmos();
-        CurrencyHelper.GetCurrencies();
         InfinityManager.ClearCache();
 
         VanillaConsumableTypes.Ammo.Register();
@@ -34,6 +33,10 @@ public class SpysInfiniteConsumables : Mod {
         Config.Presets.AllEnabled.Register();
         Config.Presets.OneForAll.Register();
         Config.Presets.JourneyCosts.Register();
+    }
+
+    public override void PostSetupContent() {
+        CurrencyHelper.GetCurrencies();
     }
 
     public override void Unload() {

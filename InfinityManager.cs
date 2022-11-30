@@ -46,7 +46,7 @@ public static class InfinityManager {
 
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
             if (!noOrdering) {
-                foreach (DictionaryEntry entry in Requirements.EnabledTypes) {
+                foreach (DictionaryEntry entry in Requirements.EnabledGroups) {
                     IConsumableGroup group = ((Config.ConsumableTypeDefinition)entry.Key).ConsumableType;
                     if (MatchsFlags(group)) yield return (TConsumableGroup)group;
                 }

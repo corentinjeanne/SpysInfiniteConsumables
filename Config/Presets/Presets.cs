@@ -22,14 +22,14 @@ public class Defaults : StaticPreset<Defaults> {
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        config.EnabledTypes = new();
+        config.EnabledGroups = new();
         config.EnabledGlobals = new();
         config.MaxConsumableTypes = 0;
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
 
-        foreach ((IToggleable type, bool state, bool _) in config.LoadedTypes) {
+        foreach ((IToggleable type, bool state, bool _) in config.LoadedToggleableGroups) {
             if (state != type.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
@@ -42,7 +42,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override void ApplyCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable type, bool state, bool global) in config.LoadedTypes) {
+        foreach ((IToggleable type, bool state, bool global) in config.LoadedToggleableGroups) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -50,8 +50,8 @@ public class OneForAll : StaticPreset<OneForAll> {
             }
         }
         if (!foundEnabled) {
-            foreach (object key in config.EnabledTypes) {
-                if (!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledTypes[key] = true;
+            foreach (object key in config.EnabledGroups) {
+                if (!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledGroups[key] = true;
             }
         }
         config.MaxConsumableTypes = 1;
@@ -59,7 +59,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override bool MeetsCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable type, bool state, bool global) in config.LoadedTypes) {
+        foreach ((IToggleable type, bool state, bool global) in config.LoadedToggleableGroups) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -75,8 +75,8 @@ public class AllEnabled : StaticPreset<AllEnabled> {
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        for (int i = 0; i < config.EnabledTypes.Count; i++) {
-            config.EnabledTypes[i] = true;
+        for (int i = 0; i < config.EnabledGroups.Count; i++) {
+            config.EnabledGroups[i] = true;
         }
         foreach (var key in config.EnabledGlobals.Keys) {
             config.EnabledGlobals[key] = true;
@@ -85,7 +85,7 @@ public class AllEnabled : StaticPreset<AllEnabled> {
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in config.LoadedTypes) {
+        foreach ((IToggleable _, bool state, bool _) in config.LoadedToggleableGroups) {
             if (!state) return false;
         }
         return config.MaxConsumableTypes == 0;
@@ -97,8 +97,8 @@ public class AllDisabled : StaticPreset<AllDisabled> {
     public override int CriteriasCount => 2;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        for (int i = 0; i < config.EnabledTypes.Count; i++) {
-            config.EnabledTypes[i] = false;
+        for (int i = 0; i < config.EnabledGroups.Count; i++) {
+            config.EnabledGroups[i] = false;
         }
         foreach (var key in config.EnabledGlobals.Keys) {
             config.EnabledGlobals[key] = false;
@@ -106,7 +106,7 @@ public class AllDisabled : StaticPreset<AllDisabled> {
     }
 
     public override bool MeetsCriterias(RequirementSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in config.LoadedTypes) {
+        foreach ((IToggleable _, bool state, bool _) in config.LoadedToggleableGroups) {
             if (state) return false;
         }
         return true;
@@ -118,14 +118,14 @@ public class JourneyCosts : StaticPreset<JourneyCosts> {
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(RequirementSettings config) {
-        config.EnabledTypes.Move(JourneySacrifice.Instance.ToDefinition(), 0);
-        config.EnabledTypes[0] = true;
+        config.EnabledGroups.Move(JourneySacrifice.Instance.ToDefinition(), 0);
+        config.EnabledGroups[0] = true;
         config.MaxConsumableTypes = 1;
     }
 
     public override bool MeetsCriterias(RequirementSettings config)
         => config.MaxConsumableTypes == 1
-            && (bool)config.EnabledTypes[0]!
-            && ((ConsumableTypeDefinition)config.EnabledTypes.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
+            && (bool)config.EnabledGroups[0]!
+            && ((ConsumableTypeDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
 
 }

@@ -17,9 +17,9 @@ public enum AmmoCategory : byte {
     Special
 }
 public class AmmoRequirements {
-    [Label("$Mods.SPIC.Types.Ammo.standard")]
+    [Label("$Mods.SPIC.Groups.Ammo.standard")]
     public ItemCountWrapper Standard = new(4.0f);
-    [Label("$Mods.SPIC.Types.Ammo.special")]
+    [Label("$Mods.SPIC.Groups.Ammo.special")]
     public ItemCountWrapper Special = new(1.0f);
 }
 

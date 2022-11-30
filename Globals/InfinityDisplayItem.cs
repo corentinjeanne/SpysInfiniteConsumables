@@ -44,15 +44,23 @@ public class InfinityDisplayItem : GlobalItem {
     }
 
 
-    private static int s_frame;
-    private static int s_focusType;
-    public static void IncrementCounters(){
-        s_frame++;
-        if(s_frame < Config.InfinityDisplay.Instance.dot_PulseTime) return;
-        s_frame = 0;
-        s_focusType++;
-        if(s_focusType < InfinityManager.LCM) return;
-        s_focusType = 0;
+    private static int s_glowFrame;
+    private static int s_glowFocusGroup;
+    private static int s_dotFrame;
+    private static int s_dotFocusGroup;
+    public static void IncrementCounters() {
+        s_glowFrame++;
+        if (s_glowFrame >= Config.InfinityDisplay.Instance.glow_PulseTime) {
+            s_glowFrame = 0;
+            s_glowFocusGroup++;
+            if (s_glowFocusGroup >= InfinityManager.LCM) s_glowFocusGroup = 0;
+        }
+        s_dotFrame++;
+        if (s_dotFrame >= Config.InfinityDisplay.Instance.dot_PulseTime) {
+            s_dotFrame = 0;
+            s_dotFocusGroup++;
+            if (s_dotFocusGroup >= InfinityManager.LCM) s_dotFocusGroup = 0;
+        }
     }
 
     internal record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, Infinity Infinity, ICount Next);
@@ -79,34 +87,45 @@ public class InfinityDisplayItem : GlobalItem {
                 Config.InfinityDisplay.Corner.TopRight =>    new(-1, 1),
                 Config.InfinityDisplay.Corner.BottomLeft =>  new( 1,-1),
                 Config.InfinityDisplay.Corner.BottomRight => new(-1,-1),
-                _ =>                                          new( 0, 0)
+                _ =>                                         new( 0, 0)
             };
             Vector2 dotPosition = position + frame.Size() / 2f * scale - SmallDot.Size() / 2 * Main.inventoryScale - (TextureAssets.InventoryBack.Value.Size() * Main.inventoryScale / 2 - SmallDot.Size() * 2 / 3) * delta;
-            Vector2 dotDelta = SmallDot.Size() * (Config.InfinityDisplay.Instance.dots_vertical ? new Vector2(0, delta.Y) : new Vector2(delta.X, 0)) * Main.inventoryScale;
-            
-            int startingDot = s_focusType % ((s_wouldDisplayDot.Count+display.dots_PerPage-1)/display.dots_PerPage * display.dots_PerPage) / display.dots_PerPage * display.dots_PerPage;
-            for (int i = startingDot; i < startingDot + display.dots_PerPage && i < s_wouldDisplayDot.Count; i++) {
+            Vector2 dotDelta = SmallDot.Size() * (Config.InfinityDisplay.Instance.dots_Direction == Config.InfinityDisplay.Direction.Vertical ? new Vector2(0, delta.Y) : new Vector2(delta.X, 0)) * Main.inventoryScale;
+
+
+            int startingDot, count;
+            if (display.dots_Count == 0) {
+                startingDot = 0;
+                count = s_wouldDisplayDot.Count;
+            } else {
+                startingDot = s_dotFocusGroup % ((s_wouldDisplayDot.Count + display.dots_Count - 1) / display.dots_Count * display.dots_Count) / display.dots_Count * display.dots_Count;
+                count = display.dots_Count;
+            }
+
+            for (int i = startingDot; i < startingDot + count && i < s_wouldDisplayDot.Count; i++) {
                 DisplayDot(spriteBatch, dotPosition, s_wouldDisplayDot[i].Color, s_wouldDisplayDot[i].DisplayFlags, s_wouldDisplayDot[i].Infinity, s_wouldDisplayDot[i].Next);
                 dotPosition += dotDelta;
             }
         }
 
         if (display.glow_ShowGlow && s_wouldDisplayGlow.Count > 0) {
-            int i = s_focusType % s_wouldDisplayGlow.Count;
+            int i = s_glowFocusGroup % s_wouldDisplayGlow.Count;
 
             if (i < s_wouldDisplayGlow.Count) {
-                DisplayGlow(spriteBatch, item, position, origin, frame, scale, s_wouldDisplayGlow[i].Color, (float)s_frame / display.glow_PulseTime, s_wouldDisplayGlow[i].DisplayFlags, s_wouldDisplayGlow[i].Infinity, s_wouldDisplayGlow[i].Next);
+                DisplayGlow(spriteBatch, item, position, origin, frame, scale, s_wouldDisplayGlow[i].Color, (float)s_glowFrame / display.glow_PulseTime, s_wouldDisplayGlow[i].DisplayFlags, s_wouldDisplayGlow[i].Infinity, s_wouldDisplayGlow[i].Next);
             }
         }
     }
 
     public static DisplayFlags OnLineDisplayFlags => DisplayFlags.All;
+
     public static void DisplayOnLine(ref string line, ref Color? lineColor, Color color, DisplayFlags displayFlags, Category category, Infinity infinity, ICount nextRequirement, ICount consumableCount) {
+        Config.InfinityDisplay visuals = Config.InfinityDisplay.Instance;
 
         if (displayFlags.HasFlag(DisplayFlags.Infinity)) {
-            lineColor = color;
+            lineColor = color * (Main.mouseTextColor / 255f);
             if (nextRequirement.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
-            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, infinity.Value.Display());
+            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, infinity.Value.Display(visuals.tooltip_RequirementStyle));
         }
 
         int total = 0;
@@ -116,7 +135,7 @@ public class InfinityDisplayItem : GlobalItem {
 
         if (displayFlags.HasFlag(DisplayFlags.Requirement)) {
             line += Separator() + (consumableCount.IsNone ?
-                nextRequirement.Display() : consumableCount.DisplayRatio(nextRequirement));
+                nextRequirement.Display(visuals.tooltip_RequirementStyle) : $"{consumableCount.DisplayRawValue(visuals.tooltip_RequirementStyle)} / {nextRequirement.Display(visuals.tooltip_RequirementStyle)}");
         }
         if (total > 0) line += ")";
     }

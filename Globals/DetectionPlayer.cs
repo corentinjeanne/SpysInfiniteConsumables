@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.VanillaConsumableTypes;
-using SPIC.ConsumableGroup;
 
 namespace SPIC.Globals;
 
@@ -11,7 +10,7 @@ public class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
 
-    private bool _detectingCategory;
+    public bool DetectingCategory { get;  private set;}
 
     private int _preUseMaxLife, _preUseMaxMana;
     private int _preUseExtraAccessories;
@@ -22,10 +21,14 @@ public class DetectionPlayer : ModPlayer {
     private int _preUseItemCount;
     private static Utility.NPCStats _preUseNPCStats;
 
+    public bool teleport;
+
 
 
     public override void Load() {
         On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
+        On.Terraria.Player.Teleport += HookTeleport;
+        On.Terraria.Player.Spawn += HookSpawn;
     }
 
     public override void PreUpdate() {
@@ -34,19 +37,20 @@ public class DetectionPlayer : ModPlayer {
 
     public override bool PreItemCheck() {
         if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Unknown) {
-            SavePreUseItemStats();
-            _detectingCategory = true;
-        } else _detectingCategory = false;
+            DetectingCategory = true;
+            SavePreUseStats();
+        } else DetectingCategory = false;
 
         InItemCheck = true;
         return true;
     }
     public override void PostItemCheck() {
         InItemCheck = false;
-        if (_detectingCategory) TryDetectCategory();
+        if (DetectingCategory) TryDetectCategory();
     }
 
-    private void SavePreUseItemStats() {
+    private void SavePreUseStats() {
+        teleport = false;
         _preUseMaxLife = Player.statLifeMax2;
         _preUseMaxMana = Player.statManaMax2;
         _preUseExtraAccessories = Player.extraAccessorySlots;
@@ -59,9 +63,8 @@ public class DetectionPlayer : ModPlayer {
         _preUseItemCount = Utility.CountItemsInWorld();
     }
 
-    // BUG recall when at spawn : use hook on teleport funcs ?
     public void TryDetectCategory(bool mustDetect = false) {
-        if (!_detectingCategory) return;
+        if (!DetectingCategory) return;
 
         void SaveUsable(UsableCategory category)
             => Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.ID);
@@ -80,11 +83,13 @@ public class DetectionPlayer : ModPlayer {
         else return;
 
         InfinityManager.ClearCache(Player.HeldItem);
-        _detectingCategory = false;
+        DetectingCategory = false;
     }
 
     private UsableCategory TryDetectUsable() {
         Utility.NPCStats stats = Utility.GetNPCStats();
+
+        if(teleport) return UsableCategory.Tool;
         if (_preUseNPCStats.Boss != stats.Boss || _preUseInvasion != Main.invasionType)
             return UsableCategory.Summoner;
 
@@ -154,5 +159,17 @@ public class DetectionPlayer : ModPlayer {
             if (settings.PreventItemDupication) return;
         }
     origin: orig(self, type, selItem);
+    }
+
+    private static void HookSpawn(On.Terraria.Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
+        DetectionPlayer player = self.GetModPlayer<DetectionPlayer>();
+        if(player.InItemCheck && player.DetectingCategory) player.teleport = true;
+        orig(self, context);
+    }
+
+    private static void HookTeleport(On.Terraria.Player.orig_Teleport orig, Player self, Microsoft.Xna.Framework.Vector2 newPos, int Style = 0, int extraInfo = 0) {
+        DetectionPlayer player = self.GetModPlayer<DetectionPlayer>();
+        if(player.InItemCheck && player.DetectingCategory) player.teleport = true;
+        orig(self, newPos, Style, extraInfo);
     }
 }

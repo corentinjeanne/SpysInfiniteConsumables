@@ -1,16 +1,7 @@
 {
     Mods: {
         SPIC: {
-            Infinities: {
-                consumables: Consumables
-                currencies: Currencies
-                bags: Grab Bags
-                jouney: Jouney Research
-                materials: Materials
-                placeables: Placeables
-            }
-
-            Types: {
+            Groups: {
                 Ammo: {
                     name: Ammunitions
                     standard: Standard Ammo
@@ -63,19 +54,16 @@
 
             ItemTooltip: {
                 curency: Currency
-                items: "{0} items"
-                stacks: "{0} stacks"
                 infinite: Infinite {0}
                 partialyInfinite: Infinite {0} below {1}
                 weaponAmmo: Consumes {0}
-                noAmmo: No ammo
             }
 
-            Configs: {
+            Config: {
                 Requirements: {
                     name: Settings and Requirements
                     General: {
-                        header: General
+                        header: Active groups
                         duplication: Prevent item duplication
                         t_duplication:
                             '''
@@ -87,17 +75,20 @@
                         commands: Commands
                         t_commands: Adds the '/spic' command to edit the category of items in-game
                         preset : Active preset
-                        
-                        maxTypes : Maximum used Consumable Types
-                        t_maxTypes :
+                        maxGroups : Maximum used Consumable groups
+                        t_maxGroups :
                             '''
                             The maximum number of requirements taken into account directly.
-                            Consumable type that are not used take the minimum infinity as their infinity.
+                            Consumable groups that are not used take the minimum infinity as their infinity.
                             Set to 0 to use all groups.
                             '''
                     }
                     Requirements: {
                         header: Requirements
+                    }
+                    Blacklists: {
+                        header: Blacklisted consumables
+                        items: Items
                     }
                 }
                 Detection: {
@@ -117,26 +108,30 @@
                 }
                 InfinityDisplay: {
                     name: Infinities Display
-                    Tooltip:  {
-                        header: Item Tooltip
+                    General:  {
+                        header: General
                         categories: Show categories
                         infinities: Show infinity
                         requirements: Show requirements
+                    }
+                    Tooltip:  {
+                        header: Item Tooltip
+                        tooltip: Display infinity in item tooltip
                         missingLines: Add missing lines
-                        itemName: Use names instead of sprites
+                        style: Requirement style
                         color: Colored infinity tooltips
                     }
                     Glow: {
                         header: Item Glow
-                        glow: Show infinity colored glow
+                        glow: Display infinity colored glow
                         intensity: Intensity
                         pulse: Pulse time (ticks)
                     }
                     Dots: {
                         header: Colored Dots
-                        dots: Show infinity colored dots
-                        start: First dot
-                        end: Last dot
+                        dots: Display infinity colored dots
+                        start: First dot position
+                        direction: Direction
                         count: Number of visible dots
                         t_count: Non visible dots will cycle every few seconds
                     }

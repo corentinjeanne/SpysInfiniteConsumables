@@ -8,6 +8,8 @@ public interface ICount : System.IComparable<ICount> {
     ICount None { get; }
     bool IsNone { get; }
 
-    string Display();
-    string DisplayRatio(ICount other);
+    float Ratio(ICount other);
+
+    string DisplayRawValue(Config.InfinityDisplay.CountStyle style);
+    string Display(Config.InfinityDisplay.CountStyle style);
 }

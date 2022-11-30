@@ -10,49 +10,38 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Config.UI;
 using SPIC.Config.Presets;
-using Terraria;
 
 namespace SPIC.Config;
 
-[Label("$Mods.SPIC.Configs.Requirements.name")]
+[Label("$Mods.SPIC.Config.Requirements.name")]
 public class RequirementSettings : ModConfig {
 
-    [Header("$Mods.SPIC.Configs.Requirements.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Configs.Requirements.General.t_duplication")]
+    [Header("$Mods.SPIC.Config.Requirements.General.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Config.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_duplication")]
     public bool PreventItemDupication { get; set; }
-
-    public static List<PresetDefinition> GetPresets() {
-        List<PresetDefinition> defs = new();
-        foreach (Preset preset in PresetManager.Presets())
-            defs.Add(preset.ToDefinition());
-        return defs;
-    }
-
-    [Label("$Mods.SPIC.Configs.Requirements.General.Preset")]
-    [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
+    [Label("$Mods.SPIC.Config.Requirements.General.Preset"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition? Preset {
         get {
-            if (EnabledTypes.Count == 0) return null;
+            if (EnabledGroups.Count == 0) return null;
             foreach (Preset preset in PresetManager.Presets()) {
                 if (preset.MeetsCriterias(this)) return preset.ToDefinition();
             }
             return null;
         }
         set {
-            if (EnabledTypes.Count == 0) return;
+            if (EnabledGroups.Count == 0) return;
             value?.Preset.ApplyCriterias(this);
         }
     }
-
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public OrderedDictionary/*<ConsumableTypeDefinition, bool>*/ EnabledTypes {
-        get => _types;
+    public OrderedDictionary/*<ConsumableTypeDefinition, bool>*/ EnabledGroups {
+        get => _groups;
         set {
-            _types.Clear();
+            _groups.Clear();
             foreach (DictionaryEntry entry in value) {
                 ConsumableTypeDefinition def = new((string)entry.Key);
                 if (def.IsUnloaded) {
-                    if (!ModLoader.HasMod(def.Mod)) _types.Add(def, entry.Value);
+                    if (!ModLoader.HasMod(def.Mod)) _groups.Add(def, entry.Value);
                     continue;
                 }
                 bool state = entry.Value switch {
@@ -60,18 +49,15 @@ public class RequirementSettings : ModConfig {
                     bool b => b,
                     _ => throw new NotImplementedException()
                 };
-                _types.Add(def, state);
+                _groups.Add(def, state);
             }
             foreach (IToggleable type in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                _types.TryAdd(type.ToDefinition(), type.DefaultsToOn);
+                _groups.TryAdd(type.ToDefinition(), type.DefaultsToOn);
             }
         }
     }
-    private readonly OrderedDictionary _types = new();
-
-    [Label("$Mods.SPIC.Configs.Requirements.General.MaxTypes")]
+    [Label("$Mods.SPIC.Config.Requirements.General.MaxGroups"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_maxGroups")]
     public int MaxConsumableTypes { get; set; }
-
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, bool> EnabledGlobals {
         get => _globals;
@@ -86,22 +72,8 @@ public class RequirementSettings : ModConfig {
             }
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, bool> _globals = new();
 
-    [JsonIgnore]
-    public IEnumerable<(IToggleable type, bool enabled, bool global)> LoadedTypes {
-        get {
-            foreach (DictionaryEntry entry in EnabledTypes) {
-                ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
-                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
-            }
-            foreach ((ConsumableTypeDefinition def, bool state) in EnabledGlobals) {
-                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
-            }
-        }
-    }
-
-    [Header("$Mods.SPIC.Configs.Requirements.Requirements.header")]
+    [Header("$Mods.SPIC.Config.Requirements.Requirements.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, object> Requirements {
         get => _requirements;
@@ -126,12 +98,10 @@ public class RequirementSettings : ModConfig {
             }
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, object> _requirements = new();
 
-
-    [Header("Blacklisted consumables")] // TODO loc
+    [Header("$Mods.SPIC.Config.Requirements.Blacklists.header")]
+    [Label("$Mods.SPIC.Config.Requirements.Blacklists.Items")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
-
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition,HashSet<string>> BlackListedConsumables { 
         get => _blackListedConsumables;
@@ -146,9 +116,32 @@ public class RequirementSettings : ModConfig {
             }
         }
     }
+
+    public static List<PresetDefinition> GetPresets() {
+        List<PresetDefinition> defs = new();
+        foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
+        return defs;
+    }
+    [JsonIgnore]
+    public IEnumerable<(IToggleable type, bool enabled, bool global)> LoadedToggleableGroups {
+        get {
+            foreach (DictionaryEntry entry in EnabledGroups) {
+                ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
+                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
+            }
+            foreach ((ConsumableTypeDefinition def, bool state) in EnabledGlobals) {
+                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
+            }
+        }
+    }
+
+    private readonly OrderedDictionary _groups = new();
+    private readonly Dictionary<ConsumableTypeDefinition, bool> _globals = new();
+    private readonly Dictionary<ConsumableTypeDefinition, object> _requirements = new();
     private readonly Dictionary<ConsumableTypeDefinition, HashSet<string>> _blackListedConsumables = new();
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
+    
 #nullable disable
     public static RequirementSettings Instance;
 #nullable restore

@@ -40,21 +40,21 @@ public static class PlaceableExtension {
 }
 
 public class PlaceableRequirements {
-    [Label("$Mods.SPIC.Types.Placeable.tiles")]
+    [Label("$Mods.SPIC.Groups.Placeable.tiles")]
     public ItemCountWrapper Tiles = new(1.0f);
-    [Label("$Mods.SPIC.Types.Placeable.ores")]
+    [Label("$Mods.SPIC.Groups.Placeable.ores")]
     public ItemCountWrapper Ores = new(499);
-    [Label("$Mods.SPIC.Types.Placeable.torches")]
+    [Label("$Mods.SPIC.Groups.Placeable.torches")]
     public ItemCountWrapper Torches = new(99);
-    [Label("$Mods.SPIC.Types.Placeable.furnitures")]
+    [Label("$Mods.SPIC.Groups.Placeable.furnitures")]
     public ItemCountWrapper Furnitures = new(3, 99);
-    [Label("$Mods.SPIC.Types.Placeable.mechanical")]
+    [Label("$Mods.SPIC.Groups.Placeable.mechanical")]
     public ItemCountWrapper Mechanical = new(3);
-    [Label("$Mods.SPIC.Types.Placeable.liquids")]
+    [Label("$Mods.SPIC.Groups.Placeable.liquids")]
     public ItemCountWrapper Liquids = new(10);
-    [Label("$Mods.SPIC.Types.Placeable.seeds")]
+    [Label("$Mods.SPIC.Groups.Placeable.seeds")]
     public ItemCountWrapper Seeds = new(20, 99);
-    [Label("$Mods.SPIC.Types.Placeable.paints")]
+    [Label("$Mods.SPIC.Groups.Placeable.paints")]
     public ItemCountWrapper Paints = new(1.0f, 999);
 }
 

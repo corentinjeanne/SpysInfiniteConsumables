@@ -7,7 +7,6 @@ namespace SPIC.ConsumableGroup;
 /// <summary>
 /// DO NOT use for config, use <see cref="Config.CategoryWrapper"/> instead
 /// </summary>
-// ? remove byte
 public struct Category {
 
     public Category() => Value = 0;

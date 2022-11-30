@@ -31,24 +31,25 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
         CategoryWrapper value = (CategoryWrapper)MemberInfo.GetValue(Item);
 
         int top = 0;
-        UIElement container;
+        UIElement container, element;
+        string label = LabelAttribute?.Label ?? MemberInfo.Name;
         if (value.IsEnum) {
             Type genType = typeof(EnumProp<>).MakeGenericType(((Enum)value.value).GetType());
             PropertyInfo enumProp = genType.GetProperty(nameof(EnumProp<Enum>.Enum), BindingFlags.Public | BindingFlags.Instance)!;
             Func<Enum> getter = () => (Enum)value.value;
             Action<Enum> setter = (Enum e) => Value = new(e){SaveEnumType = Value.SaveEnumType};
             _enum = Activator.CreateInstance(genType, new object[] { getter, setter });
-            (container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);
-            string label = LabelAttribute?.Label ?? MemberInfo.Name;
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Value.Label());
+            (container, element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);
+            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Value.Label()}";
         } else {
-            (container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_byteProp), this, 0);
-            string label = LabelAttribute?.Label ?? MemberInfo.Name;
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => label + ": " + Byte.ToString());
+            (container, element) = ConfigManager.WrapIt(this, ref top, new(s_byteProp), this, 0);
+            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Byte}";
         }
+
+        ReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);
+        ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, new Microsoft.Xna.Framework.Color(0, 0, 0, 0));
         container.Left.Pixels -= 20;
         container.Width.Pixels += 20;
         Height = container.Height;
     }
-    public override void Draw(SpriteBatch spriteBatch) => DrawChildren(spriteBatch);
 }

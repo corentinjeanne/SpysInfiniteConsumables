@@ -15,9 +15,9 @@ public enum CurrencyCategory : byte {
 }
 
 public class CurrencyRequirements {
-    [Label("$Mods.SPIC.Types.Currency.coins")]
+    [Label("$Mods.SPIC.Groups.Currency.coins")]
     public int Coins = 10;
-    [Label("$Mods.SPIC.Types.Currency.custom")]
+    [Label("$Mods.SPIC.Groups.Currency.custom")]
     public int Single = 50;
 }
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.GameContent.UI;
+using Microsoft.Xna.Framework;
+using System.Text;
 
 namespace SPIC {
     public static class CurrencyHelper {
@@ -48,6 +50,24 @@ namespace SPIC {
                 system.SetCurrencyCap(cap);
                 return count;
             }
+        }
+
+        public static string PriceText(int currency, long count){
+            if(count == 0 || currency == None) return "";
+
+            List<KeyValuePair<int, long>> coins = CurrencyCountToItems(currency, count);
+            List<string> parts = new();
+            switch (currency) {
+            case Coins:
+                foreach(KeyValuePair<int, long> coin in coins)
+                    parts.Add($"{coin.Value} {Lang.inter[18 - coin.Key + ItemID.CopperCoin].Value}");
+                break;
+            default:
+                foreach(KeyValuePair<int, long> coin in coins)
+                    parts.Add($"{coin.Value} {Lang.GetItemNameValue(coin.Key)}");
+                break;
+            }
+            return  string.Join(' ', parts);
         }
 
         public static long CountCurrency(this Player player, int currency, bool includeBanks = true, bool includeChest = false) {
@@ -105,14 +125,13 @@ namespace SPIC {
         public static CustomCurrencyData CurrencySystems(int id) => _currencies[id];
         internal static void ClearCurrencies() => _currencies = null;
 
-        // TODO test currencies registered after SPIC
         internal static void GetCurrencies() {
-            FieldInfo cur = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static)!;
-            FieldInfo values = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)cur.GetValue(null)!;
+            FieldInfo curField = typeof(CustomCurrencyManager).GetField("_currencies", BindingFlags.NonPublic | BindingFlags.Static)!;
+            FieldInfo valuesField = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)curField.GetValue(null)!;
             _currencies = new();
             foreach (var (key, system) in currencies) {
-                _currencies[key] = new(system, (Dictionary<int, int>)values.GetValue(system)!);
+                _currencies[key] = new(system, (Dictionary<int, int>)valuesField.GetValue(system)!);
             }
         }
     }

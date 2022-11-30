@@ -9,14 +9,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Config;
 
-[Label("$Mods.SPIC.Configs.Detection.name")]
+[Label("$Mods.SPIC.Config.Detection.name")]
 public class CategoryDetection : ModConfig {
 
-    [Header("$Mods.SPIC.Configs.Detection.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
+    [Header("$Mods.SPIC.Config.Detection.General.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Config.Detection.General.Detect"), Tooltip("$Mods.SPIC.Config.Detection.General.t_detect")]
     public bool DetectMissing;
 
-    [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
+    [Header("$Mods.SPIC.Config.Detection.Categories.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
@@ -47,8 +47,6 @@ public class CategoryDetection : ModConfig {
             }
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> _detectedItems = new();
-    
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableTypeDefinition, Dictionary<string, CategoryWrapper>> DetectedGlobals {
         get => _detectedGlobals;
@@ -79,7 +77,7 @@ public class CategoryDetection : ModConfig {
             }
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<string, CategoryWrapper>> _detectedGlobals = new();
+
 
     public bool SaveDetectedCategory(Item item, Category category, int groupID){
         if(category.IsUnknown) throw new System.ArgumentException("A detected category cannot be unkonwn");
@@ -121,6 +119,10 @@ public class CategoryDetection : ModConfig {
         category = null;
         return false;
     }
+
+
+    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> _detectedItems = new();
+    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<string, CategoryWrapper>> _detectedGlobals = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
 #nullable disable

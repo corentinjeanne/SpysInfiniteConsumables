@@ -26,17 +26,17 @@ public enum UsableCategory : byte {
 }
 
 public class UsableRequirements {
-    [Label("$Mods.SPIC.Types.Usable.weapons")]
+    [Label("$Mods.SPIC.Groups.Usable.weapons")]
     public ItemCountWrapper Weapons = new(2.0f);
-    [Label("$Mods.SPIC.Types.Usable.potions")]
+    [Label("$Mods.SPIC.Groups.Usable.potions")]
     public ItemCountWrapper Potions = new(1.0f, 30);
-    [Label("$Mods.SPIC.Types.Usable.boosters")]
+    [Label("$Mods.SPIC.Groups.Usable.boosters")]
     public ItemCountWrapper Boosters = new(5, 20);
-    [Label("$Mods.SPIC.Types.Usable.summoners")]
+    [Label("$Mods.SPIC.Groups.Usable.summoners")]
     public ItemCountWrapper Summoners = new(3, 20);
-    [Label("$Mods.SPIC.Types.Usable.critters")]
+    [Label("$Mods.SPIC.Groups.Usable.critters")]
     public ItemCountWrapper Critters = new(10, 99);
-    [Label("$Mods.SPIC.Types.Usable.tools")]
+    [Label("$Mods.SPIC.Groups.Usable.tools")]
     public ItemCountWrapper Tools = new(1.0f);
 }
 

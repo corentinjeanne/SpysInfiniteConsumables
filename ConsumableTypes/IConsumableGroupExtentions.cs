@@ -46,7 +46,7 @@ public interface IAlternateDisplay<TConsumable> : IAlternateDisplay where TConsu
 
 public interface IToggleable : IConsumableGroup {
     bool DefaultsToOn { get; }
-    bool Enabled => UID > 0 ? (bool)Config.RequirementSettings.Instance.EnabledTypes[new Config.ConsumableTypeDefinition(UID)]! : Config.RequirementSettings.Instance.EnabledGlobals[new(UID)];
+    bool Enabled => UID > 0 ? (bool)Config.RequirementSettings.Instance.EnabledGroups[new Config.ConsumableTypeDefinition(UID)]! : Config.RequirementSettings.Instance.EnabledGlobals[new(UID)];
 }
 
 public interface IColorable : IConsumableGroup {
@@ -60,7 +60,7 @@ public interface IConfigurable : IConsumableGroup {
 }
 public interface IConfigurable<TSettings> : IConfigurable where TSettings : notnull, new() {
     System.Type IConfigurable.SettingsType => typeof(TSettings);
-    object IConfigurable.Settings { get => Settings; set => Settings = (TSettings)value; } //? look into the config
+    object IConfigurable.Settings { get => Settings; set => Settings = (TSettings)value; }
     new TSettings Settings { get; set; }
 }
 

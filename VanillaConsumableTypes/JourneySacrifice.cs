@@ -13,7 +13,7 @@ public enum JourneySacrificeCategory : byte {
     Consumable,
 }
 public class JourneySacrificeSettings {
-    [Label("$Mods.SPIC.Types.Journey.sacrifices")]
+    [Label("$Mods.SPIC.Groups.Journey.sacrifices")]
     public bool includeNonConsumable;
 }
 
@@ -50,6 +50,6 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
         return consu || Settings.includeNonConsumable ? new CountRequirement(new ItemCount(item, CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type])) : new NoRequirement();
     }
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Types.Journey.lineValue"));
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));
 
 }

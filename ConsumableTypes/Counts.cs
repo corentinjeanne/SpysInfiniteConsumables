@@ -33,14 +33,22 @@ public struct CurrencyCount : ICount {
 
     public int CompareTo(ICount? other) => Value.CompareTo(((CurrencyCount)other).Value);
 
-    public string Display() {
-        List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(Currency, Value);
-        List<string> parts = new();
-        foreach ((int type, long count) in items) parts.Add($"{count}[i:{type}]");
-        return string.Join(" ", parts);
+    public string Display(Config.InfinityDisplay.CountStyle style) {
+        switch (style){
+        case Config.InfinityDisplay.CountStyle.Sprite:
+            List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(Currency, Value);
+            List<string> parts = new();
+            foreach ((int type, long count) in items) parts.Add($"{count}[i:{type}]");
+            return string.Join(" ", parts);
+        case Config.InfinityDisplay.CountStyle.Name or _:
+        default:
+            return CurrencyHelper.PriceText(Currency, Value);
+        }
     }
-    public string DisplayRatio(ICount other) => InfinityManager.GetCategory<int, CurrencyCategory>(Currency, VanillaConsumableTypes.Currency.ID) == CurrencyCategory.Coin ?
-        $"{Display()}/{other.Display()}" : $"{Value}/{other.Display()}";
+    public string DisplayRawValue(Config.InfinityDisplay.CountStyle style)
+        => InfinityManager.GetCategory<int, CurrencyCategory>(Currency, VanillaConsumableTypes.Currency.ID) == CurrencyCategory.SingleCoin ? $"{Value}" : Display(style);
+
+    public float Ratio(ICount other) => (float)Value / ((CurrencyCount)other).Value;
 }
 
 /// <summary>
@@ -99,7 +107,12 @@ public struct ItemCount : ICount {
         return UseItems ? Items.CompareTo(value.Items) : ((ItemCount)AdaptTo(other)).Stacks.CompareTo(value.Stacks);
     }
 
-    public string Display() => $"{Items} items";
-    public string DisplayRatio(ICount other) => $"{Items}/{other.Display()}";
+    public string Display(Config.InfinityDisplay.CountStyle style) => style switch {
+        Config.InfinityDisplay.CountStyle.Sprite => $"{Items}[i:{Type}]",
+        _ or Config.InfinityDisplay.CountStyle.Name => $"{Items} items",
+    };
+    public string DisplayRawValue(Config.InfinityDisplay.CountStyle style) => Items.ToString();
     public override string ToString() => $"{(UseItems? $"Items={Items}" : $"Stacks={Stacks}")}, MaxStack={MaxStack}";
+
+    public float Ratio(ICount other) => UseItems ? (float)Items / ((ItemCount)other).Items : Stacks / ((ItemCount)other).Stacks;
 }

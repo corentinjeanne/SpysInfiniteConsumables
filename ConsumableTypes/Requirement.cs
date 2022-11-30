@@ -1,6 +1,5 @@
 namespace SPIC.ConsumableGroup;
 
-// ? add generic type
 public interface IRequirement {
     ICount NextRequirement(ICount count);
     Infinity Infinity(ICount count);

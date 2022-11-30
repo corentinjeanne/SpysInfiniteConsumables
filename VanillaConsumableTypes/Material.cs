@@ -17,15 +17,15 @@ public enum MaterialCategory : byte {
 }
 
 public class MaterialRequirements {
-    [Label("$Mods.SPIC.Types.Material.basics")]
+    [Label("$Mods.SPIC.Groups.Material.basics")]
     public ItemCountWrapper Basics = new(1.0f);
-    [Label("$Mods.SPIC.Types.Placeable.ores")]
+    [Label("$Mods.SPIC.Groups.Placeable.ores")]
     public ItemCountWrapper Ores = new(500);
-    [Label("$Mods.SPIC.Types.Placeable.furnitures")]
+    [Label("$Mods.SPIC.Groups.Placeable.furnitures")]
     public ItemCountWrapper Furnitures = new(20,99);
-    [Label("$Mods.SPIC.Types.Material.misc")]
+    [Label("$Mods.SPIC.Groups.Material.misc")]
     public ItemCountWrapper Miscellaneous = new(50);
-    [Label("$Mods.SPIC.Types.Material.special"), Config.UI.NoSwapping]
+    [Label("$Mods.SPIC.Groups.Material.special"), Config.UI.NoSwapping]
     public ItemCountWrapper NonStackable = new(2,1);
 }
 
