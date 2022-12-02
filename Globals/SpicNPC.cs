@@ -1,7 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 
 namespace SPIC.Globals {
 
@@ -29,12 +29,12 @@ namespace SPIC.Globals {
                         _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
                     if (!_highestItemValue.ContainsKey(item.shopSpecialCurrency) || _highestItemValue[item.shopSpecialCurrency] < item.shopCustomPrice.Value)
                         _highestItemValue[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                    if (Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.ID))
+                    if (Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.Instance))
                         item.shopCustomPrice = item.value = 0;
                 } else {
                     if (!_hightestCost.ContainsKey(CurrencyHelper.Coins) || _hightestCost[CurrencyHelper.Coins] < item.value) _hightestCost[CurrencyHelper.Coins] = item.value;
                     if (!_highestItemValue.ContainsKey(CurrencyHelper.Coins) || _highestItemValue[CurrencyHelper.Coins] < item.value) _highestItemValue[CurrencyHelper.Coins] = item.value;
-                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, item.value, Currency.ID))
+                    if (Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, item.value, Currency.Instance))
                         item.value = 0;
                 }
             }
@@ -70,7 +70,7 @@ namespace SPIC.Globals {
             // Prevent duping
             if(spawnIndex > 0) {
                 NPC critter = Main.npc[spawnIndex];
-                if (critter.active && critter.type == Type && Config.RequirementSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(critter.catchItem, 1, Usable.ID))
+                if (critter.active && critter.type == Type && Config.RequirementSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
                     critter.SpawnedFromStatue = true;
             }
         }

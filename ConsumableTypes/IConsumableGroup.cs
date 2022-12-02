@@ -15,7 +15,7 @@ public interface IConsumableGroup {
     object ToConsumable(Item item);
     string Key(object consumable);
     int CacheID(object consumable);
-    IRequirement GetRequirement(object consumable);
+    Requirement GetRequirement(object consumable);
     long CountConsumables(Player player, object consumable);
     ICount LongToCount(object consumable, long count);
 
@@ -28,27 +28,21 @@ public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsuma
     object IConsumableGroup.ToConsumable(Item item) => ToConsumable(item);
     string IConsumableGroup.Key(object consumable) => Key((TConsumable) consumable);
     int IConsumableGroup.CacheID(object consumable) => CacheID((TConsumable)consumable);
-    IRequirement IConsumableGroup.GetRequirement(object consumable) => GetRequirement((TConsumable)consumable);
+    Requirement IConsumableGroup.GetRequirement(object consumable) => GetRequirement((TConsumable)consumable);
     long IConsumableGroup.CountConsumables(Player player, object consumable) => CountConsumables(player, (TConsumable)consumable);
     ICount IConsumableGroup.LongToCount(object consumable, long count) => LongToCount((TConsumable)consumable, count);
 
     new TConsumable ToConsumable(Item item);
     string Key(TConsumable consumable);
     int CacheID(TConsumable consumable);
-    IRequirement GetRequirement(TConsumable consumable);
+    Requirement GetRequirement(TConsumable consumable);
     long CountConsumables(Player player, TConsumable consumable);
     ICount LongToCount(TConsumable consumable, long count);
 }
 
-public interface IStandardGroup : IConsumableGroup, IToggleable, IColorable {
+public interface IStandardGroup<TConsumable> : IConsumableGroup<TConsumable>, IToggleable, IColorable where TConsumable : notnull {
     string LinePosition { get; }
     TooltipLine TooltipLine { get; }
-    
-    long GetMaxInfinity(Player player, object consumable);
     bool OwnsItem(Player player, Item item, bool isACopy);
-}
-public interface IStandardGroup<TConsumable> : IConsumableGroup<TConsumable>, IStandardGroup where TConsumable : notnull {
-    long IStandardGroup.GetMaxInfinity(Player player, object consumable) => GetMaxInfinity(player, (TConsumable)consumable);
-
     long GetMaxInfinity(Player player, TConsumable consumable);
 }

@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using Terraria.Localization;
 
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 
 public enum CurrencyCategory : byte {
     None = Category.None,
@@ -21,7 +21,7 @@ public class CurrencyRequirements {
     public int Single = 50;
 }
 
-public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigurable<CurrencyRequirements> {
+public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.LuckyCoin;
 
@@ -30,7 +30,7 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
     public CurrencyRequirements Settings { get; set; }
 #nullable restore
 
-    public override IRequirement Requirement(CurrencyCategory category) => category switch {
+    public override Requirement Requirement(CurrencyCategory category) => category switch {
         CurrencyCategory.Coin => new PowerRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Coins * 100), 100, 0.1f),
         CurrencyCategory.SingleCoin => new MultipleRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Single), 0.2f),
         CurrencyCategory.None or _ => new NoRequirement()     

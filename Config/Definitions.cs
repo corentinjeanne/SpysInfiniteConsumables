@@ -12,7 +12,7 @@ public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 [TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.PresetDefinition]")]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
-    public PresetDefinition(int type) : base(PresetManager.Preset(type).Mod.Name, PresetManager.Preset(type).Name) {}
+    public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).Name) {}
     internal PresetDefinition(string fullName) : base(fullName) {}
     public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
@@ -21,7 +21,7 @@ public class PresetDefinition : EntityDefinition {
 
     [JsonIgnore]
     public Preset Preset => PresetManager.Preset(Mod, Name)!;
-    public static ConsumableTypeDefinition FromString(string s) => new(s);
+    public static ConsumableGroupDefinition FromString(string s) => new(s);
 
     public string Label() {
         Preset preset = Preset;
@@ -29,12 +29,12 @@ public class PresetDefinition : EntityDefinition {
     }
 }
 
-[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.ConsumableTypeDefinition]")]
-public class ConsumableTypeDefinition : EntityDefinition {
-    public ConsumableTypeDefinition() {}
-    public ConsumableTypeDefinition(int type) : base(InfinityManager.ConsumableGroup(type).Mod.Name, InfinityManager.ConsumableGroup(type).Name) {}
-    internal ConsumableTypeDefinition(string fullName) : base(fullName) {}
-    public ConsumableTypeDefinition(Mod mod, string name) : base(mod.Name, name) {}
+[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.ConsumableGroupDefinition]")]
+public class ConsumableGroupDefinition : EntityDefinition {
+    public ConsumableGroupDefinition() {}
+    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).Name) {}
+    internal ConsumableGroupDefinition(string fullName) : base(fullName) {}
+    public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
     public new bool IsUnloaded => Type == 0;
     public override int Type => ConsumableType?.UID ?? 0;
@@ -42,10 +42,10 @@ public class ConsumableTypeDefinition : EntityDefinition {
     [JsonIgnore]
     public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
     public string Label() {
-        IConsumableGroup type = ConsumableType;
+        IConsumableGroup group = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";
-        return $"[i:{type.IconType}] {(System.Attribute.GetCustomAttribute(type.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
+        return $"[i:{group.IconType}] {(System.Attribute.GetCustomAttribute(group.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
     }
 
-    public static ConsumableTypeDefinition FromString(string s) => new(s);
+    public static ConsumableGroupDefinition FromString(string s) => new(s);
 }

@@ -19,8 +19,8 @@ public static class InfinityManager {
 
     public static void Register<TImplementation>(ItemGroup<TImplementation> group) where TImplementation : ItemGroup<TImplementation> => Register(group, false);
     public static void RegisterAsGlobal<TImplementation, TConsumable>(ConsumableGroup<TImplementation, TConsumable> group) where TImplementation : ConsumableGroup<TImplementation, TConsumable> where TConsumable : notnull => Register(group, true);
-    internal static void Register<TImplementation, TConsumable>(ConsumableGroup<TImplementation, TConsumable> group, bool global) where TImplementation : ConsumableGroup<TImplementation, TConsumable> where TConsumable : notnull {
-        if (group.UID != 0) throw new System.ArgumentException("This type has already been registered", nameof(group));
+    private static void Register<TImplementation, TConsumable>(ConsumableGroup<TImplementation, TConsumable> group, bool global) where TImplementation : ConsumableGroup<TImplementation, TConsumable> where TConsumable : notnull {
+        if (group.UID != 0) throw new System.ArgumentException("This group has already been registered", nameof(group));
         int id = group.UID = global ? s_nextGlobalID-- : s_nextTypeID++;
         
         s_groups[id] = group;
@@ -29,112 +29,113 @@ public static class InfinityManager {
         LCM = s_groups.Count * LCM / GCD(s_groups.Count, LCM);
     }
 
+
+    // TODO >>> more generic
     public static IConsumableGroup ConsumableGroup(int id) => s_groups[id];
     public static IConsumableGroup<TConsumable> ConsumableGroup<TConsumable>(int id) where TConsumable : notnull => (IConsumableGroup<TConsumable>)ConsumableGroup(id);
     public static IConsumableGroup? ConsumableGroup(string mod, string Name) => s_groups.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
-
-    public static bool IsEnabled(IConsumableGroup group) => group is not IToggleable toogleable || toogleable.Enabled;
-    public static bool IsEnabled(int groupID) => IsEnabled(ConsumableGroup(groupID));
-    public static bool IsUsed(this Item item, int groupID) => item.UsedConsumableGroups().Find(t => t.UID == groupID) != null;
-
+    
     public static IEnumerable<IConsumableGroup> ConsumableGroups(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) => ConsumableGroups<IConsumableGroup>(filters, noOrdering);
-    public static IEnumerable<TConsumableGroup> ConsumableGroups<TConsumableGroup>(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) where TConsumableGroup: IConsumableGroup {
+    public static IEnumerable<TGroup> ConsumableGroups<TGroup>(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) where TGroup : IConsumableGroup {
         bool enabled = filters.HasFlag(FilterFlags.Enabled);
         bool disabled = filters.HasFlag(FilterFlags.Disabled);
 
-        bool MatchsFlags(IConsumableGroup group) => group is TConsumableGroup && ((enabled && disabled) || (enabled == IsEnabled(group)));
+        bool MatchsFlags(IConsumableGroup group) => group is TGroup && ((enabled && disabled) || (enabled == IsEnabled(group)));
 
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
             if (!noOrdering) {
                 foreach (DictionaryEntry entry in Requirements.EnabledGroups) {
-                    IConsumableGroup group = ((Config.ConsumableTypeDefinition)entry.Key).ConsumableType;
-                    if (MatchsFlags(group)) yield return (TConsumableGroup)group;
+                    IConsumableGroup group = ((Config.ConsumableGroupDefinition)entry.Key).ConsumableType;
+                    if (MatchsFlags(group)) yield return (TGroup)group;
                 }
             } else {
                 foreach ((int id, IConsumableGroup group) in s_groups) {
-                    if (id > 0 && MatchsFlags(group)) yield return (TConsumableGroup)group;
+                    if (id > 0 && MatchsFlags(group)) yield return (TGroup)group;
                 }
             }
         }
         if (filters.HasFlag(FilterFlags.Global)) {
             foreach ((int id, IConsumableGroup group) in s_groups) {
-                if (id < 0 && MatchsFlags(group)) yield return (TConsumableGroup)group;
+                if (id < 0 && MatchsFlags(group)) yield return (TGroup)group;
             }
         }
     }
 
+
+    public static bool IsEnabled(IConsumableGroup group) => group is not IToggleable toogleable || toogleable.Enabled;
+    
+    // ? use reference equality instead of id
+    public static bool IsUsed(this Item item, IConsumableGroup<Item> group) => item.UsedConsumableGroups().Find(t => t.UID == group.UID) != null;
     public static IReadOnlyList<IStandardGroup<Item>> UsedConsumableGroups(this Item item){
         if(s_usedTypes.TryGetValue(item.type, out IReadOnlyList<IStandardGroup<Item>>? types)) return types;
         List<IStandardGroup<Item>> used = new();
         if (!IsBlacklisted(item)) {
-            foreach (IStandardGroup<Item> consumableType in ConsumableGroups<IStandardGroup<Item>>()) {
-                if (GetRequirement(item, consumableType.UID) is NoRequirement) continue;
-                used.Add(consumableType);
+            foreach (IStandardGroup<Item> group in ConsumableGroups<IStandardGroup<Item>>()) {
+                if (GetRequirement(item, group) is NoRequirement) continue;
+                used.Add(group);
                 if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
             }
         }
         return s_usedTypes[item.type] = used;
     }
 
-
-    // TODO reduce boxing
-    internal static Category GetCategory(object consumable, int groupID){
-        ICategory group = (ICategory)ConsumableGroup(groupID);
-        return s_caches[groupID].GetOrAdd(CacheType.Category, group.CacheID(consumable), () => HasCategoryOverride(consumable, groupID, out Category? c) ? c.Value :  group.GetCategory(consumable));
-    }
-    public static TCategory GetCategory<TCategory>(this Item item, int groupID) where TCategory : System.Enum => (TCategory)GetCategory(ConsumableGroup(groupID).ToConsumable(item), groupID);
-    public static Category GetCategory<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => GetCategory((object)consumable, groupID);
-    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, int groupID) where TConsumable : notnull where TCategory : System.Enum => (TCategory)GetCategory(consumable, groupID);
+    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, ICategory<TConsumable, TCategory> group) where TConsumable : notnull where TCategory : System.Enum
+        => s_caches[group.UID].GetOrAddCategory<TCategory>(group.CacheID(consumable), () => HasCategoryOverride(consumable, out TCategory? c, group) ? c :  group.GetCategory(consumable));
+    public static TCategory GetCategory<TCategory>(this Item item, ICategory<Item, TCategory> group) where TCategory : System.Enum => GetCategory<Item, TCategory>(item, group);
     
-    private static bool HasCategoryOverride(object consumable, int groupID, [NotNullWhen(true), MaybeNullWhen(false)] out Category? category) {
-        IConsumableGroup group = ConsumableGroup(groupID);
-        category = null;
-        return group is IDetectable && CategoryDetection.HasDetectedCategory(consumable, groupID, out category);
+    private static bool HasCategoryOverride<TConsumable, TCategory>(TConsumable consumable, [NotNullWhen(true)] out TCategory? category, ICategory<TConsumable, TCategory> group) where TConsumable : notnull where TCategory : System.Enum{
+        category = default;
+        return group is IDetectable && CategoryDetection.HasDetectedCategory(consumable, out category, group);
     }
 
-    internal static IRequirement GetRequirement(object consumable, int groupID) {
-        IConsumableGroup group = ConsumableGroup(groupID);
-        return s_caches[groupID].GetOrAdd(CacheType.Requirement, group.CacheID(consumable), () => group.GetRequirement(consumable));
-    }
-    public static IRequirement GetRequirement(this Item item, int groupID) => GetRequirement(ConsumableGroup(groupID).ToConsumable(item), groupID);
-    public static IRequirement GetRequirement<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => GetRequirement((object)consumable, groupID);
+
+    // TODO >>> reduce ICount boxing (and remove the function)
+    internal static Requirement GetRequirement(object consumable, IConsumableGroup group)
+        => s_caches[group.UID].GetOrAddRequirement(group.CacheID(consumable), () => group.GetRequirement(consumable));
+    public static Requirement GetRequirement<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable : notnull
+        => s_caches[group.UID].GetOrAddRequirement(group.CacheID(consumable), () => group.GetRequirement(consumable));
+    public static Requirement GetRequirement(this Item item, IConsumableGroup<Item> group) => GetRequirement<Item>(item, group);
+
 
     public static bool IsBlacklisted(Item item) => Requirements.BlackListedItems.Contains(new(item.type));
+    // TODO >>> reduce TConsumable boxing (and remove the function)
+    internal static bool IsBlacklisted(object consumable, IConsumableGroup group)
+        => group.UID > 0 ? IsBlacklisted((consumable as Item)!) : Requirements.BlackListedConsumables[group.ToDefinition()].Contains(group.Key(consumable));
+    public static bool IsBlacklisted<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable : notnull
+        => group.UID > 0 ? IsBlacklisted((consumable as Item)!) : Requirements.BlackListedConsumables[group.ToDefinition()].Contains(group.Key(consumable));
 
-    internal static bool IsBlacklisted(object consumable, int groupID){
-        if(groupID > 0) return IsBlacklisted((consumable as Item)!);
-        IConsumableGroup group = ConsumableGroup(groupID);
-        return Requirements.BlackListedConsumables[group.ToDefinition()].Contains(group.Key(consumable));
-    }
-    public static bool IsBlacklisted<TConsumable>(TConsumable consumable, int groupID) where TConsumable : notnull => IsBlacklisted((object)consumable, groupID);
 
-    public static Infinity GetInfinity<TConsumable>(this Player player, TConsumable consumable, int groupID) where TConsumable : notnull {
-        IConsumableGroup<TConsumable> group = (IConsumableGroup<TConsumable>)ConsumableGroup(groupID);
-        Infinity InfGetter() => GetInfinity(consumable, group.CountConsumables(player, consumable), groupID);
-        return UseCache(player) ? s_caches[groupID].GetOrAdd(CacheType.Infinity, group.CacheID(consumable), InfGetter) : InfGetter();
+    public static Infinity GetInfinity<TConsumable>(this Player player, TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable : notnull {
+        Infinity InfGetter() => GetInfinity(consumable, group.CountConsumables(player, consumable), group);
+        return UseCache(player) ? s_caches[group.UID].GetOrAddInfinity(group.CacheID(consumable), InfGetter) : InfGetter();
     }
+    // TODO >>> reduce ICount boxing
+    public static Infinity GetInfinity<TConsumable>(TConsumable consumable, long count, IConsumableGroup<TConsumable> group) where TConsumable : notnull {
+        Requirement req = GetRequirement(consumable, group);
+        return req.Infinity(group.LongToCount(consumable, count));
+    }
+    public static Infinity GetInfinity(this Item item, long count, IConsumableGroup<Item> group) => GetInfinity<Item>(item, count, group);
+
+    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, IConsumableGroup<TConsumable> group) where TConsumable : notnull
+        => !IsBlacklisted(consumable, group) && IsEnabled(group)
+            && ((group.UID < 0 || (consumable as Item)!.IsUsed((IConsumableGroup<Item>)group)) ?
+                group.LongToCount(consumable, consumed).CompareTo(player.GetInfinity(consumable, group).Value) <= 0 :
+                player.HasInfinite((consumable as Item)!, consumed, VanillaGroups.Mixed.Instance
+            ));
     
-    internal static Infinity GetInfinity(object consumable, long count, int groupID) {
-        IRequirement req = GetRequirement(consumable, groupID);
-        return req.Infinity(ConsumableGroup(groupID).LongToCount(consumable, count));
-    }
-    public static Infinity GetInfinity(this Item item, long count, int groupID) => GetInfinity(ConsumableGroup(groupID).ToConsumable(item), count, groupID);
-    public static Infinity GetInfinity<TConsumable>(TConsumable consumable, long count, int groupID) where TConsumable : notnull => GetInfinity((object)consumable, count, groupID);
-
-    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, int groupID) where TConsumable : notnull
-        => ! IsBlacklisted(consumable, groupID) && IsEnabled(groupID) && ((groupID < 0 || (consumable as Item)!.IsUsed(groupID)) ? ConsumableGroup(groupID).LongToCount(consumable, consumed).CompareTo(player.GetInfinity(consumable, groupID).Value) <= 0 : player.HasInfinite(consumable, consumed, VanillaConsumableTypes.Mixed.ID));
-    
-    public static Config.ConsumableTypeDefinition ToDefinition(this IConsumableGroup type) => new(type.Mod, type.Name);
+    public static Config.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.Name);
 
     private static int s_nextTypeID = 1;
     private static int s_nextGlobalID = -1;
     private static readonly Dictionary<int, IConsumableGroup> s_groups = new();
 
     private static bool UseCache(Player player) => player == Main.LocalPlayer;
-    public static void ClearCache() {
-        foreach ((int _, ConsumableCache cache) in s_caches) cache.ClearAll();
-        s_usedTypes.Clear();
-        s_usedAmmoTypes.Clear();
+    public static void ClearCache<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable: notnull {
+        s_caches[group.UID].ClearType(group.CacheID(consumable));
+        if(group.UID > 0 && consumable is Item item){
+            s_usedTypes.Remove(item.type);
+            s_usedAmmoTypes.Clear();
+        }
     }
     public static void ClearCache(Item item) {
         foreach ((int id, ConsumableCache cache) in s_caches) {
@@ -142,6 +143,11 @@ public static class InfinityManager {
             cache.ClearType(group.CacheID(group.ToConsumable(item)));
         }
         s_usedTypes.Remove(item.type);
+        s_usedAmmoTypes.Clear();
+    }
+    public static void ClearCache() {
+        foreach ((int _, ConsumableCache cache) in s_caches) cache.ClearAll();
+        s_usedTypes.Clear();
         s_usedAmmoTypes.Clear();
     }
 
@@ -157,38 +163,28 @@ public static class InfinityManager {
 
 }
 
-internal enum CacheType {
-    Category,
-    Requirement,
-    Infinity
-}
-
 internal sealed class ConsumableCache {
 
     // ? reduce the amount of requirement instances
     private readonly Dictionary<int, Category> _categories = new();
-    private readonly Dictionary<int, IRequirement> _requirements = new();
+    private readonly Dictionary<int, Requirement> _requirements = new();
     private readonly Dictionary<int, Infinity> _infinities = new();
 
-    public T GetOrAdd<T>(CacheType type, int id, System.Func<T> getter) where T : notnull{
-        IDictionary cache = type switch {
-            CacheType.Category => _categories,
-            CacheType.Requirement => _requirements,
-            CacheType.Infinity => _infinities,
-            _ => throw new System.ArgumentException("Invalid CacheType", nameof(type))
-        };
-        if(Utility.TryGet(cache, id, out object? value)) return (T)value!;
-        return (T)(cache[id] = getter());
-    }
+    public static T GetOrAdd<T>(Dictionary<int, T> cache, int id, System.Func<T> getter) where T : notnull => cache.TryGetValue(id, out T? value) ? value : (cache[id] = getter());
+    public Category GetOrAddCategory(int id, System.Func<Category> getter) => GetOrAdd(_categories, id, getter);
+    public TCategory GetOrAddCategory<TCategory>(int id, System.Func<Category> getter) where TCategory : System.Enum => (TCategory)GetOrAdd(_categories, id, getter);
+    public Requirement GetOrAddRequirement(int id, System.Func<Requirement> getter) => GetOrAdd(_requirements, id, getter);
+    public Infinity GetOrAddInfinity(int id, System.Func<Infinity> getter) => GetOrAdd(_infinities, id, getter);
 
-    public void ClearAll() {
-        _categories.Clear();
-        _requirements.Clear();
-        _infinities.Clear();
-    }
     public void ClearType(int type) {
         _categories.Remove(type);
         _requirements.Remove(type);
         _infinities.Remove(type);
     }
+    public void ClearAll() {
+        _categories.Clear();
+        _requirements.Clear();
+        _infinities.Clear();
+    }
+
 }

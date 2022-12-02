@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Config;
 
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 public enum MaterialCategory : byte {
     None = Category.None,
     Basic,
@@ -38,7 +38,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
     public MaterialRequirements Settings { get; set; }
 #nullable restore
 
-    public override IRequirement Requirement(MaterialCategory category) => category switch {
+    public override Requirement Requirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => new MultipleRequirement((ItemCount)Settings.Basics, 0.5f),
         MaterialCategory.Ore => new MultipleRequirement((ItemCount)Settings.Ores, 0.5f),
         MaterialCategory.Furniture => new MultipleRequirement((ItemCount)Settings.Furnitures, 0.5f),
@@ -59,7 +59,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = item.GetCategory<PlaceableCategory>(Placeable.ID);
+        PlaceableCategory placeable = item.GetCategory(Placeable.Instance);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;

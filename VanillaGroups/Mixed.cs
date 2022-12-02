@@ -6,9 +6,9 @@ using Terraria.ModLoader;
 
 using SPIC.ConsumableGroup;
 
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 
-public class MixedRequirement : IRequirement {
+public class MixedRequirement : Requirement {
 
     public Item Item { get; init; }
 
@@ -17,10 +17,10 @@ public class MixedRequirement : IRequirement {
     }
 
 
-    public Infinity Infinity(ICount count) {
+    public override Infinity Infinity(ICount count) {
         Infinity max = new(count.None, 0);
         foreach(IStandardGroup<Item> group in InfinityManager.UsedConsumableGroups(Item)){
-            IRequirement requirement = Item.GetRequirement(group.UID);
+            Requirement requirement = Item.GetRequirement(group);
             if(requirement is NoRequirement) continue;
             Infinity inf = requirement.Infinity(count);
             if(max.Value.IsNone || inf.Value.CompareTo(max.Value) > 0) max = inf;
@@ -28,10 +28,10 @@ public class MixedRequirement : IRequirement {
         return max;
     }
 
-    public ICount NextRequirement(ICount count){
+    public override ICount NextRequirement(ICount count){
         ICount max = count.None;
         foreach(IStandardGroup<Item> group in InfinityManager.UsedConsumableGroups(Item)){
-            IRequirement requirement = Item.GetRequirement(group.UID);
+            Requirement requirement = Item.GetRequirement(group);
             if(requirement is NoRequirement) continue;
             ICount next = requirement.NextRequirement(requirement.Infinity(count).EffectiveRequirement);
             if(max.IsNone || next.CompareTo(max) > 0) max = next;
@@ -54,7 +54,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
     public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);
 
-    public override IRequirement GetRequirement(Item item) => new MixedRequirement(item);
+    public override Requirement GetRequirement(Item item) => new MixedRequirement(item);
 
     public override long CountConsumables(Player player, Item item) {
         long count = long.MaxValue;
@@ -67,16 +67,16 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
 
     public static long GetMaxInfinity(Player player, Item item) {
         long mixed = 0;
-        foreach (IStandardGroup type in item.UsedConsumableGroups()) {
-            long inf = type.GetMaxInfinity(player, item);
+        foreach (IStandardGroup<Item> group in item.UsedConsumableGroups()) {
+            long inf = group.GetMaxInfinity(player, item);
             if (inf > mixed) mixed = inf;
         }
         return mixed;
     }
 
     public static bool OwnsItem(Player player, Item item, bool isACopy){
-        foreach (IStandardGroup type in item.UsedConsumableGroups()){
-            if(!type.OwnsItem(player, item, isACopy)) return false;
+        foreach (IStandardGroup<Item> group in item.UsedConsumableGroups()){
+            if(!group.OwnsItem(player, item, isACopy)) return false;
         }
         return true;
     }

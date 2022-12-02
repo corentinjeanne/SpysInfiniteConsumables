@@ -18,11 +18,11 @@ public class CategoryDetection : ModConfig {
 
     [Header("$Mods.SPIC.Config.Detection.Categories.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
+    public Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
         set {
             _detectedItems.Clear();
-            foreach((ConsumableTypeDefinition def, Dictionary<ItemDefinition, CategoryWrapper> items) in value){
+            foreach((ConsumableGroupDefinition def, Dictionary<ItemDefinition, CategoryWrapper> items) in value){
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _detectedItems.Add(def, items);
                     continue;
@@ -42,17 +42,17 @@ public class CategoryDetection : ModConfig {
                 } else 
                     _detectedItems[def] = items;
             }
-            foreach(IDetectable type in InfinityManager.ConsumableGroups<IDetectable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)){
-                _detectedItems.TryAdd(type.ToDefinition(), new());
+            foreach(IDetectable group in InfinityManager.ConsumableGroups<IDetectable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)){
+                _detectedItems.TryAdd(group.ToDefinition(), new());
             }
         }
     }
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition, Dictionary<string, CategoryWrapper>> DetectedGlobals {
+    public Dictionary<ConsumableGroupDefinition, Dictionary<string, CategoryWrapper>> DetectedGlobals {
         get => _detectedGlobals;
         set {
             _detectedGlobals.Clear();
-            foreach((ConsumableTypeDefinition def, Dictionary<string, CategoryWrapper> items) in value){
+            foreach((ConsumableGroupDefinition def, Dictionary<string, CategoryWrapper> items) in value){
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _detectedGlobals.Add(def, items);
                     continue;
@@ -79,50 +79,36 @@ public class CategoryDetection : ModConfig {
     }
 
 
-    public bool SaveDetectedCategory(Item item, Category category, int groupID){
-        if(category.IsUnknown) throw new System.ArgumentException("A detected category cannot be unkonwn");
-
-        IConsumableGroup group = InfinityManager.ConsumableGroup(groupID);
-        if(groupID > 0 && group is IDetectable){
-            if (!DetectedItem[group.ToDefinition()].TryAdd(new(item.type), new(category.Value){SaveEnumType = false})) return false;
+    public bool SaveDetectedCategory<TConsumable, TCategory>(TConsumable consumable, TCategory category, ICategory<TConsumable, TCategory> group) where TConsumable : notnull where TCategory : System.Enum{
+        if(System.Convert.ToByte(category) == Category.Unknown) throw new System.ArgumentException("A detected category cannot be unkonwn");
+        
+        CategoryWrapper wrapper = new(category) { SaveEnumType = false };
+        if (group is not IDetectable || (group.UID > 0 ?
+                (!DetectedItem[group.ToDefinition()].TryAdd(new((consumable as Item)!.type), wrapper)) :
+                (!DetectedGlobals[group.ToDefinition()].TryAdd(group.Key(consumable), wrapper)))) {
+            return false;
         }
-        else if(groupID < 0 && group is IDetectable detectable){
-            if (!DetectedGlobals[group.ToDefinition()].TryAdd(detectable.Key(detectable.ToConsumable(item)), new(category.Value){ SaveEnumType = false })) return false;
-        }
-        else return false;
 
-        InfinityManager.ClearCache(item);
+        InfinityManager.ClearCache(consumable, group);
         return true;
 
     }
-    public bool HasDetectedCategory(Item item, int groupID, [MaybeNullWhen(false)] out Category? category){
-        IConsumableGroup group = InfinityManager.ConsumableGroup(groupID);
-        if(DetectMissing && group is IDetectable detectable &&
-            (groupID > 0 ?
-                DetectedItem.TryGetValue(group.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? itemCats) && itemCats.TryGetValue(new(item.type), out CategoryWrapper? wrapper) : 
-                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.Key(group.ToConsumable(item)), out wrapper)) ){
-            category = wrapper;
+
+    public bool HasDetectedCategory<TConsumable, TCategory>(TConsumable consumable, [NotNullWhen(true)] out TCategory? category, ICategory<TConsumable, TCategory> group) where TConsumable : notnull where TCategory : System.Enum{
+        if(DetectMissing && group is IDetectable &&
+            ((group.UID > 0 && consumable is Item item) ?
+                (DetectedItem.TryGetValue(group.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? itemCats) && itemCats.TryGetValue(new(item.type), out CategoryWrapper? wrapper)) : 
+                (DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(group.Key(consumable), out wrapper)))){
+            category = (TCategory)(Category)wrapper;
             return true;
         }
-        category = null;
-        return false;
-    }
-    public bool HasDetectedCategory(object consumable, int groupID, [MaybeNullWhen(false)] out Category? category){
-        IConsumableGroup group = InfinityManager.ConsumableGroup(groupID);
-        if(DetectMissing && group is IDetectable detectable &&
-            (groupID > 0 ?
-                DetectedItem.TryGetValue(group.ToDefinition(), out Dictionary<ItemDefinition, CategoryWrapper>? itemCats) && itemCats.TryGetValue(new(((Item)consumable).type), out CategoryWrapper? wrapper) : 
-                DetectedGlobals.TryGetValue(group.ToDefinition(), out Dictionary<string, CategoryWrapper>? globalCats) && globalCats.TryGetValue(detectable.Key(consumable), out wrapper)) ){
-            category = wrapper;
-            return true;
-        }
-        category = null;
+        category = default;
         return false;
     }
 
 
-    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<ItemDefinition, CategoryWrapper>> _detectedItems = new();
-    private readonly Dictionary<ConsumableTypeDefinition, Dictionary<string, CategoryWrapper>> _detectedGlobals = new();
+    private readonly Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> _detectedItems = new();
+    private readonly Dictionary<ConsumableGroupDefinition, Dictionary<string, CategoryWrapper>> _detectedGlobals = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
 #nullable disable

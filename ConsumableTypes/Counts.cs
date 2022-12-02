@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 using Terraria;
 
 namespace SPIC.ConsumableGroup;
@@ -46,7 +46,7 @@ public struct CurrencyCount : ICount {
         }
     }
     public string DisplayRawValue(Config.InfinityDisplay.CountStyle style)
-        => InfinityManager.GetCategory<int, CurrencyCategory>(Currency, VanillaConsumableTypes.Currency.ID) == CurrencyCategory.SingleCoin ? $"{Value}" : Display(style);
+        => InfinityManager.GetCategory(Currency, VanillaGroups.Currency.Instance) == CurrencyCategory.SingleCoin ? $"{Value}" : Display(style);
 
     public float Ratio(ICount other) => (float)Value / ((CurrencyCount)other).Value;
 }

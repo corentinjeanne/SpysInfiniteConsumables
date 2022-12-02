@@ -15,18 +15,18 @@ public class SpysInfiniteConsumables : Mod {
     public override void Load() {
         Instance = this;
 
-        VanillaConsumableTypes.Placeable.ClearWandAmmos();
+        VanillaGroups.Placeable.ClearWandAmmos();
         InfinityManager.ClearCache();
 
-        VanillaConsumableTypes.Ammo.Register();
-        VanillaConsumableTypes.Usable.Register();
-        VanillaConsumableTypes.Placeable.Register();
-        VanillaConsumableTypes.GrabBag.Register();
-        VanillaConsumableTypes.Material.Register();
-        VanillaConsumableTypes.JourneySacrifice.Register();
+        VanillaGroups.Ammo.Register();
+        VanillaGroups.Usable.Register();
+        VanillaGroups.Placeable.Register();
+        VanillaGroups.GrabBag.Register();
+        VanillaGroups.Material.Register();
+        VanillaGroups.JourneySacrifice.Register();
 
-        VanillaConsumableTypes.Currency.RegisterAsGlobal();
-        VanillaConsumableTypes.Mixed.RegisterAsGlobal();
+        VanillaGroups.Currency.RegisterAsGlobal();
+        VanillaGroups.Mixed.RegisterAsGlobal();
         
         Config.Presets.Defaults.Register();
         Config.Presets.AllDisabled.Register();
@@ -40,7 +40,7 @@ public class SpysInfiniteConsumables : Mod {
     }
 
     public override void Unload() {
-        VanillaConsumableTypes.Placeable.ClearWandAmmos();
+        VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         InfinityManager.ClearCache();
         

@@ -9,7 +9,7 @@ using SPIC.ConsumableGroup;
 using SPIC.Config;
 using Terraria.Localization;
 
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 
 public enum PlaceableCategory : byte {
     None = Category.None,
@@ -68,7 +68,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
     public PlaceableRequirements Settings { get; set; }
 #nullable restore
 
-    public override IRequirement Requirement(PlaceableCategory category) {
+    public override Requirement Requirement(PlaceableCategory category) {
         return category switch {
             PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement((ItemCount)Settings.Tiles),
             PlaceableCategory.Torch => new CountRequirement((ItemCount)Settings.Torches),

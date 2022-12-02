@@ -1,16 +1,20 @@
 namespace SPIC.ConsumableGroup;
 
-public interface IRequirement {
-    ICount NextRequirement(ICount count);
-    Infinity Infinity(ICount count);
+public abstract class Requirement {
+    public abstract ICount NextRequirement(ICount count);
+    public abstract Infinity Infinity(ICount count);
+}
+public abstract class Requirement<TCount> where TCount : ICount{
+    public abstract TCount NextRequirement(TCount count);
+    public abstract Infinity Infinity(TCount count);
 }
 
-public sealed class NoRequirement : IRequirement {
-    public Infinity Infinity(ICount count) => new(count.None, 0);
-    public ICount NextRequirement(ICount count) => count.None;
+public sealed class NoRequirement : Requirement {
+    public override Infinity Infinity(ICount count) => new(count.None, 0);
+    public override ICount NextRequirement(ICount count) => count.None;
 }
 
-public abstract class FixedRequirement : IRequirement {
+public abstract class FixedRequirement : Requirement {
     public FixedRequirement(ICount root, float multiplier) {
         Multiplier = multiplier;
         Root = root;
@@ -20,11 +24,11 @@ public abstract class FixedRequirement : IRequirement {
     public ICount Root { get; init; }
 
     public abstract ICount EffectiveRequirement(ICount count);
-    public Infinity Infinity(ICount count) => new(EffectiveRequirement(count), Multiplier);
-    public ICount NextRequirement(ICount count) => Root.CompareTo(count) > 0 ? Root.AdaptTo(count) : count.None;
+    public sealed override Infinity Infinity(ICount count) => new(EffectiveRequirement(count), Multiplier);
+    public sealed override ICount NextRequirement(ICount count) => Root.CompareTo(count) > 0 ? Root.AdaptTo(count) : count.None;
 }
 
-public abstract class RecursiveRequirement : IRequirement {
+public abstract class RecursiveRequirement : Requirement {
     protected RecursiveRequirement(ICount root, float multiplier) {
         Multiplier = multiplier;
         Root = root;
@@ -43,8 +47,8 @@ public abstract class RecursiveRequirement : IRequirement {
         return effective;
     }
 
-    public Infinity Infinity(ICount count) => new(EffectiveRequirement(count), Multiplier);
     protected abstract ICount NextValue(ICount value);
-    public ICount NextRequirement(ICount count) => count.IsNone ? Root.AdaptTo(count) : NextValue(count);
+    public sealed override Infinity Infinity(ICount count) => new(EffectiveRequirement(count), Multiplier);
+    public sealed override ICount NextRequirement(ICount count) => count.IsNone ? Root.AdaptTo(count) : NextValue(count);
 }
 

@@ -1,7 +1,7 @@
 using SPIC.ConsumableGroup;
 using Terraria.ModLoader;
 
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 namespace SPIC.Config.Presets;
 
 public class NoPreset : Preset {
@@ -29,8 +29,8 @@ public class Defaults : StaticPreset<Defaults> {
 
     public override bool MeetsCriterias(RequirementSettings config) {
 
-        foreach ((IToggleable type, bool state, bool _) in config.LoadedToggleableGroups) {
-            if (state != type.DefaultsToOn) return false;
+        foreach ((IToggleable group, bool state, bool _) in config.LoadedToggleableGroups) {
+            if (state != group.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
@@ -42,7 +42,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override void ApplyCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable type, bool state, bool global) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable group, bool state, bool global) in config.LoadedToggleableGroups) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -51,7 +51,7 @@ public class OneForAll : StaticPreset<OneForAll> {
         }
         if (!foundEnabled) {
             foreach (object key in config.EnabledGroups) {
-                if (!((ConsumableTypeDefinition)key).IsUnloaded) config.EnabledGroups[key] = true;
+                if (!((ConsumableGroupDefinition)key).IsUnloaded) config.EnabledGroups[key] = true;
             }
         }
         config.MaxConsumableTypes = 1;
@@ -59,7 +59,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override bool MeetsCriterias(RequirementSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable type, bool state, bool global) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable group, bool state, bool global) in config.LoadedToggleableGroups) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -126,6 +126,6 @@ public class JourneyCosts : StaticPreset<JourneyCosts> {
     public override bool MeetsCriterias(RequirementSettings config)
         => config.MaxConsumableTypes == 1
             && (bool)config.EnabledGroups[0]!
-            && ((ConsumableTypeDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
+            && ((ConsumableGroupDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
 
 }

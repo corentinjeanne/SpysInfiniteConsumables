@@ -23,7 +23,7 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable> where TCon
     public abstract string Key(TConsumable consumable);
     public abstract int CacheID(TConsumable consumable);
 
-    public abstract IRequirement GetRequirement(TConsumable consumable);
+    public abstract Requirement GetRequirement(TConsumable consumable);
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
     public abstract ICount LongToCount(TConsumable consumable, long count);
@@ -36,6 +36,6 @@ public abstract class ConsumableGroup<TImplementation, TConsumable, TCategory> :
 where TCategory : System.Enum where TConsumable : notnull
 where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCategory> {
     public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract IRequirement Requirement(TCategory category);
-    public sealed override IRequirement GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    public abstract Requirement Requirement(TCategory category);
+    public sealed override Requirement GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
 }

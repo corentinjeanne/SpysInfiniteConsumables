@@ -132,7 +132,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             i++;
             (object key, object? value) = entry;
             if(value is null) continue;
-            if(key is ConsumableTypeDefinition entity && entity.IsUnloaded){
+            if(key is ConsumableGroupDefinition entity && entity.IsUnloaded){
                 unloaded++;
                 continue;
             }
@@ -170,7 +170,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             }
 
             string? name = key switch {
-                ConsumableTypeDefinition type => type.Label(),
+                ConsumableGroupDefinition group => group.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 EntityDefinition def => def.Name,
                 _ => key.ToString()

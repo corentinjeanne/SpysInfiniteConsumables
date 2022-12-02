@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using SPIC.Config;
 using Terraria.Localization;
 
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 public enum AmmoCategory : byte {
     None = Category.None,
     Basic,
@@ -33,7 +33,7 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, ICon
 
     public override Color DefaultColor => Colors.RarityLime;
 
-    public override IRequirement Requirement(AmmoCategory category) => category switch {
+    public override Requirement Requirement(AmmoCategory category) => category switch {
         AmmoCategory.Basic => new CountRequirement((ItemCount)Settings.Standard),
         AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement((ItemCount)Settings.Special),
         AmmoCategory.None or _ => new NoRequirement(),

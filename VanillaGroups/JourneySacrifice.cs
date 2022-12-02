@@ -6,7 +6,7 @@ using Terraria.Localization;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
-namespace SPIC.VanillaConsumableTypes;
+namespace SPIC.VanillaGroups;
 public enum JourneySacrificeCategory : byte {
     None = Category.None,
     OnlySacrifice,
@@ -28,21 +28,11 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
     public JourneySacrificeSettings Settings { get; set; }
 #nullable restore
 
-    // public JourneySacrificeCategory GetCategory(Item item) {
-    //     if(!CreativeItemSacrificesCatalog.Instance.TryGetSacrificeCountCapToUnlockInfiniteItems(item.type, out int value) || value == 0)
-    //         return JourneySacrificeCategory.None;
-
-    //     foreach(IConsumableGroup type in InfinityManager.ConsumableTypes()){
-    //         if(type != this && InfinityManager.GetRequirement(item, type.UID) is not NoRequirement) return JourneySacrificeCategory.Consumable;
-    //     }
-    //     return JourneySacrificeCategory.OnlySacrifice;
-    // }
-
-    public override IRequirement GetRequirement(Item item) {
+    public override Requirement GetRequirement(Item item) {
         if(!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new NoRequirement();
         bool consu = false;
-        foreach(IConsumableGroup type in InfinityManager.ConsumableGroups()){
-            if(type != this && item.GetRequirement(type.UID) is not NoRequirement){
+        foreach(IConsumableGroup<Item> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item>>()){
+            if(group != this && item.GetRequirement(group) is not NoRequirement){
                 consu = true;
                 break;
             }

@@ -7,11 +7,11 @@ namespace SPIC;
 public static class PresetManager {
 
 
-    public static void Register<TImplementation>(StaticPreset<TImplementation> type) where TImplementation : StaticPreset<TImplementation>, new() {
+    public static void Register<TImplementation>(StaticPreset<TImplementation> preset) where TImplementation : StaticPreset<TImplementation>, new() {
 
-        if (type.UID != 0) throw new ArgumentException("This preset has already been registered", nameof(type));
-        int id = type.UID = s_nextPresetID++;
-        s_presets[id] = type;
+        if (preset.UID != 0) throw new ArgumentException("This preset has already been registered", nameof(preset));
+        int id = preset.UID = s_nextPresetID++;
+        s_presets[id] = preset;
 
     }
 
@@ -46,6 +46,6 @@ public static class PresetManager {
     private static int s_nextPresetID = 1;
     private static readonly Dictionary<int, Preset> s_presets = new();
 
-    public static Config.PresetDefinition ToDefinition(this Preset type) => new(type.Mod, type.Name);
+    public static Config.PresetDefinition ToDefinition(this Preset preset) => new(preset.Mod, preset.Name);
 
 }

@@ -39,7 +39,7 @@ public class RequirementSettings : ModConfig {
         set {
             _groups.Clear();
             foreach (DictionaryEntry entry in value) {
-                ConsumableTypeDefinition def = new((string)entry.Key);
+                ConsumableGroupDefinition def = new((string)entry.Key);
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _groups.Add(def, entry.Value);
                     continue;
@@ -51,35 +51,35 @@ public class RequirementSettings : ModConfig {
                 };
                 _groups.Add(def, state);
             }
-            foreach (IToggleable type in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                _groups.TryAdd(type.ToDefinition(), type.DefaultsToOn);
+            foreach (IToggleable group in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                _groups.TryAdd(group.ToDefinition(), group.DefaultsToOn);
             }
         }
     }
     [Label("$Mods.SPIC.Config.Requirements.General.MaxGroups"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_maxGroups")]
     public int MaxConsumableTypes { get; set; }
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition, bool> EnabledGlobals {
+    public Dictionary<ConsumableGroupDefinition, bool> EnabledGlobals {
         get => _globals;
         set {
             _globals.Clear();
-            foreach ((ConsumableTypeDefinition def, bool state) in value) {
+            foreach ((ConsumableGroupDefinition def, bool state) in value) {
                 if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
                 _globals.Add(def, state);
             }
-            foreach (IToggleable type in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                _globals.TryAdd(type.ToDefinition(), type.DefaultsToOn);
+            foreach (IToggleable group in InfinityManager.ConsumableGroups<IToggleable>(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                _globals.TryAdd(group.ToDefinition(), group.DefaultsToOn);
             }
         }
     }
 
     [Header("$Mods.SPIC.Config.Requirements.Requirements.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition, object> Requirements {
+    public Dictionary<ConsumableGroupDefinition, object> Requirements {
         get => _requirements;
         set {
             _requirements.Clear();
-            foreach ((ConsumableTypeDefinition def, object data) in value) {
+            foreach ((ConsumableGroupDefinition def, object data) in value) {
                 if (def.IsUnloaded) {
                     if (!ModLoader.HasMod(def.Mod)) _requirements.Add(def, data);
                     continue;
@@ -92,9 +92,9 @@ public class RequirementSettings : ModConfig {
 
                 _requirements.Add(def, config.Settings);
             }
-            foreach (IConfigurable type in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                ConsumableTypeDefinition def = type.ToDefinition();
-                if (!_requirements.ContainsKey(def)) _requirements.Add(def, type.Settings = Activator.CreateInstance(type.SettingsType)!);
+            foreach (IConfigurable group in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                ConsumableGroupDefinition def = group.ToDefinition();
+                if (!_requirements.ContainsKey(def)) _requirements.Add(def, group.Settings = Activator.CreateInstance(group.SettingsType)!);
             }
         }
     }
@@ -103,16 +103,16 @@ public class RequirementSettings : ModConfig {
     [Label("$Mods.SPIC.Config.Requirements.Blacklists.Items")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
-    public Dictionary<ConsumableTypeDefinition,HashSet<string>> BlackListedConsumables { 
+    public Dictionary<ConsumableGroupDefinition,HashSet<string>> BlackListedConsumables { 
         get => _blackListedConsumables;
         set {
             _blackListedConsumables.Clear();
-            foreach ((ConsumableTypeDefinition def, HashSet<string> consumables) in value) {
+            foreach ((ConsumableGroupDefinition def, HashSet<string> consumables) in value) {
                 if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
                 _blackListedConsumables.Add(def, consumables);
             }
-            foreach (IConsumableGroup type in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                _blackListedConsumables.TryAdd(type.ToDefinition(), new());
+            foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                _blackListedConsumables.TryAdd(group.ToDefinition(), new());
             }
         }
     }
@@ -123,22 +123,22 @@ public class RequirementSettings : ModConfig {
         return defs;
     }
     [JsonIgnore]
-    public IEnumerable<(IToggleable type, bool enabled, bool global)> LoadedToggleableGroups {
+    public IEnumerable<(IToggleable group, bool enabled, bool global)> LoadedToggleableGroups {
         get {
             foreach (DictionaryEntry entry in EnabledGroups) {
-                ConsumableTypeDefinition def = (ConsumableTypeDefinition)entry.Key;
+                ConsumableGroupDefinition def = (ConsumableGroupDefinition)entry.Key;
                 if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
             }
-            foreach ((ConsumableTypeDefinition def, bool state) in EnabledGlobals) {
+            foreach ((ConsumableGroupDefinition def, bool state) in EnabledGlobals) {
                 if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
             }
         }
     }
 
     private readonly OrderedDictionary _groups = new();
-    private readonly Dictionary<ConsumableTypeDefinition, bool> _globals = new();
-    private readonly Dictionary<ConsumableTypeDefinition, object> _requirements = new();
-    private readonly Dictionary<ConsumableTypeDefinition, HashSet<string>> _blackListedConsumables = new();
+    private readonly Dictionary<ConsumableGroupDefinition, bool> _globals = new();
+    private readonly Dictionary<ConsumableGroupDefinition, object> _requirements = new();
+    private readonly Dictionary<ConsumableGroupDefinition, HashSet<string>> _blackListedConsumables = new();
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
     

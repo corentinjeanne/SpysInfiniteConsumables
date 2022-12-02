@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 
 namespace SPIC.Globals;
 
@@ -36,7 +36,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override bool PreItemCheck() {
-        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Unknown) {
+        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) {
             DetectingCategory = true;
             SavePreUseStats();
         } else DetectingCategory = false;
@@ -67,11 +67,11 @@ public class DetectionPlayer : ModPlayer {
         if (!DetectingCategory) return;
 
         void SaveUsable(UsableCategory category)
-            => Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.ID);
+            => Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.Instance);
 
         void SaveBag() {
-            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.ID);
-            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.ID);
+            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.Instance);
+            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.Instance);
         }
 
         UsableCategory usable = TryDetectUsable();
@@ -131,8 +131,8 @@ public class DetectionPlayer : ModPlayer {
             if (p.owner == Player.whoAmI && p.type == proj) used += 1;
 
         Config.RequirementSettings requirements = Config.RequirementSettings.Instance;
-        if ((refill.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.ID) && !refill.GetInfinity(tot + used, Usable.ID).Value.IsNone)
-                || (refill.GetCategory<AmmoCategory>(Ammo.ID) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.ID).Value.IsNone)
+        if ((refill.GetCategory(Usable.Instance) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.Instance) && !refill.GetInfinity(tot + used, Usable.Instance).Value.IsNone)
+                || (refill.GetCategory(Ammo.Instance) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.Instance).Value.IsNone)
             )
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
 
@@ -147,13 +147,13 @@ public class DetectionPlayer : ModPlayer {
         Config.RequirementSettings settings = Config.RequirementSettings.Instance;
 
 
-        if (autos.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
-            autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.ID);
+        if (autos.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None)
+            autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 
         InfinityManager.ClearCache(item);
 
         item.stack++;
-        if (!self.HasInfinite(item, 1, Placeable.ID)) {
+        if (!self.HasInfinite(item, 1, Placeable.Instance)) {
             item.stack--;
         } else {
             if (settings.PreventItemDupication) return;

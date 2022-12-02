@@ -1,6 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 
 namespace SPIC.Globals {
 
@@ -27,10 +27,10 @@ namespace SPIC.Globals {
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
             Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
 
-            AmmoCategory ammo = item.GetCategory<AmmoCategory>(Ammo.ID);
-            UsableCategory usable = item.GetCategory<UsableCategory>(Usable.ID);
-            if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.ID))
-            || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.ID)))
+            AmmoCategory ammo = item.GetCategory(Ammo.Instance);
+            UsableCategory usable = item.GetCategory(Usable.Instance);
+            if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
+            || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance)))
             && !item.IsAir) {
                 InfinityManager.ClearCache(item);
                 detectionPlayer.RefilExplosive(proj.type, item);

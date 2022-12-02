@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.VanillaConsumableTypes;
+using SPIC.VanillaGroups;
 
 namespace SPIC.Globals;
 
@@ -22,10 +22,10 @@ public class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             // Consumed by other item, i.e. wand
             if (item != player.HeldItem) {
-                if (detection.DetectMissing && item.GetCategory<PlaceableCategory>(Placeable.ID) == PlaceableCategory.None)
-                    Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.ID);
+                if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None)
+                    Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance);
 
-                return !player.HasInfinite(item, 1, Placeable.ID);
+                return !player.HasInfinite(item, 1, Placeable.Instance);
             }
 
             detectionPlayer.TryDetectCategory();
@@ -33,13 +33,13 @@ public class ConsumptionItem : GlobalItem {
             // RightClick
             if (Main.playerInventory && player.itemAnimation == 0 && Main.mouseRight && Main.mouseRightRelease) {
 
-                if (item.GetCategory<GrabBagCategory>(GrabBag.ID) == GrabBagCategory.Unknown) {
-                    if (item.GetCategory<UsableCategory>(Usable.ID) == UsableCategory.Tool)
-                        return !player.HasInfinite(item, 1, Usable.ID);
+                if (item.GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown) {
+                    if (item.GetCategory(Usable.Instance) == UsableCategory.Tool)
+                        return !player.HasInfinite(item, 1, Usable.Instance);
 
-                    if (detection.DetectMissing) Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.ID);
+                    if (detection.DetectMissing) Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance);
                 }
-                return !player.HasInfinite(item, 1, GrabBag.ID);
+                return !player.HasInfinite(item, 1, GrabBag.Instance);
 
             }
 
@@ -47,22 +47,22 @@ public class ConsumptionItem : GlobalItem {
         }
 
         // LeftClick
-        if (item.GetCategory<UsableCategory>(Usable.ID) != UsableCategory.None)
-            return !player.HasInfinite(item, 1, Usable.ID);
+        if (item.GetCategory(Usable.Instance) != UsableCategory.None)
+            return !player.HasInfinite(item, 1, Usable.Instance);
         if (item.Placeable())
-            return !player.HasInfinite(item, 1, Placeable.ID);
-        return !player.HasInfinite(item, 1, GrabBag.ID);
+            return !player.HasInfinite(item, 1, Placeable.Instance);
+        return !player.HasInfinite(item, 1, GrabBag.Instance);
     }
 
     public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player)
-        => !player.HasInfinite(ammo, 1, Ammo.ID);
+        => !player.HasInfinite(ammo, 1, Ammo.Instance);
 
     public override bool? CanConsumeBait(Player player, Item bait)
-        => !player.HasInfinite(bait, 1, Usable.ID) ?
+        => !player.HasInfinite(bait, 1, Usable.Instance) ?
             null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Currency.ID)) return false;
+        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Currency.Instance)) return false;
         reforgePrice = 0;
         return true;
     }
@@ -71,7 +71,7 @@ public class ConsumptionItem : GlobalItem {
         int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.SacrificesCountByItemIdCache[item.type];
         int researchCost = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
         int consumed = System.Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);
-        if (Main.LocalPlayer.HasInfinite(item, consumed, JourneySacrifice.ID))
+        if (Main.LocalPlayer.HasInfinite(item, consumed, JourneySacrifice.Instance))
             item.stack += consumed;
     }
 }

@@ -26,16 +26,15 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
             line = tooltips.FindorAddLine(TooltipLine, LinePosition, out addedLine);
         }
 
-        Category category = this is ICategory ? InfinityManager.GetCategory(values, UID) : Category.None;
-        IRequirement requirement = InfinityManager.GetRequirement(values, UID);
-
+        Category category = GetCategory_Fix(values);
+        Requirement requirement = InfinityManager.GetRequirement(values, this);
         Infinity infinity;
         ICount consumableCount;
-
         if (OwnsItem(player, item, true)) {
             consumableCount = LongToCount(values, CountConsumables(player, values));
-            infinity = InfinityManager.GetInfinity(player, values, UID);
-        } else {
+            infinity = InfinityManager.GetInfinity(player, values, this);
+        }
+        else {
             consumableCount = LongToCount(values, 0).None;
             infinity = new(consumableCount, 0);
         }
@@ -44,31 +43,36 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
             requirement.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
-        if ((displayFlags & Globals.InfinityDisplayItem.OnLineDisplayFlags) == 0) return;
+        if ((displayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) == 0) return;
 
         Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IColorable)this).Color, displayFlags, category, infinity, next, consumableCount);
         if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }
+    internal virtual Category GetCategory_Fix(TConsumable values) => Category.None; // TODO naming
+
     public sealed override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         Player player = Main.LocalPlayer;
         
         TConsumable consumable = ToConsumable(item);
         TConsumable values = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt)? alt : consumable;
-        IRequirement root = InfinityManager.GetRequirement(values, UID);
+        Requirement requirement = InfinityManager.GetRequirement(values, this);
 
         Infinity infinity;
-
+        ICount consumableCount;
         if (OwnsItem(player, item, true)) {
-            infinity = InfinityManager.GetInfinity(player, values, UID);
+            consumableCount = LongToCount(values, CountConsumables(player, values));
+            infinity = InfinityManager.GetInfinity(player, values, this);
         } else {
-            infinity = new(LongToCount(values, 0).None, 0);
+            consumableCount = LongToCount(values, 0).None;
+            infinity = new(consumableCount, 0);
         }
+
         ICount next = infinity.EffectiveRequirement.IsNone || infinity.Value.CompareTo(LongToCount(values, GetMaxInfinity(player, values))) < 0 ?
-            root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
+            requirement.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(Category.None, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
         if ((displayFlags & Globals.InfinityDisplayItem.DotsDisplayFlags) != 0)
-            Globals.InfinityDisplayItem.s_wouldDisplayDot.Add(new(((IColorable)this).Color, displayFlags, infinity, next));
+            Globals.InfinityDisplayItem.s_wouldDisplayDot.Add(new(((IColorable)this).Color, displayFlags, infinity, next, consumableCount));
 
     }
     public sealed override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -76,12 +80,16 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
         TConsumable consumable = ToConsumable(item);
         TConsumable values = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt) ? alt : consumable;
 
-        IRequirement root = InfinityManager.GetRequirement(values, UID);
+        Requirement root = InfinityManager.GetRequirement(values, this);
         Infinity infinity;
+        ICount consumableCount;
+
         if (OwnsItem(player, item, true)) {
-            infinity = InfinityManager.GetInfinity(player, values, UID);
+            consumableCount = LongToCount(values, CountConsumables(player, values));
+            infinity = InfinityManager.GetInfinity(player, values, this);
         } else {
-            infinity = new(LongToCount(values, 0).None, 0);
+            consumableCount = LongToCount(values, 0).None;
+            infinity = new(consumableCount, 0);
         }
 
         ICount next = infinity.Value.IsNone || infinity.Value.CompareTo(LongToCount(values, GetMaxInfinity(player, values))) < 0 ?
@@ -89,7 +97,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable> where TConsu
 
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(Category.None, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
         if ((displayFlags & Globals.InfinityDisplayItem.GlowDisplayFlags) != 0)
-            Globals.InfinityDisplayItem.s_wouldDisplayGlow.Add(new(((IColorable)this).Color, displayFlags, infinity, next));
+            Globals.InfinityDisplayItem.s_wouldDisplayGlow.Add(new(((IColorable)this).Color, displayFlags, infinity, next, consumableCount));
     }
 
     public virtual bool OwnsItem(Player player, Item item, bool isACopy) {
@@ -118,8 +126,9 @@ public abstract class StandardGroup<TImplementation, TConsumable, TCategory> : S
 where TCategory : System.Enum where TConsumable : notnull
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCategory> {
     public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract IRequirement Requirement(TCategory category);
-    public sealed override IRequirement GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    public abstract Requirement Requirement(TCategory category);
+    public sealed override Requirement GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    internal override Category GetCategory_Fix(TConsumable values) => InfinityManager.GetCategory(values, this);
 }
 
 public abstract class ItemGroup<TImplementation> : StandardGroup<TImplementation, Item>
@@ -137,6 +146,6 @@ public abstract class ItemGroup<TImplementation, TCategory> : ItemGroup<TImpleme
 where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
     public abstract TCategory GetCategory(Item consumable);
-    public abstract IRequirement Requirement(TCategory category);
-    public sealed override IRequirement GetRequirement(Item consumable) => Requirement(consumable.GetCategory<TCategory>(UID));
+    public abstract Requirement Requirement(TCategory category);
+    public sealed override Requirement GetRequirement(Item consumable) => Requirement(consumable.GetCategory(this));
 }

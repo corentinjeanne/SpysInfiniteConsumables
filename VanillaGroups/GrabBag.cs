@@ -7,7 +7,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Config;
 
-namespace SPIC.VanillaConsumableTypes; 
+namespace SPIC.VanillaGroups; 
 public enum GrabBagCategory : byte {
     None = Category.None,
     Crate, // worm can
@@ -31,7 +31,7 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
 #nullable disable
     public GrabBagRequirements Settings { get; set; }
 #nullable restore
-    public override IRequirement Requirement(GrabBagCategory bag) => bag switch {
+    public override Requirement Requirement(GrabBagCategory bag) => bag switch {
         GrabBagCategory.Crate => new CountRequirement((ItemCount)Settings.Crates),
         GrabBagCategory.TreasureBag => new CountRequirement((ItemCount)Settings.TreasureBags),
         GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement(),

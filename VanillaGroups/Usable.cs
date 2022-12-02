@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Config;
 
-namespace SPIC.VanillaConsumableTypes; 
+namespace SPIC.VanillaGroups; 
 
 public enum UsableCategory : byte {
     None = Category.None,
@@ -50,7 +50,7 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
     public UsableRequirements Settings { get; set; }
 #nullable restore
     
-    public override IRequirement Requirement(UsableCategory category) {
+    public override Requirement Requirement(UsableCategory category) {
         return category switch {
             UsableCategory.Weapon => new CountRequirement((ItemCount)Settings.Weapons),
             UsableCategory.Recovery => new CountRequirement(new ItemCount(Settings.Potions){MaxStack = 99}),

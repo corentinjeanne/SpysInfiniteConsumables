@@ -42,26 +42,26 @@ public class InfinityDisplay : ModConfig {
     public Corner dots_Start;
     [DefaultValue(Direction.Horizontal), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Direction")]
     public Direction dots_Direction;
-    [Range(0,8), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Config.InfinityDisplay.Dots.t_count")]
+    [DefaultValue(Globals.InfinityDisplayItem.MaxDots), Range(1,Globals.InfinityDisplayItem.MaxDots), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Config.InfinityDisplay.Dots.t_count")]
     public int dots_Count;
     [DefaultValue(60), Range(0, 60 * 5), Slider, Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Pulse")]
     public int dot_PulseTime;
 
     [Header("$Mods.SPIC.Config.InfinityDisplay.Colors.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys, ColorNoAlpha, ColorHSLSlider]
-    public Dictionary<ConsumableTypeDefinition, Color> Colors {
+    public Dictionary<ConsumableGroupDefinition, Color> Colors {
         get => _colors;
         set {
             _colors.Clear();
-            foreach((ConsumableTypeDefinition def, Color color) in value){
+            foreach((ConsumableGroupDefinition def, Color color) in value){
                 if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
                 _colors.Add(def, color);
             }
-            foreach(IColorable type in InfinityManager.ConsumableGroups<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
-                _colors.TryAdd(type.ToDefinition(), type.DefaultColor);
+            foreach(IColorable group in InfinityManager.ConsumableGroups<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
+                _colors.TryAdd(group.ToDefinition(), group.DefaultColor);
         }
     }
-    private readonly Dictionary<ConsumableTypeDefinition, Color> _colors = new();
+    private readonly Dictionary<ConsumableGroupDefinition, Color> _colors = new();
 
 
     public enum CountStyle { Sprite, Name }
