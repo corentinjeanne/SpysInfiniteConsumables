@@ -77,6 +77,7 @@ public static class InfinityManager {
         
         List<IStandardGroup<Item, ItemCount>> used = new();
         foreach (IStandardGroup<Item, ItemCount> group in ConsumableGroups<IStandardGroup<Item, ItemCount>>()) {
+            if(GetRequirement(item, group).IsNone) continue;
             used.Add(group);
             if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) break;
         }

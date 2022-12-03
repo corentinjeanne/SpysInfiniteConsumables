@@ -9,7 +9,7 @@ using SPIC.Config;
 namespace SPIC.VanillaGroups; 
 
 public enum UsableCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
 
     Weapon,
     Recovery,
@@ -22,7 +22,7 @@ public enum UsableCategory : byte {
     Explosive,
     Tool, //confetti and cannon ammo, tree globes
 
-    Unknown = Category.Unknown
+    Unknown = CategoryHelper.Unknown
 }
 
 public class UsableRequirements {

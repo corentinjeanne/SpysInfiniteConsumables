@@ -12,7 +12,7 @@ using Terraria.Localization;
 namespace SPIC.VanillaGroups;
 
 public enum PlaceableCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
 
     Block,
     Wall,

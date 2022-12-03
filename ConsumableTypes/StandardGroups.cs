@@ -52,7 +52,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(LongToCount(value, GetMaxInfinity(player, value))) < 0 ?
             root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(Category.None, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags; // TODO >>> display category
         return new(displayFlags, infinity, next, consumableCount);
     }
     
@@ -69,7 +69,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
             tooltips.FindorAddLine(TooltipLine, LinePosition, out addedLine);
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {            
-            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IColorable)this).Color, info); // TODO >>> display category
+            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IColorable)this).Color, info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }

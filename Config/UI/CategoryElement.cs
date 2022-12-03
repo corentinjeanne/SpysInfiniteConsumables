@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
+using SPIC.ConsumableGroup;
 
 namespace SPIC.Config.UI;
 
@@ -11,19 +11,19 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
 
     public class EnumProp<TEnum> where TEnum : Enum {
 
-        private readonly Func<Enum> _getter;
-        private readonly Action<Enum> _setter;
+        private readonly Func<byte> _getter;
+        private readonly Action<byte> _setter;
 
-        public EnumProp(Func<Enum> getter, Action<Enum> setter) {
+        public EnumProp(Func<byte> getter, Action<byte> setter) {
             _getter = getter;
             _setter = setter;
         }
-        public TEnum Enum { get => (TEnum)_getter(); set => _setter(value); }
+        public TEnum Enum { get => (TEnum)System.Enum.ToObject(typeof(TEnum), _getter()); set => _setter(System.Convert.ToByte(value)); }
     }
 
     private static readonly PropertyInfo s_byteProp = typeof(CategoryElement).GetProperty(nameof(Byte), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    private byte Byte { get => (byte)Value.value; set => Value.value = value; }
+    private byte Byte { get => Value.value; set => Value.value = value; }
     private object? _enum;
 
     public override void OnBind() {
@@ -33,14 +33,14 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
         int top = 0;
         UIElement container, element;
         string label = LabelAttribute?.Label ?? MemberInfo.Name;
-        if (value.IsEnum) {
-            Type genType = typeof(EnumProp<>).MakeGenericType(((Enum)value.value).GetType());
+        if (value.type is not null) {
+            Type genType = typeof(EnumProp<>).MakeGenericType(value.type);
             PropertyInfo enumProp = genType.GetProperty(nameof(EnumProp<Enum>.Enum), BindingFlags.Public | BindingFlags.Instance)!;
-            Func<Enum> getter = () => (Enum)value.value;
-            Action<Enum> setter = (Enum e) => Value = new(e){SaveEnumType = Value.SaveEnumType};
+            Func<byte> getter = () => value.value;
+            Action<byte> setter = (byte b) => Value.value = b;
             _enum = Activator.CreateInstance(genType, new object[] { getter, setter });
             (container, element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);
-            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Value.Label()}";
+            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Value.Enum!.Label()}";
         } else {
             (container, element) = ConfigManager.WrapIt(this, ref top, new(s_byteProp), this, 0);
             TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Byte}";

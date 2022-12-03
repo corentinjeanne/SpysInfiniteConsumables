@@ -11,7 +11,7 @@ using Terraria.Localization;
 
 namespace SPIC.VanillaGroups;
 public enum AmmoCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
     Basic,
     Explosive,
     Special

@@ -9,7 +9,7 @@ using Terraria.Localization;
 namespace SPIC.VanillaGroups;
 
 public enum CurrencyCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
     Coin,
     SingleCoin,
 }

@@ -8,7 +8,7 @@ using SPIC.Config;
 
 namespace SPIC.VanillaGroups;
 public enum MaterialCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
     Basic,
     Ore,
     Furniture,

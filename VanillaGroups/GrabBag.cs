@@ -9,10 +9,10 @@ using SPIC.Config;
 
 namespace SPIC.VanillaGroups; 
 public enum GrabBagCategory : byte {
-    None = Category.None,
+    None = CategoryHelper.None,
     Crate, // worm can
     TreasureBag,
-    Unknown = Category.Unknown
+    Unknown = CategoryHelper.Unknown
 }
 
 public class GrabBagRequirements {

@@ -99,9 +99,8 @@ public class InfinityDisplayItem : GlobalItem {
     }
 
 
-    public static DisplayFlags GetDisplayFlags<TCount>(Category category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
+    public static DisplayFlags GetDisplayFlags<TCount>(Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
-        if (!category.IsNone) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
         if (!next.IsNone) flags |= DisplayFlags.Requirement;
         return flags;
@@ -124,7 +123,7 @@ public class InfinityDisplayItem : GlobalItem {
 
         System.Text.StringBuilder addons = new();
 
-        if (info.DisplayFlags.HasFlag(DisplayFlags.Category)) { // TODO >>> diplay category
+        if (info.DisplayFlags.HasFlag(DisplayFlags.Category)) {
         //     addons.Append(Separator());
         //     addons.Append(category.Label());
         }

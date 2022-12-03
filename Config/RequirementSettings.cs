@@ -73,6 +73,7 @@ public class RequirementSettings : ModConfig {
         }
     }
 
+
     [Header("$Mods.SPIC.Config.Requirements.Requirements.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
     public Dictionary<ConsumableGroupDefinition, object> Requirements {
@@ -99,6 +100,7 @@ public class RequirementSettings : ModConfig {
         }
     }
 
+
     [Header("$Mods.SPIC.Config.Requirements.Blacklists.header")]
     [Label("$Mods.SPIC.Config.Requirements.Blacklists.Items")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
@@ -117,11 +119,14 @@ public class RequirementSettings : ModConfig {
         }
     }
 
+
     public static List<PresetDefinition> GetPresets() {
         List<PresetDefinition> defs = new();
         foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
         return defs;
     }
+    
+    
     [JsonIgnore]
     public IEnumerable<(IToggleable group, bool enabled, bool global)> LoadedToggleableGroups {
         get {

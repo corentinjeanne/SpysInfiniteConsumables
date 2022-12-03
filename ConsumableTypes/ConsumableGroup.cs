@@ -32,7 +32,7 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
 
     public virtual bool CanDisplay(Item item){
         TConsumable consumable = ToConsumable(item);
-        return !InfinityManager.IsBlacklisted(consumable, this) && (InfinityManager.IsUsed(consumable, this) || this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, consumable, out _));
+        return !InfinityManager.IsBlacklisted(consumable, this) && (InfinityManager.IsUsed(consumable, this) || (this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, consumable, out _)));
     }
     public abstract void ModifyTooltip(Item item, List<TooltipLine> tooltips);
     public abstract void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
