@@ -4,7 +4,7 @@ using Terraria;
 
 namespace SPIC.ConsumableGroup;
 
-public struct CurrencyCount : ICount {
+public struct CurrencyCount : ICount<CurrencyCount> {
 
     public CurrencyCount() {
         Currency = -2;
@@ -23,15 +23,15 @@ public struct CurrencyCount : ICount {
     public long Value { get; init; }
     public bool IsNone => Value == 0;
 
-    public ICount Add(ICount count) => new CurrencyCount(this) { Value = Value + ((CurrencyCount)count).Value };
-    public ICount Multiply(float value) => new CurrencyCount(this) { Value = (long)(Value * value) };
+    public CurrencyCount Add(CurrencyCount count) => new (this) { Value = Value + (count).Value };
+    public CurrencyCount Multiply(float value) => new (this) { Value = (long)(Value * value) };
 
-    public ICount AdaptTo(ICount reference) => new CurrencyCount((CurrencyCount)reference) { Value = Value };
+    public CurrencyCount AdaptTo(CurrencyCount reference) => new (reference) { Value = Value };
 
 
-    public ICount None => new CurrencyCount(Currency, 0);
+    public CurrencyCount None => new(Currency, 0);
 
-    public int CompareTo(ICount? other) => Value.CompareTo(((CurrencyCount)other).Value);
+    public int CompareTo(CurrencyCount other) => Value.CompareTo(other.Value);
 
     public string Display(Config.InfinityDisplay.CountStyle style) {
         switch (style){
@@ -48,13 +48,13 @@ public struct CurrencyCount : ICount {
     public string DisplayRawValue(Config.InfinityDisplay.CountStyle style)
         => InfinityManager.GetCategory(Currency, VanillaGroups.Currency.Instance) == CurrencyCategory.SingleCoin ? $"{Value}" : Display(style);
 
-    public float Ratio(ICount other) => (float)Value / ((CurrencyCount)other).Value;
+    public float Ratio(CurrencyCount other) => (float)Value / other.Value;
 }
 
 /// <summary>
 /// DO NOT use for config, use <see cref="ItemCountWrapper"/> instead
 /// </summary>
-public struct ItemCount : ICount {
+public struct ItemCount : ICount<ItemCount> {
 
     public ItemCount() {
         Type = 0;
@@ -92,19 +92,18 @@ public struct ItemCount : ICount {
     public long Items => UseItems ? (long)Value : (long)(Stacks * MaxStack);
     public float Stacks => !UseItems ? (float)Value : (float)Items / MaxStack;
 
-    public ICount None => new ItemCount(this) { Value = 0L };
+    public ItemCount None => new (this) { Value = 0L };
 
-    public ICount Multiply(float value) => UseItems ? new ItemCount(this) { Value = (long)(Items * value) } : new ItemCount(this) { Value = Stacks * value };
-    public ICount Add(ICount count) => UseItems ? new ItemCount(this) { Value = Items + ((ItemCount)count).Items } : new ItemCount(this) { Value = Stacks + ((ItemCount)count).Stacks };
+    public ItemCount Multiply(float value) => UseItems ? new ItemCount(this) { Value = (long)(Items * value) } : new ItemCount(this) { Value = Stacks * value };
+    public ItemCount Add(ItemCount count) => UseItems ? new ItemCount(this) { Value = Items + count.Items } : new ItemCount(this) { Value = Stacks + count.Stacks };
 
-    public ICount AdaptTo(ICount reference) {
-        ItemCount other = (ItemCount)reference;
-        object value = UseItems ? (object)System.Math.Min(Items, other.MaxStack) : (Stacks * System.MathF.Min(1.0f, (float)MaxStack / other.MaxStack));
+    public ItemCount AdaptTo(ItemCount reference) {
+        ItemCount other = reference;
+        object value = UseItems ? (object)System.Math.Min(Items, other.MaxStack) : (Stacks * System.MathF.Min(1.0f, (float)MaxStack / other.MaxStack)); // TODO reduce boxing
         return new ItemCount(other) { Value = value };
     }
-    public int CompareTo(ICount? other) {
-        ItemCount value = (ItemCount)other;
-        return UseItems ? Items.CompareTo(value.Items) : ((ItemCount)AdaptTo(other)).Stacks.CompareTo(value.Stacks);
+    public int CompareTo(ItemCount other) {
+        return UseItems ? Items.CompareTo(other.Items) : AdaptTo(other).Stacks.CompareTo(other.Stacks);
     }
 
     public string Display(Config.InfinityDisplay.CountStyle style) => style switch {
@@ -114,5 +113,5 @@ public struct ItemCount : ICount {
     public string DisplayRawValue(Config.InfinityDisplay.CountStyle style) => Items.ToString();
     public override string ToString() => $"{(UseItems? $"Items={Items}" : $"Stacks={Stacks}")}, MaxStack={MaxStack}";
 
-    public float Ratio(ICount other) => UseItems ? (float)Items / ((ItemCount)other).Items : Stacks / ((ItemCount)other).Stacks;
+    public float Ratio(ItemCount other) => UseItems ? (float)Items / other.Items : Stacks / other.Stacks;
 }

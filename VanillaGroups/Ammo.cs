@@ -33,10 +33,10 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, ICon
 
     public override Color DefaultColor => Colors.RarityLime;
 
-    public override Requirement Requirement(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => new CountRequirement((ItemCount)Settings.Standard),
-        AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement((ItemCount)Settings.Special),
-        AmmoCategory.None or _ => new NoRequirement(),
+    public override Requirement<ItemCount> Requirement(AmmoCategory category) => category switch {
+        AmmoCategory.Basic => new CountRequirement<ItemCount>(Settings.Standard),
+        AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement<ItemCount>(Settings.Special),
+        AmmoCategory.None or _ => new NoRequirement<ItemCount>(),
     };
 
     public override AmmoCategory GetCategory(Item weapon) {

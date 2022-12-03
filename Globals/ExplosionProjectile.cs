@@ -32,7 +32,6 @@ namespace SPIC.Globals {
             if (((ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
             || (usable != UsableCategory.None && usable != UsableCategory.Explosive && Config.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance)))
             && !item.IsAir) {
-                InfinityManager.ClearCache(item);
                 detectionPlayer.RefilExplosive(proj.type, item);
             }
             _explodedProjTypes.Add(proj.type);

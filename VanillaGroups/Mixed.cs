@@ -8,32 +8,34 @@ using SPIC.ConsumableGroup;
 
 namespace SPIC.VanillaGroups;
 
-public class MixedRequirement : Requirement {
+public class MixedRequirement : Requirement<ItemCount> {
 
     public Item Item { get; init; }
+
+    public override bool IsNone => Item.type == Terraria.ID.ItemID.None;
 
     public MixedRequirement(Item item) {
         Item = item;
     }
 
 
-    public override Infinity Infinity(ICount count) {
-        Infinity max = new(count.None, 0);
-        foreach(IStandardGroup<Item> group in InfinityManager.UsedConsumableGroups(Item)){
-            Requirement requirement = Item.GetRequirement(group);
-            if(requirement is NoRequirement) continue;
-            Infinity inf = requirement.Infinity(count);
+    public override Infinity<ItemCount> Infinity(ItemCount count) {
+        Infinity<ItemCount> max = new(count.None, 0);
+        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(Item)){
+            Requirement<ItemCount> requirement = Item.GetRequirement(group);
+            if(requirement.IsNone) continue;
+            Infinity<ItemCount> inf = requirement.Infinity(count);
             if(max.Value.IsNone || inf.Value.CompareTo(max.Value) > 0) max = inf;
         }
         return max;
     }
 
-    public override ICount NextRequirement(ICount count){
-        ICount max = count.None;
-        foreach(IStandardGroup<Item> group in InfinityManager.UsedConsumableGroups(Item)){
-            Requirement requirement = Item.GetRequirement(group);
-            if(requirement is NoRequirement) continue;
-            ICount next = requirement.NextRequirement(requirement.Infinity(count).EffectiveRequirement);
+    public override ItemCount NextRequirement(ItemCount count){
+        ItemCount max = count.None;
+        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(Item)){
+            Requirement<ItemCount> requirement = Item.GetRequirement(group);
+            if(requirement.IsNone) continue;
+            ItemCount next = requirement.NextRequirement(requirement.Infinity(count).EffectiveRequirement);
             if(max.IsNone || next.CompareTo(max) > 0) max = next;
         }
         return max;
@@ -41,7 +43,7 @@ public class MixedRequirement : Requirement {
 }
 
 // ? amunition
-internal class Mixed : ConsumableGroup<Mixed, Item> {
+internal class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => Terraria.ID.ItemID.LunarHook;
 
@@ -49,16 +51,16 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
     public override Item ToConsumable(Item item) => item;
     public override int CacheID(Item consumable) => consumable.type;
 
-    public override ICount LongToCount(Item consumable, long count) => new ItemCount(consumable, count);
+    public override ItemCount LongToCount(Item consumable, long count) => new(consumable, count);
 
     public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);
 
-    public override Requirement GetRequirement(Item item) => new MixedRequirement(item);
+    public override Requirement<ItemCount> GetRequirement(Item item) => new MixedRequirement(item);
 
     public override long CountConsumables(Player player, Item item) {
         long count = long.MaxValue;
-        foreach (IStandardGroup<Item> group in item.UsedConsumableGroups()) {
+        foreach (IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item)) {
             long c = group.CountConsumables(player, item);
             if (c < count) count = c;
         }
@@ -67,7 +69,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
 
     public static long GetMaxInfinity(Player player, Item item) {
         long mixed = 0;
-        foreach (IStandardGroup<Item> group in item.UsedConsumableGroups()) {
+        foreach (IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item)) {
             long inf = group.GetMaxInfinity(player, item);
             if (inf > mixed) mixed = inf;
         }
@@ -75,7 +77,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item> {
     }
 
     public static bool OwnsItem(Player player, Item item, bool isACopy){
-        foreach (IStandardGroup<Item> group in item.UsedConsumableGroups()){
+        foreach (IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item)){
             if(!group.OwnsItem(player, item, isACopy)) return false;
         }
         return true;

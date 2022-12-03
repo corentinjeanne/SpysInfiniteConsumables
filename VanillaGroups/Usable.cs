@@ -50,19 +50,19 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
     public UsableRequirements Settings { get; set; }
 #nullable restore
     
-    public override Requirement Requirement(UsableCategory category) {
+    public override Requirement<ItemCount> Requirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new CountRequirement((ItemCount)Settings.Weapons),
-            UsableCategory.Recovery => new CountRequirement(new ItemCount(Settings.Potions){MaxStack = 99}),
-            UsableCategory.Buff => new CountRequirement((ItemCount)Settings.Potions),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new CountRequirement((ItemCount)Settings.Boosters),
+            UsableCategory.Weapon => new CountRequirement<ItemCount>(Settings.Weapons),
+            UsableCategory.Recovery => new CountRequirement<ItemCount>(new(Settings.Potions){MaxStack = 99}),
+            UsableCategory.Buff => new CountRequirement<ItemCount>(Settings.Potions),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new CountRequirement<ItemCount>(Settings.Boosters),
 
-            UsableCategory.Summoner => new CountRequirement((ItemCount)Settings.Summoners),
-            UsableCategory.Critter => new CountRequirement((ItemCount)Settings.Critters),
-            UsableCategory.Explosive => new CountRequirement(new ItemCount(Settings.Tools){MaxStack=99}),
-            UsableCategory.Tool or UsableCategory.Unknown => new CountRequirement((ItemCount)Settings.Tools),
+            UsableCategory.Summoner => new CountRequirement<ItemCount>(Settings.Summoners),
+            UsableCategory.Critter => new CountRequirement<ItemCount>(Settings.Critters),
+            UsableCategory.Explosive => new CountRequirement<ItemCount>(new(Settings.Tools){MaxStack=99}),
+            UsableCategory.Tool or UsableCategory.Unknown => new CountRequirement<ItemCount>(Settings.Tools),
 
-            UsableCategory.None or _ => new NoRequirement(),
+            UsableCategory.None or _ => new NoRequirement<ItemCount>(),
         };
     }
 

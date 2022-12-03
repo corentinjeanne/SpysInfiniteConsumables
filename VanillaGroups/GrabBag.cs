@@ -31,10 +31,10 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
 #nullable disable
     public GrabBagRequirements Settings { get; set; }
 #nullable restore
-    public override Requirement Requirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Crate => new CountRequirement((ItemCount)Settings.Crates),
-        GrabBagCategory.TreasureBag => new CountRequirement((ItemCount)Settings.TreasureBags),
-        GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement(),
+    public override Requirement<ItemCount> Requirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Crate => new CountRequirement<ItemCount>(Settings.Crates),
+        GrabBagCategory.TreasureBag => new CountRequirement<ItemCount>(Settings.TreasureBags),
+        GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement<ItemCount>(),
     };
 
     public override GrabBagCategory GetCategory(Item item) {

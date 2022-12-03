@@ -1,12 +1,12 @@
 namespace SPIC.ConsumableGroup;
 
-public struct Infinity {
-    public Infinity(ICount effectiveRequirement, float multiplier) {
+public struct Infinity<TCount> where TCount : ICount<TCount> {
+    public Infinity(TCount effectiveRequirement, float multiplier) {
         EffectiveRequirement = effectiveRequirement;
         Multiplier = multiplier;
     }
 
-    public ICount EffectiveRequirement { get; init; }
+    public TCount EffectiveRequirement { get; init; }
     public float Multiplier { get; init; }
-    public ICount Value => EffectiveRequirement.Multiply(Multiplier);
+    public TCount Value => EffectiveRequirement.Multiply(Multiplier);
 }

@@ -16,19 +16,18 @@ public enum DisplayFlags {
     All = Category | Requirement | Infinity
 }
 
+public record struct DisplayInfo<TCount>(DisplayFlags DisplayFlags, Infinity<TCount> Infinity, TCount Next, TCount ConsumableCount) where TCount : ICount<TCount>;
+
 public class InfinityDisplayItem : GlobalItem {
 
     private static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
-        if (!InfinityManager.IsBlacklisted(item)) {
-            foreach (IConsumableGroup<Item> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item>>(FilterFlags.NonGlobal | FilterFlags.Enabled)) {
-                if (InfinityManager.IsUsed(item, group)) yield return group;
-                if (group is IAlternateDisplay altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, group.ToConsumable(item), out _)) yield return group;
-            }
+        
+        foreach (IStandardGroup<Item, ItemCount> group in InfinityManager.ConsumableGroups<IStandardGroup<Item, ItemCount>>()) {
+            if(group.CanDisplay(item)) yield return group;
         }
+        
         foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled)) {
-            if(InfinityManager.IsBlacklisted(group.ToConsumable(item), group)) continue;
-            if(InfinityManager.GetRequirement(group.ToConsumable(item), group) is not NoRequirement) yield return group;
-            if(group is IAlternateDisplay altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, group.ToConsumable(item), out _)) yield return group;
+            if(group.CanDisplay(item)) yield return group;
         }
     }
 
@@ -73,17 +72,14 @@ public class InfinityDisplayItem : GlobalItem {
 
             int startingDot = s_dotFocusGroup % ((s_wouldDisplayDot.Count + display.dots_Count - 1) / display.dots_Count * display.dots_Count) / display.dots_Count * display.dots_Count;
             for (int i = startingDot; i < startingDot + display.dots_Count && i < s_wouldDisplayDot.Count; i++) {
-                DisplayDot(spriteBatch, dotPosition, s_wouldDisplayDot[i].Color, s_wouldDisplayDot[i].DisplayFlags, s_wouldDisplayDot[i].Infinity, s_wouldDisplayDot[i].Next, s_wouldDisplayDot[i].ConsumableCount);
+                s_wouldDisplayDot[i].ActualDrawInInventorySlot(item, spriteBatch, dotPosition);
                 dotPosition += dotDelta;
             }
         }
 
         if (display.glow_ShowGlow && s_wouldDisplayGlow.Count > 0) {
             int i = s_glowFocusGroup % s_wouldDisplayGlow.Count;
-
-            if (i < s_wouldDisplayGlow.Count) {
-                DisplayGlow(spriteBatch, item, position, origin, frame, scale, s_wouldDisplayGlow[i].Color, (float)s_glowFrame / display.glow_PulseTime, s_wouldDisplayGlow[i].DisplayFlags, s_wouldDisplayGlow[i].Infinity, s_wouldDisplayGlow[i].Next, s_wouldDisplayDot[i].ConsumableCount);
-            }
+            if (i < s_wouldDisplayGlow.Count) s_wouldDisplayGlow[i].ActualDrawOnItemSprite(item, spriteBatch, position, frame, origin, scale);
         }
     }
 
@@ -102,10 +98,8 @@ public class InfinityDisplayItem : GlobalItem {
         }
     }
 
-    public static DisplayFlags LineDisplayFlags => DisplayFlags.Infinity|DisplayFlags.Requirement|DisplayFlags.Category;
-    public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity|DisplayFlags.Requirement;
-    public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
-    public static DisplayFlags GetDisplayFlags(Category category, Infinity infinity, ICount next) {
+
+    public static DisplayFlags GetDisplayFlags<TCount>(Category category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
         if (!category.IsNone) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
@@ -113,13 +107,16 @@ public class InfinityDisplayItem : GlobalItem {
         return flags;
     }
 
-    public static void DisplayOnLine(ref string line, ref Color? lineColor, Color color, DisplayFlags displayFlags, Category category, Infinity infinity, ICount nextRequirement, ICount consumableCount) {
+    public static DisplayFlags LineDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement | DisplayFlags.Category;
+    public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement;
+    public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
+    public static void DisplayOnLine<TCount>(ref string line, ref Color? lineColor, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         Config.InfinityDisplay visuals = Config.InfinityDisplay.Instance;
 
-        if (displayFlags.HasFlag(DisplayFlags.Infinity)) {
+        if (info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) {
             lineColor = color * (Main.mouseTextColor / 255f);
-            if (nextRequirement.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
-            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, infinity.Value.Display(visuals.tooltip_RequirementStyle));
+            if (info.Next.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
+            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, info.Infinity.Value.Display(visuals.tooltip_RequirementStyle));
         }
 
         int total = 0;
@@ -127,27 +124,27 @@ public class InfinityDisplayItem : GlobalItem {
 
         System.Text.StringBuilder addons = new();
 
-        if (displayFlags.HasFlag(DisplayFlags.Category)) {
-            addons.Append(Separator());
-            addons.Append(category.Label());
+        if (info.DisplayFlags.HasFlag(DisplayFlags.Category)) { // TODO >>> diplay category
+        //     addons.Append(Separator());
+        //     addons.Append(category.Label());
         }
 
-        if (displayFlags.HasFlag(DisplayFlags.Requirement)) {
+        if (info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) {
             addons.Append(Separator());
-            addons.Append(consumableCount.IsNone ?
-                nextRequirement.Display(visuals.tooltip_RequirementStyle) :
-                $"{consumableCount.DisplayRawValue(visuals.tooltip_RequirementStyle)} / {nextRequirement.Display(visuals.tooltip_RequirementStyle)}"
+            addons.Append(info.ConsumableCount.IsNone ?
+                info.Next.Display(visuals.tooltip_RequirementStyle) :
+                $"{info.ConsumableCount.DisplayRawValue(visuals.tooltip_RequirementStyle)} / {info.Next.Display(visuals.tooltip_RequirementStyle)}"
             );
         }
         if (total > 0) addons.Append(')');
         line += addons.ToString();
     }
-    public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayFlags displayFlags, Infinity infinity, ICount next, ICount consumableCount) {
+    public static void DisplayDot<TCount>(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         float scale = DotScale * Main.inventoryScale;
         float colorMult = 1;
 
         // BUG Does clear cache when buying items (visual bug for partial infs)
-        if(displayFlags.HasFlag(DisplayFlags.Infinity) && !infinity.Value.IsNone){
+        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.Value.IsNone){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {
                 spriteBatch.Draw(
@@ -164,11 +161,11 @@ public class InfinityDisplayItem : GlobalItem {
             }
         }
 
-        float ratio = next.IsNone ? 1 : consumableCount.Ratio(next);
+        float ratio = info.Next.IsNone ? 1 : info.ConsumableCount.Ratio(info.Next);
         for (int i = 0; i < _innerPixels.Length; i++) {
             float alpha;
-            if(displayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.33f;
-            else if(displayFlags.HasFlag(DisplayFlags.Infinity) && !infinity.EffectiveRequirement.IsNone) alpha = next.IsNone ? 1f : 0.33f;
+            if(info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.33f;
+            else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.33f;
             else alpha = 0f;
             
             spriteBatch.Draw(
@@ -184,12 +181,14 @@ public class InfinityDisplayItem : GlobalItem {
             );
         }
     }
-    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, float ratio, DisplayFlags displayFlags, Infinity infinity, ICount next, ICount consumableCount) {
-        if (!displayFlags.HasFlag(DisplayFlags.Infinity)) return;
-        if (infinity.Value.IsNone) return;
+    public static void DisplayGlow<TCount>(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
+        if (!info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) return;
+        if (info.Infinity.Value.IsNone) return;
         Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
+
+        float ratio = (float)s_glowFrame / display.glow_PulseTime;
         float increase = (ratio < 0.5f ? ratio : 1 - ratio) * 2;
-        float maxScale = next.IsNone ? ((frame.Size().X + 4) / frame.Size().X - 1) : 0;
+        float maxScale = info.Next.IsNone ? ((frame.Size().X + 4) / frame.Size().X - 1) : 0;
         spriteBatch.Draw(
             TextureAssets.Item[item.type].Value,
             position - frame.Size() / 2 * increase * maxScale * scale * Main.inventoryScale,
@@ -202,25 +201,17 @@ public class InfinityDisplayItem : GlobalItem {
             0f
         );
     }
-    public record struct DisplayInfo(Color Color, DisplayFlags DisplayFlags, Infinity Infinity, ICount Next, ICount ConsumableCount);
 
     private static int s_glowFrame, s_dotFrame;
     private static int s_glowFocusGroup, s_dotFocusGroup;
 
     public const int MaxDots = 8;
 
-    private static readonly Vector2[] _innerPixels = new Vector2[]{
-        new(1,1),new(2,1),new(1,2),new(2,2)
-    };
-    private static readonly Vector2[] _outerPixels = new Vector2[]{
-        new(1,0),
-        new(0,1),new(0,2),
-        new(1,3),new(2,3),
-        new(3,2),new(3,1),
-        new(2,0),
-    };
+    private static readonly Vector2[] _innerPixels = new Vector2[]{ new(1,1),new(2,1),new(1,2),new(2,2) };
+    private static readonly Vector2[] _outerPixels = new Vector2[]{ new(1,0),new(0,1),new(0,2),new(1,3),new(2,3),new(3,2),new(3,1),new(2,0) };
     private static Vector2 _dotSize = new(4, 4);
     public const int DotScale = 2;
-    internal static List<DisplayInfo> s_wouldDisplayDot = new();
-    internal static List<DisplayInfo> s_wouldDisplayGlow = new();
+
+    internal static List<IStandardGroup> s_wouldDisplayDot = new();
+    internal static List<IStandardGroup> s_wouldDisplayGlow = new();
 }

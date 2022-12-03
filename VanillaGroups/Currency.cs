@@ -21,7 +21,7 @@ public class CurrencyRequirements {
     public int Single = 50;
 }
 
-public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
+public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.LuckyCoin;
 
@@ -30,10 +30,10 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
     public CurrencyRequirements Settings { get; set; }
 #nullable restore
 
-    public override Requirement Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Coins * 100), 100, 0.1f),
-        CurrencyCategory.SingleCoin => new MultipleRequirement(new CurrencyCount(CurrencyHelper.None, Settings.Single), 0.2f),
-        CurrencyCategory.None or _ => new NoRequirement()     
+    public override Requirement<CurrencyCount> Requirement(CurrencyCategory category) => category switch {
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, Settings.Coins * 100), 100, 0.1f),
+        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(new(CurrencyHelper.None, Settings.Single), 0.2f),
+        CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()     
     };
 
     public override long CountConsumables(Player player, int currency) => currency == CurrencyHelper.None ? 0 : player.CountCurrency(currency, true);
@@ -54,7 +54,7 @@ public class Currency : StandardGroup<Currency, int, CurrencyCategory>, IConfigu
         else return Globals.SpicNPC.HighestItemValue(currency);
     }
 
-    public override ICount LongToCount(int consumable, long count) => new CurrencyCount(consumable, count);
+    public override CurrencyCount LongToCount(int consumable, long count) => new(consumable, count);
 
     public override string Key(int consumable) => new ItemDefinition(CurrencyHelper.LowestValueType(consumable)).ToString();
 

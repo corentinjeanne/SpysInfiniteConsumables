@@ -1,14 +1,14 @@
 namespace SPIC.ConsumableGroup;
 
-public interface ICount : System.IComparable<ICount> {
-    ICount Multiply(float value);
-    ICount Add(ICount count);
-    ICount AdaptTo(ICount reference);
+public interface ICount<TCount> : System.IComparable<TCount> where TCount : ICount<TCount> {
+    TCount Multiply(float value);
+    TCount Add(TCount count);
+    TCount AdaptTo(TCount reference);
 
-    ICount None { get; }
+    TCount None { get; }
     bool IsNone { get; }
 
-    float Ratio(ICount other);
+    float Ratio(TCount other);
 
     string DisplayRawValue(Config.InfinityDisplay.CountStyle style);
     string Display(Config.InfinityDisplay.CountStyle style);

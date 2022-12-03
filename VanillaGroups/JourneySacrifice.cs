@@ -28,16 +28,16 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
     public JourneySacrificeSettings Settings { get; set; }
 #nullable restore
 
-    public override Requirement GetRequirement(Item item) {
-        if(!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new NoRequirement();
+    public override Requirement<ItemCount> GetRequirement(Item item) {
+        if(!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new NoRequirement<ItemCount>();
         bool consu = false;
-        foreach(IConsumableGroup<Item> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item>>()){
-            if(group != this && item.GetRequirement(group) is not NoRequirement){
+        foreach(IConsumableGroup<Item, ItemCount> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item, ItemCount>>()){
+            if(group != this && !item.GetRequirement(group).IsNone){
                 consu = true;
                 break;
             }
         }
-        return consu || Settings.includeNonConsumable ? new CountRequirement(new ItemCount(item, CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type])) : new NoRequirement();
+        return consu || Settings.includeNonConsumable ? new CountRequirement<ItemCount>(new(item, CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type])) : new NoRequirement<ItemCount>();
     }
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));

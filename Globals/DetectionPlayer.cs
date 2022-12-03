@@ -82,7 +82,6 @@ public class DetectionPlayer : ModPlayer {
         else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
         else return;
 
-        InfinityManager.ClearCache(Player.HeldItem);
         DetectingCategory = false;
     }
 
@@ -149,8 +148,6 @@ public class DetectionPlayer : ModPlayer {
 
         if (autos.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None)
             autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
-
-        InfinityManager.ClearCache(item);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) {
