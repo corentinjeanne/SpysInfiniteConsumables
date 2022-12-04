@@ -66,9 +66,7 @@ public class CategoryDetection : ModConfig {
             }
             IConsumableGroup group = def.ConsumableType;
             if (group.UID < 0 || group is not IDetectable detectable) continue;
-
-            System.Type? iCategoryGen2 = detectable.GetType().GetInterfaces().Find(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICategory<,>));
-            if (iCategoryGen2 != null) {
+            if (detectable.GetType().ImplementInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
                 dest[def] = new();
                 foreach (TKey key in source[def].Keys) {
                     dest[def][key] = source[def][key].type is not null ?

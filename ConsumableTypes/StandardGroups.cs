@@ -41,6 +41,11 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         Infinity<TCount> infinity;
         TCount consumableCount;
 
+        System.Enum? category = null;
+
+        if(GetType().ImplementInterface(typeof(ICategory<,>)))
+            category = InfinityManager.GetCategory(consumable, (dynamic)this);
+
         if (OwnsItem(player, item, true)) {
             consumableCount = LongToCount(value, CountConsumables(player, value));
             infinity = InfinityManager.GetInfinity(player, value, this);
@@ -52,8 +57,8 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(LongToCount(value, GetMaxInfinity(player, value))) < 0 ?
             root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags; // TODO >>> display category
-        return new(displayFlags, infinity, next, consumableCount);
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
+        return new(displayFlags, category, infinity, next, consumableCount);
     }
     
     public virtual string LinePosition => TooltipLine.Name;
@@ -110,7 +115,7 @@ where TImplementation : ItemGroup<TImplementation> {
     public sealed override Item ToConsumable(Item item) => item;
 
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);
-    public sealed override ItemCount LongToCount(Item item, long count) => new (item, count);
+    public sealed override ItemCount LongToCount(Item item, long count) => new(item) { Items = count };
 }
 public abstract class ItemGroup<TImplementation, TCategory> : ItemGroup<TImplementation>, ICategory<Item, TCategory>
 where TCategory : System.Enum

@@ -24,6 +24,7 @@ public interface IColorable : IConsumableGroup {
     Color Color => Config.InfinityDisplay.Instance.Colors[this.ToDefinition()];
 }
 
+// ? Remove
 public interface IConfigurable : IConsumableGroup {
     object Settings { get; internal set; }
     System.Type SettingsType { get; }

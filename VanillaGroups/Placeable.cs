@@ -41,21 +41,21 @@ public static class PlaceableExtension {
 
 public class PlaceableRequirements {
     [Label("$Mods.SPIC.Groups.Placeable.tiles")]
-    public ItemCountWrapper Tiles = new(1.0f);
+    public ItemCountWrapper Tiles = new(){Stacks=1};
     [Label("$Mods.SPIC.Groups.Placeable.ores")]
-    public ItemCountWrapper Ores = new(499);
+    public ItemCountWrapper Ores = new(){Items=499};
     [Label("$Mods.SPIC.Groups.Placeable.torches")]
-    public ItemCountWrapper Torches = new(99);
+    public ItemCountWrapper Torches = new(){Items=99};
     [Label("$Mods.SPIC.Groups.Placeable.furnitures")]
-    public ItemCountWrapper Furnitures = new(3, 99);
+    public ItemCountWrapper Furnitures = new(99){Items=3};
     [Label("$Mods.SPIC.Groups.Placeable.mechanical")]
-    public ItemCountWrapper Mechanical = new(3);
+    public ItemCountWrapper Mechanical = new(){Items=3};
     [Label("$Mods.SPIC.Groups.Placeable.liquids")]
-    public ItemCountWrapper Liquids = new(10);
+    public ItemCountWrapper Liquids = new(){Items=10};
     [Label("$Mods.SPIC.Groups.Placeable.seeds")]
-    public ItemCountWrapper Seeds = new(20, 99);
+    public ItemCountWrapper Seeds = new(99){Items=20};
     [Label("$Mods.SPIC.Groups.Placeable.paints")]
-    public ItemCountWrapper Paints = new(1.0f, 999);
+    public ItemCountWrapper Paints = new(){Stacks=1};
 }
 
 public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisplay<Item>, IConfigurable<PlaceableRequirements>, IDetectable {

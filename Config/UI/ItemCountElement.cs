@@ -12,26 +12,22 @@ public class NoSwappingAttribute : Attribute { }
 
 public class ItemCountElement : ConfigElement<ItemCountWrapper> {
 
-    private static readonly PropertyInfo ItemProp = typeof(ItemCountElement).GetProperty(nameof(Items), BindingFlags.Instance | BindingFlags.NonPublic)!;
-    private static readonly PropertyInfo StacksProp = typeof(ItemCountElement).GetProperty(nameof(Stacks), BindingFlags.Instance | BindingFlags.NonPublic)!;
-    private int Items {
-        get => (int)(long)Value.value;
-        set => Value.value = (long)value;
+    private static readonly PropertyInfo ValueProp = typeof(ItemCountElement).GetProperty(nameof(CountValue), BindingFlags.Instance | BindingFlags.NonPublic)!;
+    [Range(0,9999)]
+    private int CountValue {
+        get => Value.value;
+        set => Value.value = value;
     }
-    private int Stacks {
-        get => (int)(float)Value.value;
-        set => Value.value = (float)value;
-    }
+
 #nullable disable
     private Func<string> _parentDisplayFunction;
-    private Func<string> _childTextDisplayFunction;
     private UIElement _selectedElement;
 #nullable restore
     public override void OnBind() {
         base.OnBind();
 
         _parentDisplayFunction = TextDisplayFunction;
-        TextDisplayFunction = () => $"{_parentDisplayFunction()} ({_childTextDisplayFunction()})";
+        TextDisplayFunction = () => $"{_parentDisplayFunction()} ({(Value.useStacks ? "Stacks" : "Items")})";
 
         if (ConfigManager.GetCustomAttribute<NoSwappingAttribute>(MemberInfo, Value.GetType()) is null) {
             OnClick += (UIMouseEvent a, UIElement b) => {
@@ -46,13 +42,11 @@ public class ItemCountElement : ConfigElement<ItemCountWrapper> {
     public void SetupMember() {
         RemoveAllChildren();
 
-        bool items = Value.UseItems;
         int top = 0;
-        (_selectedElement, UIElement element) = ConfigManager.WrapIt(this, ref top, new(items ? ItemProp : StacksProp), this, 0);
+        (_selectedElement, UIElement element) = ConfigManager.WrapIt(this, ref top, new(ValueProp), this, 0);
         _selectedElement.Left.Pixels -= 20;
         _selectedElement.Width.Pixels += 20;
 
-        _childTextDisplayFunction = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(element)!;
         ReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);
         ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, new Color(0, 0, 0, 0));
 

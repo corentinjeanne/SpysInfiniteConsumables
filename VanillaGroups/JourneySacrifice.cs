@@ -37,7 +37,7 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
                 break;
             }
         }
-        return consu || Settings.includeNonConsumable ? new CountRequirement<ItemCount>(new(item, CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type])) : new NoRequirement<ItemCount>();
+        return consu || Settings.includeNonConsumable ? new CountRequirement<ItemCount>(new(item){Items=CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]}) : new NoRequirement<ItemCount>();
     }
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));

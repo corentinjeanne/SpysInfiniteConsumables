@@ -18,9 +18,9 @@ public enum AmmoCategory : byte {
 }
 public class AmmoRequirements {
     [Label("$Mods.SPIC.Groups.Ammo.standard")]
-    public ItemCountWrapper Standard = new(4.0f);
+    public ItemCountWrapper Standard = new(){Stacks=4};
     [Label("$Mods.SPIC.Groups.Ammo.special")]
-    public ItemCountWrapper Special = new(1.0f);
+    public ItemCountWrapper Special = new(){Stacks=1};
 }
 
 public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, IDetectable {

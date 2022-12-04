@@ -51,7 +51,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public override Item ToConsumable(Item item) => item;
     public override int CacheID(Item consumable) => consumable.type;
 
-    public override ItemCount LongToCount(Item consumable, long count) => new(consumable, count);
+    public override ItemCount LongToCount(Item consumable, long count) => new(consumable){Items=count};
 
     public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);

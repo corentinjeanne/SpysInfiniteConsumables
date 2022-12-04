@@ -17,7 +17,7 @@ sealed class ValuesProviderAttribute : Attribute {
     public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString"){
         MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>());
         if(method is null) throw new ArgumentException("No public static method with this name was found");
-        if(method.Invoke(null, null) is not IList) throw new ArgumentException("The return type of the method must be object[]");
+        if(method.Invoke(null, null) is not IList) throw new ArgumentException("The return type of the method must be IList");
         _provider = method;
         ParseToString = toSTring;
     }
@@ -79,7 +79,6 @@ public class DropDownElement : ConfigElement {
         int top = 30;
         for (int i = 0; i < _choices.Count; i++) {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => "");
             container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(listeningElement);
             string? name = (string?)_toString.Invoke(_choices[i], null);
             element.RemoveAllChildren();

@@ -198,4 +198,8 @@ public static class Utility {
         }
         return -1;
     }
+
+    public static bool ImplementInterface(this System.Type type, System.Type generic) => ImplementInterface(type, generic, out _);
+    public static bool ImplementInterface(this System.Type type, System.Type generic, [MaybeNullWhen(false)] out System.Type impl)
+        => (impl = type.GetInterfaces().Find(i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)) != null;
 }

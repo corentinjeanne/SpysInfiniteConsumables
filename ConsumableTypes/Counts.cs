@@ -52,66 +52,73 @@ public struct CurrencyCount : ICount<CurrencyCount> {
 }
 
 /// <summary>
-/// DO NOT use for config, use <see cref="ItemCountWrapper"/> instead
+/// DO NOT use for config, use <see cref="Config.ItemCountWrapper"/> instead
 /// </summary>
 public struct ItemCount : ICount<ItemCount> {
 
-    public ItemCount() {
-        Type = 0;
-        Value = 0L;
-        MaxStack = 0;
-    }
     public ItemCount(ItemCount other) {
         Type = other.Type;
-        Value = other.Value;
         MaxStack = other.MaxStack;
+        _items = other.Items;
+        UseStacks = other.UseStacks;
     }
-    public ItemCount(Item item, long items) {
-        Type = item.type;
-        Value = items;
-        MaxStack = item.maxStack;
-    }
-    public ItemCount(Item item, float stacks) {
-        Type = item.type;
-        Value = stacks;
-        MaxStack = item.maxStack;
-    }
-    internal ItemCount(int type, object value, int maxStack) {
-        if (value is not (long or float)) throw new System.ArgumentException("The type of value must be string or long");
+    public ItemCount(int type, int maxStack) {
         Type = type;
-        Value = value;
         MaxStack = maxStack;
+        _items = 0;
+        UseStacks = false;
+    }
+    public ItemCount(Item item) {
+        Type = item.type;
+        MaxStack = item.maxStack;
+        _items = 0;
+        UseStacks = false;
     }
 
-    public int Type { get; init; }
-    public object Value { get; init; }
-    public int MaxStack { get; set; }
+    public int Type { get; private set; }
+    public int MaxStack { get; init;}
+
+    public long Items {
+        get => _items;
+        init {
+            _items = value;
+            UseStacks = false;
+        }
+    }
+    public float Stacks {
+        get => (float)_items / MaxStack;
+        init {
+            _items = (long)System.MathF.Ceiling(_items /value);
+            UseStacks = true;
+        }
+    }
+    public bool UseStacks { get; private set; }    
+
+    private long _items;
 
     public bool IsNone => Items == 0;
-    public bool UseItems => Value is not float;
-    public long Items => UseItems ? (long)Value : (long)(Stacks * MaxStack);
-    public float Stacks => !UseItems ? (float)Value : (float)Items / MaxStack;
+    public ItemCount None => new(Type, MaxStack);
 
-    public ItemCount None => new (this) { Value = 0L };
-
-    public ItemCount Multiply(float value) => UseItems ? new ItemCount(this) { Value = (long)(Items * value) } : new ItemCount(this) { Value = Stacks * value };
-    public ItemCount Add(ItemCount count) => UseItems ? new ItemCount(this) { Value = Items + count.Items } : new ItemCount(this) { Value = Stacks + count.Stacks };
+    public ItemCount Multiply(float value) => UseStacks ? new ItemCount(this) { Stacks = Stacks * value } : new ItemCount(this) { Items = (long)(Items * value) };
+    public ItemCount Add(ItemCount count) => UseStacks ? new ItemCount(this) { Stacks = Stacks + count.Stacks } : new ItemCount(this) { Items = Items + count.Items };
 
     public ItemCount AdaptTo(ItemCount reference) {
-        ItemCount other = reference;
-        object value = UseItems ? (object)System.Math.Min(Items, other.MaxStack) : (Stacks * System.MathF.Min(1.0f, (float)MaxStack / other.MaxStack)); // TODO reduce boxing
-        return new ItemCount(other) { Value = value };
+        if(UseStacks){
+            float stacks = Stacks * System.MathF.Min(1.0f, (float)MaxStack / reference.MaxStack);
+            return new(reference) { Stacks = stacks };
+        } else {
+            long items = System.Math.Min(Items, reference.MaxStack);
+            return new ItemCount(reference) { Items = items };
+        }        
     }
-    public int CompareTo(ItemCount other) {
-        return UseItems ? Items.CompareTo(other.Items) : AdaptTo(other).Stacks.CompareTo(other.Stacks);
-    }
+    public float Ratio(ItemCount other) => UseStacks ? Stacks / other.Stacks : (float)Items / other.Items;
+    public int CompareTo(ItemCount other) => UseStacks ? AdaptTo(other).Stacks.CompareTo(other.Stacks) : Items.CompareTo(other.Items);
 
     public string Display(Config.InfinityDisplay.CountStyle style) => style switch {
         Config.InfinityDisplay.CountStyle.Sprite => $"{Items}[i:{Type}]",
         _ or Config.InfinityDisplay.CountStyle.Name => $"{Items} items",
     };
     public string DisplayRawValue(Config.InfinityDisplay.CountStyle style) => Items.ToString();
-    public override string ToString() => $"{(UseItems? $"Items={Items}" : $"Stacks={Stacks}")}, MaxStack={MaxStack}";
+    public override string ToString() => $"{(UseStacks ? $"Stacks={Stacks}" : $"Items={Items}")}, MaxStack={MaxStack}";
 
-    public float Ratio(ItemCount other) => UseItems ? (float)Items / other.Items : Stacks / other.Stacks;
 }

@@ -16,7 +16,7 @@ public enum DisplayFlags {
     All = Category | Requirement | Infinity
 }
 
-public record struct DisplayInfo<TCount>(DisplayFlags DisplayFlags, Infinity<TCount> Infinity, TCount Next, TCount ConsumableCount) where TCount : ICount<TCount>;
+public record struct DisplayInfo<TCount>(DisplayFlags DisplayFlags, System.Enum? Category, Infinity<TCount> Infinity, TCount Next, TCount ConsumableCount) where TCount : ICount<TCount>;
 
 public class InfinityDisplayItem : GlobalItem {
 
@@ -99,10 +99,12 @@ public class InfinityDisplayItem : GlobalItem {
     }
 
 
-    public static DisplayFlags GetDisplayFlags<TCount>(Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
+    public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
+        if (category != null && System.Convert.ToByte(category) != 0) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
         if (!next.IsNone) flags |= DisplayFlags.Requirement;
+        
         return flags;
     }
 
@@ -124,8 +126,8 @@ public class InfinityDisplayItem : GlobalItem {
         System.Text.StringBuilder addons = new();
 
         if (info.DisplayFlags.HasFlag(DisplayFlags.Category)) {
-        //     addons.Append(Separator());
-        //     addons.Append(category.Label());
+            addons.Append(Separator());
+            addons.Append(info.Category!.Label());
         }
 
         if (info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) {

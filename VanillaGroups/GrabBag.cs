@@ -17,9 +17,9 @@ public enum GrabBagCategory : byte {
 
 public class GrabBagRequirements {
     [Label("$Mods.SPIC.Groups.GrabBag.crates")]
-    public ItemCountWrapper Crates = new(10, 99);
+    public ItemCountWrapper Crates = new(99){Items=10};
     [Label("$Mods.SPIC.Groups.GrabBag.boss")]
-    public ItemCountWrapper TreasureBags = new(3);
+    public ItemCountWrapper TreasureBags = new(){Items=3};
 }
 
 public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBagRequirements>, IDetectable {

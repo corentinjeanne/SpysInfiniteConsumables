@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SPIC.ConsumableGroup;
@@ -7,48 +6,52 @@ namespace SPIC.Config;
 
 public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
 
-    public override ItemCountWrapper ReadJson(JsonReader reader, Type objectType, ItemCountWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
+    public override ItemCountWrapper ReadJson(JsonReader reader, System.Type objectType, ItemCountWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         JValue count = (JValue)JToken.Load(reader);
 
-        existingValue ??= new ItemCountWrapper(count.Value!, 999);
-        if (count.Value is long v && v >= 0) existingValue.value = v;
-        else existingValue.value = -(float)(double)count.Value!;
+        existingValue ??= new (999);
+        int value = (int)(long)count.Value!;
+        existingValue.useStacks = value < 0;
+        existingValue.value = System.Math.Abs(value);
         return existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, ItemCountWrapper? value, JsonSerializer serializer) {
         if (value is null) return;
-        if (value.UseItems) writer.WriteValue((long)value.value);
-        else writer.WriteValue(-(float)value.value);
+        if (value.useStacks) writer.WriteValue(value.value);
+        else writer.WriteValue(-value.value);
     }
 }
 
-[Terraria.ModLoader.Config.CustomModConfigItem(typeof(Config.UI.ItemCountElement))]
+[Terraria.ModLoader.Config.CustomModConfigItem(typeof(UI.ItemCountElement))]
 [JsonConverter(typeof(ItemCountConverter))]
 public sealed class ItemCountWrapper {
 
-    public object value;
+    public int value; // TODO partial stacks
+    public bool useStacks;
     public int maxStack;
-    public bool UseItems => value is long;
+
+    public int Items {
+        set {
+            this.value = value;
+            useStacks = false;
+        }
+    }
+    public int Stacks {
+        set {
+            this.value = value;
+            useStacks = true;
+        }
+    }
 
     public void SwapItemsAndStacks() {
-        if (UseItems) value = ((ItemCount)this).Stacks;
-        else value = ((ItemCount)this).Items;
+        if (useStacks) value *= maxStack;
+        else value = (int)System.MathF.Ceiling((float)value/maxStack);
+        useStacks = !useStacks;
     }
-
-    public ItemCountWrapper(long items, int maxStack = 999) {
-        value = items;
-        this.maxStack = maxStack;
-    }
-    public ItemCountWrapper(float stacks, int maxStack = 999) {
-        value = stacks;
-        this.maxStack = maxStack;
-    }
-    internal ItemCountWrapper(object value, int maxStack = 999) {
-        if (value is not (long or float)) throw new ArgumentException("The type of value must be string or long");
-        this.value = value;
+    public ItemCountWrapper(int maxStack = 999) {
         this.maxStack = maxStack;
     }
 
-    public static implicit operator ItemCount(ItemCountWrapper count) => new(0, count.value, count.maxStack);
+    public static implicit operator ItemCount(ItemCountWrapper count) => count.useStacks ? (new(0, count.maxStack) { Stacks = count.value }) : (new(0, count.maxStack) { Items = count.value });
 }
