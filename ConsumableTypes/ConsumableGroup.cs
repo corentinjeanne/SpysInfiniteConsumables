@@ -24,6 +24,7 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
     public abstract TConsumable ToConsumable(Item item);
     public abstract string Key(TConsumable consumable);
     public abstract int CacheID(TConsumable consumable);
+    public virtual int ReqCacheID(TConsumable consumable) => CacheID(consumable);
 
     public abstract Requirement<TCount> GetRequirement(TConsumable consumable);
 
@@ -45,6 +46,7 @@ where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<
 where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> {
 
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
+    public sealed override int ReqCacheID(TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, this));
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);
     public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));

@@ -3,8 +3,8 @@ using Terraria.ModLoader;
 namespace SPIC.Config.Presets;
 
 // public class Preset
-public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation>, new() {
-    public static TImplementation Instance => _instance ??= new TImplementation();
+public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation> {
+    public static TImplementation Instance => _instance ??= System.Activator.CreateInstance<TImplementation>();
     public static int ID => Instance.UID;
     private static TImplementation? _instance;
     static StaticPreset() { }

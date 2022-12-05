@@ -3,11 +3,11 @@ using System.Collections.Generic;
 namespace SPIC.ConsumableGroup;
 
 internal interface ICache {
-    void ClearType(int type);
-    public void ClearAll();
+    public void Clear();
 
 }
 internal interface ICategoryCache<TCategory> : ICache where TCategory : System.Enum {
+    void ClearCategory(int id);
     TCategory GetOrAddCategory(int id, System.Func<TCategory> getter);
 }
 internal interface ICountCache<TCount> : ICache where TCount : ICount<TCount>{
@@ -22,16 +22,11 @@ internal class ConsumableCache<TCount> : ICache, ICountCache<TCount> where TCoun
     public Requirement<TCount> GetOrAddRequirement(int id, System.Func<Requirement<TCount>> getter) => GetOrAdd(_requirements, id, getter);
     public Infinity<TCount> GetOrAddInfinity(int id, System.Func<Infinity<TCount>> getter) => GetOrAdd(_infinities, id, getter);
 
-    public virtual void ClearType(int type) {
-        _requirements.Remove(type);
-        _infinities.Remove(type);
-    }
-    public virtual void ClearAll() {
+    public virtual void Clear() {
         _requirements.Clear();
         _infinities.Clear();
     }
 
-    // ? reduce the amount of requirement instances
     private readonly Dictionary<int, Requirement<TCount>> _requirements = new();
     private readonly Dictionary<int, Infinity<TCount>> _infinities = new();
 }
@@ -40,12 +35,10 @@ internal sealed class ConsumableCache<TCount, TCategory> : ConsumableCache<TCoun
 
     public TCategory GetOrAddCategory(int id, System.Func<TCategory> getter) => GetOrAdd(_categories, id, getter);
 
-    public sealed override void ClearType(int type) {
-        base.ClearType(type);
-        _categories.Remove(type);
-    }
-    public sealed override void ClearAll() {
-        base.ClearAll();
+    public void ClearCategory(int type) => _categories.Remove(type);
+
+    public sealed override void Clear() {
+        base.Clear();
         _categories.Clear();
     }
     

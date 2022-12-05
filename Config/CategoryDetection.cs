@@ -18,13 +18,13 @@ public class CategoryDetection : ModConfig {
 
 
     [Header("$Mods.SPIC.Config.Detection.Categories.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
         set =>SetupGroups(_detectedItems, value, FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled);
     }
 
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, Dictionary<string, CategoryWrapper>> DetectedGlobals {
         get => _detectedGlobals;
         set => SetupGroups(_detectedGlobals, value, FilterFlags.Global | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled);
@@ -41,7 +41,7 @@ public class CategoryDetection : ModConfig {
             return false;
         }
 
-        InfinityManager.ClearCache(consumable, group);
+        InfinityManager.ClearCategoryCache(consumable, group);
         return true;
 
     }

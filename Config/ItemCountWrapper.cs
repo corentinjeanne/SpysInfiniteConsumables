@@ -27,7 +27,7 @@ public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
 [JsonConverter(typeof(ItemCountConverter))]
 public sealed class ItemCountWrapper {
 
-    public int value; // TODO partial stacks
+    public int value;
     public bool useStacks;
     public int maxStack;
 

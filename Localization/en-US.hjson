@@ -50,10 +50,12 @@
                     explosives: Explosives
                     tools: Miscellaneous
                 }
+                Currency: {
+                    name: Currency
+                }
             }
 
             ItemTooltip: {
-                curency: Currency
                 infinite: Infinite {0}
                 partialyInfinite: Infinite {0} below {1}
                 weaponAmmo: Consumes {0}

@@ -14,25 +14,19 @@ public interface IAlternateDisplay<TConsumable> : IConsumableGroup<TConsumable> 
     bool HasAlternate(Player player, TConsumable consumable, [MaybeNullWhen(false)] out TConsumable alt);
 }
 
+public interface IDetectable : IConsumableGroup { }
+
 public interface IToggleable : IConsumableGroup {
     bool DefaultsToOn { get; }
-    bool Enabled => UID > 0 ? (bool)Config.RequirementSettings.Instance.EnabledGroups[new Config.ConsumableGroupDefinition(UID)]! : Config.RequirementSettings.Instance.EnabledGlobals[new(UID)];
 }
 
 public interface IColorable : IConsumableGroup {
     Color DefaultColor { get; }
-    Color Color => Config.InfinityDisplay.Instance.Colors[this.ToDefinition()];
 }
 
-// ? Remove
 public interface IConfigurable : IConsumableGroup {
-    object Settings { get; internal set; }
     System.Type SettingsType { get; }
 }
-public interface IConfigurable<TSettings> : IConfigurable where TSettings : notnull, new() {
+public interface IConfigurable<TSettings> : IConfigurable {
     System.Type IConfigurable.SettingsType => typeof(TSettings);
-    object IConfigurable.Settings { get => Settings; set => Settings = (TSettings)value; }
-    new TSettings Settings { get; set; }
 }
-
-public interface IDetectable : IConsumableGroup { }

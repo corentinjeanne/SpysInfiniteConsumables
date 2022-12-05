@@ -64,25 +64,22 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
     public override int IconType => ItemID.ArchitectGizmoPack;
 
     public override bool DefaultsToOn => false;
-#nullable disable
-    public PlaceableRequirements Settings { get; set; }
-#nullable restore
 
     public override Requirement<ItemCount> Requirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement<ItemCount>(Settings.Tiles),
-            PlaceableCategory.Torch => new CountRequirement<ItemCount>(Settings.Torches),
-            PlaceableCategory.Ore => new CountRequirement<ItemCount>(Settings.Ores),
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement<ItemCount>(this.Settings().Tiles),
+            PlaceableCategory.Torch => new CountRequirement<ItemCount>(this.Settings().Torches),
+            PlaceableCategory.Ore => new CountRequirement<ItemCount>(this.Settings().Ores),
 
             PlaceableCategory.LightSource
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => new CountRequirement<ItemCount>(Settings.Furnitures),
-            PlaceableCategory.MusicBox => new CountRequirement<ItemCount>(new(Settings.Furnitures){MaxStack = 1}),
-            PlaceableCategory.Liquid => new CountRequirement<ItemCount>(Settings.Liquids),
-            PlaceableCategory.Mechanical => new CountRequirement<ItemCount>(Settings.Mechanical),
-            PlaceableCategory.Seed => new CountRequirement<ItemCount>(Settings.Seeds),
-            PlaceableCategory.Paint => new CountRequirement<ItemCount>(Settings.Paints),
+                => new CountRequirement<ItemCount>(this.Settings().Furnitures),
+            PlaceableCategory.MusicBox => new CountRequirement<ItemCount>(new(this.Settings().Furnitures){MaxStack = 1}),
+            PlaceableCategory.Liquid => new CountRequirement<ItemCount>(this.Settings().Liquids),
+            PlaceableCategory.Mechanical => new CountRequirement<ItemCount>(this.Settings().Mechanical),
+            PlaceableCategory.Seed => new CountRequirement<ItemCount>(this.Settings().Seeds),
+            PlaceableCategory.Paint => new CountRequirement<ItemCount>(this.Settings().Paints),
             PlaceableCategory.None or _ => new NoRequirement<ItemCount>(),
         };
     }

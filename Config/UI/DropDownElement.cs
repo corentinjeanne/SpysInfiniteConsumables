@@ -42,7 +42,6 @@ public class DropDownElement : ConfigElement {
     private int _index;
 
     public override void OnBind() {
-
         base.OnBind();
         object value = MemberInfo.GetValue(Item);
 
@@ -59,18 +58,6 @@ public class DropDownElement : ConfigElement {
         };
     }
 
-    private void CloseDropDownField(UIElement selectedElement) => CloseDropDownField(Children.IndexOf(selectedElement));
-
-    public void CloseDropDownField(int index) {
-        if(index < 0) return;
-        RemoveAllChildren();
-        _index = index;
-        _expanded = false;
-        MemberInfo.SetValue(Item, _choices[index]);
-        ConfigManager.SetPendingChanges();
-        Recalculate();
-        // Add the selected value
-    }
     public void OpenDropDownField() {
         RemoveAllChildren();
         _expanded = true;
@@ -79,12 +66,23 @@ public class DropDownElement : ConfigElement {
         int top = 30;
         for (int i = 0; i < _choices.Count; i++) {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);
-            container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(listeningElement);
+            int index = i;
+            container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(index);
             string? name = (string?)_toString.Invoke(_choices[i], null);
             element.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
         }
+        Recalculate();
+    }
+
+    public void CloseDropDownField(int index) {
+        if (index < 0) return;
+        RemoveAllChildren();
+        _index = index;
+        _expanded = false;
+        MemberInfo.SetValue(Item, _choices[index]);
+        ConfigManager.SetPendingChanges();
         Recalculate();
     }
 

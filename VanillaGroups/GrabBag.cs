@@ -28,12 +28,10 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override int IconType => ItemID.FairyQueenBossBag;
 
     public override bool DefaultsToOn => false;
-#nullable disable
-    public GrabBagRequirements Settings { get; set; }
-#nullable restore
+
     public override Requirement<ItemCount> Requirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Crate => new CountRequirement<ItemCount>(Settings.Crates),
-        GrabBagCategory.TreasureBag => new CountRequirement<ItemCount>(Settings.TreasureBags),
+        GrabBagCategory.Crate => new CountRequirement<ItemCount>(this.Settings().Crates),
+        GrabBagCategory.TreasureBag => new CountRequirement<ItemCount>(this.Settings().TreasureBags),
         GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement<ItemCount>(),
     };
 
@@ -45,6 +43,6 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     }
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Categories.GrabBag.name"));
-    public override string LinePosition => "Consumable";
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Groups.GrabBag.name"));
+    public override TooltipLineID LinePosition => TooltipLineID.Consumable;
 }

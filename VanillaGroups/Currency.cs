@@ -26,13 +26,10 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
     public override int IconType => ItemID.LuckyCoin;
 
     public override bool DefaultsToOn => false;
-#nullable disable
-    public CurrencyRequirements Settings { get; set; }
-#nullable restore
 
     public override Requirement<CurrencyCount> Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, Settings.Coins * 100), 100, 0.1f),
-        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(new(CurrencyHelper.None, Settings.Single), 0.2f),
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Coins * 100), 100, 0.1f),
+        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Single), 0.2f),
         CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()     
     };
 
@@ -60,6 +57,6 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.ItemTooltip.curency"));
-    public override string LinePosition => "Consumable";
+    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.Groups.Currency.name"));
+    public override TooltipLineID LinePosition => TooltipLineID.Consumable;
 }

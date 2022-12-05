@@ -48,7 +48,7 @@ public class InfinityDisplay : ModConfig {
     public int dot_PulseTime;
 
     [Header("$Mods.SPIC.Config.InfinityDisplay.Colors.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys, ColorNoAlpha, ColorHSLSlider]
+    [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
     public Dictionary<ConsumableGroupDefinition, Color> Colors {
         get => _colors;
         set {

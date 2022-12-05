@@ -34,16 +34,13 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
     public override int IconType => ItemID.TinkerersWorkshop;
 
     public override bool DefaultsToOn => false;
-#nullable disable
-    public MaterialRequirements Settings { get; set; }
-#nullable restore
 
     public override Requirement<ItemCount> Requirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new MultipleRequirement<ItemCount>(Settings.Basics, 0.5f),
-        MaterialCategory.Ore => new MultipleRequirement<ItemCount>(Settings.Ores, 0.5f),
-        MaterialCategory.Furniture => new MultipleRequirement<ItemCount>(Settings.Furnitures, 0.5f),
-        MaterialCategory.Miscellaneous => new MultipleRequirement<ItemCount>(Settings.Miscellaneous, 0.5f),
-        MaterialCategory.NonStackable => new MultipleRequirement<ItemCount>(Settings.NonStackable, 0.5f),
+        MaterialCategory.Basic => new MultipleRequirement<ItemCount>(this.Settings().Basics, 0.5f),
+        MaterialCategory.Ore => new MultipleRequirement<ItemCount>(this.Settings().Ores, 0.5f),
+        MaterialCategory.Furniture => new MultipleRequirement<ItemCount>(this.Settings().Furnitures, 0.5f),
+        MaterialCategory.Miscellaneous => new MultipleRequirement<ItemCount>(this.Settings().Miscellaneous, 0.5f),
+        MaterialCategory.NonStackable => new MultipleRequirement<ItemCount>(this.Settings().NonStackable, 0.5f),
         MaterialCategory.None or _ => new NoRequirement<ItemCount>(),
     };
 

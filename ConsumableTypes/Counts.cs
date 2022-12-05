@@ -58,25 +58,31 @@ public struct ItemCount : ICount<ItemCount> {
 
     public ItemCount(ItemCount other) {
         Type = other.Type;
-        MaxStack = other.MaxStack;
+        _maxStack = other.MaxStack;
         _items = other.Items;
         UseStacks = other.UseStacks;
     }
     public ItemCount(int type, int maxStack) {
         Type = type;
-        MaxStack = maxStack;
+        _maxStack = maxStack;
         _items = 0;
         UseStacks = false;
     }
     public ItemCount(Item item) {
         Type = item.type;
-        MaxStack = item.maxStack;
+        _maxStack = item.maxStack;
         _items = 0;
         UseStacks = false;
     }
 
     public int Type { get; private set; }
-    public int MaxStack { get; init;}
+    public int MaxStack {
+        get => _maxStack;
+        init {
+            if (UseStacks) _items = (long)(Stacks * value);
+            _maxStack = value;
+        }
+    }
 
     public long Items {
         get => _items;
@@ -88,13 +94,14 @@ public struct ItemCount : ICount<ItemCount> {
     public float Stacks {
         get => (float)_items / MaxStack;
         init {
-            _items = (long)System.MathF.Ceiling(_items /value);
+            _items = (long)(MaxStack*value);
             UseStacks = true;
         }
     }
     public bool UseStacks { get; private set; }    
 
     private long _items;
+    private int _maxStack;
 
     public bool IsNone => Items == 0;
     public ItemCount None => new(Type, MaxStack);

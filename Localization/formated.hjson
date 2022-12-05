@@ -13,9 +13,6 @@
                     Blacklists: {
                         Items: "[i:1913] {$Mods.SPIC.Config.Requirements.Blacklists.items}"
                     }
-                    Customs: {
-                        Customs: "[i:1913] {$Mods.SPIC.Config.Requirements.Customs.customs}"
-                    }
                 }
                 Detection: {
                     General: {

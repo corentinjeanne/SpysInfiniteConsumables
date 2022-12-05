@@ -19,7 +19,7 @@ public class DetectionPlayer : ModPlayer {
     private int _preUseDifficulty;
     private int _preUseInvasion;
     private int _preUseItemCount;
-    private static Utility.NPCStats _preUseNPCStats;
+    private static NPCStats _preUseNPCStats;
 
     public bool teleport;
 
@@ -86,7 +86,7 @@ public class DetectionPlayer : ModPlayer {
     }
 
     private UsableCategory TryDetectUsable() {
-        Utility.NPCStats stats = Utility.GetNPCStats();
+        NPCStats stats = Utility.GetNPCStats();
 
         if(teleport) return UsableCategory.Tool;
         if (_preUseNPCStats.Boss != stats.Boss || _preUseInvasion != Main.invasionType)

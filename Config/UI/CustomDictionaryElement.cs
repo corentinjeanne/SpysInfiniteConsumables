@@ -9,14 +9,13 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.Reflection;
-using Newtonsoft.Json;
 
 namespace SPIC.Config.UI;
 
 
 
 public interface IDictionaryEntryWrapper {
-    [JsonIgnore] public PropertyInfo ValueProp { get; }
+    [Newtonsoft.Json.JsonIgnore] public PropertyInfo ValueProp { get; }
     object Key { get; set; }
     object? Value { get; set; }
 }
@@ -70,41 +69,14 @@ public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper wher
     private Tkey _key;
 }
 
-
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
-public class ConstantKeys : Attribute { }
-
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
-public class ValuesAsConfigItemsAttribute : Attribute { }
-
 public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
-    // TODO implement attributes to finish class
-    // private ConstantKeys _constKeys; // - add, clear, remove
-    // private ValuesAsConfigItemsAttribute _asConfigItems; // - collapse, size button, (add, clear, remove)
-
-    // private FieldInfo _dictWrappersField = typeof(CustomDictionaryUI).GetField(nameof(dictWrappers), BindingFlags.Instance | BindingFlags.Public);
-
-    // private Attribute[] _memberAttributes;
-
-    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private readonly EmptyClass _dummy = new();
-
-
-    public List<IDictionaryEntryWrapper> dictWrappers = new();
-    private readonly UIList _dataList = new();
     public override void OnBind() {
+
         base.OnBind();
 
         object value = Value;
         if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
-
-        // _memberAttributes = Attribute.GetCustomAttributes(MemberInfo.MemberInfo).Where(attrib => attrib is not CustomModConfigItemAttribute).ToArray();
-
-        // _hideUnloaded = ConfigManager.GetCustomAttribute<HideUnloadedAttribute>(MemberInfo, value.GetType());
-        // _asConfigItems = ConfigManager.GetCustomAttribute<ValuesAsConfigItemsAttribute>(MemberInfo, value.GetType());
-        // _constKeys = ConfigManager.GetCustomAttribute<ConstantKeys>(MemberInfo, value.GetType());
-        // _sortable = ConfigManager.GetCustomAttribute<SortableAttribute>(MemberInfo, value.GetType());
 
         _dataList.Top = new(0, 0f);
         _dataList.Left = new(0, 0f);
@@ -118,10 +90,9 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         SetupList();
     }
  
-    // TODO Add attributes to childrens
     public void SetupList(){
         _dataList.Clear();
-        dictWrappers.Clear();
+        _dictWrappers.Clear();
 
         int unloaded = 0;
 
@@ -139,10 +110,10 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             Type genericType = typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType());
             IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key)!;
 
-            dictWrappers.Add(wrapper);
+            _dictWrappers.Add(wrapper);
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(wrapper.ValueProp), wrapper, i);
-                // ConfigManager.WrapIt(_dataList, ref top, new(_dictWrappersField), this, 0, _dictWrappers, genericType, i);
-                
+            
+            
             if(dict is IOrderedDictionary){
                 
                 element.Width.Pixels -= 25;
@@ -200,4 +171,10 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
     public override void Draw(SpriteBatch spriteBatch) {
         DrawChildren(spriteBatch);
     }
+
+    private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private readonly EmptyClass _dummy = new();
+
+    private readonly List<IDictionaryEntryWrapper> _dictWrappers = new();
+    private readonly UIList _dataList = new();
 }

@@ -24,9 +24,6 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
 
     public override bool DefaultsToOn => false;
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.JourneyMode;
-#nullable disable
-    public JourneySacrificeSettings Settings { get; set; }
-#nullable restore
 
     public override Requirement<ItemCount> GetRequirement(Item item) {
         if(!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new NoRequirement<ItemCount>();
@@ -37,7 +34,7 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
                 break;
             }
         }
-        return consu || Settings.includeNonConsumable ? new CountRequirement<ItemCount>(new(item){Items=CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]}) : new NoRequirement<ItemCount>();
+        return consu || this.Settings().includeNonConsumable ? new CountRequirement<ItemCount>(new(item){Items=CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]}) : new NoRequirement<ItemCount>();
     }
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));

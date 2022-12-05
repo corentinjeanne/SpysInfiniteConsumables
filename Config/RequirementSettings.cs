@@ -33,7 +33,7 @@ public class RequirementSettings : ModConfig {
             value?.Preset.ApplyCriterias(this);
         }
     }
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public OrderedDictionary/*<ConsumableTypeDefinition, bool>*/ EnabledGroups {
         get => _groups;
         set {
@@ -58,7 +58,7 @@ public class RequirementSettings : ModConfig {
     }
     [Label("$Mods.SPIC.Config.Requirements.General.MaxGroups"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_maxGroups")]
     public int MaxConsumableTypes { get; set; }
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, bool> EnabledGlobals {
         get => _globals;
         set {
@@ -75,7 +75,7 @@ public class RequirementSettings : ModConfig {
 
 
     [Header("$Mods.SPIC.Config.Requirements.Requirements.header")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, object> Requirements {
         get => _requirements;
         set {
@@ -85,17 +85,19 @@ public class RequirementSettings : ModConfig {
                     if (!ModLoader.HasMod(def.Mod)) _requirements.Add(def, data);
                     continue;
                 }
-                if (def.ConsumableType is not IConfigurable config) continue;
+                if (def.ConsumableType is not IConfigurable configurable) continue;
 
-                if (data is JObject jobj) config.Settings = jobj.ToObject(config.SettingsType)!;
-                else if (data.GetType() == config.SettingsType) config.Settings = data;
+                object settings;
+                if (data is JObject jobj) settings = jobj.ToObject(configurable.SettingsType)!;
+                else if(data.GetType() == configurable.SettingsType) settings = data;
                 else throw new NotImplementedException();
 
-                _requirements.Add(def, config.Settings);
+                _requirements.Add(def, settings);
             }
+
             foreach (IConfigurable group in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 ConsumableGroupDefinition def = group.ToDefinition();
-                if (!_requirements.ContainsKey(def)) _requirements.Add(def, group.Settings = Activator.CreateInstance(group.SettingsType)!);
+                if (!_requirements.ContainsKey(def)) _requirements.Add(def, Activator.CreateInstance(group.SettingsType)!);
             }
         }
     }
@@ -104,7 +106,7 @@ public class RequirementSettings : ModConfig {
     [Header("$Mods.SPIC.Config.Requirements.Blacklists.header")]
     [Label("$Mods.SPIC.Config.Requirements.Blacklists.Items")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ValuesAsConfigItems, ConstantKeys]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition,HashSet<string>> BlackListedConsumables { 
         get => _blackListedConsumables;
         set {

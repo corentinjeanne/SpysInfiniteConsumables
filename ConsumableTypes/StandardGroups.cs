@@ -43,7 +43,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
 
         System.Enum? category = null;
 
-        if(GetType().ImplementInterface(typeof(ICategory<,>)))
+        if(GetType().ImplementInterface(typeof(ICategory<,>), out _))
             category = InfinityManager.GetCategory(consumable, (dynamic)this);
 
         if (OwnsItem(player, item, true)) {
@@ -60,8 +60,8 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
         return new(displayFlags, category, infinity, next, consumableCount);
     }
-    
-    public virtual string LinePosition => TooltipLine.Name;
+
+    public virtual TooltipLineID LinePosition => System.Enum.TryParse(TooltipLine.Name, out TooltipLineID index) ? index : TooltipLineID.Modded;
     public abstract TooltipLine TooltipLine { get; }
 
     public sealed override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
@@ -70,11 +70,11 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         TConsumable consumable = ToConsumable(item);
         TooltipLine line;
         line = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, consumable, out _) ?
-            tooltips.FindorAddLine(altDisplay!.AlternateTooltipLine(consumable, value), "WandConsumes", out bool addedLine) :
+            tooltips.FindorAddLine(altDisplay!.AlternateTooltipLine(consumable, value), TooltipLineID.WandConsumes, out bool addedLine) :
             tooltips.FindorAddLine(TooltipLine, LinePosition, out addedLine);
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {            
-            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, ((IColorable)this).Color, info);
+            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, this.Color(), info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
@@ -85,7 +85,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     }
     public void ActualDrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position) {
         Globals.DisplayInfo<TCount> info = GetDisplayInfo(item);
-        Globals.InfinityDisplayItem.DisplayDot(spriteBatch, position, ((IColorable)this).Color, info);
+        Globals.InfinityDisplayItem.DisplayDot(spriteBatch, position, this.Color(), info);
     }
 
     public sealed override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -94,13 +94,15 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     }
     public void ActualDrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale) {
         Globals.DisplayInfo<TCount> info = GetDisplayInfo(item);
-        Globals.InfinityDisplayItem.DisplayGlow(spriteBatch, item, position, origin, frame, scale, ((IColorable)this).Color, info);
+        Globals.InfinityDisplayItem.DisplayGlow(spriteBatch, item, position, origin, frame, scale, this.Color(), info);
     }
 }
 public abstract class StandardGroup<TImplementation, TConsumable, TCount, TCategory> : StandardGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>
 where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<TCount>
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCount, TCategory> {
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
+    public sealed override int ReqCacheID(TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, this));
+
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);
     public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
@@ -121,6 +123,7 @@ public abstract class ItemGroup<TImplementation, TCategory> : ItemGroup<TImpleme
 where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
     internal override ConsumableCache<ItemCount, TCategory> CreateCache() => new();
+    public sealed override int ReqCacheID(Item consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, this));
     public abstract TCategory GetCategory(Item consumable);
     public abstract Requirement<ItemCount> Requirement(TCategory category);
     public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => Requirement(consumable.GetCategory(this));

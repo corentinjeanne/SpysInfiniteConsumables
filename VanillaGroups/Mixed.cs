@@ -10,19 +10,13 @@ namespace SPIC.VanillaGroups;
 
 public class MixedRequirement : Requirement<ItemCount> {
 
-    public Item Item { get; init; }
-
-    public override bool IsNone => Item.type == Terraria.ID.ItemID.None;
-
-    public MixedRequirement(Item item) {
-        Item = item;
-    }
-
+    public override bool IsNone => false;
 
     public override Infinity<ItemCount> Infinity(ItemCount count) {
+        Item item = new(count.Type);
         Infinity<ItemCount> max = new(count.None, 0);
-        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(Item)){
-            Requirement<ItemCount> requirement = Item.GetRequirement(group);
+        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item)){
+            Requirement<ItemCount> requirement = item.GetRequirement(group);
             if(requirement.IsNone) continue;
             Infinity<ItemCount> inf = requirement.Infinity(count);
             if(max.Value.IsNone || inf.Value.CompareTo(max.Value) > 0) max = inf;
@@ -31,9 +25,10 @@ public class MixedRequirement : Requirement<ItemCount> {
     }
 
     public override ItemCount NextRequirement(ItemCount count){
+        Item item = new(count.Type);
         ItemCount max = count.None;
-        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(Item)){
-            Requirement<ItemCount> requirement = Item.GetRequirement(group);
+        foreach(IStandardGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item)){
+            Requirement<ItemCount> requirement = item.GetRequirement(group);
             if(requirement.IsNone) continue;
             ItemCount next = requirement.NextRequirement(requirement.Infinity(count).EffectiveRequirement);
             if(max.IsNone || next.CompareTo(max) > 0) max = next;
@@ -49,6 +44,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
 
 
     public override Item ToConsumable(Item item) => item;
+    public override int ReqCacheID(Item consumable) => 0;
     public override int CacheID(Item consumable) => consumable.type;
 
     public override ItemCount LongToCount(Item consumable, long count) => new(consumable){Items=count};
@@ -56,7 +52,7 @@ internal class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);
 
-    public override Requirement<ItemCount> GetRequirement(Item item) => new MixedRequirement(item);
+    public override Requirement<ItemCount> GetRequirement(Item item) => new MixedRequirement();
 
     public override long CountConsumables(Player player, Item item) {
         long count = long.MaxValue;
