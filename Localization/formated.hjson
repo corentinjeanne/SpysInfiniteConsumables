@@ -30,6 +30,7 @@
                         MissingLines: "[i:3619] {$Mods.SPIC.Config.InfinityDisplay.Tooltip.missingLines}"
                         Style: "[i:3625] {$Mods.SPIC.Config.InfinityDisplay.Tooltip.style}"
                         Color: "[i:3625] {$Mods.SPIC.Config.InfinityDisplay.Tooltip.color}"
+                        Mixed: "[i:662] {$Mods.SPIC.Config.InfinityDisplay.Tooltip.mixed}"
                     }
                     Glow: {
                         Glow: "[i:75] {$Mods.SPIC.Config.InfinityDisplay.Glow.glow}"

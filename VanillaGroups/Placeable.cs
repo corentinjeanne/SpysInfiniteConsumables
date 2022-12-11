@@ -18,7 +18,7 @@ public enum PlaceableCategory : byte {
     Wall,
     Wiring,
     Torch,
-    Ore, //demonite and crymtane, hellstone
+    Ore,
 
     LightSource,
     Container,
@@ -27,9 +27,9 @@ public enum PlaceableCategory : byte {
     Decoration,
     MusicBox,
 
-    Mechanical, // statues
+    Mechanical,
     Liquid,
-    Seed, //gemtrees, mud seeds
+    Seed,
     Paint
 }
 
@@ -58,7 +58,7 @@ public class PlaceableRequirements {
     public ItemCountWrapper Paints = new(){Stacks=1};
 }
 
-public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisplay<Item>, IConfigurable<PlaceableRequirements>, IDetectable {
+public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<PlaceableRequirements>, IDetectable, IStandardAmmunition<Item> {
 
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.ArchitectGizmoPack;
@@ -84,19 +84,20 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
         };
     }
     
-    public override PlaceableCategory GetCategory(Item item) {
-        if (!(item.consumable && item.useStyle != ItemUseStyleID.None) && item.paint == 0 && !s_ammos.ContainsKey(item.type) && !(item.FitsAmmoSlot() && item.mech))
-            return PlaceableCategory.None;
-        return GetCategory_NoCheck(item);
-    }
+    public override PlaceableCategory GetCategory(Item item) => GetCategory(item, false);
+    public static PlaceableCategory GetCategory(Item item, bool wand) {
 
-    private static PlaceableCategory GetCategory_NoCheck(Item item) {
-
-        if (item.paint != 0) return PlaceableCategory.Paint;
 
         switch (item.type) {
-        case ItemID.Hellstone: return PlaceableCategory.Ore;
+        case ItemID.Hellstone or ItemID.DemoniteOre or ItemID.CrimtaneOre: return PlaceableCategory.Ore; // Main.tileSpelunker[tileType] == false
         }
+
+        if (_wandAmmos.TryGetValue(item.type, out int wandType)) return GetCategory(new(wandType), true);
+        if (item.paint != 0) return PlaceableCategory.Paint;
+        if(item.XMasDeco()) return PlaceableCategory.Decoration;
+        if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
+
+        if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
 
         if (item.createTile != -1) {
 
@@ -104,7 +105,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
             if (item.accessory) return PlaceableCategory.MusicBox;
             if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
 
-            if (Main.tileAlch[tileType] || TileID.Sets.TreeSapling[tileType] || TileID.Sets.Grass[tileType]) return PlaceableCategory.Seed;
+            if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || TileID.Sets.Grass[tileType] || TileID.Sets.GrassSpecial[tileType]) return PlaceableCategory.Seed;
             if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
 
             if (item.mech) return PlaceableCategory.Mechanical;
@@ -131,9 +132,6 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
         }
         if (item.createWall != -1) return PlaceableCategory.Wall;
 
-        if(item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
-        if (s_ammos.TryGetValue(item.type, out PlaceableCategory category)) return category;
-
         return PlaceableCategory.None;
     }
 
@@ -148,7 +146,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
         PaintRoller
     }
 
-    public TooltipLine AlternateTooltipLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
+    public TooltipLine WeaponLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
         WandType.Tile => TooltipHelper.AddedLine($"WandConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
         WandType.Wire => TooltipHelper.AddedLine($"Tooltip0", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
         WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> TooltipHelper.AddedLine($"PaintConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
@@ -161,7 +159,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
         _ => WandType.None
     };
 
-    public bool HasAlternate(Player player, Item wand, [MaybeNullWhen(false)] out Item tile){
+    public bool HasAmmo(Player player, Item wand, [MaybeNullWhen(false)] out Item tile){
         tile = GetWandType(wand) switch {
             WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
             WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
@@ -171,9 +169,12 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IAlternateDisp
         return tile is not null;
     }
 
-    private static readonly Dictionary<int, PlaceableCategory> s_ammos = new(); // type, category (ammo)
-    internal static void ClearWandAmmos() => s_ammos.Clear();
-    public static void RegisterWand(Item wand) => s_ammos.TryAdd(wand.tileWand, GetCategory_NoCheck(wand));
+    private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
+    internal static void ClearWandAmmos() => _wandAmmos.Clear();
+    public static void RegisterWand(Item wand) {
+        if(Instance.GetCategory(new(wand.tileWand)) == PlaceableCategory.None) _wandAmmos.TryAdd(wand.tileWand, wand.type);
+    }
+
 
     // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
 

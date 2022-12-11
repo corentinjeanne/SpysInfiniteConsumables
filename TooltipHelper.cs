@@ -70,7 +70,7 @@ public static class TooltipHelper {
 
 
     public static TooltipLine? FindLine(this List<TooltipLine> tooltips, string name) => tooltips.Find(l => l.Name == name);
-    public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLineID after, TooltipLine line) {
+    public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLine line, TooltipLineID after) {
         for (int i = 0; i < tooltips.Count; i++) {
             if (tooltips[i].Name == line.Name) return tooltips[i];
             TooltipLineID lookingAt;
@@ -87,7 +87,7 @@ public static class TooltipHelper {
 
     public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, TooltipLineID after, out bool addedLine) {
         TooltipLine? target = tooltips.FindLine(line.Name);
-        if (addedLine = target is null) target = tooltips.AddLine(after, line);
+        if (addedLine = target is null) target = tooltips.AddLine(line, after);
         return target!;
     }
     public static TooltipLine FindorAddLine(this List<TooltipLine> tooltips, TooltipLine line, TooltipLineID after = TooltipLineID.Modded) => FindorAddLine(tooltips, line, after, out _);

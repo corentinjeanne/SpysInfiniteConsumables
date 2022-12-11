@@ -23,7 +23,7 @@ public class AmmoRequirements {
     public ItemCountWrapper Special = new(){Stacks=1};
 }
 
-public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, IConfigurable<AmmoRequirements>, IDetectable {
+public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirements>, IDetectable, IStandardAmmunition<Item> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => ItemID.EndlessQuiver;
 
@@ -42,14 +42,14 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IAlternateDisplay<Item>, ICon
         return AmmoCategory.Special;
     }
 
-    public bool HasAlternate(Player player, Item item, [MaybeNullWhen(false)] out Item ammo) {
+    public bool HasAmmo(Player player, Item item, [MaybeNullWhen(false)] out Item ammo) {
         ammo = item.useAmmo > AmmoID.None && player.PickAmmo(item, out int _, out _, out _, out _, out int ammoType, true) ?
             System.Array.Find(player.inventory, i => i.type == ammoType) ?? null:
             null;
         return ammo is not null;
     }
 
-    public TooltipLine AlternateTooltipLine(Item consumable, Item alternate) => TooltipHelper.AddedLine("WeaponConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", alternate.Name));
+    public TooltipLine WeaponLine(Item consumable, Item alternate) => TooltipHelper.AddedLine("WeaponConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", alternate.Name));
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Ammo", Lang.tip[34].Value);
 }

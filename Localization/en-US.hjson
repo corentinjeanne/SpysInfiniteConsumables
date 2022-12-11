@@ -122,6 +122,7 @@
                         missingLines: Add missing lines
                         style: Requirement style
                         color: Colored infinity tooltips
+                        mixed: Display Mixed Infinity
                     }
                     Glow: {
                         header: Item Glow

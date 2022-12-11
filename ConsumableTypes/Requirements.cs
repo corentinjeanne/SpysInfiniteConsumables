@@ -1,5 +1,11 @@
 namespace SPIC.ConsumableGroup;
 
+public sealed class NotSupportedRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
+    public override Infinity<TCount> Infinity(TCount count) => new(count.None, 0);
+    public override TCount NextRequirement(TCount count) => count.None;
+    public override bool IsNone => false;
+}
+
 public sealed class CountRequirement<TCount> : FixedRequirement<TCount> where TCount : notnull, ICount<TCount> {
     public CountRequirement(TCount root, float multiplier = 1) : base(root, multiplier) { }
 

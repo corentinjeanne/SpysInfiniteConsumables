@@ -21,7 +21,7 @@ public class CategoryDetection : ModConfig {
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
-        set =>SetupGroups(_detectedItems, value, FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled);
+        set => SetupGroups(_detectedItems, value, FilterFlags.NonGlobal | FilterFlags.Enabled | FilterFlags.Disabled);
     }
 
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
@@ -57,6 +57,7 @@ public class CategoryDetection : ModConfig {
         return false;
     }
 
+
     private static void SetupGroups<TKey>(Dictionary<ConsumableGroupDefinition, Dictionary<TKey, CategoryWrapper>> dest, Dictionary<ConsumableGroupDefinition, Dictionary<TKey, CategoryWrapper>> source, FilterFlags groupFlags) where TKey : notnull {
         dest.Clear();
         foreach ((ConsumableGroupDefinition def, Dictionary<TKey, CategoryWrapper> items) in source) {
@@ -66,7 +67,7 @@ public class CategoryDetection : ModConfig {
             }
             IConsumableGroup group = def.ConsumableType;
             if (group.UID < 0 || group is not IDetectable detectable) continue;
-            if (detectable.GetType().ImplementInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
+            if (detectable.GetType().ImplementsInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
                 dest[def] = new();
                 foreach (TKey key in source[def].Keys) {
                     dest[def][key] = source[def][key].type is not null ?

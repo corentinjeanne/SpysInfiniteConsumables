@@ -13,14 +13,14 @@ public enum UsableCategory : byte {
 
     Weapon,
     Recovery,
-    Buff, // red potion
+    Buff,
     PlayerBooster,
     WorldBooster,
 
-    Summoner, // power cell, truffle worm, ethernia crystal, torch god
+    Summoner,
     Critter,
     Explosive,
-    Tool, //confetti and cannon ammo, tree globes
+    Tool, // TODO Fargo's summons
 
     Unknown = CategoryHelper.Unknown
 }
@@ -64,23 +64,25 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
 
     public override UsableCategory GetCategory(Item item) {
 
-        if (!item.consumable || item.Placeable()) return UsableCategory.None;
-
-        if (item.bait != 0) return UsableCategory.Critter;
-
-        if (item.useStyle == ItemUseStyleID.None) return UsableCategory.None;
-
         // Vanilla inconsitancies or special items
         switch (item.type) {
-        case ItemID.FallenStar: return UsableCategory.None;
-        case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner;
-        case ItemID.LicenseBunny or ItemID.LicenseCat or ItemID.LicenseDog: return UsableCategory.Critter;
-        case ItemID.CombatBook: return UsableCategory.WorldBooster;
+        case ItemID.FallenStar: return UsableCategory.None; // usable
+        case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority error
+        case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None
+        case ItemID.RedPotion: return UsableCategory.Buff;
+        case ItemID.TreeGlobe or ItemID.WorldGlobe: return UsableCategory.WorldBooster;
         }
+
+        if (!item.consumable || item.Placeable()) return UsableCategory.None;
+
+
+        if (item.bait == 0 && item.useStyle == ItemUseStyleID.None) return UsableCategory.None;
+
 
         if (0 < ItemID.Sets.SortingPriorityBossSpawns[item.type] && ItemID.Sets.SortingPriorityBossSpawns[item.type] <= 17 && item.type != ItemID.TreasureMap)
             return UsableCategory.Summoner;
 
+        if (item.bait != 0) return UsableCategory.Critter;
         if (item.makeNPC != NPCID.None) return UsableCategory.Critter;
 
         if (item.damage > 0) return UsableCategory.Weapon;

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC.ConsumableGroup;
@@ -11,7 +13,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     public abstract Color DefaultColor { get; }
     public virtual bool DefaultsToOn => true;
 
-    public virtual bool OwnsItem(Player player, Item item, bool isACopy) {
+    public override bool OwnsItem(Player player, Item item, bool isACopy) {
         bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;
 
         if (item.playerIndexTheItemIsReservedFor != Main.myPlayer) return false;
@@ -28,72 +30,34 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         return false;
     }
 
-    public virtual long GetMaxInfinity(Player player, TConsumable consumable) => 0;
-
-
-    public Globals.DisplayInfo<TCount> GetDisplayInfo(Item item) => GetDisplayInfo(item, out _);
-    public Globals.DisplayInfo<TCount> GetDisplayInfo(Item item, out TConsumable value) {
-        Player player = Main.LocalPlayer;
-        TConsumable consumable = ToConsumable(item);
-        value = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(player, consumable, out TConsumable? alt) ? alt : consumable;
-
-        Requirement<TCount> root = InfinityManager.GetRequirement(value, this);
-        Infinity<TCount> infinity;
-        TCount consumableCount;
-
-        System.Enum? category = null;
-
-        if(GetType().ImplementInterface(typeof(ICategory<,>), out _))
-            category = InfinityManager.GetCategory(consumable, (dynamic)this);
-
-        if (OwnsItem(player, item, true)) {
-            consumableCount = LongToCount(value, CountConsumables(player, value));
-            infinity = InfinityManager.GetInfinity(player, value, this);
-        } else {
-            consumableCount = LongToCount(value, 0).None;
-            infinity = new(consumableCount, 0);
-        }
-
-        TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(LongToCount(value, GetMaxInfinity(player, value))) < 0 ?
-            root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
-
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
-        return new(displayFlags, category, infinity, next, consumableCount);
-    }
-
     public virtual TooltipLineID LinePosition => System.Enum.TryParse(TooltipLine.Name, out TooltipLineID index) ? index : TooltipLineID.Modded;
     public abstract TooltipLine TooltipLine { get; }
 
     public sealed override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
-        Globals.DisplayInfo<TCount> info = GetDisplayInfo(item, out TConsumable value);
+        Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, true, out TConsumable values);
 
-        TConsumable consumable = ToConsumable(item);
-        TooltipLine line;
-        line = this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, consumable, out _) ?
-            tooltips.FindorAddLine(altDisplay!.AlternateTooltipLine(consumable, value), TooltipLineID.WandConsumes, out bool addedLine) :
-            tooltips.FindorAddLine(TooltipLine, LinePosition, out addedLine);
-
-        if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {            
+        if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {
+            TooltipLine line = ToConsumable(item).Equals(values) ? tooltips.FindorAddLine(TooltipLine, LinePosition, out bool addedLine) : tooltips.FindorAddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes, out addedLine);
             Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, this.Color(), info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
 
     public sealed override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        if ((GetDisplayInfo(item).DisplayFlags & Globals.InfinityDisplayItem.DotsDisplayFlags) != 0)
+        if ((this.GetDisplayInfo(item, false, out _).DisplayFlags & Globals.InfinityDisplayItem.DotsDisplayFlags) != 0)
             Globals.InfinityDisplayItem.s_wouldDisplayDot.Add(this);
     }
     public void ActualDrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position) {
-        Globals.DisplayInfo<TCount> info = GetDisplayInfo(item);
+        Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, false, out _);
         Globals.InfinityDisplayItem.DisplayDot(spriteBatch, position, this.Color(), info);
     }
 
     public sealed override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        if ((GetDisplayInfo(item).DisplayFlags & Globals.InfinityDisplayItem.DotsDisplayFlags) != 0)
+        if ((this.GetDisplayInfo(item, false, out _).DisplayFlags & Globals.InfinityDisplayItem.DotsDisplayFlags) != 0)
             Globals.InfinityDisplayItem.s_wouldDisplayGlow.Add(this);
     }
     public void ActualDrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale) {
-        Globals.DisplayInfo<TCount> info = GetDisplayInfo(item);
+        Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, false, out _);
         Globals.InfinityDisplayItem.DisplayGlow(spriteBatch, item, position, origin, frame, scale, this.Color(), info);
     }
 }

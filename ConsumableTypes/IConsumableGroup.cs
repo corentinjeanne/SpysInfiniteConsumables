@@ -12,8 +12,8 @@ public interface IConsumableGroup {
     int UID { get; }
     int IconType { get; }
 
-
     bool CanDisplay(Item item);
+    bool OwnsItem(Player player, Item item, bool isACopy);
     void ModifyTooltip(Item item, List<TooltipLine> tooltips);
     void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
     void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
@@ -24,20 +24,20 @@ public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsuma
     int ReqCacheID(TConsumable consumable);
     int CacheID(TConsumable consumable);
 }
+
 public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : ICount<TCount> {
     Requirement<TCount> GetRequirement(TConsumable consumable);
     TCount LongToCount(TConsumable consumable, long count);
+
     long CountConsumables(Player player, TConsumable consumable);
+    long GetMaxInfinity(TConsumable consumable);
 }
 
-
-public interface IStandardGroup : IConsumableGroup, IToggleable, IColorable {
+public interface IStandardGroup: IConsumableGroup, IToggleable, IColorable {
     TooltipLineID LinePosition { get; }
     TooltipLine TooltipLine { get; }
-    bool OwnsItem(Player player, Item item, bool isACopy);
+
     void ActualDrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position);
     void ActualDrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale);
 }
-public interface IStandardGroup<TConsumable, TCount> : IStandardGroup, IConsumableGroup<TConsumable, TCount> where TConsumable : notnull where TCount : ICount<TCount> {
-    long GetMaxInfinity(Player player, TConsumable consumable);
-}
+public interface IStandardGroup<TConsumable, Tcount> : IStandardGroup, IConsumableGroup<TConsumable, Tcount> where TConsumable : notnull where Tcount : ICount<Tcount> {}

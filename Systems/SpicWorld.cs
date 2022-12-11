@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -61,10 +61,12 @@ namespace SPIC.Systems {
     //     private const string TAG_SIZE = "Size";
     //     public void PlaceBlock(int i, int j) 
     //         => GetChunk(ref i, ref j, canCreate: true).SetBlock(i, j, true);
-        
+
+    //     public void PlaceWall(int i, int j) 
+    //     public void PlaceWall(int i, int j) 
     //     public void PlaceWall(int i, int j) 
     //         => GetChunk(ref i, ref j, canCreate: true).SetWall(i, j, true);
-        
+
     //     public bool MineBlock(int i, int j) {
     //         Chunk chunk = GetChunk(ref i, ref j);
     //         if (chunk == null) return false;

@@ -5,11 +5,7 @@ using SPIC.VanillaGroups;
 
 namespace SPIC.Globals;
 
-public class SpicNPC : GlobalNPC {
-
-    public static long HighestPrice(int currency) => _hightestCost.ContainsKey(currency) ? _hightestCost[currency] : 0;
-    public static long HighestItemValue(int currency) => _highestItemValue.ContainsKey(currency) ? _highestItemValue[currency] : 0;
-
+public class ConsumptionNPC : GlobalNPC {
     
     public override void Load() {
         On.Terraria.Chest.SetupShop += HookSetupShop;
@@ -21,18 +17,21 @@ public class SpicNPC : GlobalNPC {
         orig(self, type);
 
         _hightestCost.Clear();
+
+        static void UpdatePrice(int currency, int value){
+            if (HighestShopValue(currency) < value) _hightestCost[currency] = value;
+            if (HighestEverValue(currency, 0) < value) _highestItemValue[currency] = value;
+        }
+
         foreach (Item item in self.item) {
             if (item.IsAir) continue;
 
             if (item.shopCustomPrice.HasValue) {
-                if (HighestPrice(item.shopSpecialCurrency) < item.shopCustomPrice.Value) _hightestCost[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                if (HighestItemValue(item.shopSpecialCurrency) < item.shopCustomPrice.Value) _highestItemValue[item.shopSpecialCurrency] = item.shopCustomPrice.Value;
-                
+                UpdatePrice(item.shopSpecialCurrency, item.shopCustomPrice.Value);
                 if (Main.LocalPlayer.HasInfinite(item.shopSpecialCurrency, item.shopCustomPrice.Value, Currency.Instance)) item.shopCustomPrice = item.value = 0;
-            } else {
-                if (HighestPrice(CurrencyHelper.Coins) < item.value) _hightestCost[CurrencyHelper.Coins] = item.value;
-                if (HighestItemValue(CurrencyHelper.Coins) < item.value) _highestItemValue[CurrencyHelper.Coins] = item.value;
-                
+            }
+            else {
+                UpdatePrice(CurrencyHelper.Coins, item.value);
                 if (Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, item.value, Currency.Instance)) item.value = 0;
             }
         }
@@ -66,13 +65,16 @@ public class SpicNPC : GlobalNPC {
         orig(x, y, Type, Style, who);
 
         // Prevent duping
-        if (spawnIndex > 0) {
+        if (spawnIndex >= 0) {
             NPC critter = Main.npc[spawnIndex];
             if (critter.active && critter.type == Type && Config.RequirementSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
                 critter.SpawnedFromStatue = true;
         }
     }
 
+
+    public static long HighestShopValue(int currency, long missing = 0) => _hightestCost.ContainsKey(currency) ? _hightestCost[currency] : missing;
+    public static long HighestEverValue(int currency, long missing = long.MaxValue) => _highestItemValue.ContainsKey(currency) ? _highestItemValue[currency] : missing;
 
     private static readonly System.Collections.Generic.Dictionary<int, long> _hightestCost = new();
     private static readonly System.Collections.Generic.Dictionary<int, long> _highestItemValue = new();

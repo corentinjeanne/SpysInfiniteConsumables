@@ -70,7 +70,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
     }
 
     // TODO improve to use the available recipes
-    public override long GetMaxInfinity(Player player, Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
+    public override long GetMaxInfinity(Item item) => Systems.InfiniteRecipe.HighestCost(item.type);
 
     public override bool OwnsItem(Player player, Item item, bool isACopy) {
         // bool AreSameItems(Item a, Item b) => isACopy ? (a.type == b.type && a.stack == b.stack) : a == b;

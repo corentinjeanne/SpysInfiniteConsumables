@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -20,25 +21,35 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
     public int UID { get; internal set; }
     public abstract int IconType { get; }
 
+    public virtual bool CanDisplay(Item item){
+        TConsumable consumable = ToConsumable(item);
+        if(InfinityManager.IsBlacklisted(consumable, this)) return false;
+        if(InfinityManager.IsUsed(consumable, this)) return true;
+        if(this is IAmmunition<TConsumable> iAmmo && iAmmo.HasAmmo(Main.LocalPlayer, consumable, out TConsumable? ammo)
+                && !InfinityManager.IsBlacklisted(ammo, this) && InfinityManager.IsUsed(ammo, this))
+            return true;
+
+        return false;
+    }
+
 
     public abstract TConsumable ToConsumable(Item item);
+
     public abstract string Key(TConsumable consumable);
     public abstract int CacheID(TConsumable consumable);
     public virtual int ReqCacheID(TConsumable consumable) => CacheID(consumable);
 
     public abstract Requirement<TCount> GetRequirement(TConsumable consumable);
+    public virtual long GetMaxInfinity(TConsumable consumable) => 0;
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
     public abstract TCount LongToCount(TConsumable consumable, long count);
 
-    public virtual bool CanDisplay(Item item){
-        TConsumable consumable = ToConsumable(item);
-        return !InfinityManager.IsBlacklisted(consumable, this) && (InfinityManager.IsUsed(consumable, this) || (this is IAlternateDisplay<TConsumable> altDisplay && altDisplay.HasAlternate(Main.LocalPlayer, consumable, out _)));
-    }
+
+    public abstract bool OwnsItem(Player player, Item item, bool isACopy);
     public abstract void ModifyTooltip(Item item, List<TooltipLine> tooltips);
     public abstract void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
     public abstract void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale);
-
 }
 
 public abstract class ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> : ConsumableGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>

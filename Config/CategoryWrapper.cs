@@ -31,6 +31,7 @@ public class CategoryConverter : JsonConverter<CategoryWrapper> {
     }
 }
 
+
 [CustomModConfigItem(typeof(UI.CategoryElement))]
 [JsonConverter(typeof(CategoryConverter))]
 public sealed class CategoryWrapper {

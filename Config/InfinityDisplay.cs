@@ -26,6 +26,8 @@ public class InfinityDisplay : ModConfig {
     public bool toopltip_AddMissingLines;
     [DefaultValue(CountStyle.Name), Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.Style")]
     public CountStyle tooltip_RequirementStyle;
+    [Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.Mixed")]
+    public bool tooltip_ShowMixed;
 
     [Header("$Mods.SPIC.Config.InfinityDisplay.Glow.header")]
     [Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Glow")]
@@ -42,7 +44,7 @@ public class InfinityDisplay : ModConfig {
     public Corner dots_Start;
     [DefaultValue(Direction.Horizontal), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Direction")]
     public Direction dots_Direction;
-    [DefaultValue(Globals.InfinityDisplayItem.MaxDots), Range(1,Globals.InfinityDisplayItem.MaxDots), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Config.InfinityDisplay.Dots.t_count")]
+    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Config.InfinityDisplay.Dots.t_count")]
     public int dots_Count;
     [DefaultValue(60), Range(0, 60 * 5), Slider, Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Pulse")]
     public int dot_PulseTime;

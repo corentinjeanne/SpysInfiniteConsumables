@@ -9,13 +9,12 @@ namespace SPIC.Config;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.PresetDefinition]")]
+
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
     public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).Name) {}
-    internal PresetDefinition(string fullName) : base(fullName) {}
+    public PresetDefinition(string fullName) : base(fullName) {}
     public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
-
 
     public override int Type => Preset?.UID ?? -1;
 
@@ -29,11 +28,12 @@ public class PresetDefinition : EntityDefinition {
     }
 }
 
+
 [TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
     public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).Name) {}
-    internal ConsumableGroupDefinition(string fullName) : base(fullName) {}
+    public ConsumableGroupDefinition(string fullName) : base(fullName) {}
     public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
     public new bool IsUnloaded => Type == 0;
@@ -41,6 +41,7 @@ public class ConsumableGroupDefinition : EntityDefinition {
 
     [JsonIgnore]
     public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
+    
     public string Label() {
         IConsumableGroup group = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";

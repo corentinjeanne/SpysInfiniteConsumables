@@ -17,6 +17,7 @@ public static class CategoryHelper {
     }
 
     public const byte None = 0;
+    public const byte NotSupported = 254;
     public const byte Unknown = 255;
 
 }

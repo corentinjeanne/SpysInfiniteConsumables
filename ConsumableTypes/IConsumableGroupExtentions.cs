@@ -9,9 +9,11 @@ public interface ICategory<TConsumable, TCategory> : IConsumableGroup<TConsumabl
     TCategory GetCategory(TConsumable consumable);
 }
 
-public interface IAlternateDisplay<TConsumable> : IConsumableGroup<TConsumable> where TConsumable : notnull{
-    TooltipLine AlternateTooltipLine(TConsumable consumable, TConsumable alternate);
-    bool HasAlternate(Player player, TConsumable consumable, [MaybeNullWhen(false)] out TConsumable alt);
+public interface IAmmunition<TConsumable> : IConsumableGroup<TConsumable> where TConsumable : notnull{
+    bool HasAmmo(Player player, TConsumable weapon, [NotNullWhen(true)] out TConsumable? ammo);
+}
+public interface IStandardAmmunition<TConsumable> : IAmmunition<TConsumable>, IConsumableGroup<TConsumable> where TConsumable : notnull{
+    TooltipLine WeaponLine(TConsumable consumable, TConsumable ammo);
 }
 
 public interface IDetectable : IConsumableGroup { }

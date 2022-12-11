@@ -116,6 +116,7 @@ public class RequirementSettings : ModConfig {
                 _blackListedConsumables.Add(def, consumables);
             }
             foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
+                if(group is VanillaGroups.Mixed) continue;
                 _blackListedConsumables.TryAdd(group.ToDefinition(), new());
             }
         }
@@ -142,13 +143,14 @@ public class RequirementSettings : ModConfig {
         }
     }
 
+
     private readonly OrderedDictionary _groups = new();
     private readonly Dictionary<ConsumableGroupDefinition, bool> _globals = new();
     private readonly Dictionary<ConsumableGroupDefinition, object> _requirements = new();
     private readonly Dictionary<ConsumableGroupDefinition, HashSet<string>> _blackListedConsumables = new();
 
-    public override ConfigScope Mode => ConfigScope.ServerSide;
-    
+
+    public override ConfigScope Mode => ConfigScope.ServerSide;    
 #nullable disable
     public static RequirementSettings Instance;
 #nullable restore

@@ -5,13 +5,11 @@ namespace SPIC;
 
 public class SpysInfiniteConsumables : Mod {
 
-#nullable disable
-    public static SpysInfiniteConsumables Instance { get; private set; }
-#nullable restore
-
+    public static SpysInfiniteConsumables Instance => s_instance.TryGetTarget(out SpysInfiniteConsumables? instance) ? instance : null!;
+    
     public static bool MagicStorageLoaded => ModLoader.TryGetMod("MagicStorage", out _);
     public override void Load() {
-        Instance = this;
+        s_instance.SetTarget(this);
 
         VanillaGroups.Placeable.ClearWandAmmos();
         InfinityManager.ClearCache();
@@ -41,8 +39,6 @@ public class SpysInfiniteConsumables : Mod {
         VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         InfinityManager.ClearCache();
-        
-        Instance = null;
     }
 
     public override object Call(params object[] args) {
@@ -56,12 +52,14 @@ public class SpysInfiniteConsumables : Mod {
                 return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.ConsumableGroup(fullName)!);
             }
         }catch(System.InvalidCastException cast){
-            Logger.Error("The type of one of the arguments vas incorect", cast);
+            Logger.Error("The type of one of the arguments was incorect", cast);
         }catch(System.Exception error){
             Logger.Error("The call failled", error);
         }
         return base.Call();
 
     }
+
+    private static readonly System.WeakReference<SpysInfiniteConsumables> s_instance = new(null!);
 }
 

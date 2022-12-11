@@ -12,12 +12,12 @@ public static class PresetManager {
     }
 
     public static Preset Preset(int id) => s_presets[id];
-    public static Preset? Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Key > 0 && kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
+    public static Preset? Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
     
     public static IEnumerable<Preset> Presets(bool noOrdering = false) {
         if (noOrdering) {
             foreach ((int _, Preset preset) in s_presets) yield return preset;
-        }else {
+        } else {
             SortedDictionary<int, List<Preset>> sorted = new(new Utility.DescendingComparer<int>());
             foreach ((int _, Preset preset) in s_presets) {
                 sorted.TryAdd(preset.CriteriasCount, new());

@@ -45,10 +45,10 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override int CacheID(int consumable) => consumable;
 
-    public override long GetMaxInfinity(Player player, int currency) {
+    public override long GetMaxInfinity(int currency) {
         if (Main.InReforgeMenu) return Main.reforgeItem.value;
-        else if (Main.npcShop != 0) return Globals.SpicNPC.HighestPrice(currency);
-        else return Globals.SpicNPC.HighestItemValue(currency);
+        else if (Main.npcShop != 0) return Globals.ConsumptionNPC.HighestShopValue(currency);
+        else return long.MaxValue;
     }
 
     public override CurrencyCount LongToCount(int consumable, long count) => new(consumable, count);

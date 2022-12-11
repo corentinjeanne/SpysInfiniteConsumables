@@ -3,170 +3,180 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.VanillaGroups;
+using Microsoft.Xna.Framework;
+using System;
 
 namespace SPIC.Globals;
+
 
 public class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
-
-    public bool DetectingCategory { get;  private set;}
-
-    private int _preUseMaxLife, _preUseMaxMana;
-    private int _preUseExtraAccessories;
-    private Microsoft.Xna.Framework.Vector2 _preUsePosition;
-    private bool _preUseDemonHeart;
-    private int _preUseDifficulty;
-    private int _preUseInvasion;
-    private int _preUseItemCount;
-    private static NPCStats _preUseNPCStats;
-
-    public bool teleport;
-
+    public static bool InRightClick { get; private set; }
 
 
     public override void Load() {
+        On.Terraria.UI.ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
         On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On.Terraria.Player.Teleport += HookTeleport;
         On.Terraria.Player.Spawn += HookSpawn;
     }
 
-    public override void PreUpdate() {
-        InfinityDisplayItem.IncrementCounters();
+    public override void ModifyNursePrice(NPC nurse, int health, bool removeDebuffs, ref int price) {
+        if(price > 0 && Player.HasInfinite(CurrencyHelper.Coins, price, Currency.Instance)) price = 1;
+    }
+    public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) {
+        if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
     }
 
-    public override bool PreItemCheck() {
-        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) {
-            DetectingCategory = true;
-            SavePreUseStats();
-        } else DetectingCategory = false;
 
+    public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
+    public override bool PreItemCheck() {
+        DetectingCategoryOf = null;
+        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
         InItemCheck = true;
         return true;
     }
     public override void PostItemCheck() {
         InItemCheck = false;
-        if (DetectingCategory) TryDetectCategory();
+        if (DetectingCategoryOf is not null) TryDetectCategory();
     }
 
-    private void SavePreUseStats() {
-        teleport = false;
-        _preUseMaxLife = Player.statLifeMax2;
-        _preUseMaxMana = Player.statManaMax2;
-        _preUseExtraAccessories = Player.extraAccessorySlots;
-        _preUseDemonHeart = Player.extraAccessory;
-        _preUsePosition = Player.position;
 
-        _preUseDifficulty = Utility.WorldDifficulty();
-        _preUseInvasion = Main.invasionType;
-        _preUseNPCStats = Utility.GetNPCStats();
-        _preUseItemCount = Utility.CountItemsInWorld();
+    public void PrepareDetection(Item item, bool consumable){
+        DetectingCategoryOf = item;
+        _teleport = false;
+        _preUseData = GetDetectionData();
+        _detectingConsumable = consumable;
     }
 
-    public void TryDetectCategory(bool mustDetect = false) {
-        if (!DetectingCategory) return;
+    public DetectionDataScreenShot GetDetectionData() => new(
+        Player.statLifeMax2, Player.statManaMax2,
+        Player.position,
+        Player.extraAccessorySlots, Player.extraAccessory,
+        Utility.CountProjectilesInWorld(), Utility.CountItemsInWorld(),
+        Utility.WorldDifficulty(), Main.invasionType, Utility.GetNPCStats()
+    );
 
-        void SaveUsable(UsableCategory category)
-            => Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, category, Usable.Instance);
 
-        void SaveBag() {
-            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, GrabBagCategory.Crate, GrabBag.Instance);
-            Config.CategoryDetection.Instance.SaveDetectedCategory(Player.HeldItem, UsableCategory.None, Usable.Instance);
+    public bool TryDetectCategory(bool mustDetect = false) {
+        if (DetectingCategoryOf is null) return false;
+
+        void SaveUsable(UsableCategory category) {
+            Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
+            if(!_detectingConsumable) Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
+        }
+        
+        void SaveBag(GrabBagCategory category) {
+            Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+            if (_detectingConsumable) Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
         }
 
-        UsableCategory usable = TryDetectUsable();
-        GrabBagCategory bag = TryDetectGrabBag();
+        DetectionDataScreenShot data = GetDetectionData();
 
-        if (usable != UsableCategory.Unknown) SaveUsable(usable);
-        else if (bag != GrabBagCategory.Unknown) SaveBag();
-        else if (mustDetect) SaveUsable(UsableCategory.PlayerBooster);
-        else return;
+        if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
+        else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
+        else if (mustDetect){
+            if(_detectingConsumable) SaveUsable(UsableCategory.WorldBooster);
+            else SaveBag(GrabBagCategory.Crate);
+        }
+        else return false;
+        DetectingCategoryOf = null;
 
-        DetectingCategory = false;
+        return true;
+    }
+    private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
+
+        if(_teleport) category = UsableCategory.Tool;
+        else if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
+        else if (data.NPCStats.Boss != _preUseData.NPCStats.Boss || data.Invasion != _preUseData.Invasion) category = UsableCategory.Summoner;
+        else if (data.NPCStats.Total != _preUseData.NPCStats.Total) category = UsableCategory.Critter;
+
+        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart)
+            category = UsableCategory.PlayerBooster;
+        else if (data.Difficulty != _preUseData.Difficulty)
+            category = UsableCategory.WorldBooster;
+
+        else if (data.Position != _preUseData.Position) category = UsableCategory.Tool;
+        else category = UsableCategory.Unknown;
+
+        return category != UsableCategory.Unknown;
+    }
+    private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
+        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Crate : GrabBagCategory.Unknown;
+        return category != GrabBagCategory.Unknown;
     }
 
-    private UsableCategory TryDetectUsable() {
-        NPCStats stats = Utility.GetNPCStats();
-
-        if(teleport) return UsableCategory.Tool;
-        if (_preUseNPCStats.Boss != stats.Boss || _preUseInvasion != Main.invasionType)
-            return UsableCategory.Summoner;
-
-        if (_preUseNPCStats.Total != stats.Total)
-            return UsableCategory.Critter;
-
-        if (_preUseMaxLife != Player.statLifeMax2 || _preUseMaxMana != Player.statManaMax2
-                || _preUseExtraAccessories != Player.extraAccessorySlots || _preUseDemonHeart != Player.extraAccessory)
-            return UsableCategory.PlayerBooster;
-
-        // ? Other difficulties
-        if (_preUseDifficulty != Utility.WorldDifficulty())
-            return UsableCategory.WorldBooster;
-
-        if (Player.position != _preUsePosition)
-            return UsableCategory.Tool;
-
-        return UsableCategory.Unknown;
-    }
-
-    private GrabBagCategory TryDetectGrabBag() {
-        if (Utility.CountItemsInWorld() != _preUseItemCount) return GrabBagCategory.Crate;
-        return GrabBagCategory.Unknown;
-    }
 
     public int FindPotentialExplosivesType(int proj) {
         foreach (Dictionary<int, int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values) {
-            foreach ((int t, int p) in projectiles) if (p == proj) return t;
+            foreach ((int item, int shoot) in projectiles) if (shoot == proj) return item;
         }
         foreach (Item item in Player.inventory) if (item.shoot == proj) return item.type;
-
-        return 0;
+        return ItemID.None;
     }
 
-    public void RefilExplosive(int proj, Item refill) {
-        int tot = Player.CountItems(refill.type);
+    public void RefilExplosive(int projType, Item refill) {
+        int owned = Player.CountItems(refill.type);
         int used = 0;
-        foreach (Projectile p in Main.projectile)
-            if (p.owner == Player.whoAmI && p.type == proj) used += 1;
+        foreach (Projectile proj in Main.projectile)
+            if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        Config.RequirementSettings requirements = Config.RequirementSettings.Instance;
-        if ((refill.GetCategory(Usable.Instance) == UsableCategory.Explosive && !Player.HasInfinite(refill, 1, Usable.Instance) && !refill.GetInfinity(tot + used, Usable.Instance).Value.IsNone)
-                || (refill.GetCategory(Ammo.Instance) == AmmoCategory.Explosive && !refill.GetInfinity(tot + used, Ammo.Instance).Value.IsNone)
-            )
+        if ((refill.GetCategory(Usable.Instance) == UsableCategory.Explosive && !refill.GetInfinity(owned + used, Usable.Instance).Value.IsNone)
+                || (refill.GetCategory(Ammo.Instance) == AmmoCategory.Explosive && !refill.GetInfinity(owned + used, Ammo.Instance).Value.IsNone))
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
+    }
 
+
+    public void Teleported() => _teleport = true;
+
+
+    private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
+        InRightClick = true;
+        DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
+        if (Config.CategoryDetection.Instance.DetectMissing && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown) modPlayer.PrepareDetection(inv[slot], false);
+
+        bool res = orig(inv, context, slot, player);
+        if (modPlayer.DetectingCategoryOf is not null) modPlayer.TryDetectCategory();
+        InRightClick = false;
+        return res;
     }
 
     private static void HookPutItemInInventory(On.Terraria.Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
-        if (selItem < 0) goto origin;
+        if (selItem < 0){
+            orig(self, type, selItem);
+            return;
+        }
 
         Item item = self.inventory[selItem];
 
-        Config.CategoryDetection autos = Config.CategoryDetection.Instance;
+        Config.CategoryDetection detection = Config.CategoryDetection.Instance;
         Config.RequirementSettings settings = Config.RequirementSettings.Instance;
 
-
-        if (autos.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None)
-            autos.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
+        if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 
         item.stack++;
-        if (!self.HasInfinite(item, 1, Placeable.Instance)) {
-            item.stack--;
-        } else {
-            if (settings.PreventItemDupication) return;
-        }
-    origin: orig(self, type, selItem);
+        if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
+        else if (settings.PreventItemDupication) return;
+
+        orig(self, type, selItem);
     }
 
     private static void HookSpawn(On.Terraria.Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
-        DetectionPlayer player = self.GetModPlayer<DetectionPlayer>();
-        if(player.InItemCheck && player.DetectingCategory) player.teleport = true;
         orig(self, context);
+        self.GetModPlayer<DetectionPlayer>().Teleported();
+    }
+    private static void HookTeleport(On.Terraria.Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
+        orig(self, newPos, Style, extraInfo);
+        self.GetModPlayer<DetectionPlayer>().Teleported();
     }
 
-    private static void HookTeleport(On.Terraria.Player.orig_Teleport orig, Player self, Microsoft.Xna.Framework.Vector2 newPos, int Style = 0, int extraInfo = 0) {
-        DetectionPlayer player = self.GetModPlayer<DetectionPlayer>();
-        if(player.InItemCheck && player.DetectingCategory) player.teleport = true;
-        orig(self, newPos, Style, extraInfo);
-    }
+
+    public Item? DetectingCategoryOf;
+    private bool _detectingConsumable;
+    private DetectionDataScreenShot _preUseData;
+
+    private bool _teleport;
 }
+
+public record struct DetectionDataScreenShot(int MaxLife, int MaxMana, Vector2 Position, int ExtraAccessories, bool DemonHeart, int Projectiles, int ItemCount, int Difficulty, int Invasion, NPCStats NPCStats);

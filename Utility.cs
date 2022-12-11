@@ -30,7 +30,7 @@ public static class Utility {
     public static int CountItems(this Player player, int type, bool includeChest = false) {
 
         int total = player.inventory.CountItems(type, 58) + new Item[] { Main.mouseItem }.CountItems(type);
-        if (includeChest && CrossMod.MagicStorageIntegration.Enable && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
+        if (includeChest && CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
         if (includeChest && player.InChest(out Item[]? chest)) total += chest.CountItems(type);
         return total;
     }
@@ -38,6 +38,12 @@ public static class Utility {
         int i = 0;
         foreach (Item item in Main.item) if (!item.IsAir) i++;
         return i;
+    }
+
+    internal static int CountProjectilesInWorld() {
+        int p = 0;
+        foreach (Projectile proj in Main.projectile) if (proj.active) p++;
+        return p;
     }
 
 
@@ -78,7 +84,8 @@ public static class Utility {
     }
 
 
-    public static bool Placeable(this Item item) => item.createTile != -1 || item.createWall != -1;
+    public static bool XMasDeco(this Item item) => Terraria.ID.ItemID.StarTopper1 <= item.type && item.type <= Terraria.ID.ItemID.BlueAndYellowLights;
+    public static bool Placeable(this Item item) => item.XMasDeco() || item.createTile != -1 || item.createWall != -1;
 
 
     public static int WorldDifficulty() => Main.masterMode ? 2 : Main.expertMode ? 1 : 0;
@@ -145,6 +152,6 @@ public static class Utility {
     }
 
 
-    public static bool ImplementInterface(this System.Type type, System.Type generic, [MaybeNullWhen(false)] out System.Type impl)
+    public static bool ImplementsInterface(this System.Type type, System.Type generic, [MaybeNullWhen(false)] out System.Type impl)
         => (impl = System.Array.Find(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)) != null;
 }

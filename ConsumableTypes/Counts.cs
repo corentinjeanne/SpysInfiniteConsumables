@@ -114,8 +114,8 @@ public struct ItemCount : ICount<ItemCount> {
             float stacks = Stacks * System.MathF.Min(1.0f, (float)MaxStack / reference.MaxStack);
             return new(reference) { Stacks = stacks };
         } else {
-            long items = System.Math.Min(Items, reference.MaxStack);
-            return new ItemCount(reference) { Items = items };
+            // long items = System.Math.Min(Items, reference.MaxStack);
+            return new ItemCount(reference) { Items = Items };
         }        
     }
     public float Ratio(ItemCount other) => UseStacks ? Stacks / other.Stacks : (float)Items / other.Items;

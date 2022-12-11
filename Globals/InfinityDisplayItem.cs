@@ -16,30 +16,25 @@ public enum DisplayFlags {
     All = Category | Requirement | Infinity
 }
 
-public record struct DisplayInfo<TCount>(DisplayFlags DisplayFlags, System.Enum? Category, Infinity<TCount> Infinity, TCount Next, TCount ConsumableCount) where TCount : ICount<TCount>;
+public record struct DisplayInfo<TCount>(DisplayFlags DisplayFlags, System.Enum? Category, Infinity<TCount> Infinity, TCount Next, TCount ConsumableCount)
+where TCount : ICount<TCount>;
+
 
 public class InfinityDisplayItem : GlobalItem {
 
-    private static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
-        
-        foreach (IStandardGroup<Item, ItemCount> group in InfinityManager.ConsumableGroups<IStandardGroup<Item, ItemCount>>()) {
-            if(group.CanDisplay(item)) yield return group;
-        }
-        
-        foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled)) {
+
+    public static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
+        foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled)) {
             if(group.CanDisplay(item)) yield return group;
         }
     }
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        if (!Main.PlayerLoaded) return;
-        Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
-        if (!display.toopltip_ShowTooltip) return;
+        if (!Main.PlayerLoaded || !Config.InfinityDisplay.Instance.toopltip_ShowTooltip) return;
 
-        foreach (IConsumableGroup group in DisplayableTypes(item)) {
-            group.ModifyTooltip(item, tooltips);
-        }
+        foreach (IConsumableGroup group in DisplayableTypes(item)) group.ModifyTooltip(item, tooltips);
     }
+
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         if(!Main.PlayerLoaded) return;
         Config.InfinityDisplay display = Config.InfinityDisplay.Instance;
@@ -55,7 +50,8 @@ public class InfinityDisplayItem : GlobalItem {
         }
 
         if (display.dots_ShowDots && s_wouldDisplayDot.Count > 0) {
-            Vector2 cornerCoords = Config.InfinityDisplay.Instance.dots_Start switch {
+            s_wouldDisplayDot.Reverse();
+            Vector2 cornerDirection = display.dots_Start switch {
                 Config.InfinityDisplay.Corner.TopLeft =>     new(-1,-1),
                 Config.InfinityDisplay.Corner.TopRight =>    new( 1,-1),
                 Config.InfinityDisplay.Corner.BottomLeft =>  new(-1, 1),
@@ -66,11 +62,12 @@ public class InfinityDisplayItem : GlobalItem {
 
             Vector2 slotCenter = position + frame.Size()/2f * scale;
             Vector2 borders = dotSize * 2f/3f;
-            Vector2 dotPosition = slotCenter + (TextureAssets.InventoryBack.Value.Size()/2f*Main.inventoryScale - borders) * cornerCoords - dotSize / 2f * Main.inventoryScale;
-            Vector2 dotDelta = dotSize * (Config.InfinityDisplay.Instance.dots_Direction == Config.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerCoords.Y) : new Vector2(-cornerCoords.X, 0)) * Main.inventoryScale;
+            Vector2 dotPosition = slotCenter + (TextureAssets.InventoryBack.Value.Size()/2f*Main.inventoryScale - borders) * cornerDirection - dotSize / 2f * Main.inventoryScale;
+            Vector2 dotDelta = dotSize * (display.dots_Direction == Config.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
 
+            int pages = (s_wouldDisplayDot.Count + display.dots_Count - 1) / display.dots_Count;
+            int startingDot = s_dotFocusIndex % (pages * display.dots_Count) / display.dots_Count * display.dots_Count;
 
-            int startingDot = s_dotFocusGroup % ((s_wouldDisplayDot.Count + display.dots_Count - 1) / display.dots_Count * display.dots_Count) / display.dots_Count * display.dots_Count;
             for (int i = startingDot; i < startingDot + display.dots_Count && i < s_wouldDisplayDot.Count; i++) {
                 s_wouldDisplayDot[i].ActualDrawInInventorySlot(item, spriteBatch, dotPosition);
                 dotPosition += dotDelta;
@@ -78,39 +75,25 @@ public class InfinityDisplayItem : GlobalItem {
         }
 
         if (display.glow_ShowGlow && s_wouldDisplayGlow.Count > 0) {
-            int i = s_glowFocusGroup % s_wouldDisplayGlow.Count;
+            int i = s_glowFocusIndex % s_wouldDisplayGlow.Count;
             if (i < s_wouldDisplayGlow.Count) s_wouldDisplayGlow[i].ActualDrawOnItemSprite(item, spriteBatch, position, frame, origin, scale);
         }
     }
 
-    public static void IncrementCounters() {
-        s_glowFrame++;
-        if (s_glowFrame >= Config.InfinityDisplay.Instance.glow_PulseTime) {
-            s_glowFrame = 0;
-            s_glowFocusGroup++;
-            if (s_glowFocusGroup >= InfinityManager.LCM) s_glowFocusGroup = 0;
-        }
-        s_dotFrame++;
-        if (s_dotFrame >= Config.InfinityDisplay.Instance.dot_PulseTime) {
-            s_dotFrame = 0;
-            s_dotFocusGroup++;
-            if (s_dotFocusGroup >= InfinityManager.LCM) s_dotFocusGroup = 0;
-        }
-    }
-
-
-    public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
+    public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next, TCount maxInfinity) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
-        if (category != null && System.Convert.ToByte(category) != 0) flags |= DisplayFlags.Category;
+        if (category != null && System.Convert.ToByte(category) != CategoryHelper.None) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
-        if (!next.IsNone) flags |= DisplayFlags.Requirement;
+        if (infinity.Value.CompareTo(maxInfinity) < 0 && !next.IsNone) flags |= DisplayFlags.Requirement;
         
         return flags;
     }
 
+
     public static DisplayFlags LineDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement | DisplayFlags.Category;
     public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement;
     public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
+
     public static void DisplayOnLine<TCount>(ref string line, ref Color? lineColor, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         Config.InfinityDisplay visuals = Config.InfinityDisplay.Instance;
 
@@ -165,7 +148,7 @@ public class InfinityDisplayItem : GlobalItem {
         float ratio = info.Next.IsNone ? 1 : info.ConsumableCount.Ratio(info.Next);
         for (int i = 0; i < _innerPixels.Length; i++) {
             float alpha;
-            if(info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.33f;
+            if(ratio != 0 && info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.5f;
             else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.33f;
             else alpha = 0f;
             
@@ -203,15 +186,31 @@ public class InfinityDisplayItem : GlobalItem {
         );
     }
 
+
+    public static void IncrementCounters() {
+        s_glowFrame++;
+        if (s_glowFrame >= Config.InfinityDisplay.Instance.glow_PulseTime) {
+            s_glowFrame = 0;
+            s_glowFocusIndex++;
+            if (s_glowFocusIndex >= InfinityManager.GroupsLCM) s_glowFocusIndex = 0;
+        }
+        s_dotFrame++;
+        if (s_dotFrame >= Config.InfinityDisplay.Instance.dot_PulseTime) {
+            s_dotFrame = 0;
+            s_dotFocusIndex++;
+            if (s_dotFocusIndex >= InfinityManager.GroupsLCM) s_dotFocusIndex = 0;
+        }
+    }
+
     private static int s_glowFrame, s_dotFrame;
-    private static int s_glowFocusGroup, s_dotFocusGroup;
+    private static int s_glowFocusIndex, s_dotFocusIndex;
+
 
     public const int MaxDots = 8;
-
+    public const int DotScale = 2;
+    private static Vector2 _dotSize = new(4, 4);
     private static readonly Vector2[] _innerPixels = new Vector2[]{ new(1,1),new(2,1),new(1,2),new(2,2) };
     private static readonly Vector2[] _outerPixels = new Vector2[]{ new(1,0),new(0,1),new(0,2),new(1,3),new(2,3),new(3,2),new(3,1),new(2,0) };
-    private static Vector2 _dotSize = new(4, 4);
-    public const int DotScale = 2;
 
     internal static List<IStandardGroup> s_wouldDisplayDot = new();
     internal static List<IStandardGroup> s_wouldDisplayGlow = new();
