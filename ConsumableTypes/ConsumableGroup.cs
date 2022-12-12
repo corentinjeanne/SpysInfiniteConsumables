@@ -26,7 +26,7 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
         if(InfinityManager.IsBlacklisted(consumable, this)) return false;
         if(InfinityManager.IsUsed(consumable, this)) return true;
         if(this is IAmmunition<TConsumable> iAmmo && iAmmo.HasAmmo(Main.LocalPlayer, consumable, out TConsumable? ammo)
-                && !InfinityManager.IsBlacklisted(ammo, this) && InfinityManager.IsUsed(ammo, this))
+                && !InfinityManager.IsBlacklisted(ammo, this) && (UID > 0 || InfinityManager.IsUsed(ammo, this)))
             return true;
 
         return false;

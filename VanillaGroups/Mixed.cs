@@ -37,7 +37,6 @@ public class MixedRequirement : Requirement<ItemCount> {
 }
 
 
-// TODO ammo
 public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
     public override int IconType => Terraria.ID.ItemID.LunarHook;

@@ -122,7 +122,11 @@ public static class InfinityManager {
         Player player = Main.LocalPlayer;
         TConsumable consumable = group.ToConsumable(item);
 
-        if(group is not IAmmunition<TConsumable> iAmmo || !iAmmo.HasAmmo(player, consumable, out values!))
+        if (group is IAmmunition<TConsumable> iAmmo && iAmmo.HasAmmo(player, consumable, out values!)){
+            if(group.UID > 0 && !IsUsed(values, group))
+                group = (IConsumableGroup<TConsumable, TCount>)VanillaGroups.Mixed.Instance;
+        }
+        else
             values = consumable;
         Requirement<TCount> root = GetRequirement(values, group);
         Infinity<TCount> infinity;
