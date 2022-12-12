@@ -37,7 +37,15 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, true, out TConsumable values);
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {
-            TooltipLine line = ToConsumable(item).Equals(values) ? tooltips.FindorAddLine(TooltipLine, LinePosition, out bool addedLine) : tooltips.FindorAddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes, out addedLine);
+            bool ammo = ToConsumable(item).Equals(values);
+            TooltipLine? line = ammo ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
+            bool addedLine = false;
+            if (line is null) {
+                if(!Config.InfinityDisplay.Instance.toopltip_AddMissingLines) return;
+                line = ammo ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
+                addedLine = true;
+            }
+
             Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, this.Color(), info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }

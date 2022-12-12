@@ -28,7 +28,7 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
     public override bool DefaultsToOn => false;
 
     public override Requirement<CurrencyCount> Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Coins * 100), 100, 0.1f),
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Coins * 100), 10, 0.1f),
         CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Single), 0.2f),
         CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()     
     };

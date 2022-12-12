@@ -126,8 +126,8 @@ public static class InfinityManager {
             if(group.UID > 0 && !IsUsed(values, group))
                 group = (IConsumableGroup<TConsumable, TCount>)VanillaGroups.Mixed.Instance;
         }
-        else
-            values = consumable;
+        else values = consumable;
+        
         Requirement<TCount> root = GetRequirement(values, group);
         Infinity<TCount> infinity;
         TCount consumableCount;

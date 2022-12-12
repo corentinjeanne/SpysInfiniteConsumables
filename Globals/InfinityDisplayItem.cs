@@ -84,7 +84,7 @@ public class InfinityDisplayItem : GlobalItem {
         DisplayFlags flags = 0;
         if (category != null && System.Convert.ToByte(category) != CategoryHelper.None) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
-        if (infinity.Value.CompareTo(maxInfinity) < 0 && !next.IsNone) flags |= DisplayFlags.Requirement;
+        if ((infinity.Value.IsNone || infinity.Value.CompareTo(maxInfinity) < 0) && !next.IsNone) flags |= DisplayFlags.Requirement;
         
         return flags;
     }

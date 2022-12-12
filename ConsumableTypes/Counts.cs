@@ -107,7 +107,7 @@ public struct ItemCount : ICount<ItemCount> {
     public ItemCount None => new(Type, MaxStack);
 
     public ItemCount Multiply(float value) => UseStacks ? new ItemCount(this) { Stacks = Stacks * value } : new ItemCount(this) { Items = (long)(Items * value) };
-    public ItemCount Add(ItemCount count) => UseStacks ? new ItemCount(this) { Stacks = Stacks + count.Stacks } : new ItemCount(this) { Items = Items + count.Items };
+    public ItemCount Add(ItemCount count) => UseStacks ? new ItemCount(this) { Stacks = Stacks + count.AdaptTo(this).Stacks } : new ItemCount(this) { Items = Items + count.Items };
 
     public ItemCount AdaptTo(ItemCount reference) {
         if(UseStacks){
