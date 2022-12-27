@@ -2,6 +2,7 @@ using Terraria;
 using Terraria.ModLoader;
 
 using SPIC.VanillaGroups;
+using Terraria.ID;
 
 namespace SPIC.Globals;
 
@@ -13,6 +14,14 @@ public class ConsumptionItem : GlobalItem {
             Item i = new(t);
             if (i.tileWand != -1) Placeable.RegisterWand(i);
         }
+    }
+
+    public override void RightClick(Item item, Player player) {
+        if(item.type != ItemID.CanOfWorms && item.type != ItemID.Oyster) return;
+        if(player.HasInfinite(item, 1,
+            () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
+            GrabBag.Instance
+        )) item.stack++;
     }
 
     public override bool ConsumeItem(Item item, Player player) {
