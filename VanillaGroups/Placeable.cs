@@ -138,6 +138,8 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityAmber;
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Placeable", Lang.tip[33].Value);
 
+    public bool IncludeUnknown => false;
+
     public enum WandType {
         None,
         Tile,

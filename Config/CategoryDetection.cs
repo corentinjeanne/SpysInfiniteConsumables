@@ -41,7 +41,7 @@ public class CategoryDetection : ModConfig {
             return false;
         }
 
-        InfinityManager.ClearCategoryCache(consumable, group);
+        InfinityManager.ClearConsumableCache(consumable, group);
         return true;
 
     }
@@ -66,8 +66,7 @@ public class CategoryDetection : ModConfig {
                 continue;
             }
             IConsumableGroup group = def.ConsumableType;
-            if (group.UID < 0 || group is not IDetectable detectable) continue;
-            if (detectable.GetType().ImplementsInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
+            if (group is IDetectable && group.GetType().ImplementsInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
                 dest[def] = new();
                 foreach (TKey key in source[def].Keys) {
                     dest[def][key] = source[def][key].type is not null ?
@@ -75,11 +74,13 @@ public class CategoryDetection : ModConfig {
                         new(source[def][key].value, iCategoryGen2.GenericTypeArguments[1]);
                     dest[def][key].SaveEnumType = false;
                 }
-            } else
+            } else {
                 dest[def] = items;
+            }
 
         }
         foreach (IDetectable group in InfinityManager.ConsumableGroups<IDetectable>(groupFlags, true)) {
+            if(!group.GetType().ImplementsInterface(typeof(ICategory<,>), out _)) continue;
             dest.TryAdd(group.ToDefinition(), new());
         }
     }

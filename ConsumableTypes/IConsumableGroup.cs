@@ -23,6 +23,8 @@ public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsuma
     string Key(TConsumable consumable);
     int ReqCacheID(TConsumable consumable);
     int CacheID(TConsumable consumable);
+
+    bool Includes(TConsumable consumable);
 }
 
 public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : ICount<TCount> {

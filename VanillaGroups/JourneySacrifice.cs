@@ -25,17 +25,19 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
     public override bool DefaultsToOn => false;
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.JourneyMode;
 
+    public static bool IsConsumable(Item item){
+        foreach (IConsumableGroup<Item, ItemCount> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item, ItemCount>>()) {
+            if (group != Instance && !group.Includes(item)) return false;
+        }
+        return true;
+    }
+
     public override Requirement<ItemCount> GetRequirement(Item item) {
         if(!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new NoRequirement<ItemCount>();
-        bool consu = false;
-        foreach(IConsumableGroup<Item, ItemCount> group in InfinityManager.ConsumableGroups<IConsumableGroup<Item, ItemCount>>()){
-            if(group != this && !item.GetRequirement(group).IsNone){
-                consu = true;
-                break;
-            }
-        }
-        return consu || this.Settings().includeNonConsumable ? new CountRequirement<ItemCount>(new(item){Items=CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]}) : new NoRequirement<ItemCount>();
+        return IsConsumable(item) || this.Settings().includeNonConsumable ? new CountRequirement<ItemCount>(new(item){Items=CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]}) : new NoRequirement<ItemCount>();
     }
+
+    public override bool Includes(Item consumable) => IsConsumable(consumable) || this.Settings().includeNonConsumable;
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));
 

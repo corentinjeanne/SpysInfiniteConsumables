@@ -35,6 +35,7 @@ public class InfiniteRecipe : ModSystem {
 
 
     public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
+        if(CrossMod.MagicStorageIntegration.InMagicStorage && recipe.requiredItem[0].type == type) return;
         if (Main.LocalPlayer.HasInfinite(new(type), amount, Material.Instance)) {
             amount = 0;
             return;

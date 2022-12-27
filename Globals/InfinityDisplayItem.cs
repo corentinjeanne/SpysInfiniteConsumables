@@ -80,11 +80,11 @@ public class InfinityDisplayItem : GlobalItem {
         }
     }
 
-    public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next, TCount maxInfinity) where TCount : ICount<TCount> {
+    public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
         if (category != null && System.Convert.ToByte(category) != CategoryHelper.None) flags |= DisplayFlags.Category;
         if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
-        if ((infinity.Value.IsNone || infinity.Value.CompareTo(maxInfinity) < 0) && !next.IsNone) flags |= DisplayFlags.Requirement;
+        if (!next.IsNone) flags |= DisplayFlags.Requirement;
         
         return flags;
     }
@@ -127,7 +127,7 @@ public class InfinityDisplayItem : GlobalItem {
         float scale = DotScale * Main.inventoryScale;
         float colorMult = 1;
 
-        // BUG Does clear cache when buying items (visual bug for partial infs)
+        // BUG Does not clear cache when buying items (visual bug for partial infs)
         if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.Value.IsNone){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {

@@ -9,14 +9,11 @@ namespace SPIC.VanillaGroups;
 
 public class MixedRequirement : Requirement<ItemCount> {
 
-    public override bool IsNone => false;
-
     public override Infinity<ItemCount> Infinity(ItemCount count) {
         Item item = new(count.Type);
         Infinity<ItemCount> min = new(count.None, 0);
         foreach(IConsumableGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item, out _)){
             Requirement<ItemCount> requirement = item.GetRequirement(group);
-            if(requirement.IsNone) continue;
             Infinity<ItemCount> inf = requirement.Infinity(count);
             if(min.Value.IsNone || inf.Value.CompareTo(min.Value) < 0) min = inf;
         }
@@ -28,7 +25,6 @@ public class MixedRequirement : Requirement<ItemCount> {
         ItemCount min = count.None;
         foreach(IConsumableGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item, out _)){
             Requirement<ItemCount> requirement = item.GetRequirement(group);
-            if(requirement.IsNone) continue;
             ItemCount next = requirement.NextRequirement(requirement.Infinity(count).EffectiveRequirement);
             if(!next.IsNone && (min.IsNone || next.CompareTo(min) < 0)) min = next;
         }
@@ -95,4 +91,7 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
         }
     }
     public override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
-    public override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}}
+    public override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
+
+    public override bool Includes(Item consumable) => InfinityManager.UsedConsumableGroups(consumable, out _).Count > 0;
+}

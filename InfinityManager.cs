@@ -76,7 +76,7 @@ public static class InfinityManager {
     public static bool IsBlacklisted<TConsumable>(this Item item, IConsumableGroup<TConsumable> group) where TConsumable : notnull => IsBlacklisted(group.ToConsumable(item), group);
 
     public static bool IsUsed<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount>
-        => group.UID > 0 ? UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : !GetRequirement(consumable, group).IsNone;
+        => group.UID > 0 ? UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : group.Includes(consumable);
     public static bool IsUsed<TConsumable, TCount>(this Item item, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> => IsUsed(group.ToConsumable(item), group);
     public static ReadOnlyCollection<IStandardGroup<Item, ItemCount>> UsedConsumableGroups(Item item, out bool hasUnused){
         if (s_usedGroups.TryGetValue(item.type, out System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>?value)) {
@@ -86,11 +86,11 @@ public static class InfinityManager {
         hasUnused = false;
         List<IStandardGroup<Item, ItemCount>> used = new();
         foreach (IStandardGroup<Item, ItemCount> group in ConsumableGroups<IStandardGroup<Item, ItemCount>>()) {
+            if(!group.Includes(item)) continue;
             if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) {
                 hasUnused = true;
                 break;
             }
-            if(GetRequirement(item, group).IsNone) continue;
             used.Add(group);
         }
         s_usedGroups[item.type] = new(used.AsReadOnly(), hasUnused);
@@ -144,11 +144,11 @@ public static class InfinityManager {
             consumableCount = group.LongToCount(values, 0).None;
             infinity = new(consumableCount, 0);
         }
-        
-        TCount next = root.NextRequirement(infinity.EffectiveRequirement);
-        TCount maxInfinity = group.LongToCount(values, group.GetMaxInfinity(values));
 
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next, maxInfinity) & Config.InfinityDisplay.Instance.DisplayFlags;
+        TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(group.LongToCount(values, group.GetMaxInfinity(values))) < 0 ?
+            root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
+
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
         return new(displayFlags, category, infinity, next, consumableCount);
     }
 
@@ -159,13 +159,27 @@ public static class InfinityManager {
         return group.UID > 0 && player.HasInfinite((consumable as Item)!, consumed, VanillaGroups.Mixed.Instance);
     }
 
+    public static bool HasInfinite<TConsumable, TCount>(this Player player, TConsumable consumable, long consumed, System.Func<bool> retryIfNoneIncluded, params IConsumableGroup<TConsumable, TCount>[] groups) where TConsumable : notnull where TCount : ICount<TCount> {
+        foreach(IConsumableGroup<TConsumable, TCount> group in groups){
+            if (group.Includes(consumable)) return player.HasInfinite(consumable, consumed, group);
+        }
+        if(retryIfNoneIncluded()) return player.HasInfinite(consumable, consumed, groups);
+        return false;
+    }
+    public static bool HasInfinite<TConsumable, TCount>(this Player player, TConsumable consumable, long consumed, params IConsumableGroup<TConsumable, TCount>[] groups) where TConsumable : notnull where TCount : ICount<TCount> => player.HasInfinite(consumable, consumed, () => false, groups);
+
+
     public static void ClearCache() {
-        foreach ((int _, ICache cache) in s_caches) cache.Clear();
+        foreach ((int _, ICountCache cache) in s_caches) cache.ClearAll();
         s_usedGroups.Clear();
     }
-    internal static void ClearCategoryCache<TConsumable, TCategory>(TConsumable consumable, ICategory<TConsumable, TCategory> group) where TConsumable: notnull where TCategory : System.Enum {
-        ((ICategoryCache<TCategory>)s_caches[group.UID]).ClearCategory(group.CacheID(consumable));
-        if(group.UID > 0) s_usedGroups.Remove(group.CacheID(consumable));
+    public static void ClearConsumableCache<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable: notnull {
+        int uid = group.CacheID(consumable), rid = group.ReqCacheID(consumable);
+        if(s_caches[group.UID] is ICategoryCache cat) cat.ClearCategory(uid);
+        s_caches[group.UID].ClearRequirement(rid);
+        s_caches[group.UID].ClearInfinity(uid);
+
+        if(group.UID > 0) s_usedGroups.Remove(uid);
     }
     private static bool UseCache(Player player) => player == Main.LocalPlayer;
 
@@ -176,7 +190,7 @@ public static class InfinityManager {
     internal static int GroupsLCM { get; private set; } = 1;
     private static readonly Dictionary<int, IConsumableGroup> s_groups = new();
 
-    private static readonly Dictionary<int, ICache> s_caches = new();
+    private static readonly Dictionary<int, ICountCache> s_caches = new();
     private static readonly Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups = new();
 
     private static Config.RequirementSettings Requirements => Config.RequirementSettings.Instance;

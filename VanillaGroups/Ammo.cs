@@ -35,9 +35,11 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirement
         AmmoCategory.None or _ => new NoRequirement<ItemCount>(),
     };
 
-    public override AmmoCategory GetCategory(Item weapon) {
-        if (!weapon.consumable || weapon.ammo == AmmoID.None) return AmmoCategory.None;
-        if (weapon.ammo == AmmoID.Arrow || weapon.ammo == AmmoID.Bullet || weapon.ammo == AmmoID.Rocket || weapon.ammo == AmmoID.Dart)
+    public override AmmoCategory GetCategory(Item ammo) {
+
+        if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
+        if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
+        if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
             return AmmoCategory.Basic;
         return AmmoCategory.Special;
     }
@@ -52,4 +54,6 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirement
     public TooltipLine WeaponLine(Item consumable, Item alternate) => TooltipHelper.AddedLine("WeaponConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", alternate.Name));
 
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Ammo", Lang.tip[34].Value);
+
+    public bool IncludeUnknown => false;
 }

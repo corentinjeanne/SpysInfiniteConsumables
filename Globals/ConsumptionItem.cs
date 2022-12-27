@@ -25,25 +25,28 @@ public class ConsumptionItem : GlobalItem {
 
         // LeftClick
         if (detectionPlayer.InItemCheck) {
-            if (item != player.HeldItem) {
-                if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None)
-                    Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance);
-
-                return !player.HasInfinite(item, 1, Placeable.Instance);
+            if (item != player.HeldItem) { // Wands
+                if(item.type == Terraria.ID.ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
+                return !player.HasInfinite(item, 1,
+                    () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    Placeable.Instance
+                );
             }
 
-            if (!item.GetRequirement(Usable.Instance).IsNone) return !player.HasInfinite(item, 1, Usable.Instance);
-            if (!item.GetRequirement(Placeable.Instance).IsNone) return !player.HasInfinite(item, 1, Placeable.Instance);
-            return !player.HasInfinite(item, 1, GrabBag.Instance);
+            return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance, GrabBag.Instance);
 
-
-        } else if(DetectionPlayer.InRightClick){
-            if (!item.GetRequirement(GrabBag.Instance).IsNone) return !player.HasInfinite(item, 1, GrabBag.Instance);
-            return !player.HasInfinite(item, 1, Usable.Instance);
-        
-        } else { // Hotkey
-            return !player.HasInfinite(item, 1, Usable.Instance);
+        } else if(DetectionPlayer.InRightClick)
+            return !player.HasInfinite(item, 1,
+                () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
+                GrabBag.Instance, Usable.Instance
+            );
+        else { // Hotkey or special right click action
+            return !player.HasInfinite(item, 1,
+                () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance)
+                , Usable.Instance, GrabBag.Instance
+            );
         }
+
     }
 
     public override bool CanBeConsumedAsAmmo(Item ammo, Item weapon, Player player) => !player.HasInfinite(ammo, 1, Ammo.Instance);
