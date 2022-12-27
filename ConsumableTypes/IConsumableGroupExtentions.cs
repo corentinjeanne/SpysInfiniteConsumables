@@ -7,6 +7,12 @@ namespace SPIC.ConsumableGroup;
 
 public interface ICategory<TConsumable, TCategory> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCategory : System.Enum {
     TCategory GetCategory(TConsumable consumable);
+
+    public static bool Includes(ICategory<TConsumable, TCategory> group, TConsumable consumable) {
+        byte c = System.Convert.ToByte(InfinityManager.GetCategory(consumable, group));
+        return c != CategoryHelper.None && group is IDetectable detectable && (c != CategoryHelper.Unknown || detectable.IncludeUnknown);
+    }
+    public static int ReqCacheID(ICategory<TConsumable, TCategory> group, TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, group));
 }
 
 public interface IAmmunition<TConsumable> : IConsumableGroup<TConsumable> where TConsumable : notnull{
@@ -16,7 +22,9 @@ public interface IStandardAmmunition<TConsumable> : IAmmunition<TConsumable>, IC
     TooltipLine WeaponLine(TConsumable consumable, TConsumable ammo);
 }
 
-public interface IDetectable : IConsumableGroup { }
+public interface IDetectable : IConsumableGroup{
+    bool IncludeUnknown { get; }
+}
 
 public interface IToggleable : IConsumableGroup {
     bool DefaultsToOn { get; }

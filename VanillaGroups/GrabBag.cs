@@ -40,7 +40,7 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override GrabBagCategory GetCategory(Item item) {
 
         switch (item.type){
-        case ItemID.CanOfWorms or ItemID.Oyster: return GrabBagCategory.NotSupported; // tML inconsistency anf hook bug
+        case ItemID.CanOfWorms or ItemID.Oyster: return GrabBagCategory.NotSupported; // tML inconsistency or hook bug
         }
         if (ItemID.Sets.BossBag[item.type]) return GrabBagCategory.TreasureBag;
         if (ItemID.Sets.IsFishingCrate[item.type]) return GrabBagCategory.Crate;
@@ -51,4 +51,6 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Groups.GrabBag.name"));
     public override TooltipLineID LinePosition => TooltipLineID.Consumable;
+
+    public bool IncludeUnknown => false;
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -39,6 +38,8 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
     public abstract int CacheID(TConsumable consumable);
     public virtual int ReqCacheID(TConsumable consumable) => CacheID(consumable);
 
+    public abstract bool Includes(TConsumable consumable);
+    
     public abstract Requirement<TCount> GetRequirement(TConsumable consumable);
     public virtual long GetMaxInfinity(TConsumable consumable) => 0;
 
@@ -55,9 +56,9 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
 public abstract class ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> : ConsumableGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>
 where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<TCount>
 where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> {
-
+    public override bool Includes(TConsumable consumable) => ICategory<TConsumable, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
-    public sealed override int ReqCacheID(TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, this));
+    public sealed override int ReqCacheID(TConsumable consumable) => ICategory<TConsumable, TCategory>.ReqCacheID(this, consumable);
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);
     public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));

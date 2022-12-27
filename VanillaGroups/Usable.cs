@@ -100,4 +100,6 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
     public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
+
+    public bool IncludeUnknown => true;
 }

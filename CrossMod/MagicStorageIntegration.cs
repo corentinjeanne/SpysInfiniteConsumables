@@ -9,7 +9,7 @@ public static class MagicStorageIntegration {
     public const string ModName = "MagicStorage";
 
     public static bool Enabled => ModLoader.HasMod(ModName);
-    public static bool InMagicStorage => Main.worldID != 0 && MagicStorage.StoragePlayer.LocalPlayer.GetStorageHeart() is not null;
+    public static bool InMagicStorage => Main.worldID != 0 && Main.LocalPlayer?.GetModPlayer<MagicStorage.StoragePlayer>().GetStorageHeart() is not null;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static int CountItems(int type, int? prefix = null) {
@@ -22,7 +22,8 @@ public static class MagicStorageIntegration {
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static bool Countains(Item item) {
         if (!InMagicStorage) return false;
-        if(CountItems(item.type, item.prefix) == item.stack) return true;
+        foreach (Item i in MagicStorage.StoragePlayer.LocalPlayer.GetStorageHeart().GetStoredItems())
+            if (i.type == item.type && (i.prefix == item.prefix)) return true;
         return false;
     }
 }

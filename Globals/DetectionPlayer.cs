@@ -33,8 +33,10 @@ public class DetectionPlayer : ModPlayer {
     public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
     public override bool PreItemCheck() {
         DetectingCategoryOf = null;
-        if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
-        InItemCheck = true;
+        if (Player.controlUseItem || !Player.ItemTimeIsZero) {
+            if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
+            InItemCheck = true;
+        }
         return true;
     }
     public override void PostItemCheck() {
@@ -76,10 +78,7 @@ public class DetectionPlayer : ModPlayer {
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect){
-            if(_detectingConsumable) SaveUsable(UsableCategory.WorldBooster);
-            else SaveBag(GrabBagCategory.Crate);
-        }
+        else if (mustDetect && _detectingConsumable)SaveUsable(UsableCategory.WorldBooster);
         else return false;
         DetectingCategoryOf = null;
 
@@ -87,21 +86,20 @@ public class DetectionPlayer : ModPlayer {
     }
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
 
-        if(_teleport) category = UsableCategory.Tool;
-        else if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
+        if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
+
         else if (data.NPCStats.Boss != _preUseData.NPCStats.Boss || data.Invasion != _preUseData.Invasion) category = UsableCategory.Summoner;
         else if (data.NPCStats.Total != _preUseData.NPCStats.Total) category = UsableCategory.Critter;
 
-        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart)
-            category = UsableCategory.PlayerBooster;
-        else if (data.Difficulty != _preUseData.Difficulty)
-            category = UsableCategory.WorldBooster;
+        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart) category = UsableCategory.PlayerBooster;
+        else if (data.Difficulty != _preUseData.Difficulty) category = UsableCategory.WorldBooster;
 
-        else if (data.Position != _preUseData.Position) category = UsableCategory.Tool;
+        else if (_teleport || data.Position != _preUseData.Position) category = UsableCategory.Recovery;
+
         else category = UsableCategory.Unknown;
-
         return category != UsableCategory.Unknown;
     }
+
     private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
         category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Crate : GrabBagCategory.Unknown;
         return category != GrabBagCategory.Unknown;
@@ -132,9 +130,12 @@ public class DetectionPlayer : ModPlayer {
 
 
     private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
+        DetectingCategoryOf = null;
+        if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
         InRightClick = true;
         DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-        if (Config.CategoryDetection.Instance.DetectMissing && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown) modPlayer.PrepareDetection(inv[slot], false);
+        if (Config.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
+            modPlayer.PrepareDetection(inv[slot], false);
 
         bool res = orig(inv, context, slot, player);
         if (modPlayer.DetectingCategoryOf is not null) modPlayer.TryDetectCategory();
