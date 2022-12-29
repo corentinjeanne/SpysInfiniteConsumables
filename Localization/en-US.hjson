@@ -1,171 +1,96 @@
 {
     Mods: {
         SPIC: {
-            Categories: {
-                name: Category
-                names: Categories
-                Unknown: Unknown
-                Ammo: {
-                    name: Ammo
-                    names: Ammo
-                    None: Not Ammo
-                    Basic: Basic
-                    Explosive: Explosives
-                    Special: Special
-                }
-
-                Consumable: {
-                    name: Consumable
-                    names: Consumables
-                    None: Not consumable
-
-                    Weapon: Weapon
-                    Recovery: Recovery potion
-                    Buff: Buff potion
-                    PlayerBooster: Player Booster
-                    WorldBooster: World Booster
-
-                    Summoner: Summoner
-                    Critter: Critter
-                    Explosive: Explosive
-                    Tool: Tool
-                }
-
-                Placeable: {
-                    name: Placeable
-                    names: Placeables
-                    None: Not Placeable
-
-                    Block: Block
-                    Wall: Wall
-                    Wiring: Wiring
-                    Torch: Torch
-                    Ore: Ore
-
-                    LightSource: Light source
-                    Container: Container
-                    Functional: Functional
-                    CraftingStation: Crafting station
-                    Decoration: Decoration
-                    MusicBox: MusicBox
-
-                    Mechanical: Mechanical
-                    Liquid: Liquid
-                    Seed: Seed
-                    Paint : Paint
-                }
-
-                GrabBag: {
-                    name: Grab bag
-                    names: Grab bags
-                    None: Not a bag
-                    Crate: Crate
-                    TreasureBag: Treasure bag
-                }
-
-                Currency: {
-                    name: Currency
-                    names: Currencies
-                    None: Not a currency
-                    Coin: Coin
-                    SingleCoin: Single Coin
-                }
-
-                Material: {
-                    name: Material
-                    names: Materials
-                    None: Not a material
-                    Basic: Basic
-                    Ore: Ore
-                    Furniture: Furniture
-                    Miscellaneous: Miscellaneous
-                    NonStackable: Non stackable
-                }
+            Chat: {
+                MagicStorageWarning: Due to a bug with Magic Storage v0.5.7.9 or earlier, SPIC Materials group is temporarily disabled when crafting within magic storage's crafing interface.
             }
-
-            Commands: {
-                idDesc: Gives the ID and the name of an item
-                setDesc: Set the category of an item
+            Groups: {
+                Ammo: {
+                    name: Ammunitions
+                    standard: Standard Ammo
+                    special: Special Ammo
+                }
+                Currency: {
+                    name: Currencies
+                    coins: Coins
+                    custom: Custom currencies
+                }
+                GrabBag: {
+                    name: Grab bags
+                    crates: Crates and Bags
+                    boss: Treasure Bags
+                }
+                Journey: {
+                    name: Journey Research
+                    sacrifices: Include non consumable sacrifices
+                    lineValue : Research cost
+                }
+                Material: {
+                    name: Materials
+                    basics: Basic materials
+                    misc: Miscellaneous
+                    special: Non stackable
+                }
+                Placeable: {
+                    name: Placeables
+                    tiles: Tiles
+                    torches: Torches
+                    ores: Valuable Tiles
+                    furnitures: Furnitures
+                    mechanical: Mechanical parts
+                    liquids: Liquids
+                    seeds: Seeds
+                    paints: Paints
+                    wiring: Wiring
+                }
+                Usable: {
+                    name: Usable
+                    weapons: Thrown weapons
+                    potions: Potions
+                    boosters: Permanent Boosters
+                    summoners: Boss and Event summoners
+                    critters: Criters and Baits
+                    explosives: Explosives
+                    tools: Miscellaneous
+                }
             }
 
             ItemTooltip: {
-                items: items
-                stacks: stacks
                 infinite: Infinite {0}
-                infiniteAmmo: "{0} Infinite {0}"
                 partialyInfinite: Infinite {0} below {1}
-                wandAmmo: Wand ammo
                 weaponAmmo: Consumes {0}
-                noAmmo: No ammo
             }
 
-            Recipe: {
-                InfiniteCraft: "*** WIP *** Disable the crafting of the recipe if it is an infinite material"
-            }
-
-            Configs: {
+            Config: {
                 Requirements: {
-                    name: Infinity Requirements
+                    name: Settings and Requirements
                     General: {
                         header: General
-
-                        consumables: Infinite Consumables
-                        grabBags: Infinite Grab bags
-                        placeables: Infinite Placeables
-                        currencies: Infinite Currencies
-                        materials: Infinite Materials
-
                         duplication: Prevent item duplication
                         t_duplication:
                             '''
                             /!\ WIP /!\
                             Tiles and walls won't drop their item when broken
                             Critters will turn into smoke when caught
-                            Buckets won't create empty or full buckets when used
+                            Buckets won't fill or empty on use
                             '''
-                        journey: Journey requirement
-                        t_journey: Uses the journey research cost of items as their infinite requirent
                         commands: Commands
                         t_commands: Adds the '/spic' command to edit the category of items in-game
+                        preset : Active preset
+                        maxGroups : Maximum used Consumable groups
+                        t_maxGroups :
+                            '''
+                            The maximum number of requirements taken into account directly.
+                            Consumable groups that are not used take the minimum infinity as their infinity.
+                            Set to 0 to use all groups.
+                            '''
                     }
                     Requirements: {
-                        weapons: Thrown weapons
-                        standardAmmo: Standard Ammo
-                        specialAmmo: Special Ammo
-                        potions: Potions
-                        boosters: Permanent Boosters
-
-                        summoners: Boss and Event summoners
-                        critters: Criters and Baits
-                        explosives: Explosives
-                        tools: Miscellaneous
-
-                        crates: Crates and Bags
-                        boss: Treasure Bags
-
-                        tiles: Tiles
-                        torches: Torches
-                        ores: Valuable Tiles
-                        furnitures: Furnitures
-                        mechanical: Mechanical parts
-                        liquids: Liquids
-                        seeds: Seeds
-                        paints: Paints
-                        wiring: Wiring
-
-                        coins: Coins
-                        customCoins: Custom currencies
-
-                        basics: Basic materials
-                        miscellaneous: Miscellaneous
-                        nonStackable: Non stackable
+                        header: Requirements
                     }
-                    Customs: {
-                        header: Custom Categories and Requirements
-                        customs: Customs
-
-                        requirement: Requirement
-                        t_requirement: Only in use when category is "None"
+                    Blacklists: {
+                        header: Blacklisted consumables
+                        items: Items
                     }
                 }
                 Detection: {
@@ -181,35 +106,35 @@
                     }
                     Categories: {
                         header: Detected Categories
-                        detected: Detected
-                        consumables: Detected consumables
-                        explosives: Detected explosives
-                        grabBags: Detected grab bags
-                        wandAmmo: Detected wand ammo
                     }
                 }
                 InfinityDisplay: {
                     name: Infinities Display
-                    Tooltip:  {
-                        header: Item Tooltip
+                    General:  {
+                        header: General
                         categories: Show categories
                         infinities: Show infinity
                         requirements: Show requirements
+                    }
+                    Tooltip:  {
+                        header: Item Tooltip
+                        tooltip: Display infinity in item tooltip
                         missingLines: Add missing lines
-                        itemName: Use names instead of sprites
+                        style: Requirement style
                         color: Colored infinity tooltips
+                        mixed: Display Mixed Infinity
                     }
                     Glow: {
                         header: Item Glow
-                        glow: Show infinity colored glow
+                        glow: Display infinity colored glow
                         intensity: Intensity
                         pulse: Pulse time (ticks)
                     }
                     Dots: {
                         header: Colored Dots
-                        dots: Show infinity colored dots
-                        start: First dot
-                        end: Last dot
+                        dots: Display infinity colored dots
+                        start: First dot position
+                        direction: Direction
                         count: Number of visible dots
                         t_count: Non visible dots will cycle every few seconds
                     }

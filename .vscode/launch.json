@@ -12,13 +12,14 @@
             "program": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/tModLoader.dll",
             "cwd": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/",
             "console": "internalConsole",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "enableStepFiltering": false
         },
         {
             "name": "tModLoader - Attach",
             "type": "coreclr",
             "request": "attach",
-            "processId": 28936
+            "processName": "tModLoader"
         },
         {
             "name": "tModLoader Server",
