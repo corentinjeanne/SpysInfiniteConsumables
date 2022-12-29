@@ -10,7 +10,7 @@ public static class MagicStorageIntegration {
 
     public static bool Enabled => ModLoader.HasMod(ModName);
     public static bool InMagicStorage => Main.worldID != 0 && Main.LocalPlayer?.GetModPlayer<MagicStorage.StoragePlayer>().GetStorageHeart() is not null;
-
+    public static System.Version Version => ModLoader.GetMod(ModName).Version;
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static int CountItems(int type, int? prefix = null) {
         int count = 0;

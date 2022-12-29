@@ -1,6 +1,9 @@
 {
     Mods: {
         SPIC: {
+            Chat: {
+                MagicStorageWarning: Due to a bug with Magic Storage v0.5.7.9 or earlier, SPIC Materials group is temporarily disabled when crafting within magic storage's crafing interface.
+            }
             Groups: {
                 Ammo: {
                     name: Ammunitions
@@ -50,9 +53,6 @@
                     explosives: Explosives
                     tools: Miscellaneous
                 }
-                Currency: {
-                    name: Currency
-                }
             }
 
             ItemTooltip: {
@@ -65,7 +65,7 @@
                 Requirements: {
                     name: Settings and Requirements
                     General: {
-                        header: Active groups
+                        header: General
                         duplication: Prevent item duplication
                         t_duplication:
                             '''

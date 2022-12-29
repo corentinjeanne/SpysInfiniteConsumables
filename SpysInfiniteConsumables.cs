@@ -7,7 +7,6 @@ public class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance => s_instance.TryGetTarget(out SpysInfiniteConsumables? instance) ? instance : null!;
     
-    public static bool MagicStorageLoaded => ModLoader.TryGetMod("MagicStorage", out _);
     public override void Load() {
         s_instance.SetTarget(this);
 

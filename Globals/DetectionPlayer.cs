@@ -4,7 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.VanillaGroups;
 using Microsoft.Xna.Framework;
-using System;
+using Terraria.Localization;
 
 namespace SPIC.Globals;
 
@@ -29,6 +29,11 @@ public class DetectionPlayer : ModPlayer {
         if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
     }
 
+
+    public override void OnEnterWorld(Player player){
+        if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0, 5, 7, 9)) <= 0)
+            Main.NewText(Language.GetTextValue("Mods.SPIC.Chat.MagicStorageWarning"), Colors.RarityAmber);
+    }
 
     public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
     public override bool PreItemCheck() {

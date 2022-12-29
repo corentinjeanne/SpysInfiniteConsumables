@@ -22,7 +22,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         if (AreSameItems(Main.mouseItem, item)
                 || System.Array.Find(player.inventory, i => AreSameItems(i, item)) is not null
                 || (player.InChest(out var chest) && System.Array.Find(chest, i => AreSameItems(i, item)) is not null)
-                || (SpysInfiniteConsumables.MagicStorageLoaded && CrossMod.MagicStorageIntegration.Countains(item)))
+                || (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Countains(item)))
             return true;
 
         return false;
