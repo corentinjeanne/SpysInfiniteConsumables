@@ -35,10 +35,10 @@ public class ConsumptionItem : GlobalItem {
         // LeftClick
         if (detectionPlayer.InItemCheck) {
             if (item != player.HeldItem) { // Wands
-                if(item.type == Terraria.ID.ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
+                if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
                 return !player.HasInfinite(item, 1,
-                    () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
-                    Placeable.Instance
+                    () => player.HeldItem.damage != 0 ? Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    Placeable.Instance, Ammo.Instance
                 );
             }
 

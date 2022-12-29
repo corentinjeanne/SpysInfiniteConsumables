@@ -83,7 +83,7 @@ public class DetectionPlayer : ModPlayer {
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable)SaveUsable(UsableCategory.WorldBooster);
+        else if (mustDetect && _detectingConsumable)SaveUsable(UsableCategory.PlayerBooster);
         else return false;
         DetectingCategoryOf = null;
 
