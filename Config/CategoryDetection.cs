@@ -3,11 +3,11 @@ using System.ComponentModel;
 using Terraria;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Config.UI;
+using SPIC.Configs.UI;
 using Terraria.ModLoader;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 [Label("$Mods.SPIC.Config.Detection.name")]
 public class CategoryDetection : ModConfig {

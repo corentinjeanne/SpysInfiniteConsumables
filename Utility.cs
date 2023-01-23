@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using Terraria;
 using Terraria.ModLoader.Config;
+using System.Reflection;
 
 namespace SPIC;
 
@@ -101,12 +102,8 @@ public static class Utility {
         return a;
     }
 
-
-    public static void SaveConfig(this ModConfig config) {
-        using StreamWriter sw = new(ConfigManager.ModConfigPath + $"\\{config.Mod.Name}_{config.Name}.json");
-        sw.Write(JsonConvert.SerializeObject(config, ConfigManager.serializerSettings));
-    }
-
+    public static void SaveConfig(this ModConfig config) => s_saveConfigMethod.Invoke(null, new object[]{config});
+    internal static void LoadConfig(this ModConfig config) => s_loadConfigMethod.Invoke(null, new object[]{config});
 
     public static K[] Reverse<K, V>(this Dictionary<K, V> dictionary, V value) where K: notnull where V : notnull {
         List<K> reverse = new();
@@ -154,4 +151,7 @@ public static class Utility {
 
     public static bool ImplementsInterface(this System.Type type, System.Type generic, [MaybeNullWhen(false)] out System.Type impl)
         => (impl = System.Array.Find(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)) != null;
+
+    private static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
+    private static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
 }

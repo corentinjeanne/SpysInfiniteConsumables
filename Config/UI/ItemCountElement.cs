@@ -5,7 +5,7 @@ using Terraria.ModLoader.Config.UI;
 using Microsoft.Xna.Framework;
 using System.Reflection;
 
-namespace SPIC.Config.UI;
+namespace SPIC.Configs.UI;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 public class NoSwappingAttribute : Attribute { }

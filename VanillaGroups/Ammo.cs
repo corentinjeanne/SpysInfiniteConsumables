@@ -6,7 +6,7 @@ using SPIC.ConsumableGroup;
 using Microsoft.Xna.Framework;
 using System.Diagnostics.CodeAnalysis;
 
-using SPIC.Config;
+using SPIC.Configs;
 using Terraria.Localization;
 
 namespace SPIC.VanillaGroups;

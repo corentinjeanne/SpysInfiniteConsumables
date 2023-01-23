@@ -2,7 +2,7 @@ using SPIC.ConsumableGroup;
 using Terraria.ModLoader;
 
 using SPIC.VanillaGroups;
-namespace SPIC.Config.Presets;
+namespace SPIC.Configs.Presets;
 
 public class NoPreset : Preset {
     public override Mod Mod => SpysInfiniteConsumables.Instance;

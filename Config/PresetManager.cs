@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using SPIC.Config.Presets;
+using SPIC.Configs.Presets;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 public static class PresetManager {
 

@@ -10,6 +10,6 @@ public interface ICount<TCount> : System.IComparable<TCount> where TCount : ICou
 
     float Ratio(TCount other);
 
-    string DisplayRawValue(Config.InfinityDisplay.CountStyle style);
-    string Display(Config.InfinityDisplay.CountStyle style);
+    string DisplayRawValue(Configs.InfinityDisplay.CountStyle style);
+    string Display(Configs.InfinityDisplay.CountStyle style);
 }

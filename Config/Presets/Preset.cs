@@ -1,6 +1,6 @@
 using Terraria.ModLoader;
 
-namespace SPIC.Config.Presets;
+namespace SPIC.Configs.Presets;
 
 // public class Preset
 public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation> {

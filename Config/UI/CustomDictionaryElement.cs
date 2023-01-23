@@ -10,7 +10,7 @@ using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.Reflection;
 
-namespace SPIC.Config.UI;
+namespace SPIC.Configs.UI;
 
 
 

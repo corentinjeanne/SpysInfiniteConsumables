@@ -3,11 +3,11 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Config.UI;
+using SPIC.Configs.UI;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 [Label("$Mods.SPIC.Config.InfinityDisplay.name")]
 public class InfinityDisplay : ModConfig {
@@ -61,8 +61,10 @@ public class InfinityDisplay : ModConfig {
             }
             foreach(IColorable group in InfinityManager.ConsumableGroups<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
                 _colors.TryAdd(group.ToDefinition(), group.DefaultColor);
+                
         }
     }
+
     private readonly Dictionary<ConsumableGroupDefinition, Color> _colors = new();
 
 
