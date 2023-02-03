@@ -66,7 +66,7 @@ public static class InfinityManager {
 
     public static bool IsEnabled(this IConsumableGroup group) => group is not IToggleable t || t.IsEnabled();
     public static bool IsEnabled(this IToggleable group) => group.UID > 0 ? (bool)Requirements.EnabledGroups[group.ToDefinition()]! : Requirements.EnabledGlobals[group.ToDefinition()];
-    public static TSettings Settings<TSettings>(this IConfigurable<TSettings> group) => (TSettings)Requirements.Requirements[group.ToDefinition()];
+    public static TSettings Settings<TSettings>(this IConfigurable<TSettings> group) => (TSettings)Requirements.Settings[group.ToDefinition()];
     public static Microsoft.Xna.Framework.Color Color(this IColorable group) => Display.Colors[group.ToDefinition()];
 
 
@@ -193,7 +193,7 @@ public static class InfinityManager {
     private static readonly Dictionary<int, ICountCache> s_caches = new();
     private static readonly Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups = new();
 
-    private static Configs.RequirementSettings Requirements => Configs.RequirementSettings.Instance;
+    private static Configs.GroupSettings Requirements => Configs.GroupSettings.Instance;
     private static Configs.InfinityDisplay Display => Configs.InfinityDisplay.Instance;
     private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
 }

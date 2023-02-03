@@ -157,7 +157,7 @@ public class DetectionPlayer : ModPlayer {
         Item item = self.inventory[selItem];
 
         Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
-        Configs.RequirementSettings settings = Configs.RequirementSettings.Instance;
+        Configs.GroupSettings settings = Configs.GroupSettings.Instance;
 
         if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 

@@ -9,15 +9,15 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Configs;
 
-[Label("$Mods.SPIC.Config.Detection.name")]
+[Label("$Mods.SPIC.Configs.Detection.name")]
 public class CategoryDetection : ModConfig {
 
-    [Header("$Mods.SPIC.Config.Detection.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Config.Detection.General.Detect"), Tooltip("$Mods.SPIC.Config.Detection.General.t_detect")]
+    [Header("$Mods.SPIC.Configs.Detection.General.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
     public bool DetectMissing;
 
 
-    [Header("$Mods.SPIC.Config.Detection.Categories.header")]
+    [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
