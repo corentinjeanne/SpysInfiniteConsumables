@@ -4,7 +4,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 
-namespace SPIC.Config.UI;
+namespace SPIC.Configs.UI;
 
 public class HoverImage : UIImage {
 

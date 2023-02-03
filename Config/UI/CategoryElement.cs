@@ -5,7 +5,7 @@ using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using SPIC.ConsumableGroup;
 
-namespace SPIC.Config.UI;
+namespace SPIC.Configs.UI;
 
 public class CategoryElement : ConfigElement<CategoryWrapper> {
 

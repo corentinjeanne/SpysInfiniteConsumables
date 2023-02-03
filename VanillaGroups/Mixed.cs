@@ -76,7 +76,7 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
 
 
     public override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
-        if(!Config.InfinityDisplay.Instance.tooltip_ShowMixed || Config.RequirementSettings.Instance.MaxConsumableTypes < 2) return;
+        if(!Configs.InfinityDisplay.Instance.tooltip_ShowMixed || Configs.GroupSettings.Instance.MaxConsumableTypes < 2) return;
         InfinityManager.UsedConsumableGroups(item, out bool hidden);
         if(!hidden) return;
 

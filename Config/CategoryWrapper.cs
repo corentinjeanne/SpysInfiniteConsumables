@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 public class CategoryConverter : JsonConverter<CategoryWrapper> {
 

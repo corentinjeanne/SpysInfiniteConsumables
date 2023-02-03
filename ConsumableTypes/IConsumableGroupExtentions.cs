@@ -10,7 +10,7 @@ public interface ICategory<TConsumable, TCategory> : IConsumableGroup<TConsumabl
 
     public static bool Includes(ICategory<TConsumable, TCategory> group, TConsumable consumable) {
         byte c = System.Convert.ToByte(InfinityManager.GetCategory(consumable, group));
-        return c != CategoryHelper.None && group is IDetectable detectable && (c != CategoryHelper.Unknown || detectable.IncludeUnknown);
+        return c != CategoryHelper.None && (group is not IDetectable detectable || c != CategoryHelper.Unknown || detectable.IncludeUnknown);
     }
     public static int ReqCacheID(ICategory<TConsumable, TCategory> group, TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, group));
 }

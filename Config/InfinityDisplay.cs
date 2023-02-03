@@ -3,53 +3,53 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Config.UI;
+using SPIC.Configs.UI;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
-[Label("$Mods.SPIC.Config.InfinityDisplay.name")]
+[Label("$Mods.SPIC.Configs.InfinityDisplay.name")]
 public class InfinityDisplay : ModConfig {
-    [Header("$Mods.SPIC.Config.InfinityDisplay.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Config.InfinityDisplay.General.Infinities")]
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.General.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.General.Infinities")]
     public bool general_ShowInfinities;
-    [DefaultValue(true), Label("$Mods.SPIC.Config.InfinityDisplay.General.Requirements")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.General.Requirements")]
     public bool general_ShowRequirement;
-    [Label("$Mods.SPIC.Config.InfinityDisplay.General.Categories")]
+    [Label("$Mods.SPIC.Configs.InfinityDisplay.General.Categories")]
     public bool general_ShowCategories;
 
-    [Header("$Mods.SPIC.Config.InfinityDisplay.Tooltip.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.Tooltip")]
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Tooltip")]
     public bool toopltip_ShowTooltip;
-    [DefaultValue(true), Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.MissingLines")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.MissingLines")]
     public bool toopltip_AddMissingLines;
-    [DefaultValue(CountStyle.Name), Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.Style")]
+    [DefaultValue(CountStyle.Name), Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Style")]
     public CountStyle tooltip_RequirementStyle;
-    [Label("$Mods.SPIC.Config.InfinityDisplay.Tooltip.Mixed")]
+    [Label("$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Mixed")]
     public bool tooltip_ShowMixed;
 
-    [Header("$Mods.SPIC.Config.InfinityDisplay.Glow.header")]
-    [Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Glow")]
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.Glow.header")]
+    [Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Glow")]
     public bool glow_ShowGlow;
-    [DefaultValue(1f), Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Intensity")]
+    [DefaultValue(1f), Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Intensity")]
     public float glow_Intensity;
-    [DefaultValue(120), Range(0, 60*5), Slider, Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Pulse")]
+    [DefaultValue(120), Range(0, 60*5), Slider, Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Pulse")]
     public int glow_PulseTime;
 
-    [Header("$Mods.SPIC.Config.InfinityDisplay.Dots.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Dots")]
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.Dots.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Dots")]
     public bool dots_ShowDots;
-    [DefaultValue(Corner.BottomRight), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Start")]
+    [DefaultValue(Corner.BottomRight), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Start")]
     public Corner dots_Start;
-    [DefaultValue(Direction.Horizontal), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Direction")]
+    [DefaultValue(Direction.Horizontal), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Direction")]
     public Direction dots_Direction;
-    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots), Label("$Mods.SPIC.Config.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Config.InfinityDisplay.Dots.t_count")]
+    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots), Label("$Mods.SPIC.Configs.InfinityDisplay.Dots.Count"), Tooltip("$Mods.SPIC.Configs.InfinityDisplay.Dots.t_count")]
     public int dots_Count;
-    [DefaultValue(60), Range(0, 60 * 5), Slider, Label("$Mods.SPIC.Config.InfinityDisplay.Glow.Pulse")]
+    [DefaultValue(60), Range(0, 60 * 5), Slider, Label("$Mods.SPIC.Configs.InfinityDisplay.Glow.Pulse")]
     public int dot_PulseTime;
 
-    [Header("$Mods.SPIC.Config.InfinityDisplay.Colors.header")]
+    [Header("$Mods.SPIC.Configs.InfinityDisplay.Colors.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
     public Dictionary<ConsumableGroupDefinition, Color> Colors {
         get => _colors;
@@ -61,8 +61,10 @@ public class InfinityDisplay : ModConfig {
             }
             foreach(IColorable group in InfinityManager.ConsumableGroups<IColorable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true))
                 _colors.TryAdd(group.ToDefinition(), group.DefaultColor);
+                
         }
     }
+
     private readonly Dictionary<ConsumableGroupDefinition, Color> _colors = new();
 
 

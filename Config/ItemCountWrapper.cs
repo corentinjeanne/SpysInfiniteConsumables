@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SPIC.ConsumableGroup;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
 

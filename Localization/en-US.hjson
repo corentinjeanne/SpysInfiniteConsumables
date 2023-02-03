@@ -61,11 +61,11 @@
                 weaponAmmo: Consumes {0}
             }
 
-            Config: {
-                Requirements: {
-                    name: Settings and Requirements
+            Configs: {
+                GroupSettings: {
+                    name: Consumable group Settings
                     General: {
-                        header: General
+                        header: Enabled groups
                         duplication: Prevent item duplication
                         t_duplication:
                             '''
@@ -85,8 +85,8 @@
                             Set to 0 to use all groups.
                             '''
                     }
-                    Requirements: {
-                        header: Requirements
+                    Settings: {
+                        header: Settings
                     }
                     Blacklists: {
                         header: Blacklisted consumables

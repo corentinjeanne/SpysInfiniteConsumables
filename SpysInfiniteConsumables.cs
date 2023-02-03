@@ -23,15 +23,18 @@ public class SpysInfiniteConsumables : Mod {
         VanillaGroups.Currency.RegisterAsGlobal();
         VanillaGroups.Mixed.RegisterAsGlobal();
         
-        Config.Presets.Defaults.Register();
-        Config.Presets.AllDisabled.Register();
-        Config.Presets.AllEnabled.Register();
-        Config.Presets.OneForAll.Register();
-        Config.Presets.JourneyCosts.Register();
+        Configs.Presets.Defaults.Register();
+        Configs.Presets.AllDisabled.Register();
+        Configs.Presets.AllEnabled.Register();
+        Configs.Presets.OneForAll.Register();
+        Configs.Presets.JourneyCosts.Register();
     }
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
+        Configs.CategoryDetection.Instance.LoadConfig();
+        // Configs.RequirementSettings.Instance.SaveConfig();
+        Configs.InfinityDisplay.Instance.LoadConfig();
     }
 
     public override void Unload() {

@@ -47,25 +47,22 @@ public static class CurrencyHelper {
         return minType;
     }
 
-
-    public static long CountCoins(this Item[] container, params int[] ignoreSlots) {
-        long count = 0L;
-        for (int i = 0; i < container.Length; i++) {
-            if (System.Array.IndexOf(ignoreSlots, i) == -1 && container[i].IsACoin)
-                count += (long)container[i].value / 5 * container[i].stack;
-        }
-        return count;
-    }
     public static long CountCurrency(this Item[] container, int currency, params int[] ignoreSlots) {
+        long count;
         switch (currency) {
         case None: return 0L;
         case Coins:
-            return CountCoins(container, ignoreSlots);
+            count = 0L;
+            for (int i = 0; i < container.Length; i++) {
+                if (System.Array.IndexOf(ignoreSlots, i) == -1 && container[i].IsACoin)
+                    count += (long)container[i].value / 5 * container[i].stack;
+            }
+            return count;
         default:
             CustomCurrencySystem system = _currencies[currency].system;
             long cap = system.CurrencyCap;
             system.SetCurrencyCap(long.MaxValue);
-            long count = system.CountCurrency(out _, container, ignoreSlots);
+            count = system.CountCurrency(out _, container, ignoreSlots);
             system.SetCurrencyCap(cap);
             return count;
         }

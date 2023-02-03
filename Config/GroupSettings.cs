@@ -8,18 +8,18 @@ using Newtonsoft.Json.Linq;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Config.UI;
-using SPIC.Config.Presets;
+using SPIC.Configs.UI;
+using SPIC.Configs.Presets;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
-[Label("$Mods.SPIC.Config.Requirements.name")]
-public class RequirementSettings : ModConfig {
+[Label("$Mods.SPIC.Configs.GroupSettings.name")]
+public class GroupSettings : ModConfig {
 
-    [Header("$Mods.SPIC.Config.Requirements.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Config.Requirements.General.Duplication"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_duplication")]
+    [Header("$Mods.SPIC.Configs.GroupSettings.General.header")]
+    [DefaultValue(true), Label("$Mods.SPIC.Configs.GroupSettings.General.Duplication"), Tooltip("$Mods.SPIC.Configs.GroupSettings.General.t_duplication")]
     public bool PreventItemDupication { get; set; }
-    [Label("$Mods.SPIC.Config.Requirements.General.Preset"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(RequirementSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
+    [Label("$Mods.SPIC.Configs.GroupSettings.General.Preset"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(GroupSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition? Preset {
         get {
             if (EnabledGroups.Count == 0) return null;
@@ -56,7 +56,7 @@ public class RequirementSettings : ModConfig {
             }
         }
     }
-    [Label("$Mods.SPIC.Config.Requirements.General.MaxGroups"), Tooltip("$Mods.SPIC.Config.Requirements.General.t_maxGroups")]
+    [Label("$Mods.SPIC.Configs.GroupSettings.General.MaxGroups"), Tooltip("$Mods.SPIC.Configs.GroupSettings.General.t_maxGroups")]
     public int MaxConsumableTypes { get; set; }
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, bool> EnabledGlobals {
@@ -73,16 +73,15 @@ public class RequirementSettings : ModConfig {
         }
     }
 
-
-    [Header("$Mods.SPIC.Config.Requirements.Requirements.header")]
+    [Header("$Mods.SPIC.Configs.GroupSettings.Settings.header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<ConsumableGroupDefinition, object> Requirements {
-        get => _requirements;
+    public Dictionary<ConsumableGroupDefinition, object> Settings {
+        get => _settings;
         set {
-            _requirements.Clear();
+            _settings.Clear();
             foreach ((ConsumableGroupDefinition def, object data) in value) {
                 if (def.IsUnloaded) {
-                    if (!ModLoader.HasMod(def.Mod)) _requirements.Add(def, data);
+                    if (!ModLoader.HasMod(def.Mod)) _settings.Add(def, data);
                     continue;
                 }
                 if (def.ConsumableType is not IConfigurable configurable) continue;
@@ -92,19 +91,19 @@ public class RequirementSettings : ModConfig {
                 else if(data.GetType() == configurable.SettingsType) settings = data;
                 else throw new NotImplementedException();
 
-                _requirements.Add(def, settings);
+                _settings.Add(def, settings);
             }
 
             foreach (IConfigurable group in InfinityManager.ConsumableGroups<IConfigurable>(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
                 ConsumableGroupDefinition def = group.ToDefinition();
-                if (!_requirements.ContainsKey(def)) _requirements.Add(def, Activator.CreateInstance(group.SettingsType)!);
+                if (!_settings.ContainsKey(def)) _settings.Add(def, Activator.CreateInstance(group.SettingsType)!);
             }
         }
     }
 
 
-    [Header("$Mods.SPIC.Config.Requirements.Blacklists.header")]
-    [Label("$Mods.SPIC.Config.Requirements.Blacklists.Items")]
+    [Header("$Mods.SPIC.Configs.GroupSettings.Blacklists.header")]
+    [Label("$Mods.SPIC.Configs.GroupSettings.Blacklists.Items")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition,HashSet<string>> BlackListedConsumables { 
@@ -146,13 +145,13 @@ public class RequirementSettings : ModConfig {
 
     private readonly OrderedDictionary _groups = new();
     private readonly Dictionary<ConsumableGroupDefinition, bool> _globals = new();
-    private readonly Dictionary<ConsumableGroupDefinition, object> _requirements = new();
+    private readonly Dictionary<ConsumableGroupDefinition, object> _settings = new();
     private readonly Dictionary<ConsumableGroupDefinition, HashSet<string>> _blackListedConsumables = new();
 
 
     public override ConfigScope Mode => ConfigScope.ServerSide;    
 #nullable disable
-    public static RequirementSettings Instance;
+    public static GroupSettings Instance;
 #nullable restore
 
 }

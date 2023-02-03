@@ -34,7 +34,7 @@ public static class InfinityManager {
     public static IConsumableGroup? ConsumableGroup(string fullName) => s_groups.FindValue(kvp => kvp.Value.ToString() == fullName);
     public static IConsumableGroup? ConsumableGroup(string mod, string Name) => s_groups.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
 
-    public static Config.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.Name);
+    public static Configs.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.Name);
 
 
     public static IEnumerable<IConsumableGroup> ConsumableGroups(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) => ConsumableGroups<IConsumableGroup>(filters, noOrdering);
@@ -47,7 +47,7 @@ public static class InfinityManager {
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
             if (!noOrdering) {
                 foreach (DictionaryEntry entry in Requirements.EnabledGroups) {
-                    IConsumableGroup group = ((Config.ConsumableGroupDefinition)entry.Key).ConsumableType;
+                    IConsumableGroup group = ((Configs.ConsumableGroupDefinition)entry.Key).ConsumableType;
                     if (MatchsFlags(group)) yield return (TGroup)group;
                 }
             } else {
@@ -66,7 +66,7 @@ public static class InfinityManager {
 
     public static bool IsEnabled(this IConsumableGroup group) => group is not IToggleable t || t.IsEnabled();
     public static bool IsEnabled(this IToggleable group) => group.UID > 0 ? (bool)Requirements.EnabledGroups[group.ToDefinition()]! : Requirements.EnabledGlobals[group.ToDefinition()];
-    public static TSettings Settings<TSettings>(this IConfigurable<TSettings> group) => (TSettings)Requirements.Requirements[group.ToDefinition()];
+    public static TSettings Settings<TSettings>(this IConfigurable<TSettings> group) => (TSettings)Requirements.Settings[group.ToDefinition()];
     public static Microsoft.Xna.Framework.Color Color(this IColorable group) => Display.Colors[group.ToDefinition()];
 
 
@@ -148,7 +148,7 @@ public static class InfinityManager {
         TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(group.LongToCount(values, group.GetMaxInfinity(values))) < 0 ?
             root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Config.InfinityDisplay.Instance.DisplayFlags;
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Configs.InfinityDisplay.Instance.DisplayFlags;
         return new(displayFlags, category, infinity, next, consumableCount);
     }
 
@@ -193,7 +193,7 @@ public static class InfinityManager {
     private static readonly Dictionary<int, ICountCache> s_caches = new();
     private static readonly Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups = new();
 
-    private static Config.RequirementSettings Requirements => Config.RequirementSettings.Instance;
-    private static Config.InfinityDisplay Display => Config.InfinityDisplay.Instance;
-    private static Config.CategoryDetection CategoryDetection => Config.CategoryDetection.Instance;
+    private static Configs.GroupSettings Requirements => Configs.GroupSettings.Instance;
+    private static Configs.InfinityDisplay Display => Configs.InfinityDisplay.Instance;
+    private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
 }

@@ -1,10 +1,8 @@
         Make every consumable item infinite
 
-Collect enough a consumable item to make it infinite, and not consume it!
+Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of categorie for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
-You can also use the journey research cost of items as their infinities.
-Works with modified max stack and most (if not all) modded items.
+There are a wide variety of groups for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
 
 
         No more item duplication
@@ -17,9 +15,8 @@ Include all placeable, critter, and other items.
 
         Alter the behaviour of the mod
 
-Edit the `Settings and Requirements` config to modify the behaviour of the mod!
-Toggle on/off certain categories and key features of the mods.
-Blacklist consumables if necessary.
+Edit the `Consumable Group Settings` config to modify the behaviour of the mod!
+Toggle on/off certain groups and blacklist consumables if necessary.
 
 
         Easely see the infinities of an item
@@ -35,4 +32,4 @@ Edit the `Infinities Display` config to change which one is active and display a
 
 If an item's category cannot be determined with the items's stats, it will be determined when the item is used!
 This should work for almost every summoner, player booster and more.
-Edit the `Category Detection` config to modify disable this or clear all the detected categories!
+Edit the `Category Detection` config to modify disable this or clear all the detected categories.

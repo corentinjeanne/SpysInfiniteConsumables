@@ -16,7 +16,7 @@ namespace SPIC.Globals {
 
 
         private static void Explode(Projectile proj){
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Config.CategoryDetection.Instance.DetectMissing) return;
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategoryDetection.Instance.DetectMissing) return;
             _explodedProjTypes.Add(proj.type);
             
             DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
@@ -26,11 +26,11 @@ namespace SPIC.Globals {
             AmmoCategory ammo = item.GetCategory(Ammo.Instance);
             UsableCategory usable = item.GetCategory(Usable.Instance);
             if(ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive){
-                if(Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
+                if(Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
                     detectionPlayer.RefilExplosive(proj.type, item);
             }
             else if(usable != UsableCategory.None && usable != UsableCategory.Explosive){
-                if(Config.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance))
+                if(Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance))
                     detectionPlayer.RefilExplosive(proj.type, item);
             }
         }

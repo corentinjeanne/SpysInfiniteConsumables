@@ -67,7 +67,7 @@ public class ConsumptionNPC : GlobalNPC {
         // Prevent duping
         if (spawnIndex >= 0) {
             NPC critter = Main.npc[spawnIndex];
-            if (critter.active && critter.type == Type && Config.RequirementSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
+            if (critter.active && critter.type == Type && Configs.GroupSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
                 critter.SpawnedFromStatue = true;
         }
     }

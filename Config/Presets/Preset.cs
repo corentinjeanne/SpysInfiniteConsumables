@@ -1,6 +1,6 @@
 using Terraria.ModLoader;
 
-namespace SPIC.Config.Presets;
+namespace SPIC.Configs.Presets;
 
 // public class Preset
 public abstract class StaticPreset<TImplementation> : Preset where TImplementation: StaticPreset<TImplementation> {
@@ -21,8 +21,8 @@ public abstract class Preset {
     // public abstract int IconType { get; }
 
     public abstract int CriteriasCount { get; }
-    public abstract bool MeetsCriterias(RequirementSettings config);
-    public abstract void ApplyCriterias(RequirementSettings config);
+    public abstract bool MeetsCriterias(GroupSettings config);
+    public abstract void ApplyCriterias(GroupSettings config);
 
     public static NoPreset None => new();
 }

@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
-using SPIC.Config;
+using SPIC.Configs;
 
 namespace SPIC.VanillaGroups; 
 public enum GrabBagCategory : byte {

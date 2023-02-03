@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
-using SPIC.Config;
+using SPIC.Configs;
 using Terraria.Localization;
 
 namespace SPIC.VanillaGroups;

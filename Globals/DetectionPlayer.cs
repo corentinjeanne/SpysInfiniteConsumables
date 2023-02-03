@@ -39,7 +39,7 @@ public class DetectionPlayer : ModPlayer {
     public override bool PreItemCheck() {
         DetectingCategoryOf = null;
         if (Player.controlUseItem || !Player.ItemTimeIsZero) {
-            if (Config.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
+            if (Configs.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
             InItemCheck = true;
         }
         return true;
@@ -70,13 +70,13 @@ public class DetectionPlayer : ModPlayer {
         if (DetectingCategoryOf is null) return false;
 
         void SaveUsable(UsableCategory category) {
-            Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
-            if(!_detectingConsumable) Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
+            if(!_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
         
         void SaveBag(GrabBagCategory category) {
-            Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-            if (_detectingConsumable) Config.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+            if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
         }
 
         DetectionDataScreenShot data = GetDetectionData();
@@ -139,7 +139,7 @@ public class DetectionPlayer : ModPlayer {
         if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
         InRightClick = true;
         DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-        if (Config.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
+        if (Configs.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
             modPlayer.PrepareDetection(inv[slot], false);
 
         bool res = orig(inv, context, slot, player);
@@ -156,8 +156,8 @@ public class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Config.CategoryDetection detection = Config.CategoryDetection.Instance;
-        Config.RequirementSettings settings = Config.RequirementSettings.Instance;
+        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
+        Configs.GroupSettings settings = Configs.GroupSettings.Instance;
 
         if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 

@@ -19,13 +19,13 @@ public class ConsumptionItem : GlobalItem {
     public override void RightClick(Item item, Player player) {
         if(item.type != ItemID.CanOfWorms && item.type != ItemID.Oyster) return;
         if(player.HasInfinite(item, 1,
-            () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
+            () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
             GrabBag.Instance
         )) item.stack++;
     }
 
     public override bool ConsumeItem(Item item, Player player) {
-        Config.CategoryDetection detection = Config.CategoryDetection.Instance;
+        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
 
         DetectionPlayer detectionPlayer = player.GetModPlayer<DetectionPlayer>();
 
@@ -37,7 +37,7 @@ public class ConsumptionItem : GlobalItem {
             if (item != player.HeldItem) { // Wands
                 if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? Config.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : Config.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
                 );
             }
@@ -46,12 +46,12 @@ public class ConsumptionItem : GlobalItem {
 
         } else if(DetectionPlayer.InRightClick)
             return !player.HasInfinite(item, 1,
-                () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
+                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
                 GrabBag.Instance, Usable.Instance
             );
         else { // Hotkey or special right click action
             return !player.HasInfinite(item, 1,
-                () => Config.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance)
+                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance)
                 , Usable.Instance, GrabBag.Instance
             );
         }

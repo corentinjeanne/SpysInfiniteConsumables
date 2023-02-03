@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
-using SPIC.Config.Presets;
+using SPIC.Configs.Presets;
 
-namespace SPIC.Config;
+namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
@@ -29,7 +29,7 @@ public class PresetDefinition : EntityDefinition {
 }
 
 
-[TypeConverter("SPIC.Config.ToFromStringConverterFix`1[SPIC.Config.ConsumableGroupDefinition]")]
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
     public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).Name) {}

@@ -33,26 +33,26 @@ public struct CurrencyCount : ICount<CurrencyCount> {
 
     public int CompareTo(CurrencyCount other) => Value.CompareTo(other.Value);
 
-    public string Display(Config.InfinityDisplay.CountStyle style) {
+    public string Display(Configs.InfinityDisplay.CountStyle style) {
         switch (style){
-        case Config.InfinityDisplay.CountStyle.Sprite:
+        case Configs.InfinityDisplay.CountStyle.Sprite:
             List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(Currency, Value);
             List<string> parts = new();
             foreach ((int type, long count) in items) parts.Add($"{count}[i:{type}]");
             return string.Join(" ", parts);
-        case Config.InfinityDisplay.CountStyle.Name or _:
+        case Configs.InfinityDisplay.CountStyle.Name or _:
         default:
             return CurrencyHelper.PriceText(Currency, Value);
         }
     }
-    public string DisplayRawValue(Config.InfinityDisplay.CountStyle style)
+    public string DisplayRawValue(Configs.InfinityDisplay.CountStyle style)
         => InfinityManager.GetCategory(Currency, VanillaGroups.Currency.Instance) == CurrencyCategory.SingleCoin ? $"{Value}" : Display(style);
 
     public float Ratio(CurrencyCount other) => (float)Value / other.Value;
 }
 
 /// <summary>
-/// DO NOT use for config, use <see cref="Config.ItemCountWrapper"/> instead
+/// DO NOT use for config, use <see cref="Configs.ItemCountWrapper"/> instead
 /// </summary>
 public struct ItemCount : ICount<ItemCount> {
 
@@ -121,11 +121,11 @@ public struct ItemCount : ICount<ItemCount> {
     public float Ratio(ItemCount other) => UseStacks ? Stacks / other.Stacks : (float)Items / other.Items;
     public int CompareTo(ItemCount other) => UseStacks ? AdaptTo(other).Stacks.CompareTo(other.Stacks) : Items.CompareTo(other.Items);
 
-    public string Display(Config.InfinityDisplay.CountStyle style) => style switch {
-        Config.InfinityDisplay.CountStyle.Sprite => $"{Items}[i:{Type}]",
-        _ or Config.InfinityDisplay.CountStyle.Name => $"{Items} items",
+    public string Display(Configs.InfinityDisplay.CountStyle style) => style switch {
+        Configs.InfinityDisplay.CountStyle.Sprite => $"{Items}[i:{Type}]",
+        _ or Configs.InfinityDisplay.CountStyle.Name => $"{Items} items",
     };
-    public string DisplayRawValue(Config.InfinityDisplay.CountStyle style) => Items.ToString();
+    public string DisplayRawValue(Configs.InfinityDisplay.CountStyle style) => Items.ToString();
     public override string ToString() => $"{(UseStacks ? $"Stacks={Stacks}" : $"Items={Items}")}, MaxStack={MaxStack}";
 
 }

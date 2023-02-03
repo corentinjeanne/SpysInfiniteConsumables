@@ -39,7 +39,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
             TooltipLine? line = ammo ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
             bool addedLine = false;
             if (line is null) {
-                if(!Config.InfinityDisplay.Instance.toopltip_AddMissingLines) return;
+                if(!Configs.InfinityDisplay.Instance.toopltip_AddMissingLines) return;
                 line = ammo ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
                 addedLine = true;
             }
