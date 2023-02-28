@@ -27,7 +27,7 @@ public class ItemCountElement : ConfigElement<ItemCountWrapper> {
         base.OnBind();
 
         _parentDisplayFunction = TextDisplayFunction;
-        TextDisplayFunction = () => $"{_parentDisplayFunction()} ({(Value.useStacks ? "Stacks" : "Items")})";
+        TextDisplayFunction = () => $"{_parentDisplayFunction()} ({(Value.useStacks ? $"Stacks of {Value.maxStack}" : "Items")})";
 
         if (ConfigManager.GetCustomAttribute<NoSwappingAttribute>(MemberInfo, Value.GetType()) is null) {
             OnClick += (UIMouseEvent a, UIElement b) => {
