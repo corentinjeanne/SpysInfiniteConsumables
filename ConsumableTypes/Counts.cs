@@ -4,7 +4,7 @@ using Terraria;
 
 namespace SPIC.ConsumableGroup;
 
-public struct CurrencyCount : ICount<CurrencyCount> {
+public readonly struct CurrencyCount : ICount<CurrencyCount> {
 
     public CurrencyCount() {
         Currency = -2;

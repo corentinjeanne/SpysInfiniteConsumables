@@ -35,12 +35,12 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
         Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, true, out TConsumable values);
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {
-            bool ammo = ToConsumable(item).Equals(values);
-            TooltipLine? line = ammo ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
+            bool weapon = !ToConsumable(item).Equals(values);
+            TooltipLine? line = !weapon ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
             bool addedLine = false;
             if (line is null) {
                 if(!Configs.InfinityDisplay.Instance.toopltip_AddMissingLines) return;
-                line = ammo ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
+                line = !weapon ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
                 addedLine = true;
             }
 

@@ -66,6 +66,24 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
     public override bool DefaultsToOn => false;
 
     public override Requirement<ItemCount> Requirement(PlaceableCategory category) {
+        if(GroupSettings.Instance.PreventItemDupication){
+            return category switch {
+                PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new DisableAboveRequirement<ItemCount>(this.Settings().Tiles),
+                PlaceableCategory.Torch => new DisableAboveRequirement<ItemCount>(this.Settings().Torches),
+                PlaceableCategory.Ore => new DisableAboveRequirement<ItemCount>(this.Settings().Ores),
+
+                PlaceableCategory.LightSource
+                        or PlaceableCategory.Functional or PlaceableCategory.Decoration
+                        or PlaceableCategory.Container or PlaceableCategory.CraftingStation
+                    => new DisableAboveRequirement<ItemCount>(this.Settings().Furnitures),
+                PlaceableCategory.MusicBox => new DisableAboveRequirement<ItemCount>(new(this.Settings().Furnitures) { MaxStack = 1 }),
+                PlaceableCategory.Liquid => new CountRequirement<ItemCount>(this.Settings().Liquids),
+                PlaceableCategory.Mechanical => new DisableAboveRequirement<ItemCount>(this.Settings().Mechanical),
+                PlaceableCategory.Seed => new CountRequirement<ItemCount>(this.Settings().Seeds),
+                PlaceableCategory.Paint => new CountRequirement<ItemCount>(this.Settings().Paints),
+                PlaceableCategory.None or _ => new NoRequirement<ItemCount>(),
+            };
+        }
         return category switch {
             PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement<ItemCount>(this.Settings().Tiles),
             PlaceableCategory.Torch => new CountRequirement<ItemCount>(this.Settings().Torches),

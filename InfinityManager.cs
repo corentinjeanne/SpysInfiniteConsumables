@@ -145,7 +145,7 @@ public static class InfinityManager {
             infinity = new(consumableCount, 0);
         }
 
-        TCount next = infinity.Value.IsNone || infinity.Value.CompareTo(group.LongToCount(values, group.GetMaxInfinity(values))) < 0 ?
+        TCount next = infinity.CountsAsNone || infinity.Value.CompareTo(group.LongToCount(values, group.GetMaxInfinity(values))) < 0 ?
             root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
 
         Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Configs.InfinityDisplay.Instance.DisplayFlags;

@@ -11,10 +11,21 @@ public sealed class CountRequirement<TCount> : FixedRequirement<TCount> where TC
     public override TCount EffectiveRequirement(TCount count) => Root.CompareTo(count) > 0 ? count.None : count;
 }
 
-public sealed class DisableAboveRequirement<TCount> : FixedRequirement<TCount> where TCount : notnull, ICount<TCount> {
-    public DisableAboveRequirement(TCount root, float multiplier = 1) : base(root, multiplier) { }
+public sealed class DisableAboveRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
+    public DisableAboveRequirement(TCount root, float multiplier = 1) {
+        Multiplier = multiplier;
+        Root = root;
+    }
 
-    public override TCount EffectiveRequirement(TCount count) => Root.CompareTo(count) == 0 ? count : count.None;
+    public float Multiplier { get; init; }
+    public TCount Root { get; init; }
+
+    public override Infinity<TCount> Infinity(TCount count) => Root.CompareTo(count) switch {
+        0 => new(count, Multiplier),
+        < 0 => new(count, 0),
+        _ => new(count.None, Multiplier)
+    };
+    public override TCount NextRequirement(TCount count) => Root.CompareTo(count) == 0 ? Root.AdaptTo(count) : count.None;
 }
 
 public sealed class PowerRequirement<TCount> : RecursiveRequirement<TCount> where TCount : notnull, ICount<TCount> {

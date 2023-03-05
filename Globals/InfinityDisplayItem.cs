@@ -83,7 +83,7 @@ public class InfinityDisplayItem : GlobalItem {
     public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
         if (category != null && System.Convert.ToByte(category) != CategoryHelper.None) flags |= DisplayFlags.Category;
-        if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
+        if (!infinity.CountsAsNone) flags |= DisplayFlags.Infinity;
         if (!next.IsNone) flags |= DisplayFlags.Requirement;
         
         return flags;
@@ -128,7 +128,7 @@ public class InfinityDisplayItem : GlobalItem {
         float colorMult = 1;
 
         // BUG Does not clear cache when buying items (visual bug for partial infs)
-        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.Value.IsNone){
+        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.CountsAsNone){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {
                 spriteBatch.Draw(
@@ -167,7 +167,7 @@ public class InfinityDisplayItem : GlobalItem {
     }
     public static void DisplayGlow<TCount>(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         if (!info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) return;
-        if (info.Infinity.Value.IsNone) return;
+        if (info.Infinity.CountsAsNone) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
 
         float ratio = (float)s_glowFrame / display.glow_PulseTime;
