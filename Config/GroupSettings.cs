@@ -13,13 +13,13 @@ using SPIC.Configs.Presets;
 
 namespace SPIC.Configs;
 
-[Label("$Mods.SPIC.Configs.GroupSettings.name")]
+[Label($"${Localization.Keys.GroupSettings}.Name")]
 public class GroupSettings : ModConfig {
 
-    [Header("$Mods.SPIC.Configs.GroupSettings.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.GroupSettings.General.Duplication"), Tooltip("$Mods.SPIC.Configs.GroupSettings.General.t_duplication")]
+    [Header($"${Localization.Keys.GroupSettings}.General.Header")]
+    [DefaultValue(true), Label($"${Localization.Keys.GroupSettings}.General.Duplication.Label"), Tooltip($"${Localization.Keys.GroupSettings}.General.Duplication.Tooltip")]
     public bool PreventItemDupication { get; set; }
-    [Label("$Mods.SPIC.Configs.GroupSettings.General.Preset"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(GroupSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
+    [Label($"${Localization.Keys.GroupSettings}.General.Preset.Label"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(GroupSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
     public PresetDefinition? Preset {
         get {
             if (EnabledGroups.Count == 0) return null;
@@ -56,7 +56,7 @@ public class GroupSettings : ModConfig {
             }
         }
     }
-    [Label("$Mods.SPIC.Configs.GroupSettings.General.MaxGroups"), Tooltip("$Mods.SPIC.Configs.GroupSettings.General.t_maxGroups")]
+    [Label($"${Localization.Keys.GroupSettings}.General.MaxGroups.Label"), Tooltip($"${Localization.Keys.GroupSettings}.General.MaxGroups.Tooltip")]
     public int MaxConsumableTypes { get; set; }
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, bool> EnabledGlobals {
@@ -73,7 +73,7 @@ public class GroupSettings : ModConfig {
         }
     }
 
-    [Header("$Mods.SPIC.Configs.GroupSettings.Settings.header")]
+    [Header($"${Localization.Keys.GroupSettings}.Settings.Header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, object> Settings {
         get => _settings;
@@ -102,8 +102,8 @@ public class GroupSettings : ModConfig {
     }
 
 
-    [Header("$Mods.SPIC.Configs.GroupSettings.Blacklists.header")]
-    [Label("$Mods.SPIC.Configs.GroupSettings.Blacklists.Items")]
+    [Header($"${Localization.Keys.GroupSettings}.Blacklists.Header")]
+    [Label($"${Localization.Keys.GroupSettings}.Blacklists.Items.Label")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition,HashSet<string>> BlackListedConsumables { 
@@ -150,8 +150,5 @@ public class GroupSettings : ModConfig {
 
 
     public override ConfigScope Mode => ConfigScope.ServerSide;    
-#nullable disable
-    public static GroupSettings Instance;
-#nullable restore
-
+    public static GroupSettings Instance = null!;
 }

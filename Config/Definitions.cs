@@ -32,7 +32,7 @@ public class PresetDefinition : EntityDefinition {
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
-    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).Name) {}
+    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).InternalName) {}
     public ConsumableGroupDefinition(string fullName) : base(fullName) {}
     public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
@@ -43,9 +43,9 @@ public class ConsumableGroupDefinition : EntityDefinition {
     public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
     
     public string Label() {
-        IConsumableGroup group = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";
-        return $"[i:{group.IconType}] {(System.Attribute.GetCustomAttribute(group.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
+        IConsumableGroup group = ConsumableType;
+        return $"[i:{group.IconType}] {group.Name}";
     }
 
     public static ConsumableGroupDefinition FromString(string s) => new(s);

@@ -16,7 +16,9 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
     internal virtual ConsumableCache<TCount> CreateCache() => new();
 
     public abstract Mod Mod { get; }
-    public virtual string Name => GetType().Name;
+    public string InternalName => GetType().Name;
+    // Should be localized
+    public virtual string Name => InternalName;
     public int UID { get; internal set; }
     public abstract int IconType { get; }
 

@@ -40,27 +40,27 @@ public static class PlaceableExtension {
 }
 
 public class PlaceableRequirements {
-    [Label("$Mods.SPIC.Groups.Placeable.tiles")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Tiles")]
     public ItemCountWrapper Tiles = new(){Stacks=1};
-    [Label("$Mods.SPIC.Groups.Placeable.ores")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Ores")]
     public ItemCountWrapper Ores = new(){Items=499};
-    [Label("$Mods.SPIC.Groups.Placeable.torches")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Torches")]
     public ItemCountWrapper Torches = new(){Items=99};
-    [Label("$Mods.SPIC.Groups.Placeable.furnitures")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Furnitures")]
     public ItemCountWrapper Furnitures = new(99){Items=3};
-    [Label("$Mods.SPIC.Groups.Placeable.mechanical")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Mechanical")]
     public ItemCountWrapper Mechanical = new(){Items=3};
-    [Label("$Mods.SPIC.Groups.Placeable.liquids")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Liquids")]
     public ItemCountWrapper Liquids = new(){Items=10};
-    [Label("$Mods.SPIC.Groups.Placeable.seeds")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Seeds")]
     public ItemCountWrapper Seeds = new(99){Items=20};
-    [Label("$Mods.SPIC.Groups.Placeable.paints")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Paints")]
     public ItemCountWrapper Paints = new(){Stacks=1};
 }
 
 public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<PlaceableRequirements>, IDetectable, IStandardAmmunition<Item> {
-
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Placeable.Name");
     public override int IconType => ItemID.ArchitectGizmoPack;
 
     public override bool DefaultsToOn => false;
@@ -154,7 +154,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
     }
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityAmber;
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Placeable", Lang.tip[33].Value);
+    public override TooltipLine TooltipLine => new(Mod, "Placeable", Lang.tip[33].Value);
 
     public bool IncludeUnknown => false;
 
@@ -166,13 +166,16 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         PaintRoller
     }
 
-    public TooltipLine WeaponLine(Item weapon, Item ammo) => GetWandType(weapon) switch {
-        WandType.Tile => TooltipHelper.AddedLine($"WandConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
-        WandType.Wire => TooltipHelper.AddedLine($"Tooltip0", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name)),
-        WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> TooltipHelper.AddedLine($"PaintConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", ammo.Name))
-    };
+    public TooltipLine WeaponLine(Item weapon, Item ammo) => new(
+        Mod,
+        GetWandType(weapon) switch {
+            WandType.Tile => "WandConsumes", WandType.Wire => "Tooltip0", WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> "PaintConsumes"
+        },
+        Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.WeaponAmmo", ammo.Name)
+    );
 
-    public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile,
+    public static WandType GetWandType(Item item) => item switch {
+        { tileWand: not -1 } => WandType.Tile,
         { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
         { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush,
         { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,

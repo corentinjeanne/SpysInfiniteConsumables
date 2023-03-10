@@ -29,7 +29,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     }
 
     public virtual TooltipLineID LinePosition => System.Enum.TryParse(TooltipLine.Name, out TooltipLineID index) ? index : TooltipLineID.Modded;
-    public abstract TooltipLine TooltipLine { get; }
+    public virtual TooltipLine TooltipLine => new(Mod, InternalName, Name);
 
     public sealed override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
         Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, true, out TConsumable values);
@@ -44,7 +44,7 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
                 addedLine = true;
             }
 
-            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, this.Color(), info);
+            Globals.InfinityDisplayItem.DisplayOnLine(line, this.Color(), info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }

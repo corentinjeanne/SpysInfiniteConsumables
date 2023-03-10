@@ -47,7 +47,7 @@ public class DetectionPlayer : ModPlayer {
 
     public override void OnEnterWorld(Player player){
         if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0, 5, 7, 9)) <= 0)
-            Main.NewText(Language.GetTextValue("Mods.SPIC.Chat.MagicStorageWarning"), Colors.RarityAmber);
+            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.MagicStorageWarning"), Colors.RarityAmber);
     }
 
     public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();

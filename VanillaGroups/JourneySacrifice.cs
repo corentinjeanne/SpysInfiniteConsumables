@@ -13,13 +13,13 @@ public enum JourneySacrificeCategory : byte {
     Consumable,
 }
 public class JourneySacrificeSettings {
-    [Label("$Mods.SPIC.Groups.Journey.sacrifices")]
+    [Label($"${Localization.Keys.Groups}.Journey.Sacrifices")]
     public bool includeNonConsumable;
 }
 
 public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<JourneySacrificeSettings>{
-
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Journey.Name");
     public override int IconType => ItemID.GoldBunny;
 
     public override bool DefaultsToOn => false;
@@ -39,6 +39,6 @@ public class JourneySacrifice : ItemGroup<JourneySacrifice>, IConfigurable<Journ
 
     public override bool Includes(Item consumable) => IsConsumable(consumable) || this.Settings().includeNonConsumable;
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("JourneyResearch", Language.GetTextValue("Mods.SPIC.Groups.Journey.lineValue"));
+    public override TooltipLine TooltipLine => new(Mod, InternalName, Language.GetTextValue($"{Localization.Keys.Groups}.Journey.LineValue"));
 
 }

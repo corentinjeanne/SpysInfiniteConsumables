@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using SPIC.ConsumableGroup;
+using Terraria.Localization;
 
 namespace SPIC.VanillaGroups;
 
@@ -35,6 +36,7 @@ public class MixedRequirement : Requirement<ItemCount> {
 
 public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Mixed.Name");
     public override int IconType => Terraria.ID.ItemID.LunarHook;
 
     public override Item ToConsumable(Item item) => item;
@@ -83,9 +85,9 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
         Globals.DisplayInfo<ItemCount> info = this.GetDisplayInfo(item, true, out _);
         info.DisplayFlags &= Globals.DisplayFlags.Infinity;
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {
-            TooltipLine line = tooltips.AddLine(TooltipHelper.AddedLine("MixedInfinity", ""), TooltipLineID.Modded);
+            TooltipLine line = tooltips.AddLine(new(Mod, InternalName, ""), TooltipLineID.Modded);
             Color color = info.Next.IsNone ? new(Main.DiscoR, Main.DiscoG, Main.DiscoB) : new(255, (int)(Main.masterColor * 200f), 0);
-            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, color, info);
+            Globals.InfinityDisplayItem.DisplayOnLine(line, color, info);
             line.Text = line.Text.Replace("  ", " ");
             line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }

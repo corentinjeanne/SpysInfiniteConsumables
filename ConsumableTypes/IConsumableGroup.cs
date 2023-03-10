@@ -8,6 +8,7 @@ namespace SPIC.ConsumableGroup;
 
 public interface IConsumableGroup {
     Mod Mod { get; }
+    string InternalName { get; }
     string Name { get; }
     int UID { get; }
     int IconType { get; }

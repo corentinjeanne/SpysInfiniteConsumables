@@ -94,13 +94,13 @@ public class InfinityDisplayItem : GlobalItem {
     public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement;
     public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
 
-    public static void DisplayOnLine<TCount>(ref string line, ref Color? lineColor, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
+    public static void DisplayOnLine<TCount>(TooltipLine line, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         Configs.InfinityDisplay visuals = Configs.InfinityDisplay.Instance;
 
         if (info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) {
-            lineColor = color * (Main.mouseTextColor / 255f);
-            if (info.Next.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
-            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, info.Infinity.Value.Display(visuals.tooltip_RequirementStyle));
+            line.OverrideColor = color * (Main.mouseTextColor / 255f);
+            if (info.Next.IsNone) line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text);
+            else line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, info.Infinity.Value.Display(visuals.tooltip_RequirementStyle));
         }
 
         int total = 0;
@@ -121,7 +121,7 @@ public class InfinityDisplayItem : GlobalItem {
             );
         }
         if (total > 0) addons.Append(')');
-        line += addons.ToString();
+        line.Text += addons.ToString();
     }
     public static void DisplayDot<TCount>(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         float scale = DotScale * Main.inventoryScale;

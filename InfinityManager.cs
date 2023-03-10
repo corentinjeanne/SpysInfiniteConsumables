@@ -32,9 +32,9 @@ public static class InfinityManager {
 
     public static IConsumableGroup ConsumableGroup(int id) => s_groups[id];
     public static IConsumableGroup? ConsumableGroup(string fullName) => s_groups.FindValue(kvp => kvp.Value.ToString() == fullName);
-    public static IConsumableGroup? ConsumableGroup(string mod, string Name) => s_groups.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
+    public static IConsumableGroup? ConsumableGroup(string mod, string intName) => s_groups.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.InternalName == intName);
 
-    public static Configs.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.Name);
+    public static Configs.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.InternalName);
 
 
     public static IEnumerable<IConsumableGroup> ConsumableGroups(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) => ConsumableGroups<IConsumableGroup>(filters, noOrdering);

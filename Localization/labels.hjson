@@ -1,0 +1,50 @@
+// Everything in this file does not depend of localization and is only used for formating purpose
+{
+    Mods: {
+        SPIC: {
+            Configs: {
+                GroupSettings: {
+                    General: {
+                        Duplication.Label: "[i:3988] {$Mods.SPIC.Configs.GroupSettings.General.Duplication.Name}"
+                        Commands.Label: "[i:3617] {$Mods.SPIC.Configs.GroupSettings.General.Commands.Name}"
+                        Preset.Label : "[i:1913] {$Mods.SPIC.Configs.GroupSettings.General.Preset.Name}"
+                        MaxGroups.Label : "[i:486] {$Mods.SPIC.Configs.GroupSettings.General.MaxGroups.Name}"
+                    }
+                    Blacklists: {
+                        Items.Label: "[i:1913] {$Mods.SPIC.Configs.GroupSettings.Blacklists.Items.Name}"
+                    }
+                }
+                CategoryDetection: {
+                    General: {
+                        Detect.Label: "[i:1299] {$Mods.SPIC.Configs.CategoryDetection.General.Detect.Name}"
+                    }
+                }
+                InfinityDisplay: {
+                    General:  {
+                        Categories.Label: "[i:393] {$Mods.SPIC.Configs.InfinityDisplay.General.Categories.Name}"
+                        Infinities.Label: "[i:3084] {$Mods.SPIC.Configs.InfinityDisplay.General.Infinities.Name}"
+                        Requirements.Label: "[i:3102] {$Mods.SPIC.Configs.InfinityDisplay.General.Requirements.Name}"
+                    }
+                    Tooltip:  {
+                        Tooltip.Label: "[i:171] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Tooltip.Name}"
+                        MissingLines.Label: "[i:3619] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.MissingLines.Name}"
+                        Style.Label: "[i:3625] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Style.Name}"
+                        Color.Label: "[i:3625] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Color.Name}"
+                        Mixed.Label: "[i:662] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Mixed.Name}"
+                    }
+                    Glow: {
+                        Glow.Label: "[i:75] {$Mods.SPIC.Configs.InfinityDisplay.Glow.Glow.Name}"
+                        Intensity.Label: "[i:2274] {$Mods.SPIC.Configs.InfinityDisplay.Glow.Intensity.Name}"
+                        Pulse.Label: "[i:583] {$Mods.SPIC.Configs.InfinityDisplay.Glow.Pulse.Name}"
+                    }
+                    Dots: {
+                        Dots.Label: "[i:3603] {$Mods.SPIC.Configs.InfinityDisplay.Dots.Dots.Name}"
+                        Start.Label: "[i:71] {$Mods.SPIC.Configs.InfinityDisplay.Dots.Start.Name}"
+                        Direction.Label: "[i:4320] {$Mods.SPIC.Configs.InfinityDisplay.Dots.Direction.Name}"
+                        Count.Label: "[i:3095] {$Mods.SPIC.Configs.InfinityDisplay.Dots.Count.Name}"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -15,14 +15,15 @@ public enum CurrencyCategory : byte {
 }
 
 public class CurrencyRequirements {
-    [Label("$Mods.SPIC.Groups.Currency.coins")]
+    [Label($"${Localization.Keys.Groups}.Currency.Coins")]
     public int Coins = 10;
-    [Label("$Mods.SPIC.Groups.Currency.custom")]
+    [Label($"${Localization.Keys.Groups}.Currency.Custom")]
     public int Single = 50;
 }
 
 public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Currency.Name");
     public override int IconType => ItemID.LuckyCoin;
 
     public override bool DefaultsToOn => false;
@@ -57,6 +58,5 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.Groups.Currency.name"));
     public override TooltipLineID LinePosition => TooltipLineID.Consumable;
 }

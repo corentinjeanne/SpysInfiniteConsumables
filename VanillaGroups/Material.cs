@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
 using SPIC.Configs;
+using Terraria.Localization;
 
 namespace SPIC.VanillaGroups;
 public enum MaterialCategory : byte {
@@ -17,20 +18,21 @@ public enum MaterialCategory : byte {
 }
 
 public class MaterialRequirements {
-    [Label("$Mods.SPIC.Groups.Material.basics")]
+    [Label($"${Localization.Keys.Groups}.Material.Basics")]
     public ItemCountWrapper Basics = new(){Stacks=1};
-    [Label("$Mods.SPIC.Groups.Placeable.ores")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Ores")]
     public ItemCountWrapper Ores = new(){Items=499};
-    [Label("$Mods.SPIC.Groups.Placeable.furnitures")]
+    [Label($"${Localization.Keys.Groups}.Placeable.Furnitures")]
     public ItemCountWrapper Furnitures =new(99){Items=20};
-    [Label("$Mods.SPIC.Groups.Material.misc")]
+    [Label($"${Localization.Keys.Groups}.Material.Misc")]
     public ItemCountWrapper Miscellaneous = new(){Items=50};
-    [Label("$Mods.SPIC.Groups.Material.special")]
+    [Label($"${Localization.Keys.Groups}.Material.Special")]
     public ItemWrapper NonStackable = new(){Items=2};
 }
 
 public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<MaterialRequirements> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Material.Name");
     public override int IconType => ItemID.TinkerersWorkshop;
 
     public override bool DefaultsToOn => false;
@@ -85,7 +87,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
         return base.OwnsItem(player, item, isACopy);
     }
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityPink;
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Material", Lang.tip[36].Value);
+    public override TooltipLine TooltipLine => new(Mod, "Material", Lang.tip[36].Value);
 
 
 }

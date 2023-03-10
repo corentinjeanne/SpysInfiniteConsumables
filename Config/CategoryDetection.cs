@@ -9,15 +9,15 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Configs;
 
-[Label("$Mods.SPIC.Configs.Detection.name")]
+[Label($"${Localization.Keys.CategoryDetection}.Name")]
 public class CategoryDetection : ModConfig {
 
-    [Header("$Mods.SPIC.Configs.Detection.General.header")]
-    [DefaultValue(true), Label("$Mods.SPIC.Configs.Detection.General.Detect"), Tooltip("$Mods.SPIC.Configs.Detection.General.t_detect")]
+    [Header($"${Localization.Keys.CategoryDetection}.General.Header")]
+    [DefaultValue(true), Label($"${Localization.Keys.CategoryDetection}.General.Detect.Label"), Tooltip($"${Localization.Keys.CategoryDetection}.General.Detect.Tooltip")]
     public bool DetectMissing;
 
 
-    [Header("$Mods.SPIC.Configs.Detection.Categories.header")]
+    [Header($"${Localization.Keys.CategoryDetection}.Categories.Header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, Dictionary<ItemDefinition, CategoryWrapper>> DetectedItem {
         get => _detectedItems;
@@ -89,8 +89,6 @@ public class CategoryDetection : ModConfig {
     private readonly Dictionary<ConsumableGroupDefinition, Dictionary<string, CategoryWrapper>> _detectedGlobals = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
-#nullable disable
-    public static CategoryDetection Instance;
-#nullable restore
-
+    
+    public static CategoryDetection Instance = null!;
 }

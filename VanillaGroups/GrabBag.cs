@@ -16,15 +16,15 @@ public enum GrabBagCategory : byte {
 }
 
 public class GrabBagRequirements {
-    [Label("$Mods.SPIC.Groups.GrabBag.crates")]
+    [Label($"${Localization.Keys.Groups}.GrabBag.Crates")]
     public ItemCountWrapper Crates = new(99){Items=10};
-    [Label("$Mods.SPIC.Groups.GrabBag.boss")]
+    [Label($"${Localization.Keys.Groups}.GrabBag.Boss")]
     public ItemCountWrapper TreasureBags = new(){Items=3};
 }
 
 public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBagRequirements>, IDetectable {
-    
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.GrabBag.Name");
     public override int IconType => ItemID.FairyQueenBossBag;
 
     public override bool DefaultsToOn => false;
@@ -44,7 +44,6 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     }
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityDarkPurple;
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("GrabBag", Language.GetTextValue("Mods.SPIC.Groups.GrabBag.name"));
     public override TooltipLineID LinePosition => TooltipLineID.Consumable;
 
     public bool IncludeUnknown => false;

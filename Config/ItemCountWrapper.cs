@@ -9,10 +9,10 @@ public class ItemCountWrapper : MultyChoice<int>{
         this.maxStack = maxStack;
     }
 
-    [Choice, Label("$Mods.SPIC.Configs.UI.disabled")]
+    [Choice, Label("$Mods.SPIC.Configs.UI.Disabled.Name")]
     public object? Disabled => null;
 
-    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.items")]
+    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.Items.Name")]
     public int Items {
         get => Value;
         set {
@@ -20,7 +20,7 @@ public class ItemCountWrapper : MultyChoice<int>{
             Value = value;
         }
     }
-    [Choice, Range(1, 50), Label("$Mods.SPIC.Configs.UI.stacks")]
+    [Choice, Range(1, 50), Label("$Mods.SPIC.Configs.UI.Stacks.Name")]
     public int Stacks {
         get => -Value;
         set {
@@ -63,10 +63,10 @@ public class ItemWrapper : MultyChoice<int> {
 
     public ItemWrapper() {}
 
-    [Choice, Label("$Mods.SPIC.Configs.UI.disabled")]
+    [Choice, Label("$Mods.SPIC.Configs.UI.Disabled.Name")]
     public object? Disabled => null;
 
-    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.items")]
+    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.Items.Name")]
     public int Items {
         get => Value;
         set {
