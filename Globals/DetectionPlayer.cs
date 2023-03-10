@@ -5,7 +5,6 @@ using Terraria.ModLoader;
 using SPIC.VanillaGroups;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
-using System;
 
 namespace SPIC.Globals;
 
@@ -137,7 +136,6 @@ public class DetectionPlayer : ModPlayer {
 
 
     private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
-        // BUG Detects category on item pickup by right click ?
         DetectingCategoryOf = null;
         if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
         InRightClick = true;
@@ -146,7 +144,8 @@ public class DetectionPlayer : ModPlayer {
             modPlayer.PrepareDetection(inv[slot], false);
 
         bool res = orig(inv, context, slot, player);
-        if (modPlayer.DetectingCategoryOf is not null) modPlayer.TryDetectCategory();
+        if (modPlayer.DetectingCategoryOf is not null)
+            modPlayer.TryDetectCategory();
         InRightClick = false;
         return res;
     }

@@ -92,7 +92,7 @@
                             '''
                     }
                     Settings: {
-                        Header: Settings
+                        Header: Group Settings
                     }
                     Blacklists: {
                         Header: Blacklisted consumables
