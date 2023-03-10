@@ -37,7 +37,7 @@ public class ConsumptionItem : GlobalItem {
             if (item != player.HeldItem) { // Wands
                 if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
                 );
             }

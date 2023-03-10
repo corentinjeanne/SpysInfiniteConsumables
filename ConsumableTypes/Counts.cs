@@ -23,7 +23,7 @@ public readonly struct CurrencyCount : ICount<CurrencyCount> {
     public long Value { get; init; }
     public bool IsNone => Value == 0;
 
-    public CurrencyCount Add(CurrencyCount count) => new (this) { Value = Value + (count).Value };
+    public CurrencyCount Add(CurrencyCount count) => new (this) { Value = Value + count.Value };
     public CurrencyCount Multiply(float value) => new (this) { Value = (long)(Value * value) };
 
     public CurrencyCount AdaptTo(CurrencyCount reference) => new (reference) { Value = Value };
@@ -54,28 +54,23 @@ public readonly struct CurrencyCount : ICount<CurrencyCount> {
 /// <summary>
 /// DO NOT use for config, use <see cref="Configs.ItemCountWrapper"/> instead
 /// </summary>
-public struct ItemCount : ICount<ItemCount> {
+public readonly struct ItemCount : ICount<ItemCount> {
 
-    public ItemCount(ItemCount other) {
-        Type = other.Type;
-        _maxStack = other.MaxStack;
-        _items = other.Items;
-        UseStacks = other.UseStacks;
-    }
     public ItemCount(int type, int maxStack) {
         Type = type;
         _maxStack = maxStack;
         _items = 0;
         UseStacks = false;
     }
-    public ItemCount(Item item) {
-        Type = item.type;
-        _maxStack = item.maxStack;
-        _items = 0;
-        UseStacks = false;
+    public ItemCount(Item item) : this(item.type, item.maxStack) {}
+    public ItemCount(ItemCount other) {
+        Type = other.Type;
+        _maxStack = other.MaxStack;
+        _items = other.Items;
+        UseStacks = other.UseStacks;
     }
-
-    public int Type { get; private set; }
+    
+    public int Type { get; }
     public int MaxStack {
         get => _maxStack;
         init {
@@ -98,10 +93,10 @@ public struct ItemCount : ICount<ItemCount> {
             UseStacks = true;
         }
     }
-    public bool UseStacks { get; private set; }    
+    public bool UseStacks { get; private init; }
 
-    private long _items;
-    private int _maxStack;
+    private readonly long _items;
+    private readonly int _maxStack;
 
     public bool IsNone => Items == 0;
     public ItemCount None => new(Type, MaxStack);

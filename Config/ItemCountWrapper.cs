@@ -1,58 +1,98 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using SPIC.ConsumableGroup;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public class ItemCountConverter : JsonConverter<ItemCountWrapper> {
-
-    public override ItemCountWrapper ReadJson(JsonReader reader, System.Type objectType, ItemCountWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
-        JValue count = (JValue)JToken.Load(reader);
-
-        existingValue ??= new(999);
-        int value = (int)(long)count.Value!;
-        existingValue.useStacks = value < 0;
-        existingValue.value = System.Math.Abs(value);
-        return existingValue;
-    }
-
-    public override void WriteJson(JsonWriter writer, ItemCountWrapper? value, JsonSerializer serializer) {
-        if (value is null) return;
-        if (value.useStacks) writer.WriteValue(-value.value);
-        else writer.WriteValue(value.value);
-    }
-}
-
-[Terraria.ModLoader.Config.CustomModConfigItem(typeof(UI.ItemCountElement))]
-[JsonConverter(typeof(ItemCountConverter))]
-public sealed class ItemCountWrapper {
+public class ItemCountWrapper : MultyChoice<int>{
 
     public ItemCountWrapper(int maxStack = 999) {
         this.maxStack = maxStack;
     }
 
-    public int value;
-    public bool useStacks;
+    [Choice, Label("$Mods.SPIC.Configs.UI.disabled")]
+    public object? Disabled => null;
+
+    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.items")]
+    public int Items {
+        get => Value;
+        set {
+            defaultValue ??= value;
+            Value = value;
+        }
+    }
+    [Choice, Range(1, 50), Label("$Mods.SPIC.Configs.UI.stacks")]
+    public int Stacks {
+        get => -Value;
+        set {
+            defaultValue ??= -value;
+            Value = -value;
+        }
+    }
+
+    private int? defaultValue;
+
     public int maxStack;
 
+    public static implicit operator ItemCount(ItemCountWrapper count) => count.Value >= 0 ? (new(0, count.maxStack) { Items = count.Value }) : (new(0, count.maxStack) { Stacks = -count.Value });
+
+    public override string ChooseProperty() => Value switch {
+        0 => nameof(Disabled),
+        < 0 => nameof(Stacks),
+        _ => nameof(Items)
+    };
+
+    public override void ChoiceChange(string from, string to) {
+        if(to == nameof(Disabled)){
+            Value = 0;
+            return;
+        }
+
+        if(from == nameof(Disabled)){
+            Value = (defaultValue ??= 0);
+        }
+
+        if(to == nameof(Items) && Value < 0){
+            Value = Stacks * maxStack;
+        } else if(to == nameof(Stacks) && Value > 0){
+            Value = -(Items+maxStack-1) / maxStack;
+        }
+    }
+}
+
+public class ItemWrapper : MultyChoice<int> {
+
+    public ItemWrapper() {}
+
+    [Choice, Label("$Mods.SPIC.Configs.UI.disabled")]
+    public object? Disabled => null;
+
+    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.items")]
     public int Items {
+        get => Value;
         set {
-            this.value = value;
-            useStacks = false;
+            defaultValue ??= value;
+            Value = value;
         }
     }
-    public int Stacks {
-        set {
-            this.value = value;
-            useStacks = true;
+    private int? defaultValue;
+
+    public int maxStack;
+
+    public static implicit operator ItemCount(ItemWrapper count) => new(0, count.maxStack) { Items = count.Value };
+
+    public override string ChooseProperty() => Value switch {
+        0 => nameof(Disabled),
+        _ => nameof(Items)
+    };
+
+    public override void ChoiceChange(string from, string to) {
+        if (to == nameof(Disabled)) {
+            Value = 0;
+            return;
+        }
+
+        if (from == nameof(Disabled)) {
+            Value = (defaultValue ??= 0);
         }
     }
-
-    public void SwapItemsAndStacks() {
-        if (useStacks) value *= maxStack;
-        else value = (int)System.MathF.Ceiling((float)value/maxStack);
-        useStacks = !useStacks;
-    }
-
-    public static implicit operator ItemCount(ItemCountWrapper count) => count.useStacks ? (new(0, count.maxStack) { Stacks = count.value }) : (new(0, count.maxStack) { Items = count.value });
 }

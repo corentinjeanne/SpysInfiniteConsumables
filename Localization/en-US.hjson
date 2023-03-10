@@ -62,6 +62,11 @@
             }
 
             Configs: {
+                UI: {
+                    items: Items
+                    stacks: Stacks of {0}
+                    disabled: Disabled
+                }
                 GroupSettings: {
                     name: Consumable group Settings
                     General: {

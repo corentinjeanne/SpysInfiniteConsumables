@@ -25,8 +25,8 @@ public class MaterialRequirements {
     public ItemCountWrapper Furnitures =new(99){Items=20};
     [Label("$Mods.SPIC.Groups.Material.misc")]
     public ItemCountWrapper Miscellaneous = new(){Items=50};
-    [Label("$Mods.SPIC.Groups.Material.special"), Configs.UI.NoSwapping]
-    public ItemCountWrapper NonStackable = new(1){Items=2};
+    [Label("$Mods.SPIC.Groups.Material.special")]
+    public ItemWrapper NonStackable = new(){Items=2};
 }
 
 public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<MaterialRequirements> {

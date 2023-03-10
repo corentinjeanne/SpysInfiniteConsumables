@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 using SPIC.VanillaGroups;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
+using System;
 
 namespace SPIC.Globals;
 
@@ -16,10 +17,24 @@ public class DetectionPlayer : ModPlayer {
 
 
     public override void Load() {
+        On.Terraria.Player.ItemCheck_Inner += HookItemCheck_Inner;
         On.Terraria.UI.ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
         On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On.Terraria.Player.Teleport += HookTeleport;
         On.Terraria.Player.Spawn += HookSpawn;
+    }
+
+    private static void HookItemCheck_Inner(On.Terraria.Player.orig_ItemCheck_Inner orig, Player self, int i) {
+        DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
+        detectionPlayer.InItemCheck = true;
+        detectionPlayer.DetectingCategoryOf = null;
+
+        if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
+                && Configs.CategoryDetection.Instance.DetectMissing && self.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown)
+            detectionPlayer.PrepareDetection(self.HeldItem, true);
+        orig(self, i);
+        if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
+        detectionPlayer.InItemCheck = false;
     }
 
     public override void ModifyNursePrice(NPC nurse, int health, bool removeDebuffs, ref int price) {
@@ -36,19 +51,6 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
-    public override bool PreItemCheck() {
-        DetectingCategoryOf = null;
-        if (Player.controlUseItem || !Player.ItemTimeIsZero) {
-            if (Configs.CategoryDetection.Instance.DetectMissing && Player.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown) PrepareDetection(Player.HeldItem, true);
-            InItemCheck = true;
-        }
-        return true;
-    }
-    public override void PostItemCheck() {
-        InItemCheck = false;
-        if (DetectingCategoryOf is not null) TryDetectCategory();
-    }
-
 
     public void PrepareDetection(Item item, bool consumable){
         DetectingCategoryOf = item;
@@ -135,6 +137,7 @@ public class DetectionPlayer : ModPlayer {
 
 
     private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
+        // BUG Detects category on item pickup by right click ?
         DetectingCategoryOf = null;
         if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
         InRightClick = true;
