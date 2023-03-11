@@ -127,7 +127,6 @@ public class InfinityDisplayItem : GlobalItem {
         float scale = DotScale * Main.inventoryScale;
         float colorMult = 1;
 
-        // BUG Does not clear cache when buying items (visual bug for partial infs)
         if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.CountsAsNone){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {

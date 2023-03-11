@@ -30,7 +30,7 @@
                         MissingLines.Label: "[i:3619] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.MissingLines.Name}"
                         Style.Label: "[i:3625] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Style.Name}"
                         Color.Label: "[i:3625] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Color.Name}"
-                        Mixed.Label: "[i:662] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Mixed.Name}"
+                        Mixed.Label: "[i:3572] {$Mods.SPIC.Configs.InfinityDisplay.Tooltip.Mixed.Name}"
                     }
                     Glow: {
                         Glow.Label: "[i:75] {$Mods.SPIC.Configs.InfinityDisplay.Glow.Glow.Name}"

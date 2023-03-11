@@ -173,6 +173,12 @@ public static class InfinityManager {
         foreach ((int _, ICountCache cache) in s_caches) cache.ClearAll();
         s_usedGroups.Clear();
     }
+    public static void ClearCache(Item item){
+        ReadOnlyCollection<IStandardGroup<Item, ItemCount>> list = UsedConsumableGroups(item, out _);
+        foreach (IConsumableGroup group in list) ClearConsumableCache(item, (dynamic)group);
+        s_usedGroups.Remove(item.type);
+    }
+    public static void ClearConsumableCache<TConsumable>(Item item, IConsumableGroup<TConsumable> group) where TConsumable: notnull => ClearConsumableCache(group.ToConsumable(item), group);
     public static void ClearConsumableCache<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable: notnull {
         int uid = group.CacheID(consumable), rid = group.ReqCacheID(consumable);
         if(s_caches[group.UID] is ICategoryCache cat) cat.ClearCategory(uid);

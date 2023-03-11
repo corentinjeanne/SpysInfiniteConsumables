@@ -43,6 +43,8 @@ public class DetectionPlayer : ModPlayer {
         if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
     }
 
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache(item);
+
 
     public override void OnEnterWorld(Player player){
         if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0, 5, 7, 9)) <= 0)
