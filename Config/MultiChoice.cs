@@ -4,33 +4,32 @@ using System.Diagnostics.CodeAnalysis;
 using Terraria.ModLoader.Config;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
 
-[System.AttributeUsage(System.AttributeTargets.Property)]
+[System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field)]
 public class ChoiceAttribute : System.Attribute { }
 
 public class MultyChoiceConverter : JsonConverter<MultyChoice> {
     public override MultyChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultyChoice existingValue, bool hasExistingValue, JsonSerializer serializer) {
         existingValue ??= (MultyChoice)System.Activator.CreateInstance(objectType)!;
-
-        JProperty value = (JProperty)JToken.Load(reader).First!;
-        foreach (PropertyInfo prop in existingValue.Choices) {
-            if (prop.Name != value.Name) continue;
-            if (prop.CanWrite) prop.SetValue(existingValue, value.Value.ToObject(prop.PropertyType));
-            break;
-        }
+        JObject obj = (JObject)JToken.Load(reader);
+        JProperty value = (JProperty)obj.First!;
+        existingValue.Select(value.Name);
+        existingValue.Value = value.Value.ToObject(existingValue.Choices[existingValue.ChoiceIndex].Type);
         return existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, [AllowNull] MultyChoice value, JsonSerializer serializer) {
         if(value is null) return;
-        JObject wrapper = new(){
-            new JProperty(value.Choices[value.ChoiceIndex].Name, value.Choices[value.ChoiceIndex].GetValue(value))
-        };
-        writer.WriteRawValue(wrapper.ToString(serializer.Formatting));
+        writer.WriteStartObject();
+        writer.WritePropertyName(value.Choices[value.ChoiceIndex].Name);
+        using JsonTextReader reader = new(new StringReader(JsonConvert.SerializeObject(value.Value, serializer.Formatting)));
+        writer.WriteToken(reader);
+        writer.WriteEndObject();
     }
 }
 
@@ -38,17 +37,17 @@ public class MultyChoiceConverter : JsonConverter<MultyChoice> {
 [CustomModConfigItem(typeof(UI.MultyChoiceElement))]
 public abstract class MultyChoice {
 
-    public ReadOnlyCollection<PropertyInfo> Choices => _choices.AsReadOnly();
+    public IReadOnlyList<PropertyFieldWrapper> Choices => choices.AsReadOnly();
     public int ChoiceIndex {
         get => _index;
         set => _index = (value + Choices.Count) % Choices.Count;
     }
 
-    public MultyChoice(){
-        _choices = new(GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(prop => prop.GetCustomAttribute<ChoiceAttribute>() != null));
+    public object? Value {
+        get => Choices[ChoiceIndex].GetValue(this);
+        set => Choices[ChoiceIndex].SetValue(this, value);
     }
-
-    protected void Select(string property) {
+    public void Select(string property) {
         for (int i = 0; i < Choices.Count; i++) {
             if (Choices[i].Name != property) continue;
             ChoiceIndex = i;
@@ -56,39 +55,38 @@ public abstract class MultyChoice {
         }
     }
 
-    protected List<PropertyInfo> _choices;
+    public MultyChoice(){
+        choices = new();
+        choices.AddRange(GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(prop => prop.GetCustomAttribute<ChoiceAttribute>() != null).Select(p => new PropertyFieldWrapper(p)));
+        choices.AddRange(GetType().GetFields(BindingFlags.Instance | BindingFlags.Public).Where(prop => prop.GetCustomAttribute<ChoiceAttribute>() != null).Select(f => new PropertyFieldWrapper(f)));
+    }
+
+    protected List<PropertyFieldWrapper> choices;
     private int _index;
 }
 
 public class MultyChoiceSimpleConverter : JsonConverter<MultyChoice> {
-    public override MultyChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultyChoice existingValue, bool hasExistingValue, JsonSerializer serializer) {
+    public override MultyChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultyChoice existingValue, bool hasExistingValue, JsonSerializer serializer){
         existingValue ??= (MultyChoice)System.Activator.CreateInstance(objectType)!;
-
-        JValue value = (JValue)JToken.Load(reader);
-        return Read((dynamic)existingValue, value);
+        return Read(reader, (dynamic?)existingValue);
     }
-
-    private static MultyChoice Read<T>(MultyChoice<T> existingValue, JValue value) {
-        T t = value.ToObject<T>()!;
-        existingValue.Value = t;
+    private static MultyChoice<T> Read<T>(JsonReader reader, MultyChoice<T> existingValue) {
+        JValue value = (JValue)JToken.Load(reader);
+        existingValue.Value = value.ToObject<T>()!;
         return existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, [AllowNull] MultyChoice value, JsonSerializer serializer) {
         if (value is null) return;
-        Write(writer, (dynamic)value, serializer);
+        Write(writer, (dynamic?)value, serializer);
     }
     private static void Write<T>(JsonWriter writer, MultyChoice<T> value, JsonSerializer serializer) {
-        string json = JsonConvert.SerializeObject(value.Value, serializer.Formatting);
-        writer.WriteRawValue(json);
+        JValue val = new(value.Value);
+        writer.WriteRawValue(val.ToString(serializer.Formatting));
     }
 }
 
 [JsonConverter(typeof(MultyChoiceSimpleConverter))]
 public abstract class MultyChoice<T> : MultyChoice {
-
-    public virtual T Value {
-        get => (T)Choices[ChoiceIndex].GetValue(this)!;
-        set => Choices[ChoiceIndex].SetValue(this, value);
-    }
+    public new abstract T? Value { get; set; }
 }

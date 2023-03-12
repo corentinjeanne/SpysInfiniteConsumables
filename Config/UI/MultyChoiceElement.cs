@@ -12,7 +12,6 @@ namespace SPIC.Configs.UI;
 
 public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
-    public PropertyInfo selectedProp = null!;
     public UIElement selectedElement = null!;
 
     public override void OnBind() {
@@ -24,11 +23,12 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
         RemoveAllChildren();
 
         MultyChoice value = Value;
-        selectedProp = value.Choices[value.ChoiceIndex];
+        value ??= Value = (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
+        PropertyFieldWrapper selectedProp = value.Choices[value.ChoiceIndex];
 
         int top = 0;
-        (UIElement coutainer, selectedElement) = ConfigManager.WrapIt(this, ref top, new(selectedProp), value, 0);
-        if (selectedProp.PropertyType == typeof(object) && !selectedProp.CanWrite) {
+        (UIElement coutainer, selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
+        if (selectedProp.Type == typeof(object) && !selectedProp.CanWrite) {
             selectedElement.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(selectedElement, false);
         }
