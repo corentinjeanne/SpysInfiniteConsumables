@@ -27,7 +27,7 @@ public class MaterialRequirements {
     [Label($"${Localization.Keys.Groups}.Material.Misc")]
     public ItemCountWrapper Miscellaneous = new(){Items=50};
     [Label($"${Localization.Keys.Groups}.Material.Special")]
-    public ItemWrapper NonStackable = new(){Items=2};
+    public ItemCountWrapper NonStackable = new(swapping: false){Items=2};
 }
 
 public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<MaterialRequirements> {

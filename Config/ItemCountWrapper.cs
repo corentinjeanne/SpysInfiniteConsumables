@@ -3,96 +3,79 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public class ItemCountWrapper : MultyChoice<int>{
 
-    public ItemCountWrapper(int maxStack = 999) {
-        this.maxStack = maxStack;
+public class ItemCountWrapper : MultyChoice<int?> {
+
+    public ItemCountWrapper(int maxStack = 999, bool swapping = true) {
+        _removed = swapping;
+        MaxStack = maxStack;
     }
 
+    [Choice, Label("$Mods.SPIC.Configs.UI.Default.Name")]
+    public string? Default => "Def";
+    
     [Choice, Label("$Mods.SPIC.Configs.UI.Disabled.Name")]
     public object? Disabled => null;
 
     [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.Items.Name")]
     public int Items {
-        get => Value;
+        get => _items;
         set {
-            defaultValue ??= value;
-            Value = value;
+            if (!_removed) {
+                _choices.RemoveAt(_choices.FindIndex(p => p.Name == nameof(Stacks)));
+                _removed = true;
+            }
+            Select(nameof(Items));
+           _items = value;
         }
     }
     [Choice, Range(1, 50), Label("$Mods.SPIC.Configs.UI.Stacks.Name")]
     public int Stacks {
-        get => -Value;
+        get => (_items+MaxStack-1) / MaxStack;
         set {
-            defaultValue ??= -value;
-            Value = -value;
+            if (!_removed) {
+                _choices.RemoveAt(_choices.FindIndex(p => p.Name == nameof(Items)));
+                _removed = true;
+            }
+            Select(nameof(Stacks));
+            _items = value * MaxStack;
         }
     }
 
-    private int? defaultValue;
+    public int MaxStack { get; init; }
 
-    public int maxStack;
+    public override int? Value {
+        get => Choices[ChoiceIndex].Name switch {
+            nameof(Disabled) => 0,
+            nameof(Items) => Items,
+            nameof(Stacks) => -Stacks,
+            nameof(Default) or _ => null
 
-    public static implicit operator ItemCount(ItemCountWrapper count) => count.Value >= 0 ? (new(0, count.maxStack) { Items = count.Value }) : (new(0, count.maxStack) { Stacks = -count.Value });
-
-    public override string ChooseProperty() => Value switch {
-        0 => nameof(Disabled),
-        < 0 => nameof(Stacks),
-        _ => nameof(Items)
-    };
-
-    public override void ChoiceChange(string from, string to) {
-        if(to == nameof(Disabled)){
-            Value = 0;
-            return;
-        }
-
-        if(from == nameof(Disabled)){
-            Value = (defaultValue ??= 0);
-        }
-
-        if(to == nameof(Items) && Value < 0){
-            Value = Stacks * maxStack;
-        } else if(to == nameof(Stacks) && Value > 0){
-            Value = -(Items+maxStack-1) / maxStack;
-        }
-    }
-}
-
-public class ItemWrapper : MultyChoice<int> {
-
-    public ItemWrapper() {}
-
-    [Choice, Label("$Mods.SPIC.Configs.UI.Disabled.Name")]
-    public object? Disabled => null;
-
-    [Choice, Range(1, 9999), Label("$Mods.SPIC.Configs.UI.Items.Name")]
-    public int Items {
-        get => Value;
+        };
         set {
-            defaultValue ??= value;
-            Value = value;
+            switch (value) {
+            case 0:
+                Select(nameof(Disabled));
+                break;
+            case > 0:
+                Items = value.Value;
+                break;
+            case < 0:
+                Stacks = -value.Value;
+                break;
+            case null or _:
+                Select(nameof(Default));
+                break;
+            }
         }
     }
-    private int? defaultValue;
 
-    public int maxStack;
+    private int _items;
+    private bool _removed;
 
-    public static implicit operator ItemCount(ItemWrapper count) => new(0, count.maxStack) { Items = count.Value };
-
-    public override string ChooseProperty() => Value switch {
-        0 => nameof(Disabled),
-        _ => nameof(Items)
+    public static implicit operator ItemCount(ItemCountWrapper count) => count.Choices[count.ChoiceIndex].Name switch {
+        nameof(Disabled) => new(Terraria.ID.ItemID.None, count.MaxStack),
+        nameof(Stacks) => new(Terraria.ID.ItemID.None, count.MaxStack) { Stacks = count.Stacks },
+        nameof(Items) or _ => new(Terraria.ID.ItemID.None, count.MaxStack) { Items = count.Items }
     };
-
-    public override void ChoiceChange(string from, string to) {
-        if (to == nameof(Disabled)) {
-            Value = 0;
-            return;
-        }
-
-        if (from == nameof(Disabled)) {
-            Value = (defaultValue ??= 0);
-        }
-    }
 }
