@@ -1,17 +1,13 @@
 namespace SPIC.ConsumableGroup;
 
-public sealed class NotSupportedRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
-    public override Infinity<TCount> Infinity(TCount count) => new(count.None, 0);
-    public override TCount NextRequirement(TCount count) => count.None;
-}
-
 public sealed class CountRequirement<TCount> : FixedRequirement<TCount> where TCount : notnull, ICount<TCount> {
     public CountRequirement(TCount root, float multiplier = 1) : base(root, multiplier) { }
 
-    public override TCount EffectiveRequirement(TCount count) => Root.CompareTo(count) > 0 ? count.None : count;
+    public override TCount EffectiveRequirement(TCount count) => Root.IsNone || Root.CompareTo(count) > 0 ? count.None : count;
 }
 
 public sealed class DisableAboveRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
+    public override bool IsNone => Root.IsNone || Multiplier == 0;
     public DisableAboveRequirement(TCount root, float multiplier = 1) {
         Multiplier = multiplier;
         Root = root;
@@ -20,12 +16,12 @@ public sealed class DisableAboveRequirement<TCount> : Requirement<TCount> where 
     public float Multiplier { get; init; }
     public TCount Root { get; init; }
 
-    public override Infinity<TCount> Infinity(TCount count) => Root.CompareTo(count) switch {
+    public override Infinity<TCount> Infinity(TCount count) => (Root.IsNone ? 1 : Root.CompareTo(count)) switch {
         0 => new(count, Multiplier),
         < 0 => new(count, 0),
         _ => new(count.None, Multiplier)
     };
-    public override TCount NextRequirement(TCount count) => Root.CompareTo(count) == 0 ? Root.AdaptTo(count) : count.None;
+    public override TCount NextRequirement(TCount count) => Root.IsNone || Root.CompareTo(count) != 0 ? count.None : Root.AdaptTo(count);
 }
 
 public sealed class PowerRequirement<TCount> : RecursiveRequirement<TCount> where TCount : notnull, ICount<TCount> {

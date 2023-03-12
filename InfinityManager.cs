@@ -86,7 +86,7 @@ public static class InfinityManager {
         hasUnused = false;
         List<IStandardGroup<Item, ItemCount>> used = new();
         foreach (IStandardGroup<Item, ItemCount> group in ConsumableGroups<IStandardGroup<Item, ItemCount>>()) {
-            if(!group.Includes(item)) continue;
+            if(!group.Includes(item) || GetRequirement(item, group).IsNone) continue;
             if (Requirements.MaxConsumableTypes != 0 && used.Count >= Requirements.MaxConsumableTypes) {
                 hasUnused = true;
                 break;
@@ -112,11 +112,9 @@ public static class InfinityManager {
         Infinity<TCount> InfGetter() => GetInfinity(consumable, group.CountConsumables(player, consumable), group);
         return UseCache(player) ? ((ICountCache<TCount>)s_caches[group.UID]).GetOrAddInfinity(group.CacheID(consumable), InfGetter) : InfGetter();
     }
-    public static Infinity<TCount> GetInfinity<TConsumable, TCount>(TConsumable consumable, long count, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> {
-        Requirement<TCount> req = GetRequirement(consumable, group);
-        return req.Infinity(group.LongToCount(consumable, count));
-    }
     public static Infinity<TCount> GetInfinity<TConsumable, TCount>(this Item item, long count, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> => GetInfinity(group.ToConsumable(item), count, group);
+    public static Infinity<TCount> GetInfinity<TConsumable, TCount>(TConsumable consumable, long count, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> => GetInfinity(consumable, group.LongToCount(consumable, count), group);
+    public static Infinity<TCount> GetInfinity<TConsumable, TCount>(TConsumable consumable, TCount count, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> => GetRequirement(consumable, group).Infinity(count);
 
     public static Globals.DisplayInfo<TCount> GetDisplayInfo<TConsumable, TCount>(this IConsumableGroup<TConsumable, TCount> group, Item item, bool isACopy, out TConsumable values) where TConsumable : notnull where TCount : ICount<TCount> {
         Player player = Main.LocalPlayer;

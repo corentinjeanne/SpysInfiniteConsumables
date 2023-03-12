@@ -4,12 +4,14 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Configs.Presets;
+using SPIC.Configs.UI;
+using System.Collections.Generic;
 
 namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(PresetDefinition.Label))]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
     public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).Name) {}
@@ -26,9 +28,15 @@ public class PresetDefinition : EntityDefinition {
         Preset preset = Preset;
         return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label;
     }
+
+    public static List<PresetDefinition> GetPresets() {
+        List<PresetDefinition> defs = new();
+        foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
+        return defs;
+    }
 }
 
-
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetGroups), nameof(ConsumableGroupDefinition.Label))]
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
@@ -49,4 +57,13 @@ public class ConsumableGroupDefinition : EntityDefinition {
     }
 
     public static ConsumableGroupDefinition FromString(string s) => new(s);
+
+    public static List<ConsumableGroupDefinition> GetGroups() {
+        List<ConsumableGroupDefinition> groups = new();
+        foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Disabled | FilterFlags.Enabled)) {
+            if(group != VanillaGroups.Mixed.Instance) groups.Add(group.ToDefinition());
+        }
+
+        return groups;
+    }
 }

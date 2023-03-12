@@ -10,12 +10,13 @@ namespace SPIC.VanillaGroups;
 
 public class MixedRequirement : Requirement<ItemCount> {
 
+    public override bool IsNone => false;
+
     public override Infinity<ItemCount> Infinity(ItemCount count) {
         Item item = new(count.Type);
         Infinity<ItemCount> min = new(count.None, 0);
         foreach(IConsumableGroup<Item, ItemCount> group in InfinityManager.UsedConsumableGroups(item, out _)){
-            Requirement<ItemCount> requirement = item.GetRequirement(group);
-            Infinity<ItemCount> inf = requirement.Infinity(count);
+            Infinity<ItemCount> inf = InfinityManager.GetInfinity(item, count, group);
             if(min.Value.IsNone || inf.Value.CompareTo(min.Value) < 0) min = inf;
         }
         return min;

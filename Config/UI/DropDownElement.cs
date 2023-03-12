@@ -17,7 +17,7 @@ sealed class ValuesProviderAttribute : Attribute {
     public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString"){
         MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>());
         if(method is null) throw new ArgumentException("No public static method with this name was found");
-        if(method.Invoke(null, null) is not IList) throw new ArgumentException("The return type of the method must be IList");
+        if(!method.ReturnType.ImplementsInterface(typeof(IList), out _)) throw new ArgumentException("The return type of the method must be IList");
         _provider = method;
         ParseToString = toSTring;
     }
@@ -29,11 +29,9 @@ public class EmptyClass {}
 
 public class DropDownElement : ConfigElement {
 
-#nullable disable
-    private ValuesProviderAttribute _provider;
-    private MethodInfo _toString;
-    private IList _choices;
-#nullable restore
+    private ValuesProviderAttribute _provider = null!;
+    private MethodInfo _toString = null!;
+    private IList _choices = null!;
 
     private static readonly FieldInfo s_dummyField = typeof(DropDownElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
     private readonly EmptyClass _dummy = new();
@@ -45,10 +43,14 @@ public class DropDownElement : ConfigElement {
         base.OnBind();
         object value = MemberInfo.GetValue(Item);
 
-        _provider = (ValuesProviderAttribute?)Attribute.GetCustomAttribute(MemberInfo.MemberInfo, typeof(ValuesProviderAttribute));
-        if(_provider is null) throw new MissingMemberException($"Drop down element requires the Atrribute {nameof(ValuesProviderAttribute)}");
-        _toString = (value?.GetType() ?? MemberInfo.Type).GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
-        if(_toString is null) throw new ArgumentException($"Reflexion failed");
+
+        ValuesProviderAttribute? provider = (ValuesProviderAttribute?)Attribute.GetCustomAttribute(MemberInfo.MemberInfo, typeof(ValuesProviderAttribute))
+            ?? MemberInfo.Type.GetCustomAttribute<ValuesProviderAttribute>();
+        if(provider is null) throw new MissingMemberException($"Drop down element requires the Atrribute {nameof(ValuesProviderAttribute)}");
+        else _provider = provider;
+        MethodInfo? toString = (value?.GetType() ?? MemberInfo.Type).GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
+        if(toString is null) throw new ArgumentException($"Reflexion failed");
+        else _toString = toString;
         _choices = _provider.Values();
         _index = _choices.IndexOf(value);
         TextDisplayFunction = () => (LabelAttribute?.Label ?? MemberInfo.Name) + ": " + (_index == -1 ? "None" : _toString.Invoke(_choices[_index], null));

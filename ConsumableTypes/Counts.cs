@@ -6,10 +6,6 @@ namespace SPIC.ConsumableGroup;
 
 public readonly struct CurrencyCount : ICount<CurrencyCount> {
 
-    public CurrencyCount() {
-        Currency = -2;
-        Value = 0;
-    }
     public CurrencyCount(CurrencyCount other) {
         Currency = other.Currency;
         Value = other.Value;

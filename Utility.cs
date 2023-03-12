@@ -149,9 +149,9 @@ public static class Utility {
     }
 
 
-    public static bool ImplementsInterface(this System.Type type, System.Type generic, [MaybeNullWhen(false)] out System.Type impl)
-        => (impl = System.Array.Find(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)) != null;
-
+    public static bool ImplementsInterface(this System.Type type, System.Type iType, [MaybeNullWhen(false)] out System.Type impl)
+        => (impl = System.Array.Find(type.GetInterfaces(), i => iType.IsGenericType ? i.IsGenericType && i.GetGenericTypeDefinition() == iType : iType == i)) != null;
+    
     private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
     private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
 }

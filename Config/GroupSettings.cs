@@ -19,7 +19,7 @@ public class GroupSettings : ModConfig {
     [Header($"${Localization.Keys.GroupSettings}.General.Header")]
     [DefaultValue(true), Label($"${Localization.Keys.GroupSettings}.General.Duplication.Label"), Tooltip($"${Localization.Keys.GroupSettings}.General.Duplication.Tooltip")]
     public bool PreventItemDupication { get; set; }
-    [Label($"${Localization.Keys.GroupSettings}.General.Preset.Label"), CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(GroupSettings), nameof(GetPresets), nameof(PresetDefinition.Label))]
+    [Label($"${Localization.Keys.GroupSettings}.General.Preset.Label")]
     public PresetDefinition? Preset {
         get {
             if (EnabledGroups.Count == 0) return null;
@@ -103,6 +103,7 @@ public class GroupSettings : ModConfig {
 
 
     [Header($"${Localization.Keys.GroupSettings}.Blacklists.Header")]
+    // TODO add customs
     [Label($"${Localization.Keys.GroupSettings}.Blacklists.Items.Label")]
     public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
@@ -120,15 +121,6 @@ public class GroupSettings : ModConfig {
             }
         }
     }
-
-
-    public static List<PresetDefinition> GetPresets() {
-        List<PresetDefinition> defs = new();
-        foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
-        return defs;
-    }
-    
-    
     [JsonIgnore]
     public IEnumerable<(IToggleable group, bool enabled, bool global)> LoadedToggleableGroups {
         get {
