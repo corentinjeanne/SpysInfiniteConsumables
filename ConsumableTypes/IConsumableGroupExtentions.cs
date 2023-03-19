@@ -12,7 +12,6 @@ public interface ICategory<TConsumable, TCategory> : IConsumableGroup<TConsumabl
         byte c = System.Convert.ToByte(InfinityManager.GetCategory(consumable, group));
         return c != CategoryHelper.None && (group is not IDetectable detectable || c != CategoryHelper.Unknown || detectable.IncludeUnknown);
     }
-    public static int ReqCacheID(ICategory<TConsumable, TCategory> group, TConsumable consumable) => System.Convert.ToInt32(InfinityManager.GetCategory(consumable, group));
 }
 
 public interface IAmmunition<TConsumable> : IConsumableGroup<TConsumable> where TConsumable : notnull{

@@ -59,7 +59,6 @@ public class SpysInfiniteConsumables : Mod {
             Logger.Error("The call failled", error);
         }
         return base.Call();
-
     }
 
     private static readonly System.WeakReference<SpysInfiniteConsumables> s_instance = new(null!);

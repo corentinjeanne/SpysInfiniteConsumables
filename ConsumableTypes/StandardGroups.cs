@@ -72,7 +72,6 @@ where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCount, TCategory> {
     public override bool Includes(TConsumable consumable) => ICategory<TConsumable, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
-    public sealed override int ReqCacheID(TConsumable consumable) => ICategory<TConsumable, TCategory>.ReqCacheID(this, consumable);
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);
     public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
@@ -94,7 +93,6 @@ where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
     public override bool Includes(Item consumable) => ICategory<Item, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<ItemCount, TCategory> CreateCache() => new();
-    public sealed override int ReqCacheID(Item consumable) => ICategory<Item, TCategory>.ReqCacheID(this, consumable);
     public abstract TCategory GetCategory(Item consumable);
     public abstract Requirement<ItemCount> Requirement(TCategory category);
     public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => Requirement(consumable.GetCategory(this));

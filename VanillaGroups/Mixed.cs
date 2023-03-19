@@ -41,7 +41,6 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public override int IconType => Terraria.ID.ItemID.LunarHook;
 
     public override Item ToConsumable(Item item) => item;
-    public override int ReqCacheID(Item consumable) => 0;
     public override int CacheID(Item consumable) => consumable.type;
     public override string Key(Item consumable) => new Item(consumable.type).ToString();
 

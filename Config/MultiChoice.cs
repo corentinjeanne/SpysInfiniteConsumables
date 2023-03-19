@@ -19,14 +19,14 @@ public class MultyChoiceConverter : JsonConverter<MultyChoice> {
         JObject obj = (JObject)JToken.Load(reader);
         JProperty value = (JProperty)obj.First!;
         existingValue.Select(value.Name);
-        existingValue.Value = value.Value.ToObject(existingValue.Choices[existingValue.ChoiceIndex].Type);
+        existingValue.Value = value.Value.ToObject(existingValue.Choice.Type);
         return existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, [AllowNull] MultyChoice value, JsonSerializer serializer) {
         if(value is null) return;
         writer.WriteStartObject();
-        writer.WritePropertyName(value.Choices[value.ChoiceIndex].Name);
+        writer.WritePropertyName(value.Choice.Name);
         using JsonTextReader reader = new(new StringReader(JsonConvert.SerializeObject(value.Value, serializer.Formatting)));
         writer.WriteToken(reader);
         writer.WriteEndObject();
@@ -42,10 +42,11 @@ public abstract class MultyChoice {
         get => _index;
         set => _index = (value + Choices.Count) % Choices.Count;
     }
+    public PropertyFieldWrapper Choice => Choices[ChoiceIndex];
 
     public object? Value {
-        get => Choices[ChoiceIndex].GetValue(this);
-        set => Choices[ChoiceIndex].SetValue(this, value);
+        get => Choice.GetValue(this);
+        set => Choice.SetValue(this, value);
     }
     public void Select(string property) {
         for (int i = 0; i < Choices.Count; i++) {

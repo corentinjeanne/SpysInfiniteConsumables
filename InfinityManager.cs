@@ -104,7 +104,7 @@ public static class InfinityManager {
 
 
     public static Requirement<TCount> GetRequirement<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount>
-        => ((ICountCache<TCount>)s_caches[group.UID]).GetOrAddRequirement(group.ReqCacheID(consumable), () => group.GetRequirement(consumable));
+        => ((ICountCache<TCount>)s_caches[group.UID]).GetOrAddRequirement(group.CacheID(consumable), () => group.GetRequirement(consumable));
     public static Requirement<TCount> GetRequirement<TConsumable, TCount>(this Item item, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : ICount<TCount> => GetRequirement(group.ToConsumable(item), group);
 
 
@@ -178,7 +178,7 @@ public static class InfinityManager {
     }
     public static void ClearConsumableCache<TConsumable>(Item item, IConsumableGroup<TConsumable> group) where TConsumable: notnull => ClearConsumableCache(group.ToConsumable(item), group);
     public static void ClearConsumableCache<TConsumable>(TConsumable consumable, IConsumableGroup<TConsumable> group) where TConsumable: notnull {
-        int uid = group.CacheID(consumable), rid = group.ReqCacheID(consumable);
+        int uid = group.CacheID(consumable), rid = group.CacheID(consumable);
         if(s_caches[group.UID] is ICategoryCache cat) cat.ClearCategory(uid);
         s_caches[group.UID].ClearRequirement(rid);
         s_caches[group.UID].ClearInfinity(uid);

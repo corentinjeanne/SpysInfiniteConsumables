@@ -24,7 +24,7 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
         MultyChoice value = Value;
         value ??= Value = (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
-        PropertyFieldWrapper selectedProp = value.Choices[value.ChoiceIndex];
+        PropertyFieldWrapper selectedProp = value.Choice;
 
         int top = 0;
         (UIElement coutainer, selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);

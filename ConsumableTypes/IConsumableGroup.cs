@@ -22,7 +22,6 @@ public interface IConsumableGroup {
 public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsumable:  notnull {
     TConsumable ToConsumable(Item item);
     string Key(TConsumable consumable);
-    int ReqCacheID(TConsumable consumable);
     int CacheID(TConsumable consumable);
 
     bool Includes(TConsumable consumable);

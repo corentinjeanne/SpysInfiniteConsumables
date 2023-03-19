@@ -41,7 +41,7 @@ public class ItemCountWrapper : MultyChoice<int> {
     public int MaxStack { get; }
 
     public override int Value {
-        get => Choices[ChoiceIndex].Name switch {
+        get => Choice.Name switch {
             nameof(Items) => Items,
             nameof(Stacks) => -Stacks,
             nameof(Disabled) or _ => 0,
@@ -66,7 +66,7 @@ public class ItemCountWrapper : MultyChoice<int> {
     private int _items;
     private bool _antiSwap;
 
-    public static implicit operator ItemCount(ItemCountWrapper count) => count.Choices[count.ChoiceIndex].Name switch {
+    public static implicit operator ItemCount(ItemCountWrapper count) => count.Choice.Name switch {
         nameof(Items) => new(Terraria.ID.ItemID.None, count.MaxStack) { Items = count.Items },
         nameof(Stacks) => new(Terraria.ID.ItemID.None, count.MaxStack) { Stacks = count.Stacks },
         nameof(Disabled) or _ => new(Terraria.ID.ItemID.None, count.MaxStack)
