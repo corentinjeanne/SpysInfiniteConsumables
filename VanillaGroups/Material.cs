@@ -37,7 +37,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
 
     public override bool DefaultsToOn => false;
 
-    public override Requirement<ItemCount> Requirement(MaterialCategory category) => category switch {
+    public override Requirement<ItemCount> GetRequirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => new MultipleRequirement<ItemCount>(this.Settings().Basics, 0.5f),
         MaterialCategory.Ore => new MultipleRequirement<ItemCount>(this.Settings().Ores, 0.5f),
         MaterialCategory.Furniture => new MultipleRequirement<ItemCount>(this.Settings().Furnitures, 0.5f),

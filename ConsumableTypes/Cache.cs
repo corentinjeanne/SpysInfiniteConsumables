@@ -8,7 +8,7 @@ internal interface ICountCache {
     void ClearRequirement(int id);
     void ClearInfinity(int id);
 }
-internal interface ICountCache<TCount> : ICountCache where TCount : ICount<TCount>{
+internal interface ICountCache<TCount> : ICountCache where TCount : struct, ICount<TCount>{
     Requirement<TCount> GetOrAddRequirement(int id, System.Func<Requirement<TCount>> getter);
     Infinity<TCount> GetOrAddInfinity(int id, System.Func<Infinity<TCount>> getter);
 }
@@ -23,7 +23,7 @@ internal interface ICategoryCache<TCategory> : ICategoryCache where TCategory : 
 }
 
 
-internal class ConsumableCache<TCount> : ICountCache<TCount> where TCount: ICount<TCount>{
+internal class ConsumableCache<TCount> : ICountCache<TCount> where TCount: struct, ICount<TCount>{
 
     public static T GetOrAdd<T>(Dictionary<int, T> cache, int id, System.Func<T> getter) where T : notnull => cache.TryGetValue(id, out T? value) ? value : (cache[id] = getter());
     public Requirement<TCount> GetOrAddRequirement(int id, System.Func<Requirement<TCount>> getter) => GetOrAdd(_requirements, id, getter);
@@ -40,7 +40,7 @@ internal class ConsumableCache<TCount> : ICountCache<TCount> where TCount: ICoun
     private readonly Dictionary<int, Infinity<TCount>> _infinities = new();
 }
 
-internal sealed class ConsumableCache<TCount, TCategory> : ConsumableCache<TCount>, ICategoryCache<TCategory> where TCount : ICount<TCount> where TCategory : System.Enum{
+internal sealed class ConsumableCache<TCount, TCategory> : ConsumableCache<TCount>, ICategoryCache<TCategory> where TCount : struct, ICount<TCount> where TCategory : System.Enum{
 
     public TCategory GetOrAddCategory(int id, System.Func<TCategory> getter) => GetOrAdd(_categories, id, getter);
 

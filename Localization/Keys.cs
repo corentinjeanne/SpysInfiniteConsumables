@@ -3,6 +3,7 @@ namespace SPIC.Localization;
 public static class Keys {
     public const string Root = $"Mods.{nameof(SPIC)}";
     public const string Configs = $"{Root}.{nameof(Configs)}";
+    public const string UI = $"{Configs}.{nameof(UI)}";
     public const string Chat = $"{Root}.{nameof(Chat)}";
     public const string Items = $"{Root}.{nameof(Items)}";
     public const string CommonItemTooltips = $"{Root}.{nameof(CommonItemTooltips)}";

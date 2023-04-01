@@ -65,7 +65,7 @@ public class CategoryDetection : ModConfig {
                 if (!ModLoader.HasMod(def.Mod)) dest[def] = items;
                 continue;
             }
-            IConsumableGroup group = def.ConsumableType;
+            IConsumableGroup group = def.ConsumableGroup;
             if (group is IDetectable && group.GetType().ImplementsInterface(typeof(ICategory<,>), out System.Type? iCategoryGen2)) {
                 dest[def] = new();
                 foreach (TKey key in source[def].Keys) {

@@ -33,7 +33,6 @@ public class SpysInfiniteConsumables : Mod {
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
         Configs.CategoryDetection.Instance.LoadConfig();
-        // Configs.RequirementSettings.Instance.SaveConfig();
         Configs.InfinityDisplay.Instance.LoadConfig();
     }
 

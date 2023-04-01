@@ -10,7 +10,13 @@ namespace SPIC.VanillaGroups;
 
 public class MixedRequirement : Requirement<ItemCount> {
 
-    public override bool IsNone => false;
+    public Item Item { get; }
+
+    public override bool IsNone => InfinityManager.UsedConsumableGroups(Item, out _).Count > 0;
+
+    public MixedRequirement(Item item){
+        Item = item;
+    }
 
     public override Infinity<ItemCount> Infinity(ItemCount count) {
         Item item = new(count.Type);
@@ -49,7 +55,7 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     public static Color InfinityColor => new(Main.DiscoR, Main.DiscoG, Main.DiscoB);
     public static Color PartialInfinityColor => new(255, (byte)(Main.masterColor * 200f), 0);
 
-    public override Requirement<ItemCount> GetRequirement(Item item) => new MixedRequirement();
+    public override Requirement<ItemCount> GetRequirement(Item item) => new MixedRequirement(item);
 
     public override long CountConsumables(Player player, Item item) {
         long count = long.MaxValue;
@@ -94,6 +100,4 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
     }
     public override void DrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
     public override void DrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {}
-
-    public override bool Includes(Item consumable) => InfinityManager.UsedConsumableGroups(consumable, out _).Count > 0;
 }

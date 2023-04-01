@@ -10,7 +10,7 @@ using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
 
-[System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field)]
+[System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, Inherited = false)]
 public class ChoiceAttribute : System.Attribute { }
 
 public class MultyChoiceConverter : JsonConverter<MultyChoice> {
@@ -72,7 +72,8 @@ public class MultyChoiceSimpleConverter : JsonConverter<MultyChoice> {
         return Read(reader, (dynamic?)existingValue);
     }
     private static MultyChoice<T> Read<T>(JsonReader reader, MultyChoice<T> existingValue) {
-        JValue value = (JValue)JToken.Load(reader);
+        JToken token = JToken.Load(reader);
+        JValue value = (JValue)token;
         existingValue.Value = value.ToObject<T>()!;
         return existingValue;
     }

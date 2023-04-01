@@ -3,7 +3,6 @@ using Terraria.UI;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;

@@ -1,21 +1,21 @@
 namespace SPIC.ConsumableGroup;
 
-public abstract class Requirement<TCount> where TCount : notnull, ICount<TCount>{
+public abstract class Requirement<TCount> where TCount : struct, ICount<TCount>{
+    public TCount Root { get; set; }
     public abstract bool IsNone { get; }
     public abstract TCount NextRequirement(TCount count);
     public abstract Infinity<TCount> Infinity(TCount count);
 }
 
-public sealed class NoRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount>{
+public sealed class NoRequirement<TCount> : Requirement<TCount> where TCount : struct, ICount<TCount>{
     public override bool IsNone => true;
     public override Infinity<TCount> Infinity(TCount count) => new(count.None, 0);
     public override TCount NextRequirement(TCount count) => count.None;
 }
 
-public abstract class FixedRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
+public abstract class FixedRequirement<TCount> : Requirement<TCount> where TCount : struct, ICount<TCount> {
     public override bool IsNone => Root.IsNone || Multiplier == 0;
     public float Multiplier { get; init; }
-    public TCount Root { get; init; }
     
     public FixedRequirement(TCount root, float multiplier) {
         Multiplier = multiplier;
@@ -27,7 +27,7 @@ public abstract class FixedRequirement<TCount> : Requirement<TCount> where TCoun
     public sealed override TCount NextRequirement(TCount count) => Root.IsNone || Root.CompareTo(count) > 0 ? Root.AdaptTo(count) : count.None;
 }
 
-public abstract class RecursiveRequirement<TCount> : Requirement<TCount> where TCount : notnull, ICount<TCount> {
+public abstract class RecursiveRequirement<TCount> : Requirement<TCount> where TCount : struct, ICount<TCount> {
     public override bool IsNone => Root.IsNone || Multiplier == 0;
     protected RecursiveRequirement(TCount root, float multiplier) {
         Multiplier = multiplier;
@@ -35,7 +35,6 @@ public abstract class RecursiveRequirement<TCount> : Requirement<TCount> where T
     }
 
     public float Multiplier { get; init; }
-    public TCount Root { get; init; }
 
     public TCount EffectiveRequirement(TCount count){
         if(Root.IsNone) return count.None;

@@ -29,7 +29,7 @@ public class Defaults : StaticPreset<Defaults> {
 
     public override bool MeetsCriterias(GroupSettings config) {
 
-        foreach ((IToggleable group, bool state, bool _) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable group, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
             if (state != group.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
@@ -42,7 +42,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override void ApplyCriterias(GroupSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable group, bool state, bool global) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable group, bool state, bool global) in InfinityManager.LoadedToggleableGroups()) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -59,7 +59,7 @@ public class OneForAll : StaticPreset<OneForAll> {
 
     public override bool MeetsCriterias(GroupSettings config) {
         bool foundEnabled = false;
-        foreach ((IToggleable group, bool state, bool global) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable group, bool state, bool global) in InfinityManager.LoadedToggleableGroups()) {
             if (global) break;
             if (state) {
                 foundEnabled = true;
@@ -85,7 +85,7 @@ public class AllEnabled : StaticPreset<AllEnabled> {
     }
 
     public override bool MeetsCriterias(GroupSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable _, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
             if (!state) return false;
         }
         return config.MaxConsumableTypes == 0;
@@ -106,7 +106,7 @@ public class AllDisabled : StaticPreset<AllDisabled> {
     }
 
     public override bool MeetsCriterias(GroupSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in config.LoadedToggleableGroups) {
+        foreach ((IToggleable _, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
             if (state) return false;
         }
         return true;
@@ -126,6 +126,6 @@ public class JourneyCosts : StaticPreset<JourneyCosts> {
     public override bool MeetsCriterias(GroupSettings config)
         => config.MaxConsumableTypes == 1
             && (bool)config.EnabledGroups[0]!
-            && ((ConsumableGroupDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableType == JourneySacrifice.Instance;
+            && ((ConsumableGroupDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableGroup == JourneySacrifice.Instance;
 
 }

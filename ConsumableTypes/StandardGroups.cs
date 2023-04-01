@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace SPIC.ConsumableGroup;
 
 public abstract class StandardGroup<TImplementation, TConsumable, TCount> : ConsumableGroup<TImplementation, TConsumable, TCount>, IStandardGroup<TConsumable, TCount>
-where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : ICount<TCount> {
+where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : struct, ICount<TCount> {
     public abstract Color DefaultColor { get; }
     public virtual bool DefaultsToOn => true;
 
@@ -68,9 +68,8 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     }
 }
 public abstract class StandardGroup<TImplementation, TConsumable, TCount, TCategory> : StandardGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>
-where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<TCount>
+where TCategory : System.Enum where TConsumable : notnull where TCount : struct, ICount<TCount>
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCount, TCategory> {
-    public override bool Includes(TConsumable consumable) => ICategory<TConsumable, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);
@@ -91,9 +90,8 @@ where TImplementation : ItemGroup<TImplementation> {
 public abstract class ItemGroup<TImplementation, TCategory> : ItemGroup<TImplementation>, ICategory<Item, TCategory>
 where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
-    public override bool Includes(Item consumable) => ICategory<Item, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<ItemCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(Item consumable);
-    public abstract Requirement<ItemCount> Requirement(TCategory category);
-    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => Requirement(consumable.GetCategory(this));
+    public abstract Requirement<ItemCount> GetRequirement(TCategory category);
+    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => GetRequirement(consumable.GetCategory(this));
 }

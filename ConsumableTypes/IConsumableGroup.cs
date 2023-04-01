@@ -23,11 +23,9 @@ public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsuma
     TConsumable ToConsumable(Item item);
     string Key(TConsumable consumable);
     int CacheID(TConsumable consumable);
-
-    bool Includes(TConsumable consumable);
 }
 
-public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : ICount<TCount> {
+public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : struct, ICount<TCount> {
     Requirement<TCount> GetRequirement(TConsumable consumable);
     TCount LongToCount(TConsumable consumable, long count);
 
@@ -42,4 +40,4 @@ public interface IStandardGroup: IConsumableGroup, IToggleable, IColorable {
     void ActualDrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position);
     void ActualDrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale);
 }
-public interface IStandardGroup<TConsumable, Tcount> : IStandardGroup, IConsumableGroup<TConsumable, Tcount> where TConsumable : notnull where Tcount : ICount<Tcount> {}
+public interface IStandardGroup<TConsumable, Tcount> : IStandardGroup, IConsumableGroup<TConsumable, Tcount> where TConsumable : notnull where Tcount : struct, ICount<Tcount> {}

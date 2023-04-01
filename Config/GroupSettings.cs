@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using SPIC.Configs.Presets;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace SPIC.Configs;
 
@@ -84,7 +85,7 @@ public class GroupSettings : ModConfig {
                     if (!ModLoader.HasMod(def.Mod)) _settings.Add(def, data);
                     continue;
                 }
-                if (def.ConsumableType is not IConfigurable configurable) continue;
+                if (def.ConsumableGroup is not IConfigurable configurable) continue;
 
                 object settings;
                 if (data is JObject jobj) settings = jobj.ToObject(configurable.SettingsType)!;
@@ -101,45 +102,33 @@ public class GroupSettings : ModConfig {
         }
     }
 
+    [Header($"${Localization.Keys.GroupSettings}.Customs.Header")]
+    [Label($"${Localization.Keys.GroupSettings}.Customs.Customs.Label")]
+    public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 
-    [Header($"${Localization.Keys.GroupSettings}.Blacklists.Header")]
-    // TODO add customs
-    [Label($"${Localization.Keys.GroupSettings}.Blacklists.Items.Label")]
-    public HashSet<ItemDefinition> BlackListedItems { get; set; } = new();
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<ConsumableGroupDefinition,HashSet<string>> BlackListedConsumables { 
-        get => _blackListedConsumables;
-        set {
-            _blackListedConsumables.Clear();
-            foreach ((ConsumableGroupDefinition def, HashSet<string> consumables) in value) {
-                if (def.IsUnloaded && ModLoader.HasMod(def.Mod)) continue;
-                _blackListedConsumables.Add(def, consumables);
-            }
-            foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.Global | FilterFlags.Enabled | FilterFlags.Disabled, true)) {
-                if(group is VanillaGroups.Mixed) continue;
-                _blackListedConsumables.TryAdd(group.ToDefinition(), new());
-            }
-        }
-    }
-    [JsonIgnore]
-    public IEnumerable<(IToggleable group, bool enabled, bool global)> LoadedToggleableGroups {
-        get {
-            foreach (DictionaryEntry entry in EnabledGroups) {
-                ConsumableGroupDefinition def = (ConsumableGroupDefinition)entry.Key;
-                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, (bool)entry.Value!, false);
-            }
-            foreach ((ConsumableGroupDefinition def, bool state) in EnabledGlobals) {
-                if (!def.IsUnloaded) yield return ((IToggleable)def.ConsumableType, state, true);
-            }
-        }
-    }
 
+    public bool IsBlacklisted<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount> {
+        int id = group.CacheID(consumable);
+        foreach ((ItemDefinition def, Custom custom) in Customs) {
+            if (group.CacheID(group.ToConsumable(new(def.Type))) == id) return custom.Choice.Name == nameof(Custom.Blacklisted);
+        }
+        return false;
+    }
+    public bool HasCustomRequirement<TConsumable, TCount>(TConsumable consumable, [NotNullWhen(true)] out TCount? customCount, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount> {
+        int id = group.CacheID(consumable);
+        foreach ((ItemDefinition def, Custom custom) in Customs) {
+            if (group.CacheID(group.ToConsumable(new(def.Type))) != id) continue;
+            if (custom.Choice.Name != nameof(Custom.CustomRequirements) || !custom.CustomRequirements.TryGetValue(group.ToDefinition(), out UniversalCountWrapper? wrapper)) break;
+            customCount = wrapper.As<TCount>();
+            return true;
+        }
+        customCount = null;
+        return false;
+    }
 
     private readonly OrderedDictionary _groups = new();
     private readonly Dictionary<ConsumableGroupDefinition, bool> _globals = new();
     private readonly Dictionary<ConsumableGroupDefinition, object> _settings = new();
-    private readonly Dictionary<ConsumableGroupDefinition, HashSet<string>> _blackListedConsumables = new();
-
 
     public override ConfigScope Mode => ConfigScope.ServerSide;    
     public static GroupSettings Instance = null!;

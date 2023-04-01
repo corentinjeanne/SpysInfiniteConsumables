@@ -47,7 +47,7 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
     public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Usable.Name");
     public override int IconType => ItemID.EndlessMusketPouch;
 
-    public override Requirement<ItemCount> Requirement(UsableCategory category) {
+    public override Requirement<ItemCount> GetRequirement(UsableCategory category) {
         return category switch {
             UsableCategory.Weapon => new CountRequirement<ItemCount>(this.Settings().Weapons),
             UsableCategory.Recovery => new CountRequirement<ItemCount>(new(this.Settings().Potions){MaxStack = 99}),

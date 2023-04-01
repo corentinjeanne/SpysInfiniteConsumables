@@ -66,9 +66,12 @@
 
             Configs: {
                 UI: {
+                    Count.Name: Count
+                    Value.Name: Value
                     Items.Name: Items
                     Stacks.Name: Stacks of {0}
                     Disabled.Name: Disabled
+                    Blacklisted.Name: Blacklisted
                 }
                 GroupSettings: {
                     Name: Consumable group Settings
@@ -94,9 +97,9 @@
                     Settings: {
                         Header: Group Settings
                     }
-                    Blacklists: {
+                    Customs: {
                         Header: Blacklisted consumables
-                        Items.Name: Items
+                        Customs.Name: Customs
                     }
                 }
                 CategoryDetection: {

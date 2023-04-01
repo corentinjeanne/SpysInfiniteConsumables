@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace SPIC.ConsumableGroup;
 
 public abstract class ConsumableGroup<TImplementation, TConsumable, TCount> : IConsumableGroup<TConsumable, TCount>
-where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : ICount<TCount> {
+where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : struct, ICount<TCount> {
     public static TImplementation Instance => _instance ??= System.Activator.CreateInstance<TImplementation>();
     private static TImplementation? _instance;
     public static int ID => Instance.UID;
@@ -24,10 +24,9 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
 
     public virtual bool CanDisplay(Item item){
         TConsumable consumable = ToConsumable(item);
-        if(InfinityManager.IsBlacklisted(consumable, this)) return false;
         if(InfinityManager.IsUsed(consumable, this)) return true;
         if(this is IAmmunition<TConsumable> iAmmo && iAmmo.HasAmmo(Main.LocalPlayer, consumable, out TConsumable? ammo)
-                && !InfinityManager.IsBlacklisted(ammo, this) && (UID > 0 || InfinityManager.IsUsed(ammo, this)))
+                && InfinityManager.IsUsed(ammo, this))
             return true;
 
         return false;
@@ -38,8 +37,6 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
 
     public abstract string Key(TConsumable consumable);
     public abstract int CacheID(TConsumable consumable);
-
-    public abstract bool Includes(TConsumable consumable);
     
     public abstract Requirement<TCount> GetRequirement(TConsumable consumable);
     public virtual long GetMaxInfinity(TConsumable consumable) => 0;
@@ -55,9 +52,8 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
 }
 
 public abstract class ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> : ConsumableGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>
-where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<TCount>
+where TCategory : System.Enum where TConsumable : notnull where TCount : struct, ICount<TCount>
 where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> {
-    public override bool Includes(TConsumable consumable) => ICategory<TConsumable, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement<TCount> Requirement(TCategory category);

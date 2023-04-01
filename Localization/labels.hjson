@@ -10,8 +10,8 @@
                         Preset.Label : "[i:1913] {$Mods.SPIC.Configs.GroupSettings.General.Preset.Name}"
                         MaxGroups.Label : "[i:486] {$Mods.SPIC.Configs.GroupSettings.General.MaxGroups.Name}"
                     }
-                    Blacklists: {
-                        Items.Label: "[i:1913] {$Mods.SPIC.Configs.GroupSettings.Blacklists.Items.Name}"
+                    Customs: {
+                        Customs.Label: "[i:1913] {$Mods.SPIC.Configs.GroupSettings.Customs.Customs.Name}"
                     }
                 }
                 CategoryDetection: {

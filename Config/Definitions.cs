@@ -6,6 +6,7 @@ using SPIC.ConsumableGroup;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SPIC.Configs;
 
@@ -36,7 +37,7 @@ public class PresetDefinition : EntityDefinition {
     }
 }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetGroups), nameof(ConsumableGroupDefinition.Label))]
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetAllGroups), nameof(ConsumableGroupDefinition.Label))]
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
@@ -45,25 +46,23 @@ public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
     public new bool IsUnloaded => Type == 0;
-    public override int Type => ConsumableType?.UID ?? 0;
+    public override int Type => ConsumableGroup?.UID ?? 0;
 
     [JsonIgnore]
-    public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
+    public IConsumableGroup ConsumableGroup => InfinityManager.ConsumableGroup(Mod, Name)!;
     
     public string Label() {
         if(IsUnloaded) return $"(Unloaded) {this}";
-        IConsumableGroup group = ConsumableType;
+        IConsumableGroup group = ConsumableGroup;
         return $"[i:{group.IconType}] {group.Name}";
     }
 
     public static ConsumableGroupDefinition FromString(string s) => new(s);
 
-    public static List<ConsumableGroupDefinition> GetGroups() {
+    public static List<ConsumableGroupDefinition> GetAllGroups() => GetGroups(FilterFlags.NonGlobal | FilterFlags.Global);
+    public static List<ConsumableGroupDefinition> GetGroups(FilterFlags flags) {
         List<ConsumableGroupDefinition> groups = new();
-        foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Disabled | FilterFlags.Enabled)) {
-            if(group != VanillaGroups.Mixed.Instance) groups.Add(group.ToDefinition());
-        }
-
+        groups.AddRange(InfinityManager.ConsumableGroups(flags | FilterFlags.Disabled | FilterFlags.Enabled).Select(group => group.ToDefinition()));
         return groups;
     }
 }
