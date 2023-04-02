@@ -7,6 +7,7 @@ public sealed class CountRequirement<TCount> : FixedRequirement<TCount> where TC
 }
 
 public sealed class DisableAboveRequirement<TCount> : Requirement<TCount> where TCount : struct, ICount<TCount> {
+    public TCount Root { get; private set; }
     public override bool IsNone => Root.IsNone || Multiplier == 0;
     public DisableAboveRequirement(TCount root, float multiplier = 1) {
         Multiplier = multiplier;
@@ -21,10 +22,11 @@ public sealed class DisableAboveRequirement<TCount> : Requirement<TCount> where 
         _ => new(count.None, Multiplier)
     };
     public override TCount NextRequirement(TCount count) => Root.IsNone || Root.CompareTo(count) > 0 ? Root.AdaptTo(count) : count.None;
+    public sealed override void Customize(TCount custom) => Root = custom;
 }
 
 public sealed class PowerRequirement<TCount> : RecursiveRequirement<TCount> where TCount : struct, ICount<TCount> {
-    public PowerRequirement(TCount root, int power, float multiplier = 1) : base(root, multiplier) {
+    public PowerRequirement(TCount root, int power, float multiplier = 1, TCount? maxInfinity = null) : base(root, multiplier, maxInfinity) {
         Power = power;
     }
 
@@ -34,7 +36,7 @@ public sealed class PowerRequirement<TCount> : RecursiveRequirement<TCount> wher
 }
 
 public sealed class MultipleRequirement<TCount> : RecursiveRequirement<TCount> where TCount : struct, ICount<TCount> {
-    public MultipleRequirement(TCount root, float multiplier = 1) : base(root, multiplier) { }
+    public MultipleRequirement(TCount root, float multiplier = 1, TCount? maxInfinity = null) : base(root, multiplier, maxInfinity) { }
 
     protected override TCount NextValue(TCount value) => value.Add(Root);
 }

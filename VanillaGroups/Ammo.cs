@@ -30,7 +30,7 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirement
 
     public override Color DefaultColor => Colors.RarityLime;
 
-    public override Requirement<ItemCount> GetRequirement(AmmoCategory category) => category switch {
+    public override Requirement<ItemCount> GetRequirement(AmmoCategory category, Item consumable) => category switch {
         AmmoCategory.Basic => new CountRequirement<ItemCount>(this.Settings().Standard),
         AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement<ItemCount>(this.Settings().Special),
         AmmoCategory.None or _ => new NoRequirement<ItemCount>(),

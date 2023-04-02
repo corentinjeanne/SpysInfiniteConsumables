@@ -37,7 +37,7 @@ public class CategoryDetection : ModConfig {
         CategoryWrapper wrapper = CategoryWrapper.From(category);
         if (group is not IDetectable || (group.UID > 0 ?
                 (!DetectedItem[group.ToDefinition()].TryAdd(new((consumable as Item)!.type), wrapper)) :
-                (!DetectedGlobals[group.ToDefinition()].TryAdd(group.Key(consumable), wrapper)))) {
+                (!DetectedGlobals[group.ToDefinition()].TryAdd(group.Key(consumable), wrapper)))) { // TODO rework like customs
             return false;
         }
 

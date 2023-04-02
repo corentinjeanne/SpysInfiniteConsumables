@@ -27,7 +27,7 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.GrabBag.Name");
     public override int IconType => ItemID.FairyQueenBossBag;
 
-    public override Requirement<ItemCount> GetRequirement(GrabBagCategory bag) => bag switch {
+    public override Requirement<ItemCount> GetRequirement(GrabBagCategory bag, Item consumable) => bag switch {
         GrabBagCategory.Crate => new CountRequirement<ItemCount>(this.Settings().Crates),
         GrabBagCategory.TreasureBag => new CountRequirement<ItemCount>(this.Settings().TreasureBags),
         GrabBagCategory.None or GrabBagCategory.Unknown or _ => new NoRequirement<ItemCount>(),

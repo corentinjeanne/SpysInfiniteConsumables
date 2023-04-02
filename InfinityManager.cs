@@ -35,7 +35,7 @@ public static class InfinityManager {
     public static IConsumableGroup? ConsumableGroup(string fullName) => s_groups.FindValue(kvp => kvp.Value.ToString() == fullName);
     public static IConsumableGroup? ConsumableGroup(string mod, string intName) => s_groups.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.InternalName == intName);
 
-    public static Configs.ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.InternalName);
+    public static ConsumableGroupDefinition ToDefinition(this IConsumableGroup group) => new(group.Mod, group.InternalName);
 
 
     public static IEnumerable<IConsumableGroup> ConsumableGroups(FilterFlags filters = FilterFlags.Default, bool noOrdering = false) => ConsumableGroups<IConsumableGroup>(filters, noOrdering);
@@ -48,7 +48,7 @@ public static class InfinityManager {
         if (filters.HasFlag(FilterFlags.NonGlobal)) {
             if (!noOrdering) {
                 foreach (DictionaryEntry entry in GroupSettings.EnabledGroups) {
-                    IConsumableGroup group = ((Configs.ConsumableGroupDefinition)entry.Key).ConsumableGroup;
+                    IConsumableGroup group = ((ConsumableGroupDefinition)entry.Key).ConsumableGroup;
                     if (MatchsFlags(group)) yield return (TGroup)group;
                 }
             } else {
@@ -71,7 +71,7 @@ public static class InfinityManager {
     public static Microsoft.Xna.Framework.Color Color(this IColorable group) => Display.Colors[group.ToDefinition()];
 
     public static bool IsUsed<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount>
-        => !GroupSettings.IsBlacklisted(consumable, group) && (group.UID > 0 ? UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : !GetRequirement(consumable, group).IsNone);
+        => !GroupSettings.IsBlacklisted(consumable, group) && (group.UID > 0 ? !GroupSettings.HasCustomRequirement((consumable as Item)!, out _, VanillaGroups.Mixed.Instance) && UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : !GetRequirement(consumable, group).IsNone);
     public static bool IsUsed<TConsumable, TCount>(this Item item, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount> => IsUsed(group.ToConsumable(item), group);
     public static ReadOnlyCollection<IStandardGroup<Item, ItemCount>> UsedConsumableGroups(Item item, out bool hasUnused){
         if (s_usedGroups.TryGetValue(item.type, out System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>?value)) {
@@ -102,7 +102,7 @@ public static class InfinityManager {
     public static Requirement<TCount> GetRequirement<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount>
         => ((ICountCache<TCount>)s_caches[group.UID]).GetOrAddRequirement(group.CacheID(consumable), () => {
             Requirement<TCount> req = group.GetRequirement(consumable);
-            if (GroupSettings.HasCustomRequirement(consumable, out TCount? count, group)) req.Root = count.Value;
+            if (GroupSettings.HasCustomRequirement(consumable, out TCount? count, group)) req.Customize(count.Value);
             return req;
         });
     public static Requirement<TCount> GetRequirement<TConsumable, TCount>(this Item item, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount> => GetRequirement(group.ToConsumable(item), group);
@@ -139,14 +139,13 @@ public static class InfinityManager {
             consumableCount = group.LongToCount(values, group.CountConsumables(player, values));
             infinity = GetInfinity(player, values, group);
         } else {
-            consumableCount = group.LongToCount(values, 0).None;
+            consumableCount = group.LongToCount(values, 0);
             infinity = new(consumableCount, 0);
         }
 
-        TCount next = infinity.CountsAsNone || infinity.Value.CompareTo(group.LongToCount(values, group.GetMaxInfinity(values))) < 0 ?
-            root.NextRequirement(infinity.EffectiveRequirement) : infinity.Value.None;
+        TCount next = root.NextRequirement(infinity.EffectiveRequirement);
 
-        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & Configs.InfinityDisplay.Instance.DisplayFlags;
+        Globals.DisplayFlags displayFlags = Globals.InfinityDisplayItem.GetDisplayFlags(category, infinity, next) & InfinityDisplay.Instance.DisplayFlags;
         return new(displayFlags, category, infinity, next, consumableCount);
     }
 
@@ -207,7 +206,7 @@ public static class InfinityManager {
     private static readonly Dictionary<int, ICountCache> s_caches = new();
     private static readonly Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups = new();
 
-    private static Configs.GroupSettings GroupSettings => Configs.GroupSettings.Instance;
-    private static Configs.InfinityDisplay Display => Configs.InfinityDisplay.Instance;
-    private static Configs.CategoryDetection CategoryDetection => Configs.CategoryDetection.Instance;
+    private static GroupSettings GroupSettings => GroupSettings.Instance;
+    private static InfinityDisplay Display => InfinityDisplay.Instance;
+    private static CategoryDetection CategoryDetection => CategoryDetection.Instance;
 }

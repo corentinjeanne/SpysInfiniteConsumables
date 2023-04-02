@@ -24,7 +24,6 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
                 || (player.InChest(out var chest) && System.Array.Find(chest, i => AreSameItems(i, item)) is not null)
                 || (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Countains(item)))
             return true;
-
         return false;
     }
 
@@ -72,8 +71,8 @@ where TCategory : System.Enum where TConsumable : notnull where TCount : struct,
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCount, TCategory> {
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract Requirement<TCount> Requirement(TCategory category);
-    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    public abstract Requirement<TCount> GetRequirement(TCategory category, TConsumable consumable);
+    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => GetRequirement(GetCategory(consumable), consumable);
 }
 
 public abstract class ItemGroup<TImplementation> : StandardGroup<TImplementation, Item, ItemCount>
@@ -92,6 +91,6 @@ where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
     internal override ConsumableCache<ItemCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(Item consumable);
-    public abstract Requirement<ItemCount> GetRequirement(TCategory category);
-    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => GetRequirement(consumable.GetCategory(this));
+    public abstract Requirement<ItemCount> GetRequirement(TCategory category, Item consumable);
+    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => GetRequirement(consumable.GetCategory(this), consumable);
 }

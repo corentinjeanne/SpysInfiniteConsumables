@@ -127,7 +127,7 @@ public class InfinityDisplayItem : GlobalItem {
         float scale = DotScale * Main.inventoryScale;
         float colorMult = 1;
 
-        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.CountsAsNone){
+        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity)){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {
                 spriteBatch.Draw(
@@ -148,7 +148,7 @@ public class InfinityDisplayItem : GlobalItem {
         for (int i = 0; i < _innerPixels.Length; i++) {
             float alpha;
             if(ratio != 0 && info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.5f;
-            else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.33f;
+            else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.5f;
             else alpha = 0f;
             
             spriteBatch.Draw(
@@ -166,7 +166,6 @@ public class InfinityDisplayItem : GlobalItem {
     }
     public static void DisplayGlow<TCount>(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         if (!info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) return;
-        if (info.Infinity.CountsAsNone) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
 
         float ratio = (float)s_glowFrame / display.glow_PulseTime;

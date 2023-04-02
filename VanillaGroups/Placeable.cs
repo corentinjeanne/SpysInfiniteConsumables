@@ -63,7 +63,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
     public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Placeable.Name");
     public override int IconType => ItemID.ArchitectGizmoPack;
 
-    public override Requirement<ItemCount> GetRequirement(PlaceableCategory category) {
+    public override Requirement<ItemCount> GetRequirement(PlaceableCategory category, Item consumable) {
         if(GroupSettings.Instance.PreventItemDupication){
             return category switch {
                 PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new DisableAboveRequirement<ItemCount>(this.Settings().Tiles),

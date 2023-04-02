@@ -71,21 +71,26 @@ public class ItemCountWrapper : UniversalCountWrapper {
     }
 
     [Choice, Range(1, 9999), Label($"${Localization.Keys.UI}.Items.Name")]
-    public int Items { get => Value; set => Value = value; }
+    public int Items {
+        get => _items;
+        set {
+            TryRemove(nameof(Stacks));
+            Value = value;
+        }
+    }
 
     public int MaxStack { get; }
 
     public override int Value {
         get => Choice.Name switch {
-            nameof(Value) => _items,
+            nameof(Items) => _items,
             nameof(Stacks) => -Stacks,
             nameof(Disabled) or _ => 0,
         };
         set {
-            TryRemove(nameof(Stacks));
             switch (value) {
             case > 0:
-                Select(nameof(Value));
+                Select(nameof(Items));
                 _items = value;
                 break;
             case < 0:
@@ -103,7 +108,7 @@ public class ItemCountWrapper : UniversalCountWrapper {
     private bool _antiSwap;
 
     public static implicit operator ItemCount(ItemCountWrapper count) => count.Choice.Name switch {
-        nameof(Value) => new(Terraria.ID.ItemID.None, count.MaxStack) { Items = count.Items},
+        nameof(Items) => new(Terraria.ID.ItemID.None, count.MaxStack) { Items = count.Items},
         nameof(Stacks) => new(Terraria.ID.ItemID.None, count.MaxStack) { Stacks = count.Stacks},
         nameof(Disabled) or _ => new(Terraria.ID.ItemID.None, count.MaxStack)
     };

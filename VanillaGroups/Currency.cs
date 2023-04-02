@@ -29,9 +29,9 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override bool DefaultsToOn => false;
 
-    public override Requirement<CurrencyCount> Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(this.Settings().Coins.As<CurrencyCount>().Multiply(100), 10, 1 / 50f),
-        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(this.Settings().Single.As<CurrencyCount>(), 0.2f),
+    public override Requirement<CurrencyCount> GetRequirement(CurrencyCategory category, int currency) => category switch {
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(this.Settings().Coins.As<CurrencyCount>().Multiply(100), 10, 1 / 50f, LongToCount(currency, GetMaxInfinity(currency))),
+        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(this.Settings().Single.As<CurrencyCount>(), 0.2f, LongToCount(currency, GetMaxInfinity(currency))),
         CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()
     };
 
@@ -47,7 +47,7 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override int CacheID(int consumable) => consumable;
 
-    public override long GetMaxInfinity(int currency) {
+    public static long GetMaxInfinity(int currency) {
         if (Main.InReforgeMenu) return Main.reforgeItem.value;
         else if (Main.npcShop != 0) return Globals.ConsumptionNPC.HighestShopValue(currency);
         else return long.MaxValue;

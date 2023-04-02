@@ -39,7 +39,6 @@ where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> wh
     public abstract int CacheID(TConsumable consumable);
     
     public abstract Requirement<TCount> GetRequirement(TConsumable consumable);
-    public virtual long GetMaxInfinity(TConsumable consumable) => 0;
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
     public abstract TCount LongToCount(TConsumable consumable, long count);
@@ -56,6 +55,6 @@ where TCategory : System.Enum where TConsumable : notnull where TCount : struct,
 where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount, TCategory> {
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
     public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract Requirement<TCount> Requirement(TCategory category);
-    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    public abstract Requirement<TCount> GetRequirement(TCategory category, TConsumable consumable);
+    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => GetRequirement(GetCategory(consumable), consumable);
 }

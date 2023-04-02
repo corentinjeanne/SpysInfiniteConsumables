@@ -30,7 +30,6 @@ public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsu
     TCount LongToCount(TConsumable consumable, long count);
 
     long CountConsumables(Player player, TConsumable consumable);
-    long GetMaxInfinity(TConsumable consumable);
 }
 
 public interface IStandardGroup: IConsumableGroup, IToggleable, IColorable {
