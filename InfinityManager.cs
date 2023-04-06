@@ -71,7 +71,7 @@ public static class InfinityManager {
     public static Microsoft.Xna.Framework.Color Color(this IColorable group) => Display.Colors[group.ToDefinition()];
 
     public static bool IsUsed<TConsumable, TCount>(TConsumable consumable, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount>
-        => !GroupSettings.IsBlacklisted(consumable, group) && (group.UID > 0 ? !GroupSettings.HasCustomRequirement((consumable as Item)!, out _, VanillaGroups.Mixed.Instance) && UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : !GetRequirement(consumable, group).IsNone);
+        => !GroupSettings.IsBlacklisted(consumable, group) && (group.UID > 0 ? UsedConsumableGroups((consumable as Item)!, out _).Contains((IStandardGroup<Item, ItemCount>)group) : !GetRequirement(consumable, group).IsNone);
     public static bool IsUsed<TConsumable, TCount>(this Item item, IConsumableGroup<TConsumable, TCount> group) where TConsumable : notnull where TCount : struct, ICount<TCount> => IsUsed(group.ToConsumable(item), group);
     public static ReadOnlyCollection<IStandardGroup<Item, ItemCount>> UsedConsumableGroups(Item item, out bool hasUnused){
         if (s_usedGroups.TryGetValue(item.type, out System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>?value)) {

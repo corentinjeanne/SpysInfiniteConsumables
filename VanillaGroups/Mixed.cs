@@ -83,17 +83,15 @@ public class Mixed : ConsumableGroup<Mixed, Item, ItemCount> {
 
     public override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
         if (!Configs.InfinityDisplay.Instance.tooltip_ShowMixed || Configs.GroupSettings.Instance.MaxConsumableTypes <= 1) return;
-        ReadOnlyCollection<IStandardGroup<Item, ItemCount>> usedGroups = InfinityManager.UsedConsumableGroups(item, out bool hidden);
+        InfinityManager.UsedConsumableGroups(item, out bool hidden);
         if (!hidden) return;
 
         Globals.DisplayInfo<ItemCount> info = this.GetDisplayInfo(item, true, out _);
 
-        bool custom = ((MixedRequirement)item.GetRequirement(Instance)).Custom.HasValue;
-
-        info.DisplayFlags &= custom ? (Globals.DisplayFlags.Requirement | Globals.DisplayFlags.Infinity) : Globals.DisplayFlags.Infinity;
+        info.DisplayFlags &= Globals.DisplayFlags.Infinity;
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) == 0) return;
-        TooltipLine line = custom ? tooltips.AddLine(new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable) : tooltips.AddLine(new(Mod, InternalName, ""), TooltipLineID.Modded);
+        TooltipLine line = tooltips.AddLine(new(Mod, InternalName, ""), TooltipLineID.Modded);
         Color color = info.Next.IsNone ? new(Main.DiscoR, Main.DiscoG, Main.DiscoB) : new(255, (int)(Main.masterColor * 200f), 0);
         Globals.InfinityDisplayItem.DisplayOnLine(line, color, info);
         line.Text = line.Text.Trim().Replace("  ", " ");

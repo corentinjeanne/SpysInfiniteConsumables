@@ -62,7 +62,9 @@ public class ConsumableGroupDefinition : EntityDefinition {
     public static List<ConsumableGroupDefinition> GetAllGroups() => GetGroups(FilterFlags.NonGlobal | FilterFlags.Global);
     public static List<ConsumableGroupDefinition> GetGroups(FilterFlags flags) {
         List<ConsumableGroupDefinition> groups = new();
-        groups.AddRange(InfinityManager.ConsumableGroups(flags | FilterFlags.Disabled | FilterFlags.Enabled).Select(group => group.ToDefinition()));
+        groups.AddRange(InfinityManager.ConsumableGroups(flags | FilterFlags.Disabled | FilterFlags.Enabled)
+            .Where(group => group != VanillaGroups.Mixed.Instance)
+            .Select(group => group.ToDefinition()));
         return groups;
     }
 }
