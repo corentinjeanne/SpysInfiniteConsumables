@@ -1,3 +1,4 @@
+using SPIC.Configs;
 using Terraria.ModLoader;
 
 
@@ -5,10 +6,15 @@ namespace SPIC;
 
 public class SpysInfiniteConsumables : Mod {
 
-    public static SpysInfiniteConsumables Instance => s_instance.TryGetTarget(out SpysInfiniteConsumables? instance) ? instance : null!;
-    
+    // TODO mod not fully unloading
+
+    public static SpysInfiniteConsumables Instance { get; private set; } = null!;
+
     public override void Load() {
-        s_instance.SetTarget(this);
+        Instance = this;
+
+        InfinityManager.Reset();
+        PresetManager.Reset();
 
         VanillaGroups.Placeable.ClearWandAmmos();
         InfinityManager.ClearCache();
@@ -32,14 +38,16 @@ public class SpysInfiniteConsumables : Mod {
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
-        Configs.CategoryDetection.Instance.LoadConfig();
-        Configs.InfinityDisplay.Instance.LoadConfig();
+        CategoryDetection.Instance.LoadConfig();
+        InfinityDisplay.Instance.LoadConfig();
     }
 
     public override void Unload() {
         VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
-        InfinityManager.ClearCache();
+        InfinityManager.Reset();
+        PresetManager.Reset();
+        Instance = null!;
     }
 
     public override object Call(params object[] args) {

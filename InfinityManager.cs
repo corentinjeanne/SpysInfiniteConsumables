@@ -4,6 +4,7 @@ using Terraria;
 using SPIC.ConsumableGroup;
 using System.Collections.ObjectModel;
 using SPIC.Configs;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC;
 
@@ -17,11 +18,17 @@ public enum FilterFlags {
 
 public static class InfinityManager {
 
+    static InfinityManager(){
+        Reset();
+    }
+
     public static void Register<TImplementation>(ItemGroup<TImplementation> group) where TImplementation : ItemGroup<TImplementation> => Register(group, false);
     public static void RegisterAsGlobal<TImplementation, TConsumable, TCount>(ConsumableGroup<TImplementation, TConsumable, TCount> group) where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : struct, ICount<TCount> => Register(group, true);
     private static void Register<TImplementation, TConsumable, TCount>(ConsumableGroup<TImplementation, TConsumable, TCount> group, bool global) where TImplementation : ConsumableGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : struct, ICount<TCount> {
         if (group.UID != 0) throw new System.ArgumentException("This group has already been registered", nameof(group));
         if(group is IStandardGroup<TConsumable, TCount> && group is IAmmunition<TConsumable> && group is not IStandardAmmunition<TConsumable>) throw new System.ArgumentException($"A Standard group implementing {nameof(IAmmunition<TConsumable>)} must implement {nameof(IStandardAmmunition<TConsumable>)}");
+        SpysInfiniteConsumables.Instance.Logger.Debug($"Consumable group {group.InternalName} registered by {group.Mod.Name}");
+
         int id = group.UID = global ? s_nextGlobalID-- : s_nextTypeID++;
         
         s_groups[id] = group;
@@ -197,14 +204,25 @@ public static class InfinityManager {
         
     }
 
-    private static int s_nextTypeID = 1;
-    private static int s_nextGlobalID = -1;
+    [MemberNotNull(nameof(s_groups), nameof(s_caches), nameof(s_usedGroups))]
+    public static void Reset() {
+        if(s_groups?.Count > 0) SpysInfiniteConsumables.Instance.Logger.Debug($"Removed {s_nextTypeID-1} non global groups and {-s_nextGlobalID+1} global groups");
+        s_nextGlobalID = -1;
+        s_nextTypeID = 1;
+        GroupsLCM = 1; 
+        s_groups = new();
+        s_caches = new();
+        s_usedGroups = new();
+    }
 
-    internal static int GroupsLCM { get; private set; } = 1;
-    private static readonly Dictionary<int, IConsumableGroup> s_groups = new();
+    private static int s_nextTypeID;
+    private static int s_nextGlobalID;
 
-    private static readonly Dictionary<int, ICountCache> s_caches = new();
-    private static readonly Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups = new();
+    internal static int GroupsLCM { get; private set; }
+    private static Dictionary<int, IConsumableGroup> s_groups;
+
+    private static Dictionary<int, ICountCache> s_caches;
+    private static Dictionary<int, System.Tuple<ReadOnlyCollection<IStandardGroup<Item, ItemCount>>, bool>> s_usedGroups;
 
     private static GroupSettings GroupSettings => GroupSettings.Instance;
     private static InfinityDisplay Display => InfinityDisplay.Instance;
