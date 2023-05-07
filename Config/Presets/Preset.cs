@@ -17,8 +17,8 @@ public abstract class Preset {
     public abstract Mod Mod { get; }
     public int UID { get; internal set; }
 
-    public virtual string Name => GetType().Name;
-    // public abstract int IconType { get; }
+    public string InternalName => GetType().Name;
+    public virtual string Name => InternalName;
 
     public abstract int CriteriasCount { get; }
     public abstract bool MeetsCriterias(GroupSettings config);
