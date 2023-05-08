@@ -6,8 +6,6 @@ namespace SPIC;
 
 public class SpysInfiniteConsumables : Mod {
 
-    // TODO mod not fully unloading
-
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
     public override void Load() {
