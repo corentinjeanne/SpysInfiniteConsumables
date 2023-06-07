@@ -18,6 +18,10 @@ public class InfinityDisplay : ModConfig {
     public bool general_ShowRequirement;
     [Label($"${Localization.Keys.InfinityDisplay}.General.Categories.Label")]
     public bool general_ShowCategories;
+    [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
+    [Label($"${Localization.Keys.InfinityDisplay}.General.Welcome.Label")]
+    public WelcomMessageFrequency general_welcomeMessage;
+    [JsonProperty, DefaultValue("0.0.0.0")] internal string _lastVersionMessage = "";
 
     [Header($"${Localization.Keys.InfinityDisplay}.Tooltip.Header")]
     [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.Tooltip.Tooltip.Label")]
@@ -71,6 +75,7 @@ public class InfinityDisplay : ModConfig {
     public enum CountStyle { Sprite, Name }
     public enum Direction {Vertical, Horizontal}
     public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
+    public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
     [JsonIgnore]
     public Globals.DisplayFlags DisplayFlags {
         get {

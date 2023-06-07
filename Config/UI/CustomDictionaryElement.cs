@@ -75,8 +75,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
         base.OnBind();
 
-        object value = Value;
-        if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
+        if(Value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
 
         _dataList.Top = new(0, 0f);
         _dataList.Left = new(0, 0f);

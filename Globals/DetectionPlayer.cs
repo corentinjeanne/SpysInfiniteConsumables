@@ -47,8 +47,22 @@ public class DetectionPlayer : ModPlayer {
 
 
     public override void OnEnterWorld(Player player){
-        if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0, 5, 7, 9)) <= 0)
-            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.MagicStorageWarning"), Colors.RarityAmber);
+        bool display = Configs.InfinityDisplay.Instance.general_welcomeMessage switch {
+            Configs.InfinityDisplay.WelcomMessageFrequency.Always => true,
+            Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate => Mod.Version > new System.Version(Configs.InfinityDisplay.Instance._lastVersionMessage),
+            Configs.InfinityDisplay.WelcomMessageFrequency.Never or _ => false,
+        };
+        if (display) {
+            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome"), Colors.RarityLime);
+            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Update"), Colors.RarityLime);
+            Configs.InfinityDisplay.Instance._lastVersionMessage = Mod.Version.ToString();
+            Configs.InfinityDisplay.Instance.SaveConfig();
+
+        }
+        else if(Configs.InfinityDisplay.WelcomMessageFrequency.Never == Configs.InfinityDisplay.Instance.general_welcomeMessage){
+            Configs.InfinityDisplay.Instance._lastVersionMessage = "0.0.0.0";
+            Configs.InfinityDisplay.Instance.SaveConfig();
+        }
     }
 
     public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
@@ -86,7 +100,7 @@ public class DetectionPlayer : ModPlayer {
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable)SaveUsable(UsableCategory.PlayerBooster);
+        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (reproduce)
         else return false;
         DetectingCategoryOf = null;
 

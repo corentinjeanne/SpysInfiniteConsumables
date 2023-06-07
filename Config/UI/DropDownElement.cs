@@ -15,9 +15,8 @@ sealed class ValuesProviderAttribute : Attribute {
     public readonly string ParseToString;
 
     public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString"){
-        MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>());
-        if(method is null) throw new ArgumentException("No public static method with this name was found");
-        if(!method.ReturnType.ImplementsInterface(typeof(IList), out _)) throw new ArgumentException("The return type of the method must be IList");
+        MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>()) ?? throw new ArgumentException("No public static method with this name was found");
+        if (!method.ReturnType.ImplementsInterface(typeof(IList), out _)) throw new ArgumentException("The return type of the method must be IList");
         _provider = method;
         ParseToString = toSTring;
     }

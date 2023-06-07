@@ -2,7 +2,8 @@
     Mods: {
         SPIC: {
             Chat: {
-                MagicStorageWarning: Due to a bug with Magic Storage v0.5.7.9 or earlier, SPIC Materials group is temporarily disabled when crafting within magic storage's crafing interface.
+                Welcome: Thanks for downloading SPIC v2.2.1! If you found a bug, please repport it on the Steam workshop page or the GitHub.
+                Update: Other than tiny patches, this will be the last update before I port the mod to tModLoader 1.4.4.
             }
             Groups: {
                 Ammo: {
@@ -98,7 +99,7 @@
                         Header: Group Settings
                     }
                     Customs: {
-                        Header: Blacklisted consumables
+                        Header: Custom Requirements
                         Customs.Name: Customs
                     }
                 }
@@ -124,6 +125,7 @@
                         Categories.Name: Show categories
                         Infinities.Name: Show infinity
                         Requirements.Name: Show requirements
+                        Welcome.Name: Welcome message frequency
                     }
                     Tooltip:  {
                         Header: Item Tooltip
