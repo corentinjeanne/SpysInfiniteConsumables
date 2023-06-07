@@ -4,12 +4,15 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.ConsumableGroup;
 using SPIC.Configs.Presets;
+using SPIC.Configs.UI;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(PresetDefinition.Label))]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
     public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).Name) {}
@@ -26,27 +29,42 @@ public class PresetDefinition : EntityDefinition {
         Preset preset = Preset;
         return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label;
     }
+
+    public static List<PresetDefinition> GetPresets() {
+        List<PresetDefinition> defs = new();
+        foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
+        return defs;
+    }
 }
 
-
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetAllGroups), nameof(ConsumableGroupDefinition.Label))]
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
-    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).Name) {}
+    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).InternalName) {}
     public ConsumableGroupDefinition(string fullName) : base(fullName) {}
     public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
     public new bool IsUnloaded => Type == 0;
-    public override int Type => ConsumableType?.UID ?? 0;
+    public override int Type => ConsumableGroup?.UID ?? 0;
 
     [JsonIgnore]
-    public IConsumableGroup ConsumableType => InfinityManager.ConsumableGroup(Mod, Name)!;
+    public IConsumableGroup ConsumableGroup => InfinityManager.ConsumableGroup(Mod, Name)!;
     
     public string Label() {
-        IConsumableGroup group = ConsumableType;
         if(IsUnloaded) return $"(Unloaded) {this}";
-        return $"[i:{group.IconType}] {(System.Attribute.GetCustomAttribute(group.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label)}";
+        IConsumableGroup group = ConsumableGroup;
+        return $"[i:{group.IconType}] {group.Name}";
     }
 
     public static ConsumableGroupDefinition FromString(string s) => new(s);
+
+    public static List<ConsumableGroupDefinition> GetAllGroups() => GetGroups(FilterFlags.NonGlobal | FilterFlags.Global);
+    public static List<ConsumableGroupDefinition> GetGroups(FilterFlags flags) {
+        List<ConsumableGroupDefinition> groups = new();
+        groups.AddRange(InfinityManager.ConsumableGroups(flags | FilterFlags.Disabled | FilterFlags.Enabled)
+            .Where(group => group != VanillaGroups.Mixed.Instance)
+            .Select(group => group.ToDefinition()));
+        return groups;
+    }
 }

@@ -75,8 +75,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
         base.OnBind();
 
-        object value = Value;
-        if(value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
+        if(Value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
 
         _dataList.Top = new(0, 0f);
         _dataList.Left = new(0, 0f);
@@ -84,6 +83,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         _dataList.Width = new(0, 1f);
         _dataList.ListPadding = 5f;
         _dataList.PaddingBottom = -5f;
+        MaxHeight.Pixels = int.MaxValue;
 
         Append(_dataList);
 
@@ -165,7 +165,6 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         float h = (_dataList.Parent != null) ? (_dataList.GetTotalHeight() + defaultHeight) : defaultHeight;
         Height.Set(h, 0f);
         if (Parent != null && Parent is UISortableElement) Parent.Height.Set(h, 0f);
-        MaxHeight.Pixels = int.MaxValue;
     }
 
     public override void Draw(SpriteBatch spriteBatch) {

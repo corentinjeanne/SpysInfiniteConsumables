@@ -83,7 +83,7 @@ public class InfinityDisplayItem : GlobalItem {
     public static DisplayFlags GetDisplayFlags<TCount>(System.Enum? category, Infinity<TCount> infinity, TCount next) where TCount : ICount<TCount> {
         DisplayFlags flags = 0;
         if (category != null && System.Convert.ToByte(category) != CategoryHelper.None) flags |= DisplayFlags.Category;
-        if (!infinity.Value.IsNone) flags |= DisplayFlags.Infinity;
+        if (!infinity.CountsAsNone) flags |= DisplayFlags.Infinity;
         if (!next.IsNone) flags |= DisplayFlags.Requirement;
         
         return flags;
@@ -94,13 +94,13 @@ public class InfinityDisplayItem : GlobalItem {
     public static DisplayFlags DotsDisplayFlags => DisplayFlags.Infinity | DisplayFlags.Requirement;
     public static DisplayFlags GlowDisplayFlags => DisplayFlags.Infinity;
 
-    public static void DisplayOnLine<TCount>(ref string line, ref Color? lineColor, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
+    public static void DisplayOnLine<TCount>(TooltipLine line, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         Configs.InfinityDisplay visuals = Configs.InfinityDisplay.Instance;
 
         if (info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) {
-            lineColor = color * (Main.mouseTextColor / 255f);
-            if (info.Next.IsNone) line = Language.GetTextValue("Mods.SPIC.ItemTooltip.infinite", line);
-            else line = Language.GetTextValue("Mods.SPIC.ItemTooltip.partialyInfinite", line, info.Infinity.Value.Display(visuals.tooltip_RequirementStyle));
+            line.OverrideColor = color * (Main.mouseTextColor / 255f);
+            if (info.Next.IsNone) line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text);
+            else line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, info.Infinity.Value.Display(visuals.tooltip_RequirementStyle));
         }
 
         int total = 0;
@@ -121,14 +121,13 @@ public class InfinityDisplayItem : GlobalItem {
             );
         }
         if (total > 0) addons.Append(')');
-        line += addons.ToString();
+        line.Text += addons.ToString();
     }
     public static void DisplayDot<TCount>(SpriteBatch spriteBatch, Vector2 position, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         float scale = DotScale * Main.inventoryScale;
         float colorMult = 1;
 
-        // BUG Does not clear cache when buying items (visual bug for partial infs)
-        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.Value.IsNone){
+        if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity)){
             colorMult = Main.mouseTextColor / 255f;
             for (int i = 0; i < _outerPixels.Length; i++) {
                 spriteBatch.Draw(
@@ -149,7 +148,7 @@ public class InfinityDisplayItem : GlobalItem {
         for (int i = 0; i < _innerPixels.Length; i++) {
             float alpha;
             if(ratio != 0 && info.DisplayFlags.HasFlag(DisplayFlags.Requirement)) alpha = ratio >= (i + 1f) / _innerPixels.Length ? 1f : 0.5f;
-            else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.33f;
+            else if(info.DisplayFlags.HasFlag(DisplayFlags.Infinity) && !info.Infinity.EffectiveRequirement.IsNone) alpha = info.Next.IsNone ? 1f : 0.5f;
             else alpha = 0f;
             
             spriteBatch.Draw(
@@ -167,7 +166,6 @@ public class InfinityDisplayItem : GlobalItem {
     }
     public static void DisplayGlow<TCount>(SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 origin, Rectangle frame, float scale, Color color, DisplayInfo<TCount> info) where TCount : ICount<TCount> {
         if (!info.DisplayFlags.HasFlag(DisplayFlags.Infinity)) return;
-        if (info.Infinity.Value.IsNone) return;
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
 
         float ratio = (float)s_glowFrame / display.glow_PulseTime;

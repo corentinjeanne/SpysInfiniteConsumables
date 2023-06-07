@@ -8,6 +8,7 @@ namespace SPIC.ConsumableGroup;
 
 public interface IConsumableGroup {
     Mod Mod { get; }
+    string InternalName { get; }
     string Name { get; }
     int UID { get; }
     int IconType { get; }
@@ -21,18 +22,14 @@ public interface IConsumableGroup {
 public interface IConsumableGroup<TConsumable> : IConsumableGroup where TConsumable:  notnull {
     TConsumable ToConsumable(Item item);
     string Key(TConsumable consumable);
-    int ReqCacheID(TConsumable consumable);
     int CacheID(TConsumable consumable);
-
-    bool Includes(TConsumable consumable);
 }
 
-public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : ICount<TCount> {
+public interface IConsumableGroup<TConsumable, TCount> : IConsumableGroup<TConsumable> where TConsumable : notnull where TCount : struct, ICount<TCount> {
     Requirement<TCount> GetRequirement(TConsumable consumable);
     TCount LongToCount(TConsumable consumable, long count);
 
     long CountConsumables(Player player, TConsumable consumable);
-    long GetMaxInfinity(TConsumable consumable);
 }
 
 public interface IStandardGroup: IConsumableGroup, IToggleable, IColorable {
@@ -42,4 +39,4 @@ public interface IStandardGroup: IConsumableGroup, IToggleable, IColorable {
     void ActualDrawInInventorySlot(Item item, SpriteBatch spriteBatch, Vector2 position);
     void ActualDrawOnItemSprite(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale);
 }
-public interface IStandardGroup<TConsumable, Tcount> : IStandardGroup, IConsumableGroup<TConsumable, Tcount> where TConsumable : notnull where Tcount : ICount<Tcount> {}
+public interface IStandardGroup<TConsumable, Tcount> : IStandardGroup, IConsumableGroup<TConsumable, Tcount> where TConsumable : notnull where Tcount : struct, ICount<Tcount> {}

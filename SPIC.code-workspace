@@ -6,14 +6,14 @@
         },
         {
             "name": "Configs",
-            "path": "../../../tModLoader-preview/ModConfigs"
+            "path": "../../../tModLoader/ModConfigs"
         }
     ],
     "settings": {
         "extension-profiles.activeProfiles": [
             "C#",
             "Hjson",
-            "Git",
+            "GitHub",
             "Markdown"
         ],
         "todo-tree.tree.showBadges": true,

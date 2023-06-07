@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
 using SPIC.Configs;
+using Terraria.Localization;
 
 namespace SPIC.VanillaGroups; 
 
@@ -26,27 +27,27 @@ public enum UsableCategory : byte {
 }
 
 public class UsableRequirements {
-    [Label("$Mods.SPIC.Groups.Usable.weapons")]
+    [Label($"${Localization.Keys.Groups}.Usable.Weapons")]
     public ItemCountWrapper Weapons = new(){Stacks=2};
-    [Label("$Mods.SPIC.Groups.Usable.potions")]
+    [Label($"${Localization.Keys.Groups}.Usable.Potions")]
     public ItemCountWrapper Potions = new(30){Stacks=1};
-    [Label("$Mods.SPIC.Groups.Usable.boosters")]
+    [Label($"${Localization.Keys.Groups}.Usable.Boosters")]
     public ItemCountWrapper Boosters = new(20){Items=5};
-    [Label("$Mods.SPIC.Groups.Usable.summoners")]
+    [Label($"${Localization.Keys.Groups}.Usable.Summoners")]
     public ItemCountWrapper Summoners = new(20){Items=3};
-    [Label("$Mods.SPIC.Groups.Usable.critters")]
+    [Label($"${Localization.Keys.Groups}.Usable.Critters")]
     public ItemCountWrapper Critters = new(99){Items=10};
-    [Label("$Mods.SPIC.Groups.Usable.tools")]
+    [Label($"${Localization.Keys.Groups}.Usable.Tools")]
     public ItemCountWrapper Tools = new(){Stacks=1};
 }
 
 
 public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableRequirements>, IDetectable {
-
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Usable.Name");
     public override int IconType => ItemID.EndlessMusketPouch;
 
-    public override Requirement<ItemCount> Requirement(UsableCategory category) {
+    public override Requirement<ItemCount> GetRequirement(UsableCategory category, Item consumable) {
         return category switch {
             UsableCategory.Weapon => new CountRequirement<ItemCount>(this.Settings().Weapons),
             UsableCategory.Recovery => new CountRequirement<ItemCount>(new(this.Settings().Potions){MaxStack = 99}),
@@ -99,7 +100,7 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
     }
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Consumable", Lang.tip[35].Value);
+    public override TooltipLine TooltipLine => new(Mod, "Consumable", Lang.tip[35].Value);
 
     public bool IncludeUnknown => true;
 }

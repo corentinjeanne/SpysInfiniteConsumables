@@ -17,19 +17,20 @@ public enum AmmoCategory : byte {
     Special
 }
 public class AmmoRequirements {
-    [Label("$Mods.SPIC.Groups.Ammo.standard")]
+    [Label($"${Localization.Keys.Groups}.Ammo.Standard")]
     public ItemCountWrapper Standard = new(){Stacks=4};
-    [Label("$Mods.SPIC.Groups.Ammo.special")]
+    [Label($"${Localization.Keys.Groups}.Ammo.Special")]
     public ItemCountWrapper Special = new(){Stacks=1};
 }
 
 public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirements>, IDetectable, IStandardAmmunition<Item> {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Ammo.Name");
     public override int IconType => ItemID.EndlessQuiver;
 
     public override Color DefaultColor => Colors.RarityLime;
 
-    public override Requirement<ItemCount> Requirement(AmmoCategory category) => category switch {
+    public override Requirement<ItemCount> GetRequirement(AmmoCategory category, Item consumable) => category switch {
         AmmoCategory.Basic => new CountRequirement<ItemCount>(this.Settings().Standard),
         AmmoCategory.Special or AmmoCategory.Explosive => new CountRequirement<ItemCount>(this.Settings().Special),
         AmmoCategory.None or _ => new NoRequirement<ItemCount>(),
@@ -51,9 +52,9 @@ public class Ammo : ItemGroup<Ammo, AmmoCategory>, IConfigurable<AmmoRequirement
         return ammo is not null;
     }
 
-    public TooltipLine WeaponLine(Item consumable, Item alternate) => TooltipHelper.AddedLine("WeaponConsumes", Language.GetTextValue("Mods.SPIC.ItemTooltip.weaponAmmo", alternate.Name));
+    public TooltipLine WeaponLine(Item consumable, Item alternate) => new(Mod, "WeaponConsumes", Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.WeaponAmmo", alternate.Name));
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Ammo", Lang.tip[34].Value);
+    public override TooltipLine TooltipLine => new(Mod, "Ammo", Lang.tip[34].Value);
 
     public bool IncludeUnknown => false;
 }

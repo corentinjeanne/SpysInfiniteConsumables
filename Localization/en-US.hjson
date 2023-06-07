@@ -1,84 +1,131 @@
 {
     Mods: {
         SPIC: {
+            Changelog: {
+                2.2.1:
+                    '''
+                     - New a startup message (you can change its visibility in the InfinityDisplay config)
+                     - Added back Custom Requirements for any consumables
+                    '''
+                2.2.0.1:
+                    '''
+                     - Fixed a multiplayer crash
+                    '''
+                2.2.0:
+                    '''
+                     - Added 2 new consumable groups : Journey Sacrifices and Mixed Requirements
+                     - Disabled tile duplication prevention as it is too buggy
+                     - Overhalled the visual of the configs
+                     - Replaced customs with a blacklist
+                     - Renamed 'Consumables' to 'Usables' for clarity.
+                    '''
+                2.1.0:
+                    '''
+                     - Added 2 ways to display the current infinites of an item : in its tooltip or on its sprite !
+                     - Now supports Magic storage !
+                     - Fixed many bugs including one preventing SPIC to load with some other mods
+                    '''
+                2.0.0: 
+                    '''
+                     - Released on tModLoader 1.4
+                     - Major code rewrites under the hood
+                     - Tons of bug fixes
+                    '''
+
+            }
             Chat: {
-                MagicStorageWarning: Due to a bug with Magic Storage v0.5.7.9 or earlier, SPIC Materials group is temporarily disabled when crafting within magic storage's crafing interface.
+                Welcome: "          ***** Thank you for downloading SPIC v{0}! *****"
+                Message:
+                    '''
+                    If you found a bug, please repport it on the Steam workshop page or GitHub.
+                    Other than tiny patches, this will be the last update before I port the mod to tModLoader 1.4.4.
+                    '''
+                Changelog: "             --- New features and changes since v{0} ---"
             }
             Groups: {
                 Ammo: {
-                    name: Ammunitions
-                    standard: Standard Ammo
-                    special: Special Ammo
+                    Name: Ammunition
+                    Standard: Standard Ammo
+                    Special: Special Ammo
                 }
                 Currency: {
-                    name: Currencies
-                    coins: Coins
-                    custom: Custom currencies
+                    Name: Currency
+                    Coins: Coins
+                    Custom: Custom currencies
                 }
                 GrabBag: {
-                    name: Grab bags
-                    crates: Crates and Bags
-                    boss: Treasure Bags
+                    Name: Grab bag
+                    Crates: Crates and Bags
+                    Boss: Treasure Bags
                 }
                 Journey: {
-                    name: Journey Research
-                    sacrifices: Include non consumable sacrifices
-                    lineValue : Research cost
+                    Name: Journey Research
+                    Sacrifices: Include non consumable sacrifices
+                    LineValue : Research cost
                 }
                 Material: {
-                    name: Materials
-                    basics: Basic materials
-                    misc: Miscellaneous
-                    special: Non stackable
+                    Name: Material
+                    Basics: Basic materials
+                    Misc: Miscellaneous
+                    Special: Non stackable
                 }
                 Placeable: {
-                    name: Placeables
-                    tiles: Tiles
-                    torches: Torches
-                    ores: Valuable Tiles
-                    furnitures: Furnitures
-                    mechanical: Mechanical parts
-                    liquids: Liquids
-                    seeds: Seeds
-                    paints: Paints
-                    wiring: Wiring
+                    Name: Placeable
+                    Tiles: Tiles
+                    Torches: Torches
+                    Ores: Valuable Tiles
+                    Furnitures: Furnitures
+                    Mechanical: Mechanical parts
+                    Liquids: Liquids
+                    Seeds: Seeds
+                    Paints: Paints
+                    Wiring: Wiring
                 }
                 Usable: {
-                    name: Usable
-                    weapons: Thrown weapons
-                    potions: Potions
-                    boosters: Permanent Boosters
-                    summoners: Boss and Event summoners
-                    critters: Criters and Baits
-                    explosives: Explosives
-                    tools: Miscellaneous
+                    Name: Usable
+                    Weapons: Thrown weapons
+                    Potions: Potions
+                    Boosters: Permanent Boosters
+                    Summoners: Boss and Event summoners
+                    Critters: Criters and Baits
+                    Explosives: Explosives
+                    Tools: Miscellaneous
+                }
+                Mixed: {
+                    Name: Mixed
                 }
             }
 
-            ItemTooltip: {
-                infinite: Infinite {0}
-                partialyInfinite: Infinite {0} below {1}
-                weaponAmmo: Consumes {0}
+            CommonItemTooltips: {
+                Infinite: Infinite {0}
+                PartialyInfinite: Infinite {0} below {1}
+                WeaponAmmo: Consumes {0}
             }
 
             Configs: {
+                UI: {
+                    Count.Name: Count
+                    Value.Name: Value
+                    Items.Name: Items
+                    Stacks.Name: Stacks of {0}
+                    Disabled.Name: Disabled
+                    Blacklisted.Name: Blacklisted
+                }
                 GroupSettings: {
-                    name: Consumable group Settings
+                    Name: Consumable group Settings
                     General: {
-                        header: Enabled groups
-                        duplication: Prevent item duplication
-                        t_duplication:
+                        Header: Enabled groups
+                        Duplication.Name: Prevent item duplication
+                        Duplication.Tooltip:
                             '''
                             /!\ WIP /!\
                             Tiles and walls won't drop their item when broken
                             Critters will turn into smoke when caught
                             Buckets won't fill or empty on use
                             '''
-                        commands: Commands
-                        t_commands: Adds the '/spic' command to edit the category of items in-game
-                        preset : Active preset
-                        maxGroups : Maximum used Consumable groups
-                        t_maxGroups :
+                        Preset.Name : Active preset
+                        MaxGroups.Name : Maximum used Consumable groups
+                        MaxGroups.Tooltip :
                             '''
                             The maximum number of requirements taken into account directly.
                             Consumable groups that are not used take the minimum infinity as their infinity.
@@ -86,60 +133,61 @@
                             '''
                     }
                     Settings: {
-                        header: Settings
+                        Header: Group Settings
                     }
-                    Blacklists: {
-                        header: Blacklisted consumables
-                        items: Items
+                    Customs: {
+                        Header: Custom Requirements
+                        Customs.Name: Customs
                     }
                 }
-                Detection: {
-                    name: Category Detection
+                CategoryDetection: {
+                    Name: Category Detection
                     General: {
-                        header: Tooggle
-                        detect: Detect missing categories
-                        t_detect: 
+                        Header: Tooggle
+                        Detect.Name: Detect missing categories
+                        Detect.Tooltip: 
                             '''
                             Detect the categories of items if they are unknown.
                             You can see the detected categories below.
                             '''
                     }
                     Categories: {
-                        header: Detected Categories
+                        Header: Detected Categories
                     }
                 }
                 InfinityDisplay: {
-                    name: Infinities Display
+                    Name: Infinities Display
                     General:  {
-                        header: General
-                        categories: Show categories
-                        infinities: Show infinity
-                        requirements: Show requirements
+                        Header: General
+                        Categories.Name: Show categories
+                        Infinities.Name: Show infinity
+                        Requirements.Name: Show requirements
+                        Welcome.Name: Welcome message
                     }
                     Tooltip:  {
-                        header: Item Tooltip
-                        tooltip: Display infinity in item tooltip
-                        missingLines: Add missing lines
-                        style: Requirement style
-                        color: Colored infinity tooltips
-                        mixed: Display Mixed Infinity
+                        Header: Item Tooltip
+                        Tooltip.Name: Display infinity in item tooltip
+                        MissingLines.Name: Add missing lines
+                        Style.Name: Requirement style
+                        Color.Name: Colored infinity tooltips
+                        Mixed.Name: Display Mixed Infinity
                     }
                     Glow: {
-                        header: Item Glow
-                        glow: Display infinity colored glow
-                        intensity: Intensity
-                        pulse: Pulse time (ticks)
+                        Header: Item Glow
+                        Glow.Name: Display infinity colored glow
+                        Intensity.Name: Intensity
+                        Pulse.Name: Pulse time (ticks)
                     }
                     Dots: {
-                        header: Colored Dots
-                        dots: Display infinity colored dots
-                        start: First dot position
-                        direction: Direction
-                        count: Number of visible dots
-                        t_count: Non visible dots will cycle every few seconds
+                        Header: Colored Dots
+                        Dots.Name: Display infinity colored dots
+                        Start.Name: First dot position
+                        Direction.Name: Direction
+                        Count.Name: Number of visible dots
+                        Count.Tooltip: Non visible dots will cycle every few seconds
                     }
                     Colors: {
-                        header: Infinity colors
+                        Header: Infinity colors
                     }
                 }
             }

@@ -6,7 +6,7 @@ using Terraria.GameContent.UI;
 
 namespace SPIC;
 
-public struct CustomCurrencyData {
+public readonly struct CustomCurrencyData {
     public readonly CustomCurrencySystem system;
     public readonly Dictionary<int, int> values;
 

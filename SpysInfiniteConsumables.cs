@@ -1,3 +1,4 @@
+using SPIC.Configs;
 using Terraria.ModLoader;
 
 
@@ -5,10 +6,13 @@ namespace SPIC;
 
 public class SpysInfiniteConsumables : Mod {
 
-    public static SpysInfiniteConsumables Instance => s_instance.TryGetTarget(out SpysInfiniteConsumables? instance) ? instance : null!;
-    
+    public static SpysInfiniteConsumables Instance { get; private set; } = null!;
+
     public override void Load() {
-        s_instance.SetTarget(this);
+        Instance = this;
+
+        InfinityManager.Reset();
+        PresetManager.Reset();
 
         VanillaGroups.Placeable.ClearWandAmmos();
         InfinityManager.ClearCache();
@@ -32,15 +36,16 @@ public class SpysInfiniteConsumables : Mod {
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
-        Configs.CategoryDetection.Instance.LoadConfig();
-        // Configs.RequirementSettings.Instance.SaveConfig();
-        Configs.InfinityDisplay.Instance.LoadConfig();
+        CategoryDetection.Instance.LoadConfig();
+        InfinityDisplay.Instance.LoadConfig();
     }
 
     public override void Unload() {
         VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
-        InfinityManager.ClearCache();
+        InfinityManager.Reset();
+        PresetManager.Reset();
+        Instance = null!;
     }
 
     public override object Call(params object[] args) {
@@ -59,8 +64,9 @@ public class SpysInfiniteConsumables : Mod {
             Logger.Error("The call failled", error);
         }
         return base.Call();
-
     }
+
+    public readonly static string[] Versions = new string[] { "2.0.0", "2.1.0", "2.2.0", "2.2.0.1", "2.2.1" };
 
     private static readonly System.WeakReference<SpysInfiniteConsumables> s_instance = new(null!);
 }

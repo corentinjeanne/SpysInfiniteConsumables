@@ -65,10 +65,6 @@ public enum TooltipLineID {
 
 public static class TooltipHelper {
 
-    public static TooltipLine AddedLine(Mod mod, string name, string value) => new(mod, name, value) { OverrideColor = Terraria.ID.Colors.RarityTrash };
-    internal static TooltipLine AddedLine(string name, string value) => AddedLine(SpysInfiniteConsumables.Instance, name, value);
-
-
     public static TooltipLine? FindLine(this List<TooltipLine> tooltips, string name) => tooltips.Find(l => l.Name == name);
     public static TooltipLine AddLine(this List<TooltipLine> tooltips, TooltipLine line, TooltipLineID after) {
         for (int i = 0; i < tooltips.Count; i++) {

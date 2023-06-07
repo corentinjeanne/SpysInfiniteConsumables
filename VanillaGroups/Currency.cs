@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 
 using SPIC.ConsumableGroup;
 using Terraria.Localization;
+using SPIC.Configs;
 
 namespace SPIC.VanillaGroups;
 
@@ -15,22 +16,23 @@ public enum CurrencyCategory : byte {
 }
 
 public class CurrencyRequirements {
-    [Label("$Mods.SPIC.Groups.Currency.coins")]
-    public int Coins = 10;
-    [Label("$Mods.SPIC.Groups.Currency.custom")]
-    public int Single = 50;
+    [Label($"${Localization.Keys.Groups}.Currency.Coins")]
+    public UniversalCountWrapper Coins = new() {Value = 10};
+    [Label($"${Localization.Keys.Groups}.Currency.Custom")]
+    public UniversalCountWrapper Single = new() {Value = 10};
 }
 
 public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
     public override Mod Mod => SpysInfiniteConsumables.Instance;
+    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Currency.Name");
     public override int IconType => ItemID.LuckyCoin;
 
     public override bool DefaultsToOn => false;
 
-    public override Requirement<CurrencyCount> Requirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Coins * 100), 10, 1/50f),
-        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(new(CurrencyHelper.None, this.Settings().Single), 0.2f),
-        CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()     
+    public override Requirement<CurrencyCount> GetRequirement(CurrencyCategory category, int currency) => category switch {
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(this.Settings().Coins.As<CurrencyCount>().Multiply(100), 10, 1 / 50f, LongToCount(currency, GetMaxInfinity(currency))),
+        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(this.Settings().Single.As<CurrencyCount>(), 0.2f, LongToCount(currency, GetMaxInfinity(currency))),
+        CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()
     };
 
     public override long CountConsumables(Player player, int currency) => currency == CurrencyHelper.None ? 0 : player.CountCurrency(currency, true);
@@ -45,7 +47,7 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override int CacheID(int consumable) => consumable;
 
-    public override long GetMaxInfinity(int currency) {
+    public static long GetMaxInfinity(int currency) {
         if (Main.InReforgeMenu) return Main.reforgeItem.value;
         else if (Main.npcShop != 0) return Globals.ConsumptionNPC.HighestShopValue(currency);
         else return long.MaxValue;
@@ -57,6 +59,5 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.CoinGold;
 
-    public override TooltipLine TooltipLine => TooltipHelper.AddedLine("Currencycat", Language.GetTextValue("Mods.SPIC.Groups.Currency.name"));
     public override TooltipLineID LinePosition => TooltipLineID.Consumable;
 }

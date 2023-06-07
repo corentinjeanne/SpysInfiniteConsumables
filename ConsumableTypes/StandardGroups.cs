@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 namespace SPIC.ConsumableGroup;
 
 public abstract class StandardGroup<TImplementation, TConsumable, TCount> : ConsumableGroup<TImplementation, TConsumable, TCount>, IStandardGroup<TConsumable, TCount>
-where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : ICount<TCount> {
+where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> where TConsumable : notnull where TCount : struct, ICount<TCount> {
     public abstract Color DefaultColor { get; }
     public virtual bool DefaultsToOn => true;
 
@@ -24,27 +24,26 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
                 || (player.InChest(out var chest) && System.Array.Find(chest, i => AreSameItems(i, item)) is not null)
                 || (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Countains(item)))
             return true;
-
         return false;
     }
 
     public virtual TooltipLineID LinePosition => System.Enum.TryParse(TooltipLine.Name, out TooltipLineID index) ? index : TooltipLineID.Modded;
-    public abstract TooltipLine TooltipLine { get; }
+    public virtual TooltipLine TooltipLine => new(Mod, InternalName, Name);
 
     public sealed override void ModifyTooltip(Item item, List<TooltipLine> tooltips) {
         Globals.DisplayInfo<TCount> info = this.GetDisplayInfo(item, true, out TConsumable values);
 
         if ((info.DisplayFlags & Globals.InfinityDisplayItem.LineDisplayFlags) != 0) {
-            bool ammo = ToConsumable(item).Equals(values);
-            TooltipLine? line = ammo ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
+            bool weapon = !ToConsumable(item).Equals(values);
+            TooltipLine? line = !weapon ? tooltips.FindLine(TooltipLine.Name) : tooltips.FindLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values).Name);
             bool addedLine = false;
             if (line is null) {
                 if(!Configs.InfinityDisplay.Instance.toopltip_AddMissingLines) return;
-                line = ammo ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
+                line = !weapon ? tooltips.AddLine(TooltipLine, LinePosition) : tooltips.AddLine(((IStandardAmmunition<TConsumable>)this).WeaponLine(ToConsumable(item), values), TooltipLineID.WandConsumes);
                 addedLine = true;
             }
 
-            Globals.InfinityDisplayItem.DisplayOnLine(ref line.Text, ref line.OverrideColor, this.Color(), info);
+            Globals.InfinityDisplayItem.DisplayOnLine(line, this.Color(), info);
             if (addedLine) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
@@ -68,14 +67,12 @@ where TImplementation : StandardGroup<TImplementation, TConsumable, TCount> wher
     }
 }
 public abstract class StandardGroup<TImplementation, TConsumable, TCount, TCategory> : StandardGroup<TImplementation, TConsumable, TCount>, ICategory<TConsumable, TCategory>
-where TCategory : System.Enum where TConsumable : notnull where TCount : ICount<TCount>
+where TCategory : System.Enum where TConsumable : notnull where TCount : struct, ICount<TCount>
 where TImplementation : StandardGroup<TImplementation, TConsumable, TCount, TCategory> {
-    public override bool Includes(TConsumable consumable) => ICategory<TConsumable, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<TCount, TCategory> CreateCache() => new();
-    public sealed override int ReqCacheID(TConsumable consumable) => ICategory<TConsumable, TCategory>.ReqCacheID(this, consumable);
     public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract Requirement<TCount> Requirement(TCategory category);
-    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => Requirement(GetCategory(consumable));
+    public abstract Requirement<TCount> GetRequirement(TCategory category, TConsumable consumable);
+    public sealed override Requirement<TCount> GetRequirement(TConsumable consumable) => GetRequirement(GetCategory(consumable), consumable);
 }
 
 public abstract class ItemGroup<TImplementation> : StandardGroup<TImplementation, Item, ItemCount>
@@ -92,10 +89,8 @@ where TImplementation : ItemGroup<TImplementation> {
 public abstract class ItemGroup<TImplementation, TCategory> : ItemGroup<TImplementation>, ICategory<Item, TCategory>
 where TCategory : System.Enum
 where TImplementation : ItemGroup<TImplementation, TCategory> {
-    public override bool Includes(Item consumable) => ICategory<Item, TCategory>.Includes(this, consumable);
     internal override ConsumableCache<ItemCount, TCategory> CreateCache() => new();
-    public sealed override int ReqCacheID(Item consumable) => ICategory<Item, TCategory>.ReqCacheID(this, consumable);
     public abstract TCategory GetCategory(Item consumable);
-    public abstract Requirement<ItemCount> Requirement(TCategory category);
-    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => Requirement(consumable.GetCategory(this));
+    public abstract Requirement<ItemCount> GetRequirement(TCategory category, Item consumable);
+    public sealed override Requirement<ItemCount> GetRequirement(Item consumable) => GetRequirement(consumable.GetCategory(this), consumable);
 }
