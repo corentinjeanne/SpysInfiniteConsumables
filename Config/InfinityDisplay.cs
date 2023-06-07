@@ -21,7 +21,7 @@ public class InfinityDisplay : ModConfig {
     [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
     [Label($"${Localization.Keys.InfinityDisplay}.General.Welcome.Label")]
     public WelcomMessageFrequency general_welcomeMessage;
-    [JsonProperty, DefaultValue("0.0.0.0")] internal string _lastVersionMessage = "";
+    [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";
 
     [Header($"${Localization.Keys.InfinityDisplay}.Tooltip.Header")]
     [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.Tooltip.Tooltip.Label")]

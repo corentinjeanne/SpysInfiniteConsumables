@@ -1,9 +1,46 @@
 {
     Mods: {
         SPIC: {
+            Changelog: {
+                2.2.1:
+                    '''
+                     - New a startup message (you can change its visibility in the InfinityDisplay config)
+                     - Added back Custom Requirements for any consumables
+                    '''
+                2.2.0.1:
+                    '''
+                     - Fixed a multiplayer crash
+                    '''
+                2.2.0:
+                    '''
+                     - Added 2 new consumable groups : Journey Sacrifices and Mixed Requirements
+                     - Disabled tile duplication prevention as it is too buggy
+                     - Overhalled the visual of the configs
+                     - Replaced customs with a blacklist
+                     - Renamed 'Consumables' to 'Usables' for clarity.
+                    '''
+                2.1.0:
+                    '''
+                     - Added 2 ways to display the current infinites of an item : in its tooltip or on its sprite !
+                     - Now supports Magic storage !
+                     - Fixed many bugs including one preventing SPIC to load with some other mods
+                    '''
+                2.0.0: 
+                    '''
+                     - Released on tModLoader 1.4
+                     - Major code rewrites under the hood
+                     - Tons of bug fixes
+                    '''
+
+            }
             Chat: {
-                Welcome: Thanks for downloading SPIC v2.2.1! If you found a bug, please repport it on the Steam workshop page or the GitHub.
-                Update: Other than tiny patches, this will be the last update before I port the mod to tModLoader 1.4.4.
+                Welcome: "          ***** Thank you for downloading SPIC v{0}! *****"
+                Message:
+                    '''
+                    If you found a bug, please repport it on the Steam workshop page or GitHub.
+                    Other than tiny patches, this will be the last update before I port the mod to tModLoader 1.4.4.
+                    '''
+                Changelog: "             --- New features and changes since v{0} ---"
             }
             Groups: {
                 Ammo: {
@@ -125,7 +162,7 @@
                         Categories.Name: Show categories
                         Infinities.Name: Show infinity
                         Requirements.Name: Show requirements
-                        Welcome.Name: Welcome message frequency
+                        Welcome.Name: Welcome message
                     }
                     Tooltip:  {
                         Header: Item Tooltip

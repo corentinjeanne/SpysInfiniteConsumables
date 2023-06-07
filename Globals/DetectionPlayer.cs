@@ -47,20 +47,23 @@ public class DetectionPlayer : ModPlayer {
 
 
     public override void OnEnterWorld(Player player){
-        bool display = Configs.InfinityDisplay.Instance.general_welcomeMessage switch {
-            Configs.InfinityDisplay.WelcomMessageFrequency.Always => true,
-            Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate => Mod.Version > new System.Version(Configs.InfinityDisplay.Instance._lastVersionMessage),
-            Configs.InfinityDisplay.WelcomMessageFrequency.Never or _ => false,
-        };
-        if (display) {
-            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome"), Colors.RarityLime);
-            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Update"), Colors.RarityLime);
-            Configs.InfinityDisplay.Instance._lastVersionMessage = Mod.Version.ToString();
-            Configs.InfinityDisplay.Instance.SaveConfig();
+        string version = Configs.InfinityDisplay.Instance.general_lastLogs;
+        if(version == "") version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
+        bool newChanges = Mod.Version > new System.Version(version);
 
+        if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
+                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && newChanges)) {
+            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome", Mod.Version.ToString()), Colors.RarityCyan);
+            Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Message"), Colors.RarityCyan);
+            if (newChanges) {
+                Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Changelog", version), Colors.RarityCyan);
+                for (int i = System.Array.IndexOf(SpysInfiniteConsumables.Versions, version)+1; i < SpysInfiniteConsumables.Versions.Length; i++)
+                    Main.NewText(Language.GetTextValue($"{Localization.Keys.Changelog}.{SpysInfiniteConsumables.Versions[i]}"), Colors.RarityCyan);
+            }
+            version = Mod.Version.ToString();
         }
-        else if(Configs.InfinityDisplay.WelcomMessageFrequency.Never == Configs.InfinityDisplay.Instance.general_welcomeMessage){
-            Configs.InfinityDisplay.Instance._lastVersionMessage = "0.0.0.0";
+        if (Configs.InfinityDisplay.Instance.general_lastLogs != version) {
+            Configs.InfinityDisplay.Instance.general_lastLogs = version;
             Configs.InfinityDisplay.Instance.SaveConfig();
         }
     }
