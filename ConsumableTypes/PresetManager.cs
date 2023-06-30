@@ -18,7 +18,7 @@ public static class PresetManager {
     }
 
     public static Preset Preset(int id) => s_presets[id];
-    public static Preset? Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.Name == Name);
+    public static Preset? Preset(string mod, string Name) => s_presets.FindValue(kvp => kvp.Value.Mod.Name == mod && kvp.Value.DisplayName == Name);
     
     public static IEnumerable<Preset> Presets(bool noOrdering = false) {
         if (noOrdering) {
@@ -35,7 +35,7 @@ public static class PresetManager {
         }
     }
 
-    public static PresetDefinition ToDefinition(this Preset preset) => new(preset.Mod, preset.Name);
+    public static PresetDefinition ToDefinition(this Preset preset) => new(preset.Mod, preset.DisplayName);
 
     [MemberNotNull(nameof(s_presets))]
     public static void Reset() {

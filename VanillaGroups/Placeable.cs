@@ -40,21 +40,21 @@ public static class PlaceableExtension {
 }
 
 public class PlaceableRequirements {
-    [Label($"${Localization.Keys.Groups}.Placeable.Tiles")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Tiles")]
     public ItemCountWrapper Tiles = new(){Stacks=1};
-    [Label($"${Localization.Keys.Groups}.Placeable.Ores")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores")]
     public ItemCountWrapper Ores = new(){Items=499};
-    [Label($"${Localization.Keys.Groups}.Placeable.Torches")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Torches")]
     public ItemCountWrapper Torches = new(){Items=99};
-    [Label($"${Localization.Keys.Groups}.Placeable.Furnitures")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures")]
     public ItemCountWrapper Furnitures = new(99){Items=3};
-    [Label($"${Localization.Keys.Groups}.Placeable.Mechanical")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Mechanical")]
     public ItemCountWrapper Mechanical = new(){Items=3};
-    [Label($"${Localization.Keys.Groups}.Placeable.Liquids")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Liquids")]
     public ItemCountWrapper Liquids = new(){Items=10};
-    [Label($"${Localization.Keys.Groups}.Placeable.Seeds")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Seeds")]
     public ItemCountWrapper Seeds = new(99){Items=20};
-    [Label($"${Localization.Keys.Groups}.Placeable.Paints")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Paints")]
     public ItemCountWrapper Paints = new(){Stacks=1};
 }
 

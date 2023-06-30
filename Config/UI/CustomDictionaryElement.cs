@@ -130,7 +130,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
                     VAlign = 0.5f,
                     Left = new(2, 0f)
                 };
-                moveButton.OnClick += (UIMouseEvent a, UIElement b) => {
+                moveButton.OnLeftClick += (UIMouseEvent a, UIElement b) => {
                     IOrderedDictionary ordered = (IOrderedDictionary)Value;
                     if (moveButton.HoveringUp ? index <= 0 : index >= dict.Count - 1) return;
                     ordered.Move(index, index + (moveButton.HoveringUp ? -1 : 1));

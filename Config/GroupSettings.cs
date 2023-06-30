@@ -10,17 +10,14 @@ using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using SPIC.Configs.Presets;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 
 namespace SPIC.Configs;
 
-[Label($"${Localization.Keys.GroupSettings}.Name")]
 public class GroupSettings : ModConfig {
 
     [Header($"${Localization.Keys.GroupSettings}.General.Header")]
-    [DefaultValue(true), Label($"${Localization.Keys.GroupSettings}.General.Duplication.Label"), Tooltip($"${Localization.Keys.GroupSettings}.General.Duplication.Tooltip")]
+    [DefaultValue(true)]
     public bool PreventItemDupication { get; set; }
-    [Label($"${Localization.Keys.GroupSettings}.General.Preset.Label")]
     public PresetDefinition? Preset {
         get {
             if (EnabledGroups.Count == 0) return null;
@@ -57,7 +54,6 @@ public class GroupSettings : ModConfig {
             }
         }
     }
-    [Label($"${Localization.Keys.GroupSettings}.General.MaxGroups.Label"), Tooltip($"${Localization.Keys.GroupSettings}.General.MaxGroups.Tooltip")]
     public int MaxConsumableTypes { get; set; }
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<ConsumableGroupDefinition, bool> EnabledGlobals {
@@ -103,7 +99,6 @@ public class GroupSettings : ModConfig {
     }
 
     [Header($"${Localization.Keys.GroupSettings}.Customs.Header")]
-    [Label($"${Localization.Keys.GroupSettings}.Customs.Customs.Label")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 
 

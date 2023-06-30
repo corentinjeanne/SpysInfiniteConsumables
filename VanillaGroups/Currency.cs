@@ -16,9 +16,9 @@ public enum CurrencyCategory : byte {
 }
 
 public class CurrencyRequirements {
-    [Label($"${Localization.Keys.Groups}.Currency.Coins")]
+    [LabelKey($"${Localization.Keys.Groups}.Currency.Coins")]
     public UniversalCountWrapper Coins = new() {Value = 10};
-    [Label($"${Localization.Keys.Groups}.Currency.Custom")]
+    [LabelKey($"${Localization.Keys.Groups}.Currency.Custom")]
     public UniversalCountWrapper Single = new() {Value = 10};
 }
 

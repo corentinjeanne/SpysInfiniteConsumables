@@ -32,18 +32,18 @@ public class CategoryElement : ConfigElement<CategoryWrapper> {
 
         int top = 0;
         UIElement container, element;
-        string label = LabelAttribute?.Label ?? MemberInfo.Name;
+        string label = Label ?? MemberInfo.Name;
         if (value.type is not null) {
             Type genType = typeof(EnumProp<>).MakeGenericType(value.type);
             PropertyInfo enumProp = genType.GetProperty(nameof(EnumProp<Enum>.Enum), BindingFlags.Public | BindingFlags.Instance)!;
             Func<byte> getter = () => value.value;
             Action<byte> setter = (byte b) => Value.value = b;
-            _enum = Activator.CreateInstance(genType, new object[] { getter, setter });
+            _enum = Activator.CreateInstance(genType, new object[] { getter, setter })!;
             (container, element) = ConfigManager.WrapIt(this, ref top, new(enumProp), _enum, 0);
-            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Value.Enum!.Label()}";
+            TextDisplayFunction = () => $"{Label ?? MemberInfo.Name}: {Value.Enum!.Label()}";
         } else {
             (container, element) = ConfigManager.WrapIt(this, ref top, new(s_byteProp), this, 0);
-            TextDisplayFunction = () => $"{LabelAttribute?.Label ?? MemberInfo.Name}: {Byte}";
+            TextDisplayFunction = () => $"{Label ?? MemberInfo.Name}: {Byte}";
         }
 
         ReflectionHelper.ConfigElement_DrawLabel.SetValue(element, false);

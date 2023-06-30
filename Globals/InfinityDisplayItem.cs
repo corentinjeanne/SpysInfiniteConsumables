@@ -23,7 +23,7 @@ where TCount : ICount<TCount>;
 public class InfinityDisplayItem : GlobalItem {
 
 
-    public static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) {
+    public static IEnumerable<IConsumableGroup> DisplayableTypes(Item item) { // TODO lag magic storage 1k+ items
         foreach (IConsumableGroup group in InfinityManager.ConsumableGroups(FilterFlags.NonGlobal | FilterFlags.Global | FilterFlags.Enabled)) {
             if(group.CanDisplay(item)) yield return group;
         }

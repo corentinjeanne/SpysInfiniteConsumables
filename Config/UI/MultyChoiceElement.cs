@@ -43,8 +43,9 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
         ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({(Value is ItemCountWrapper w && selectedProp.Name == nameof(ItemCountWrapper.Stacks) ? string.Format(elementLabel(), w.MaxStack) : elementLabel())})");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(selectedElement, () => {
             List<string> parts = new();
-            if (TooltipFunction is not null) parts.Add(TooltipFunction());
-            if (elementTooltip is not null) parts.Add(elementTooltip());
+            string p = "";
+            if (TooltipFunction is not null && (p = TooltipFunction()) != "") parts.Add(p);
+            if (elementTooltip is not null && (p = elementTooltip()) != "") parts.Add(p);
             return string.Join('\n', parts);
         });
 
@@ -52,11 +53,11 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
         UIImage swapButton;
         if(count == 2){
             swapButton = new HoverImage(PlayTexture, $"Change to {Value.Choices[(value.ChoiceIndex+1) % count].Name}");
-            swapButton.OnClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + 1);
+            swapButton.OnLeftClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + 1);
         }
         else {
             swapButton = new HoverImageSplit(UpDownTexture, $"Change to {Value.Choices[(value.ChoiceIndex+1) % count].Name}", $"Change to {Value.Choices[(value.ChoiceIndex-1 + count) % count].Name}");
-            swapButton.OnClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + (((HoverImageSplit)swapButton).HoveringUp ? 1 : -1));
+            swapButton.OnLeftClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + (((HoverImageSplit)swapButton).HoveringUp ? 1 : -1));
         }
         swapButton.VAlign = 0.5f;
         swapButton.Left.Set(-30 + 5, 1);

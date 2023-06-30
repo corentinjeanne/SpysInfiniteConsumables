@@ -9,11 +9,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Configs;
 
-[Label($"${Localization.Keys.CategoryDetection}.Name")]
 public class CategoryDetection : ModConfig {
 
     [Header($"${Localization.Keys.CategoryDetection}.General.Header")]
-    [DefaultValue(true), Label($"${Localization.Keys.CategoryDetection}.General.Detect.Label"), Tooltip($"${Localization.Keys.CategoryDetection}.General.Detect.Tooltip")]
+    [DefaultValue(true)]
     public bool DetectMissing;
 
 

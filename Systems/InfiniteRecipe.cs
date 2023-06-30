@@ -14,7 +14,7 @@ public class InfiniteRecipe : ModSystem {
 
 
     public override void Load() {
-        On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+        Terraria.On_Recipe.FindRecipes += HookRecipe_FindRecipes;
     }
 
 
@@ -53,7 +53,7 @@ public class InfiniteRecipe : ModSystem {
     }
 
 
-    private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+    private static void HookRecipe_FindRecipes(Terraria.On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {
         if (canDelayCheck) {
             orig(canDelayCheck);
             return;

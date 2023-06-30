@@ -1,4 +1,3 @@
-using Terraria;
 using SPIC.ConsumableGroup;
 using Terraria.ModLoader.Config;
 
@@ -16,10 +15,10 @@ public class UniversalCountWrapper : MultyChoice<int> {
 
     public UniversalCountWrapper() {}
 
-    [Choice, Label($"${Localization.Keys.UI}.Disabled.Name")]
+    [Choice]
     public object? Disabled => null;
 
-    [Choice, Range(1, 9999), Label($"${Localization.Keys.UI}.Count.Name")]
+    [Choice, Range(1, 9999)]
     public override int Value {
         get => Choice.Name switch {
             nameof(Value) => _value,
@@ -55,7 +54,7 @@ public class ItemCountWrapper : UniversalCountWrapper {
         MaxStack = maxStack;
     }
 
-    [Choice, Range(1, 50), Label($"${Localization.Keys.UI}.Stacks.Name")]
+    [Choice, Range(1, 50), LabelKey($"${Localization.Keys.UI}.Stacks.Name")]
     public int Stacks {
         get => (_items+MaxStack-1) / MaxStack;
         set {
@@ -70,7 +69,7 @@ public class ItemCountWrapper : UniversalCountWrapper {
         _antiSwap = true;
     }
 
-    [Choice, Range(1, 9999), Label($"${Localization.Keys.UI}.Items.Name")]
+    [Choice, Range(1, 9999), LabelKey($"${Localization.Keys.UI}.Items.Name")]
     public int Items {
         get => _items;
         set {

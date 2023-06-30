@@ -16,14 +16,6 @@ public class ConsumptionItem : GlobalItem {
         }
     }
 
-    public override void RightClick(Item item, Player player) {
-        if(item.type != ItemID.CanOfWorms && item.type != ItemID.Oyster) return;
-        if(player.HasInfinite(item, 1,
-            () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
-            GrabBag.Instance
-        )) item.stack++;
-    }
-
     public override bool ConsumeItem(Item item, Player player) {
         Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
 
@@ -46,12 +38,12 @@ public class ConsumptionItem : GlobalItem {
 
         } else if(DetectionPlayer.InRightClick)
             return !player.HasInfinite(item, 1,
-                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance),
+                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
                 GrabBag.Instance, Usable.Instance
             );
         else { // Hotkey or special right click action
             return !player.HasInfinite(item, 1,
-                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Crate, GrabBag.Instance)
+                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance)
                 , Usable.Instance, GrabBag.Instance
             );
         }
@@ -69,7 +61,7 @@ public class ConsumptionItem : GlobalItem {
     }
 
     public override void OnResearched(Item item, bool fullyResearched) {
-        int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.SacrificesCountByItemIdCache[item.type];
+        int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type);
         int researchCost = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
         int consumed = System.Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);
         if (Main.LocalPlayer.HasInfinite(item, consumed, JourneySacrifice.Instance)) item.stack += consumed;

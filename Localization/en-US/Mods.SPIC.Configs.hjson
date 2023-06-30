@@ -1,0 +1,247 @@
+GroupSettings: {
+	DisplayName: Consumable group Settings
+	General.Header: Enabled groups
+
+	PreventItemDupication: {
+		Label: "[i:3988] Prevent item duplication"
+		Tooltip:
+			'''
+			/!\ WIP /!\
+			Tiles and walls won't drop their item when broken
+			Critters will turn into smoke when caught
+			Buckets won't fill or empty on use
+			'''
+	}
+
+	Preset: {
+		Label: "[i:1913] Actice Preset"
+		Tooltip: ""
+	}
+
+	EnabledGroups: {
+		Label: Enabled Groups
+		Tooltip: ""
+	}
+
+	MaxConsumableTypes: {
+		Label: "[i:486] Maximum used Consumable groups"
+		Tooltip:
+			'''
+			The maximum number of requirements taken into account directly.
+			Consumable groups that are not used take the minimum infinity as their infinity.
+			Set to 0 to use all groups.
+			'''
+	}
+
+	EnabledGlobals: {
+		Label: Enabled Globals
+		Tooltip: ""
+	}
+
+	Settings: {
+		Header: Group Settings
+		Label: Settings
+		Tooltip: ""
+	}
+
+	Customs: {
+		Header: Custom Requirements
+		Label: "[i:1913] Customs"
+		Tooltip: ""
+	}
+}
+
+CategoryDetection: {
+	DisplayName: Category Detection
+	General.Header: Tooggle
+
+	DetectMissing: {
+		Label: "[i:1299] Detect missing categories"
+		Tooltip:
+			'''
+			Detect the categories of items if they are unknown.
+			You can see the detected categories below.
+			'''
+	}
+
+	Categories.Header: Detected Categories
+
+	DetectedCategories: {
+		Label: Detected Categories
+		Tooltip: ""
+	}
+}
+
+InfinityDisplay: {
+	DisplayName: Infinities Display
+	General.Header: General
+
+	general_ShowInfinities: {
+		Label: "[i:3084] Show Infinities"
+		Tooltip: ""
+	}
+
+	general_ShowRequirement: {
+		Label: "[i:3102] Show Requirements"
+		Tooltip: ""
+	}
+
+	general_ShowCategories: {
+		Label: "[i:393] Show Categories"
+		Tooltip: ""
+	}
+
+	general_welcomeMessage: {
+		Label: "[i:3617] Welcome message"
+		Tooltip: ""
+	}
+
+	Tooltip.Header: Item Tooltip
+
+	toopltip_ShowTooltip: {
+		Label: "[i:171] Display infinity in item tooltip"
+		Tooltip: ""
+	}
+
+	toopltip_AddMissingLines: {
+		Label: "[i:3619] Add missing lines"
+		Tooltip: ""
+	}
+
+	tooltip_RequirementStyle: {
+		Label: "[i:3625] Requirement style"
+		Tooltip: ""
+	}
+
+	tooltip_ShowMixed: {
+		Label: "[i:3572] Display Mixed Infinity"
+		Tooltip: ""
+	}
+
+	Glow.Header: Item Glow
+
+	glow_ShowGlow: {
+		Label: "[i:75] Display infinity colored glow"
+		Tooltip: ""
+	}
+
+	glow_Intensity: {
+		Label: "[i:2274] Intensity"
+		Tooltip: ""
+	}
+
+	glow_PulseTime: {
+		Label: "[i:583] Pulse time (ticks)"
+		Tooltip: ""
+	}
+
+	dots_ShowDots: {
+		Label: "[i:3603] Display infinity colored dots"
+		Tooltip: ""
+	}
+
+	dots_Start: {
+		Label: "[i:71] First dot position"
+		Tooltip: ""
+	}
+
+	dots_Direction: {
+		Label: "[i:4320] Direction"
+		Tooltip: ""
+	}
+
+	dots_Count: {
+		Label: "[i:3095] Number of visible dots"
+		Tooltip: "{$Mods.SPIC.Configs.InfinityDisplay.Dots.Count.Tooltip}"
+	}
+
+	dot_PulseTime: {
+		Label: "{$glow_PulseTime.Label}"
+		Tooltip: Non visible dots will cycle every few seconds
+	}
+
+	Colors: {
+		Header: Infinity colors
+		Label: Colors
+		Tooltip: ""
+	}
+
+	Dots.Header: dots_ Show Dots Header
+}
+
+UI: {
+	Count.Name: Count
+	Value.Name: Value
+	Items.Name: Items
+	Stacks.Name: Stacks of {0}
+	Disabled.Name: Disabled
+	Blacklisted.Name: Blacklisted
+}
+
+ConsumableGroupDefinition: {
+	Tooltip: ""
+
+	IsUnloaded: {
+		Label: Is Unloaded
+		Tooltip: ""
+	}
+}
+
+PresetDefinition.Tooltip: ""
+
+Custom: {
+	Tooltip: ""
+
+	Blacklisted: {
+		Label: "{$Mods.SPIC.Configs.UI.Blacklisted.Name}"
+		Tooltip: ""
+	}
+
+	CustomRequirements: {
+		Label: Custom Requirements
+		Tooltip: ""
+	}
+}
+
+UniversalCountWrapper: {
+	Tooltip: ""
+
+	Disabled: {
+		Label: "{$Mods.SPIC.Configs.UI.Disabled.Name}"
+		Tooltip: ""
+	}
+
+	Value: {
+		Label: "{$Mods.SPIC.Configs.UI.Count.Name}"
+		Tooltip: ""
+	}
+}
+
+WelcomMessageFrequency: {
+	Tooltip: ""
+	Never.Label: Never
+	OncePerUpdate.Label: Once Per Update
+	Always.Label: Always
+}
+
+CountStyle: {
+	Tooltip: ""
+	Sprite.Label: Sprite
+	Name.Label: Name
+}
+
+Corner: {
+	Tooltip: ""
+	TopLeft.Label: Top Left
+	TopRight.Label: Top Right
+	BottomLeft.Label: Bottom Left
+	BottomRight.Label: Bottom Right
+}
+
+Direction: {
+	Tooltip: ""
+	Vertical.Label: Vertical
+	Horizontal.Label: Horizontal
+}
+
+CategoryWrapper.Tooltip: ""

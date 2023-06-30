@@ -18,15 +18,15 @@ public enum MaterialCategory : byte {
 }
 
 public class MaterialRequirements {
-    [Label($"${Localization.Keys.Groups}.Material.Basics")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Basics")]
     public ItemCountWrapper Basics = new(){Stacks=1};
-    [Label($"${Localization.Keys.Groups}.Placeable.Ores")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores")]
     public ItemCountWrapper Ores = new(){Items=499};
-    [Label($"${Localization.Keys.Groups}.Placeable.Furnitures")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures")]
     public ItemCountWrapper Furnitures = new(99){Items=20};
-    [Label($"${Localization.Keys.Groups}.Material.Misc")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Misc")]
     public ItemCountWrapper Miscellaneous = new(){Items=50};
-    [Label($"${Localization.Keys.Groups}.Material.Special")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Special")]
     public ItemCountWrapper NonStackable = new(swapping: false){Items=2};
 }
 

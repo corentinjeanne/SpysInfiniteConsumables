@@ -27,17 +27,17 @@ public enum UsableCategory : byte {
 }
 
 public class UsableRequirements {
-    [Label($"${Localization.Keys.Groups}.Usable.Weapons")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Weapons")]
     public ItemCountWrapper Weapons = new(){Stacks=2};
-    [Label($"${Localization.Keys.Groups}.Usable.Potions")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Potions")]
     public ItemCountWrapper Potions = new(30){Stacks=1};
-    [Label($"${Localization.Keys.Groups}.Usable.Boosters")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Boosters")]
     public ItemCountWrapper Boosters = new(20){Items=5};
-    [Label($"${Localization.Keys.Groups}.Usable.Summoners")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Summoners")]
     public ItemCountWrapper Summoners = new(20){Items=3};
-    [Label($"${Localization.Keys.Groups}.Usable.Critters")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Critters")]
     public ItemCountWrapper Critters = new(99){Items=10};
-    [Label($"${Localization.Keys.Groups}.Usable.Tools")]
+    [LabelKey($"${Localization.Keys.Groups}.Usable.Tools")]
     public ItemCountWrapper Tools = new(){Stacks=1};
 }
 

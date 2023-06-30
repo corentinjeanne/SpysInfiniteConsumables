@@ -16,14 +16,14 @@ public class DetectionPlayer : ModPlayer {
 
 
     public override void Load() {
-        On.Terraria.Player.ItemCheck_Inner += HookItemCheck_Inner;
-        On.Terraria.UI.ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
-        On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
-        On.Terraria.Player.Teleport += HookTeleport;
-        On.Terraria.Player.Spawn += HookSpawn;
+        On_Player.ItemCheck_Inner += HookItemCheck_Inner;
+        // Terraria.UI.On_ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
+        On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
+        On_Player.Teleport += HookTeleport;
+        On_Player.Spawn += HookSpawn;
     }
 
-    private static void HookItemCheck_Inner(On.Terraria.Player.orig_ItemCheck_Inner orig, Player self, int i) {
+    private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
         DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
         detectionPlayer.InItemCheck = true;
         detectionPlayer.DetectingCategoryOf = null;
@@ -31,7 +31,7 @@ public class DetectionPlayer : ModPlayer {
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
                 && Configs.CategoryDetection.Instance.DetectMissing && self.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem, true);
-        orig(self, i);
+        orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
         detectionPlayer.InItemCheck = false;
     }
@@ -46,7 +46,7 @@ public class DetectionPlayer : ModPlayer {
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache(item);
 
 
-    public override void OnEnterWorld(Player player){
+    public override void OnEnterWorld(){
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
         if(version == "") version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
         bool newChanges = Mod.Version > new System.Version(version);
@@ -94,15 +94,15 @@ public class DetectionPlayer : ModPlayer {
             if(!_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
         
-        void SaveBag(GrabBagCategory category) {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-            if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
-        }
+        // void SaveBag(GrabBagCategory category) {
+        //     Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+        //     if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
+        // }
 
         DetectionDataScreenShot data = GetDetectionData();
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
-        else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
+        // else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
         else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (reproduce)
         else return false;
         DetectingCategoryOf = null;
@@ -125,10 +125,10 @@ public class DetectionPlayer : ModPlayer {
         return category != UsableCategory.Unknown;
     }
 
-    private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
-        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Crate : GrabBagCategory.Unknown;
-        return category != GrabBagCategory.Unknown;
-    }
+    // private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
+    //     category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Container : GrabBagCategory.Unknown;
+    //     return category != GrabBagCategory.Unknown;
+    // }
 
 
     public int FindPotentialExplosivesType(int proj) {
@@ -154,22 +154,22 @@ public class DetectionPlayer : ModPlayer {
     public void Teleported() => _teleport = true;
 
 
-    private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
-        DetectingCategoryOf = null;
-        if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
-        InRightClick = true;
-        DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-        if (Configs.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
-            modPlayer.PrepareDetection(inv[slot], false);
+    // private bool HookRightClick_Inner(Terraria.UI.On_ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
+    //     DetectingCategoryOf = null;
+    //     if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
+    //     InRightClick = true;
+    //     DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
+    //     if (Configs.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
+    //         modPlayer.PrepareDetection(inv[slot], false);
 
-        bool res = orig(inv, context, slot, player);
-        if (modPlayer.DetectingCategoryOf is not null)
-            modPlayer.TryDetectCategory();
-        InRightClick = false;
-        return res;
-    }
+    //     bool res = orig(inv, context, slot, player);
+    //     if (modPlayer.DetectingCategoryOf is not null)
+    //         modPlayer.TryDetectCategory();
+    //     InRightClick = false;
+    //     return res;
+    // }
 
-    private static void HookPutItemInInventory(On.Terraria.Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
+    private static void HookPutItemInInventory(On_Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
         if (selItem < 0){
             orig(self, type, selItem);
             return;
@@ -189,11 +189,11 @@ public class DetectionPlayer : ModPlayer {
         orig(self, type, selItem);
     }
 
-    private static void HookSpawn(On.Terraria.Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
+    private static void HookSpawn(On_Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
         orig(self, context);
         self.GetModPlayer<DetectionPlayer>().Teleported();
     }
-    private static void HookTeleport(On.Terraria.Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
+    private static void HookTeleport(On_Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
         orig(self, newPos, Style, extraInfo);
         self.GetModPlayer<DetectionPlayer>().Teleported();
     }

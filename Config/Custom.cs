@@ -10,7 +10,7 @@ namespace SPIC.Configs;
 
 public class Custom : MultyChoice {
 
-    [Choice, Label("$Mods.SPIC.Configs.UI.Blacklisted.Name")]
+    [Choice]
     public object Blacklisted => new();
 
     [Choice]

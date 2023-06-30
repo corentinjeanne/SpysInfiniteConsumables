@@ -48,12 +48,12 @@ public class DropDownElement : ConfigElement {
         if(provider is null) throw new MissingMemberException($"Drop down element requires the Atrribute {nameof(ValuesProviderAttribute)}");
         else _provider = provider;
         MethodInfo? toString = (value?.GetType() ?? MemberInfo.Type).GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
-        if(toString is null) throw new ArgumentException($"Reflexion failed");
+        if(toString is null) throw new ArgumentException("Reflexion failed");
         else _toString = toString;
         _choices = _provider.Values();
         _index = _choices.IndexOf(value);
-        TextDisplayFunction = () => (LabelAttribute?.Label ?? MemberInfo.Name) + ": " + (_index == -1 ? "None" : _toString.Invoke(_choices[_index], null));
-        OnClick += (UIMouseEvent evt, UIElement listeningElement) => {
+        TextDisplayFunction = () => (Label ?? MemberInfo.Name) + ": " + (_index == -1 ? "None" : _toString.Invoke(_choices[_index], null));
+        OnLeftClick += (UIMouseEvent evt, UIElement listeningElement) => {
             if(_expanded) CloseDropDownField(_index);
             else OpenDropDownField();
         };
@@ -68,7 +68,7 @@ public class DropDownElement : ConfigElement {
         for (int i = 0; i < _choices.Count; i++) {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);
             int index = i;
-            container.OnClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(index);
+            container.OnLeftClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(index);
             string? name = (string?)_toString.Invoke(_choices[i], null);
             element.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);

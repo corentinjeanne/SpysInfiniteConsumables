@@ -9,48 +9,43 @@ using Terraria.ModLoader;
 
 namespace SPIC.Configs;
 
-[Label($"${Localization.Keys.InfinityDisplay}.Name")]
 public class InfinityDisplay : ModConfig {
     [Header($"${Localization.Keys.InfinityDisplay}.General.Header")]
-    [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.General.Infinities.Label")]
+    [DefaultValue(true)]
     public bool general_ShowInfinities;
-    [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.General.Requirements.Label")]
+    [DefaultValue(true)]
     public bool general_ShowRequirement;
-    [Label($"${Localization.Keys.InfinityDisplay}.General.Categories.Label")]
     public bool general_ShowCategories;
     [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
-    [Label($"${Localization.Keys.InfinityDisplay}.General.Welcome.Label")]
     public WelcomMessageFrequency general_welcomeMessage;
     [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";
 
     [Header($"${Localization.Keys.InfinityDisplay}.Tooltip.Header")]
-    [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.Tooltip.Tooltip.Label")]
+    [DefaultValue(true)]
     public bool toopltip_ShowTooltip;
-    [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.Tooltip.MissingLines.Label")]
+    [DefaultValue(true)]
     public bool toopltip_AddMissingLines;
-    [DefaultValue(CountStyle.Name), Label($"${Localization.Keys.InfinityDisplay}.Tooltip.Style.Label")]
+    [DefaultValue(CountStyle.Name)]
     public CountStyle tooltip_RequirementStyle;
-    [Label($"${Localization.Keys.InfinityDisplay}.Tooltip.Mixed.Label")]
     public bool tooltip_ShowMixed;
 
     [Header($"${Localization.Keys.InfinityDisplay}.Glow.Header")]
-    [Label($"${Localization.Keys.InfinityDisplay}.Glow.Glow.Label")]
     public bool glow_ShowGlow;
-    [DefaultValue(1f), Label($"${Localization.Keys.InfinityDisplay}.Glow.Intensity.Label")]
+    [DefaultValue(1f)]
     public float glow_Intensity;
-    [DefaultValue(120), Range(0, 60*5), Slider, Label($"${Localization.Keys.InfinityDisplay}.Glow.Pulse.Label")]
+    [DefaultValue(120), Range(0, 60*5), Slider]
     public int glow_PulseTime;
 
     [Header($"${Localization.Keys.InfinityDisplay}.Dots.Header")]
-    [DefaultValue(true), Label($"${Localization.Keys.InfinityDisplay}.Dots.Dots.Label")]
+    [DefaultValue(true)]
     public bool dots_ShowDots;
-    [DefaultValue(Corner.BottomRight), Label($"${Localization.Keys.InfinityDisplay}.Dots.Start.Label")]
+    [DefaultValue(Corner.BottomRight)]
     public Corner dots_Start;
-    [DefaultValue(Direction.Horizontal), Label($"${Localization.Keys.InfinityDisplay}.Dots.Direction.Label")]
+    [DefaultValue(Direction.Horizontal)]
     public Direction dots_Direction;
-    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots), Label($"${Localization.Keys.InfinityDisplay}.Dots.Count.Label"), Tooltip($"${Localization.Keys.InfinityDisplay}.Dots.Count.Tooltip")]
+    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots)]
     public int dots_Count;
-    [DefaultValue(60), Range(0, 60 * 5), Slider, Label($"${Localization.Keys.InfinityDisplay}.Glow.Pulse.Label")]
+    [DefaultValue(60), Range(0, 60 * 5), Slider]
     public int dot_PulseTime;
 
     [Header($"${Localization.Keys.InfinityDisplay}.Colors.Header")]

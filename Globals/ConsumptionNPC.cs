@@ -2,19 +2,18 @@
 using Terraria.ModLoader;
 using Terraria.ID;
 using SPIC.VanillaGroups;
+using Terraria.DataStructures;
 
 namespace SPIC.Globals;
 
 public class ConsumptionNPC : GlobalNPC {
     
     public override void Load() {
-        On.Terraria.Chest.SetupShop += HookSetupShop;
-        On.Terraria.NPC.ReleaseNPC += HookReleaseNPC;
+        On_Chest.SetupShop_string_NPC += HookSetupShop;
+        On_NPC.ReleaseNPC += HookReleaseNPC;
     }
-
-
-    private static void HookSetupShop(On.Terraria.Chest.orig_SetupShop orig, Chest self, int type) {
-        orig(self, type);
+    private static void HookSetupShop(On_Chest.orig_SetupShop_string_NPC orig, Chest self, string shopName, NPC npc) {
+        orig(self, shopName, npc);
 
         _hightestCost.Clear();
 
@@ -38,38 +37,16 @@ public class ConsumptionNPC : GlobalNPC {
     }
 
 
-    private static void HookReleaseNPC(On.Terraria.NPC.orig_ReleaseNPC orig, int x, int y, int Type, int Style, int who) {
-        if (Main.netMode == NetmodeID.MultiplayerClient || Type < 0 || who < 0 || !Main.npcCatchable[Type] || !NPC.CanReleaseNPCs(who)) {
-            orig(x, y, Type, Style, who);
-            return;
-        }
-
-        // Find npc spawn slot
-        int spawnIndex = -1;
-        if (NPCID.Sets.SpawnFromLastEmptySlot[Type]) {
-            for (int i = 199; i >= 0; i--) {
-                if (!Main.npc[i].active) {
-                    spawnIndex = i;
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < 200; i++) {
-                if (!Main.npc[i].active) {
-                    spawnIndex = i;
-                    break;
-                }
-            }
-        }
-
-        orig(x, y, Type, Style, who);
+    private static int HookReleaseNPC(On_NPC.orig_ReleaseNPC orig, int x, int y, int Type, int Style, int who) { // TODO >>> refactor into OnSpawn
+        int spawnIndex = orig(x, y, Type, Style, who);
 
         // Prevent duping
         if (spawnIndex >= 0) {
             NPC critter = Main.npc[spawnIndex];
-            if (critter.active && critter.type == Type && Configs.GroupSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
+            if (Configs.GroupSettings.Instance.PreventItemDupication && Main.player[who].HasInfinite(new(critter.catchItem), 1, Usable.Instance))
                 critter.SpawnedFromStatue = true;
         }
+        return spawnIndex;
     }
 
 

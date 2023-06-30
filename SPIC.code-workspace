@@ -5,8 +5,8 @@
             "path": "."
         },
         {
-            "name": "Configs",
-            "path": "../../../tModLoader/ModConfigs"
+            "name": "Configs Preview",
+            "path": "../../../tModLoader-Preview/ModConfigs"
         }
     ],
     "settings": {

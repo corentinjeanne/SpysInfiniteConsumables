@@ -37,14 +37,14 @@ public class MultyChoiceConverter : JsonConverter<MultyChoice> {
 [CustomModConfigItem(typeof(UI.MultyChoiceElement))]
 public abstract class MultyChoice {
 
-    public IReadOnlyList<PropertyFieldWrapper> Choices => choices.AsReadOnly();
-    public int ChoiceIndex {
+    [JsonIgnore] public IReadOnlyList<PropertyFieldWrapper> Choices => choices.AsReadOnly();
+    [JsonIgnore] public int ChoiceIndex {
         get => _index;
         set => _index = (value + Choices.Count) % Choices.Count;
     }
-    public PropertyFieldWrapper Choice => Choices[ChoiceIndex];
+    [JsonIgnore] public PropertyFieldWrapper Choice => Choices[ChoiceIndex];
 
-    public object? Value {
+    [JsonIgnore] public object? Value {
         get => Choice.GetValue(this);
         set => Choice.SetValue(this, value);
     }

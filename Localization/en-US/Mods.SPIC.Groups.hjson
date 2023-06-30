@@ -1,0 +1,57 @@
+Ammo: {
+	// TODO >>> change to displauy name, same for Presets
+	Name: Ammunition
+	Standard: Standard Ammo
+	Special: Special Ammo
+}
+
+Currency: {
+	Name: Currency
+	Coins: Coins
+	Custom: Custom currencies
+}
+
+GrabBag: {
+	Name: Grab bag
+	Containers: Containers and Bags
+	Boss: Treasure Bags
+}
+
+Journey: {
+	Name: Journey Research
+	Sacrifices: Include non consumable sacrifices
+	LineValue: Research cost
+}
+
+Material: {
+	Name: Material
+	Basics: Basic materials
+	Misc: Miscellaneous
+	Special: Non stackable
+}
+
+Placeable: {
+	Name: Placeable
+	Tiles: Tiles
+	Torches: Torches
+	Ores: Valuable Tiles
+	Furnitures: Furnitures
+	Mechanical: Mechanical parts
+	Liquids: Liquids
+	Seeds: Seeds
+	Paints: Paints
+	Wiring: Wiring
+}
+
+Usable: {
+	Name: Usable
+	Weapons: Thrown weapons
+	Potions: Potions
+	Boosters: Permanent Boosters
+	Summoners: Boss and Event summoners
+	Critters: Criters and Baits
+	Explosives: Explosives
+	Tools: Miscellaneous
+}
+
+Mixed.Name: Mixed

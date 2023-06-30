@@ -9,7 +9,7 @@ using SPIC.ConsumableGroup;
 namespace SPIC.VanillaGroups;
 
 public class JourneySacrificeSettings {
-    [Label($"${Localization.Keys.Groups}.Journey.Sacrifices")]
+    [LabelKey($"${Localization.Keys.Groups}.Journey.Sacrifices")]
     public bool includeNonConsumable;
 }
 

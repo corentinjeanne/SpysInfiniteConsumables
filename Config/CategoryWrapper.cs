@@ -45,10 +45,10 @@ public sealed class CategoryWrapper {
         this.type = type;
     }
 
-    public byte value;
-    public System.Type? type;
-    public bool SaveEnumType { get; set; }
-    public System.Enum? Enum => type is null ? null : (System.Enum)System.Enum.ToObject(type, value);
+    [JsonIgnore] public byte value;
+    [JsonIgnore] public System.Type? type;
+    [JsonIgnore] public bool SaveEnumType { get; set; }
+    [JsonIgnore] public System.Enum? Enum => type is null ? null : (System.Enum)System.Enum.ToObject(type, value);
 
     public static CategoryWrapper From<TCategory>(TCategory category) where TCategory : System.Enum  => new(System.Convert.ToByte(category), typeof(TCategory));
     public TCategory As<TCategory>() where TCategory : System.Enum => (TCategory)System.Enum.ToObject(typeof(TCategory), value);

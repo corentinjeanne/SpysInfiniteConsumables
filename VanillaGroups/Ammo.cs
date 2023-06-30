@@ -17,9 +17,9 @@ public enum AmmoCategory : byte {
     Special
 }
 public class AmmoRequirements {
-    [Label($"${Localization.Keys.Groups}.Ammo.Standard")]
+    [LabelKey($"${Localization.Keys.Groups}.Ammo.Standard")]
     public ItemCountWrapper Standard = new(){Stacks=4};
-    [Label($"${Localization.Keys.Groups}.Ammo.Special")]
+    [LabelKey($"${Localization.Keys.Groups}.Ammo.Special")]
     public ItemCountWrapper Special = new(){Stacks=1};
 }
 

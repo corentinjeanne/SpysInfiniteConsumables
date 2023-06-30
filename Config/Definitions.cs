@@ -12,10 +12,10 @@ namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(PresetDefinition.Label))]
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(Label))]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() {}
-    public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).Name) {}
+    public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).DisplayName) {}
     public PresetDefinition(string fullName) : base(fullName) {}
     public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
 
@@ -25,9 +25,10 @@ public class PresetDefinition : EntityDefinition {
     public Preset Preset => PresetManager.Preset(Mod, Name)!;
     public static ConsumableGroupDefinition FromString(string s) => new(s);
 
-    public string Label() {
-        Preset preset = Preset;
-        return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelAttribute), true) is not LabelAttribute label ? Name : label.Label;
+    public string Label() { // TODO loc
+        // Preset preset = Preset;
+        // return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelKeyAttribute), true) is not LabelKeyAttribute label ? Name;
+        return Name;
     }
 
     public static List<PresetDefinition> GetPresets() {
@@ -37,7 +38,7 @@ public class PresetDefinition : EntityDefinition {
     }
 }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetAllGroups), nameof(ConsumableGroupDefinition.Label))]
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetAllGroups), nameof(Label))]
 [TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
 public class ConsumableGroupDefinition : EntityDefinition {
     public ConsumableGroupDefinition() {}
