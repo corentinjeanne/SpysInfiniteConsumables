@@ -1,5 +1,4 @@
 Ammo: {
-	// TODO >>> change to displauy name, same for Presets
 	Name: Ammunition
 	Standard: Standard Ammo
 	Special: Special Ammo
@@ -14,6 +13,7 @@ Currency: {
 GrabBag: {
 	Name: Grab bag
 	Containers: Containers and Bags
+	Convertibles: Convertibles
 	Boss: Treasure Bags
 }
 

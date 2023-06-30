@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 using SPIC.VanillaGroups;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
+using Terraria.UI;
 
 namespace SPIC.Globals;
 
@@ -17,7 +18,7 @@ public class DetectionPlayer : ModPlayer {
 
     public override void Load() {
         On_Player.ItemCheck_Inner += HookItemCheck_Inner;
-        // Terraria.UI.On_ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
+        On_ItemSlot.RightClick_ItemArray_int_int += HookRightClick;
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
         On_Player.Spawn += HookSpawn;
@@ -110,6 +111,8 @@ public class DetectionPlayer : ModPlayer {
         return true;
     }
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
+        // ItemID.Sets.ItemIconPulse;
+        // ItemID.Sets.ShimmerTransformToItem; // ? shimmer + chloro extra group (conversions) 
 
         if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
 
@@ -153,6 +156,12 @@ public class DetectionPlayer : ModPlayer {
 
     public void Teleported() => _teleport = true;
 
+
+    private void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot){
+        InRightClick = true;
+        orig(inv, context, slot);
+        InRightClick = false;
+    }
 
     // private bool HookRightClick_Inner(Terraria.UI.On_ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
     //     DetectingCategoryOf = null;

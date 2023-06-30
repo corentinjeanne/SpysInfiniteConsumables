@@ -18,15 +18,15 @@ public enum MaterialCategory : byte {
 }
 
 public class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Material.Basics")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public ItemCountWrapper Basics = new(){Stacks=1};
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public ItemCountWrapper Ores = new(){Items=499};
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures")]
+    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public ItemCountWrapper Furnitures = new(99){Items=20};
-    [LabelKey($"${Localization.Keys.Groups}.Material.Misc")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public ItemCountWrapper Miscellaneous = new(){Items=50};
-    [LabelKey($"${Localization.Keys.Groups}.Material.Special")]
+    [LabelKey($"${Localization.Keys.Groups}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public ItemCountWrapper NonStackable = new(swapping: false){Items=2};
 }
 
@@ -54,7 +54,7 @@ public class Material : ItemGroup<Material, MaterialCategory>, IConfigurable<Mat
         }
         if (item.IsACoin) return MaterialCategory.Basic;
 
-        if (!ItemID.Sets.IsAMaterial[type]) return MaterialCategory.None;
+        if (!item.material) return MaterialCategory.None;
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 

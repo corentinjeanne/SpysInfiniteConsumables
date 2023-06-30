@@ -17,6 +17,6 @@
     "Localization": {
         "scope": "csharp",
         "prefix": "loc",
-        "body": "\\$\"{LocKeys.${1:Root}}.$0\"",
+        "body": "\\$\"{Localization.Keys.${1:Root}}.$0\"",
     }
 }

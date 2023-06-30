@@ -34,6 +34,8 @@ public class ConsumptionItem : GlobalItem {
                 );
             }
 
+            int tileTarget = Main.tile[Player.tileTargetX, Player.tileTargetY].TileType;
+            if(tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
             return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance, GrabBag.Instance);
 
         } else if(DetectionPlayer.InRightClick)

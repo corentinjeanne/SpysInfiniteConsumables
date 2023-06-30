@@ -67,6 +67,7 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
 
         // Vanilla inconsitancies or special items
         switch (item.type) {
+        case ItemID.Geode: return UsableCategory.None; // Grabbag
         case ItemID.FallenStar: return UsableCategory.None; // usable
         case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority error
         case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None
@@ -95,8 +96,12 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
 
         if (item.hairDye != -1) return UsableCategory.PlayerBooster;
 
-        // Most modded summoners, booster and non buff potions, modded liquids...
-        return UsableCategory.Unknown;
+        if(ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
+
+        // Most modded summoners, booster
+        if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;
+
+        return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool;
     }
 
     public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;

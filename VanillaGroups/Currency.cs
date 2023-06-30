@@ -16,10 +16,13 @@ public enum CurrencyCategory : byte {
 }
 
 public class CurrencyRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Currency.Coins")]
+    [LabelKey($"${Localization.Keys.Groups}.Currency.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
     public UniversalCountWrapper Coins = new() {Value = 10};
-    [LabelKey($"${Localization.Keys.Groups}.Currency.Custom")]
+    [LabelKey($"${Localization.Keys.Groups}.Currency.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
     public UniversalCountWrapper Single = new() {Value = 10};
+
+    public const float CoinMult = 1 / 20f;
+    public const float SingleCoinMult = 1 / 5f;
 }
 
 public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCategory>, IConfigurable<CurrencyRequirements>, IColorable {
@@ -30,8 +33,8 @@ public class Currency : StandardGroup<Currency, int, CurrencyCount, CurrencyCate
     public override bool DefaultsToOn => false;
 
     public override Requirement<CurrencyCount> GetRequirement(CurrencyCategory category, int currency) => category switch {
-        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(this.Settings().Coins.As<CurrencyCount>().Multiply(100), 10, 1 / 50f, LongToCount(currency, GetMaxInfinity(currency))),
-        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(this.Settings().Single.As<CurrencyCount>(), 0.2f, LongToCount(currency, GetMaxInfinity(currency))),
+        CurrencyCategory.Coin => new PowerRequirement<CurrencyCount>(this.Settings().Coins.As<CurrencyCount>().Multiply(100), 10, CurrencyRequirements.CoinMult, LongToCount(currency, GetMaxInfinity(currency))),
+        CurrencyCategory.SingleCoin => new MultipleRequirement<CurrencyCount>(this.Settings().Single.As<CurrencyCount>(), CurrencyRequirements.SingleCoinMult, LongToCount(currency, GetMaxInfinity(currency))),
         CurrencyCategory.None or _ => new NoRequirement<CurrencyCount>()
     };
 

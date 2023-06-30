@@ -110,10 +110,14 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
 
         if (_wandAmmos.TryGetValue(item.type, out int wandType)) return GetCategory(new(wandType), true);
         if (item.paint != 0) return PlaceableCategory.Paint;
-        if(item.XMasDeco()) return PlaceableCategory.Decoration;
-        if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
+        if(ItemID.Sets.AlsoABuildingItem[item.type]) {
+            if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
+            // TODO buckets
+        }
 
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
+       
+        if(item.XMasDeco()) return PlaceableCategory.Decoration;
 
         if (item.createTile != -1) {
 
@@ -121,7 +125,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
             if (item.accessory) return PlaceableCategory.MusicBox;
             if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
 
-            if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || TileID.Sets.Grass[tileType] || TileID.Sets.GrassSpecial[tileType]) return PlaceableCategory.Seed;
+            if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || ItemID.Sets.GrassSeeds[item.type]) return PlaceableCategory.Seed;
             if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
 
             if (item.mech) return PlaceableCategory.Mechanical;
@@ -142,7 +146,7 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
                 return PlaceableCategory.Decoration;
             }
 
-            if (Main.tileSpelunker[tileType]) return PlaceableCategory.Ore;
+            if (Main.tileSpelunker[tileType] || ItemID.Sets.ExtractinatorMode[item.type] != -1) return PlaceableCategory.Ore;
 
             return PlaceableCategory.Block;
         }

@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ModLoader;
 using SPIC.ConsumableGroup;
 using Terraria.Localization;
-using System.Collections.ObjectModel;
 
 namespace SPIC.VanillaGroups;
 

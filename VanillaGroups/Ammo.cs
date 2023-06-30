@@ -13,7 +13,8 @@ namespace SPIC.VanillaGroups;
 public enum AmmoCategory : byte {
     None = CategoryHelper.None,
     Basic,
-    Explosive,
+    Explosive, // ? Keep ?
+    Cannon, // TODO impl
     Special
 }
 public class AmmoRequirements {

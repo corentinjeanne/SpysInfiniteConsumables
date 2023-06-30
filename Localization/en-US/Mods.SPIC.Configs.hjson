@@ -135,6 +135,8 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
+	Dots.Header: Colored Dots
+
 	dots_ShowDots: {
 		Label: "[i:3603] Display infinity colored dots"
 		Tooltip: ""
@@ -165,11 +167,10 @@ InfinityDisplay: {
 		Label: Colors
 		Tooltip: ""
 	}
-
-	Dots.Header: dots_ Show Dots Header
 }
 
 UI: {
+	InfinityMultiplier: Infinity is {0} of the requirement
 	Count.Name: Count
 	Value.Name: Value
 	Items.Name: Items

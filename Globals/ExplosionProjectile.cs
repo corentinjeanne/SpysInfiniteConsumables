@@ -7,9 +7,9 @@ namespace SPIC.Globals {
 	public class ExplosionProjectile : GlobalProjectile {
 
         public override void Load() {
-			Terraria.On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
-			Terraria.On_Projectile.ExplodeTiles += HookExplodeTiles;
-			Terraria.On_Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
+			On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
+			On_Projectile.ExplodeTiles += HookExplodeTiles;
+			On_Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
             ClearExploded();
         }
         public override void Unload() => ClearExploded();
@@ -35,15 +35,15 @@ namespace SPIC.Globals {
             }
         }
 
-		private void HookExplodeCrackedTiles(Terraria.On_Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){
+		private void HookExplodeCrackedTiles(On_Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){
             orig(self, compareSpot, radius, minI, maxI, minJ, maxJ);
             Explode(self);
         }
-		private void HookExplodeTiles(Terraria.On_Projectile.orig_ExplodeTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ, bool wallSplode){
+		private void HookExplodeTiles(On_Projectile.orig_ExplodeTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ, bool wallSplode){
 			orig(self, compareSpot, radius, minI, maxI, minJ, maxJ, wallSplode);
             Explode(self);
 		}
-		private void HookKill_DirtAndFluid(Terraria.On_Projectile.orig_Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks orig, Terraria.Projectile self, Microsoft.Xna.Framework.Point pt, float size, Terraria.Utils.TileActionAttempt plot) {
+		private void HookKill_DirtAndFluid(On_Projectile.orig_Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks orig, Projectile self, Microsoft.Xna.Framework.Point pt, float size, Utils.TileActionAttempt plot) {
             orig(self, pt, size, plot);
             Explode(self);
         }

@@ -9,6 +9,8 @@ using SPIC.ConsumableGroup;
 
 namespace SPIC.Globals;
 
+// BUG no requirement dislay for coins under 1st requirement
+
 public enum DisplayFlags {
     Category = 0b0001,
     Requirement = 0b0010,

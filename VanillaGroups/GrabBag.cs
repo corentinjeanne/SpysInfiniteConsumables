@@ -12,12 +12,15 @@ public enum GrabBagCategory : byte {
     None = CategoryHelper.None,
     Container,
     TreasureBag,
+    Convertible,
     // Unknown = CategoryHelper.Unknown,
 }
 
 public class GrabBagRequirements {
     [LabelKey($"${Localization.Keys.Groups}.GrabBag.Containers")]
     public ItemCountWrapper Containers = new(99){Items=10};
+    [LabelKey($"${Localization.Keys.Groups}.GrabBag.Convertibles")]
+    public ItemCountWrapper Convertibles = new(99){Items=499};
     [LabelKey($"${Localization.Keys.Groups}.GrabBag.Boss")]
     public ItemCountWrapper TreasureBags = new(){Items=3};
 }
@@ -30,14 +33,17 @@ public class GrabBag : ItemGroup<GrabBag, GrabBagCategory>, IConfigurable<GrabBa
     public override Requirement<ItemCount> GetRequirement(GrabBagCategory bag, Item consumable) => bag switch {
         GrabBagCategory.Container => new CountRequirement<ItemCount>(this.Settings().Containers),
         GrabBagCategory.TreasureBag => new CountRequirement<ItemCount>(this.Settings().TreasureBags),
+        GrabBagCategory.Convertible => new CountRequirement<ItemCount>(this.Settings().Convertibles),
         GrabBagCategory.None /* or GrabBagCategory.Unknown */ or _ => new NoRequirement<ItemCount>(),
     };
 
     public override GrabBagCategory GetCategory(Item item) {
-
+        switch (item.type) {
+        case ItemID.Geode: return GrabBagCategory.Container;
+        }
         if (ItemID.Sets.BossBag[item.type]) return GrabBagCategory.TreasureBag;
         if (Main.ItemDropsDB.GetRulesForItemID(item.type).Count != 0) return GrabBagCategory.Container;
-
+        if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Convertible;
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 

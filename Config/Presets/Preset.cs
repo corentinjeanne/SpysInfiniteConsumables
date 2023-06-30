@@ -19,7 +19,7 @@ public abstract class Preset { // TODO add ModType
 
     public string InternalName => GetType().Name;
     public virtual string DisplayName {
-        get { // TODO
+        get { // TODO impl
             return InternalName;
             // return Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), delegate () {
             //     LabelAttribute legacyLabelAttribute = ConfigManager.GetLegacyLabelAttribute(base.GetType());
