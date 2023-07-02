@@ -1,4 +1,5 @@
 using SPIC.Configs;
+using SPIC.Configs.Presets;
 using Terraria.ModLoader;
 
 
@@ -12,8 +13,7 @@ public class SpysInfiniteConsumables : Mod {
         Instance = this;
 
         InfinityManager.Reset();
-        PresetManager.Reset();
-
+        
         VanillaGroups.Placeable.ClearWandAmmos();
         InfinityManager.ClearCache();
 
@@ -26,12 +26,6 @@ public class SpysInfiniteConsumables : Mod {
 
         VanillaGroups.Currency.RegisterAsGlobal();
         VanillaGroups.Mixed.RegisterAsGlobal();
-        
-        Configs.Presets.Defaults.Register();
-        Configs.Presets.AllDisabled.Register();
-        Configs.Presets.AllEnabled.Register();
-        Configs.Presets.OneForAll.Register();
-        Configs.Presets.JourneyCosts.Register();
     }
 
     public override void PostSetupContent() {
@@ -44,7 +38,7 @@ public class SpysInfiniteConsumables : Mod {
         VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         InfinityManager.Reset();
-        PresetManager.Reset();
+        PresetLoader.Unload();
         Instance = null!;
     }
 

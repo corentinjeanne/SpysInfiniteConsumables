@@ -175,8 +175,7 @@ UI: {
 	Value.Name: Value
 	Items.Name: Items
 	Stacks.Name: Stacks of {0}
-	Disabled.Name: Disabled
-	Blacklisted.Name: Blacklisted
+	None: None
 }
 
 ConsumableGroupDefinition: {
@@ -194,7 +193,7 @@ Custom: {
 	Tooltip: ""
 
 	Blacklisted: {
-		Label: "{$Mods.SPIC.Configs.UI.Blacklisted.Name}"
+		Label: Blacklisted
 		Tooltip: ""
 	}
 
@@ -208,12 +207,12 @@ UniversalCountWrapper: {
 	Tooltip: ""
 
 	Disabled: {
-		Label: "{$Mods.SPIC.Configs.UI.Disabled.Name}"
+		Label: Disabled
 		Tooltip: ""
 	}
 
 	Value: {
-		Label: "{$Mods.SPIC.Configs.UI.Count.Name}"
+		Label: Value
 		Tooltip: ""
 	}
 }

@@ -10,30 +10,21 @@ using System.Linq;
 
 namespace SPIC.Configs;
 
-public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
+public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { } // TODO test if can remove
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(Label))]
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(Label), true)]
 public class PresetDefinition : EntityDefinition {
-    public PresetDefinition() {}
-    public PresetDefinition(int id) : base(PresetManager.Preset(id).Mod.Name, PresetManager.Preset(id).DisplayName) {}
+    public PresetDefinition() : base(){}
     public PresetDefinition(string fullName) : base(fullName) {}
-    public PresetDefinition(Mod mod, string name) : base(mod.Name, name) {}
+    public PresetDefinition(ModPreset preset) : base(preset.Mod.Name, preset.Name) {}
 
-    public override int Type => Preset?.UID ?? -1;
+    public override int Type => PresetLoader.GetPreset(Mod, Name) == null ? -1 : 1;
 
-    [JsonIgnore]
-    public Preset Preset => PresetManager.Preset(Mod, Name)!;
-    public static ConsumableGroupDefinition FromString(string s) => new(s);
-
-    public string Label() { // TODO loc
-        // Preset preset = Preset;
-        // return System.Attribute.GetCustomAttribute(preset.GetType(), typeof(LabelKeyAttribute), true) is not LabelKeyAttribute label ? Name;
-        return Name;
-    }
+    public string Label() => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
 
     public static List<PresetDefinition> GetPresets() {
         List<PresetDefinition> defs = new();
-        foreach (Preset preset in PresetManager.Presets()) defs.Add(preset.ToDefinition());
+        foreach (ModPreset preset in PresetLoader.Presets) defs.Add(new(preset));
         return defs;
     }
 }

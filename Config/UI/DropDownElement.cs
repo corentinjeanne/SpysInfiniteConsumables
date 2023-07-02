@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using Terraria.GameContent.UI.States;
+using Terraria.Localization;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using Terraria.UI;
@@ -13,12 +14,14 @@ sealed class ValuesProviderAttribute : Attribute {
 
     public IList Values() => (IList)_provider.Invoke(null, null)!;
     public readonly string ParseToString;
+    public readonly bool NullAllowed;
 
-    public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString"){
+    public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString", bool allowNull = false){
         MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>()) ?? throw new ArgumentException("No public static method with this name was found");
         if (!method.ReturnType.ImplementsInterface(typeof(IList), out _)) throw new ArgumentException("The return type of the method must be IList");
         _provider = method;
         ParseToString = toSTring;
+        NullAllowed = allowNull;
     }
 
     private readonly MethodInfo _provider;
@@ -52,7 +55,7 @@ public class DropDownElement : ConfigElement {
         else _toString = toString;
         _choices = _provider.Values();
         _index = _choices.IndexOf(value);
-        TextDisplayFunction = () => (Label ?? MemberInfo.Name) + ": " + (_index == -1 ? "None" : _toString.Invoke(_choices[_index], null));
+        TextDisplayFunction = () => (Label ?? MemberInfo.Name) + ": " + (_index == -1 ? Language.GetTextValue($"{Localization.Keys.UI}.None") : _toString.Invoke(_choices[_index], null));
         OnLeftClick += (UIMouseEvent evt, UIElement listeningElement) => {
             if(_expanded) CloseDropDownField(_index);
             else OpenDropDownField();
@@ -78,11 +81,11 @@ public class DropDownElement : ConfigElement {
     }
 
     public void CloseDropDownField(int index) {
-        if (index < 0) return;
+        if(!_provider.NullAllowed && index < 0) return;
         RemoveAllChildren();
+        if(_index != index) MemberInfo.SetValue(Item, _choices[index]);
         _index = index;
         _expanded = false;
-        MemberInfo.SetValue(Item, _choices[index]);
         ConfigManager.SetPendingChanges();
         Recalculate();
     }

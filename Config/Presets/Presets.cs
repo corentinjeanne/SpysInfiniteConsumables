@@ -4,20 +4,7 @@ using Terraria.ModLoader;
 using SPIC.VanillaGroups;
 namespace SPIC.Configs.Presets;
 
-public class NoPreset : Preset {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
-
-    public override int CriteriasCount => 0;
-
-
-    public override void ApplyCriterias(GroupSettings config) { }
-
-    public override bool MeetsCriterias(GroupSettings config) => true;
-}
-
-
-public class Defaults : StaticPreset<Defaults> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
+public class Defaults : ModPreset {
 
     public override int CriteriasCount => 3;
 
@@ -36,8 +23,7 @@ public class Defaults : StaticPreset<Defaults> {
     }
 }
 
-public class OneForAll : StaticPreset<OneForAll> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
+public class OneForAll : ModPreset {
     public override int CriteriasCount => 2;
 
     public override void ApplyCriterias(GroupSettings config) {
@@ -70,8 +56,7 @@ public class OneForAll : StaticPreset<OneForAll> {
     }
 }
 
-public class AllEnabled : StaticPreset<AllEnabled> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
+public class AllEnabled : ModPreset {
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(GroupSettings config) {
@@ -92,8 +77,7 @@ public class AllEnabled : StaticPreset<AllEnabled> {
     }
 }
 
-public class AllDisabled : StaticPreset<AllDisabled> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
+public class AllDisabled : ModPreset {
     public override int CriteriasCount => 2;
 
     public override void ApplyCriterias(GroupSettings config) {
@@ -113,8 +97,7 @@ public class AllDisabled : StaticPreset<AllDisabled> {
     }
 }
 
-public class JourneyCosts : StaticPreset<JourneyCosts> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
+public class JourneyCosts : ModPreset {
     public override int CriteriasCount => 3;
 
     public override void ApplyCriterias(GroupSettings config) {

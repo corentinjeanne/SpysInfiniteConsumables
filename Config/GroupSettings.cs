@@ -10,6 +10,7 @@ using SPIC.ConsumableGroup;
 using SPIC.Configs.UI;
 using SPIC.Configs.Presets;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace SPIC.Configs;
 
@@ -18,17 +19,19 @@ public class GroupSettings : ModConfig {
     [Header($"${Localization.Keys.GroupSettings}.General.Header")]
     [DefaultValue(true)]
     public bool PreventItemDupication { get; set; }
-    public PresetDefinition? Preset {
+
+    [JsonIgnore, ShowDespiteJsonIgnore]
+    public PresetDefinition Preset {
         get {
-            if (EnabledGroups.Count == 0) return null;
-            foreach (Preset preset in PresetManager.Presets()) {
-                if (preset.MeetsCriterias(this)) return preset.ToDefinition();
+            if (EnabledGroups.Count == 0) return new();
+            foreach (ModPreset preset in PresetLoader.Presets) {
+                if (preset.MeetsCriterias(this)) return new(preset);
             }
-            return null;
+            return new();
         }
         set {
             if (EnabledGroups.Count == 0) return;
-            value?.Preset.ApplyCriterias(this);
+            PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
         }
     }
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
