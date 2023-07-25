@@ -1,8 +1,6 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-using SPIC.ConsumableGroup;
-using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
@@ -10,30 +8,38 @@ namespace SPIC.Configs;
 
 public class Custom : MultyChoice {
 
-    [Choice]
-    public object Blacklisted => new();
 
-    [Choice]
-    public Dictionary<ConsumableGroupDefinition, UniversalCountWrapper> CustomRequirements {
-        get => _customRequirements;
-        set {
-            _customRequirements.Clear();
-            foreach ((ConsumableGroupDefinition def, UniversalCountWrapper wrapper) in value) {
-                if (def.IsUnloaded) {
-                    if (!ModLoader.HasMod(def.Mod)) _customRequirements[def] = wrapper;
-                    continue;
-                }
-                IConsumableGroup group = def.ConsumableGroup;
-                if(!group.GetType().ImplementsInterface(typeof(IConsumableGroup<,>), out System.Type? iGroupGen)) continue;
-                CustomWrapper? wrapperAttrib = (CustomWrapper?)System.Attribute.GetCustomAttribute(iGroupGen.GenericTypeArguments[1], typeof(CustomWrapper));
-                UniversalCountWrapper count = wrapper;
-                if (wrapperAttrib is not null) {
-                    string json = JsonConvert.SerializeObject(wrapper);
-                    count = (UniversalCountWrapper)JsonConvert.DeserializeObject(json, wrapperAttrib.WrapperType)!;
-                }
-                _customRequirements[def] = count;
-            }
+    [JsonIgnore]
+    public IMetaGroup MetaGroup {
+        get => _metaGroup;
+        internal set {
+            _metaGroup = value;
+            foreach(ModGroupDefinition def in CustomRequirements.Keys) def.MetaGroup = MetaGroup;
         }
     }
-    private readonly Dictionary<ConsumableGroupDefinition, UniversalCountWrapper> _customRequirements = new();
+
+    [Choice]
+    public Count GlobalValue { get; set; } = new();
+
+    [Choice]
+    public Dictionary<ModGroupDefinition, Count> CustomRequirements { get; set; } = new();
+    
+    private IMetaGroup _metaGroup = null!;
+
+    public bool TryGetValue(IModGroup group, [MaybeNullWhen(false)] out Count count){
+        if(Choice.Name == nameof(Globals)){
+            count = default;
+            return false;
+        }
+        ModGroupDefinition def = new(group);
+        return CustomRequirements.TryGetValue(def, out count);
+    }
+    public bool TryGetGlobal([MaybeNullWhen(false)] out Count count){
+        if(Choice.Name == nameof(GlobalValue)){
+            count = GlobalValue;
+            return true;
+        }
+        count = default;
+        return false;
+    }
 }

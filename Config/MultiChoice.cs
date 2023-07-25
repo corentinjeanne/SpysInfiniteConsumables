@@ -91,4 +91,6 @@ public class MultyChoiceSimpleConverter : JsonConverter<MultyChoice> {
 [JsonConverter(typeof(MultyChoiceSimpleConverter))]
 public abstract class MultyChoice<T> : MultyChoice {
     public new abstract T? Value { get; set; }
+
+    public static implicit operator T?(MultyChoice<T> value) => value.Value;
 }

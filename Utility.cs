@@ -1,9 +1,7 @@
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
 using Terraria;
 using Terraria.ModLoader.Config;
 using System.Reflection;
@@ -14,12 +12,6 @@ public readonly record struct NPCStats(int Total, int Boss);
 
 public static class Utility {
 
-    public class DescendingComparer<T> : IComparer<T> where T : System.IComparable<T> {
-        public int Compare(T? x, T? y) {
-            return y is null ? 1 : y.CompareTo(x);
-        }
-    }
-
     public static int CountItems(this Item[] container, int type, params int[] ignoreSots) {
         int total = 0;
         for (int i = 0; i < container.Length; i++) {
@@ -29,10 +21,12 @@ public static class Utility {
         return total;
     }
     public static int CountItems(this Player player, int type, bool includeChest = false) {
-
         int total = player.inventory.CountItems(type, 58) + new Item[] { Main.mouseItem }.CountItems(type);
-        if (includeChest && CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
-        if (includeChest && player.InChest(out Item[]? chest)) total += chest.CountItems(type);
+        if (includeChest) {
+            if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
+            else if (player.InChest(out Item[]? chest)) total += chest.CountItems(type);
+            if(player.chest != -5 && player.useVoidBag()) total += player.bank4.item.CountItems(type);
+        }
         return total;
     }
     public static int CountItemsInWorld() {
@@ -71,17 +65,41 @@ public static class Utility {
         }
     }
 
+    public static Item? FindItemRaw(this Player player, int type) {
+        int num = player.FindItem(type);
+        return num == -1 ? null : player.inventory[num];
+    }
     public static Item? PickPaint(this Player player) {
         for (int i = 54; i < 58; i++) {
-            if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0)
-                return player.inventory[i];
+            if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0) return player.inventory[i];
         }
-        for (int i = 0; i < 58; i++) {
-            if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0)
-                return player.inventory[i];
+        for (int i = 0; i < 54; i++) {
+            if (player.inventory[i].stack > 0 && player.inventory[i].paint > 0) return player.inventory[i];
         }
 
         return null;
+    }
+    public static Item? PickBait(this Player player) {
+        for (int i = 54; i < 58; i++) {
+            if (player.inventory[i].stack > 0 && player.inventory[i].bait > 0) return player.inventory[i];
+        }
+        for (int i = 0; i < 50; i++) {
+            if (player.inventory[i].stack > 0 && player.inventory[i].bait > 0) return player.inventory[i];
+        }
+
+        return null;
+    }
+
+    public static bool IsSimilar(this Item a, Item b, bool loose = true) => loose ? !a.IsNotSameTypePrefixAndStack(b) : a == b;
+
+    public static bool IsFromVisibleInventory(this Player player, Item item, bool loose = true) {
+        
+        if (Main.mouseItem.IsSimilar(item, loose)
+                || System.Array.Find(player.inventory, i => i.IsSimilar(item, loose)) is not null
+                || (player.InChest(out var chest) && System.Array.Find(chest, i => i.IsSimilar(item, loose)) is not null)
+                || (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Countains(item)))
+            return true;
+        return false;
     }
 
 
@@ -141,6 +159,14 @@ public static class Utility {
         dict.Remove(key);
         dict.Insert(destIndex, key, value);
     }
+
+    public static IEnumerable<System.Tuple<Tkey, TValue?>> Items<Tkey, TValue>(this IOrderedDictionary dict) where Tkey : notnull {
+        foreach(DictionaryEntry entry in dict) {
+            yield return new((Tkey)entry.Key, (TValue?)entry.Value);
+        }
+    }
+
+    
     
     public static bool TryAdd(this IOrderedDictionary dict, object key, object value){
         if(dict.Contains(key)) return false;
@@ -149,9 +175,24 @@ public static class Utility {
     }
 
 
-    public static bool ImplementsInterface(this System.Type type, System.Type iType, [MaybeNullWhen(false)] out System.Type impl)
+    public static bool ImplementsInterface(this System.Type type, System.Type iType, [NotNullWhen(true)] out System.Type? impl)
         => (impl = System.Array.Find(type.GetInterfaces(), i => iType.IsGenericType ? i.IsGenericType && i.GetGenericTypeDefinition() == iType : iType == i)) != null;
-    
+
+    public static bool IsSubclassOfGeneric(this System.Type? type, System.Type generic, [NotNullWhen(true)] out System.Type? impl) {
+        while (type != null && type != typeof(object)) {
+            System.Type cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+            if (generic == cur) {
+                impl = type;
+                return true;
+            }
+            type = type.BaseType;
+        }
+        impl = null;
+        return false;
+    }
+
+    public static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
+
     private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
     private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
 }

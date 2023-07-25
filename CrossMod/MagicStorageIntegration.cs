@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.ModLoader;
@@ -23,7 +22,7 @@ public static class MagicStorageIntegration {
     public static bool Countains(Item item) {
         if (!InMagicStorage) return false;
         foreach (Item i in MagicStorage.StoragePlayer.LocalPlayer.GetStorageHeart().GetStoredItems())
-            if (i.type == item.type && (i.prefix == item.prefix)) return true;
+            if (i.type == item.type && i.prefix == item.prefix) return true;
         return false;
     }
 }

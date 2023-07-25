@@ -103,7 +103,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             i++;
             (object key, object? value) = entry;
             if(value is null) continue;
-            if(key is ConsumableGroupDefinition entity && entity.IsUnloaded){
+            if(key is ModGroupDefinition entity && entity.IsUnloaded){
                 unloaded++;
                 continue;
             }
@@ -141,8 +141,10 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             }
 
             string? name = key switch {
-                ConsumableGroupDefinition group => group.Label(),
+                PresetDefinition preset => preset.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
+                ModGroupDefinition group => group.Label(),
+                MetaGroupDefinition meta => meta.Label(),
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
@@ -150,7 +152,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         }
         if(unloaded > 0){
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);
-            string text = $"{unloaded} unloaded consumable types";
+            string text = $"{unloaded} unloaded items";
             element.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => text);

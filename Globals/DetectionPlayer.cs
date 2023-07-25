@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.VanillaGroups;
+using SPIC.Groups;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 using Terraria.UI;
 
 namespace SPIC.Globals;
 
+// TODO review detection
 
 public class DetectionPlayer : ModPlayer {
 
@@ -30,7 +31,7 @@ public class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.CategoryDetection.Instance.DetectMissing && self.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown)
+                && Configs.CategoryDetection.Instance.DetectMissing && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem, true);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
@@ -38,18 +39,18 @@ public class DetectionPlayer : ModPlayer {
     }
 
     public override void ModifyNursePrice(NPC nurse, int health, bool removeDebuffs, ref int price) {
-        if(price > 0 && Player.HasInfinite(CurrencyHelper.Coins, price, Currency.Instance)) price = 1;
+        if(price > 0 && Player.HasInfinite(CurrencyHelper.Coins, price, Shop.Instance)) price = 1;
     }
     public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) {
         if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
     }
 
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache(item);
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinity(item);
 
 
     public override void OnEnterWorld(){
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
-        if(version == "") version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
+        if(version.Length == 0) version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
         bool newChanges = Mod.Version > new System.Version(version);
 
         if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
@@ -95,24 +96,22 @@ public class DetectionPlayer : ModPlayer {
             if(!_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
         
-        // void SaveBag(GrabBagCategory category) {
-        //     Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-        //     if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
-        // }
+        void SaveBag(GrabBagCategory category) {
+            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+            if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
+        }
 
         DetectionDataScreenShot data = GetDetectionData();
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
-        // else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (reproduce)
+        else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
+        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (to reproduce)
         else return false;
         DetectingCategoryOf = null;
 
         return true;
     }
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
-        // ItemID.Sets.ItemIconPulse;
-        // ItemID.Sets.ShimmerTransformToItem; // ? shimmer + chloro extra group (conversions) 
 
         if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
 
@@ -128,10 +127,10 @@ public class DetectionPlayer : ModPlayer {
         return category != UsableCategory.Unknown;
     }
 
-    // private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
-    //     category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Container : GrabBagCategory.Unknown;
-    //     return category != GrabBagCategory.Unknown;
-    // }
+    private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
+        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Container : GrabBagCategory.None;
+        return category != GrabBagCategory.None;
+    }
 
 
     public int FindPotentialExplosivesType(int proj) {
@@ -148,8 +147,8 @@ public class DetectionPlayer : ModPlayer {
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        if ((refill.GetCategory(Usable.Instance) == UsableCategory.Explosive && !refill.GetInfinity(owned + used, Usable.Instance).Value.IsNone)
-                || (refill.GetCategory(Ammo.Instance) == AmmoCategory.Explosive && !refill.GetInfinity(owned + used, Ammo.Instance).Value.IsNone))
+        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0)
+                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && InfinityManager.GetInfinity(refill, owned + used, Ammo.Instance) != 0))
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
     }
 
@@ -189,7 +188,7 @@ public class DetectionPlayer : ModPlayer {
         Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
         Configs.GroupSettings settings = Configs.GroupSettings.Instance;
 
-        if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
+        if (detection.DetectMissing && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

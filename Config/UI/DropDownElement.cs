@@ -12,19 +12,19 @@ namespace SPIC.Configs.UI;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
 sealed class ValuesProviderAttribute : Attribute {
 
-    public IList Values() => (IList)_provider.Invoke(null, null)!;
+    public IList Values(object self) => (IList)_values.Invoke(self, null)!;
     public readonly string ParseToString;
     public readonly bool NullAllowed;
 
     public ValuesProviderAttribute(Type host, string providerName, string toSTring = "ToString", bool allowNull = false){
-        MethodInfo? method =  host.GetMethod(providerName, BindingFlags.Static | BindingFlags.Public, Array.Empty<Type>()) ?? throw new ArgumentException("No public static method with this name was found");
+        MethodInfo? method = host.GetMethod(providerName, BindingFlags.Instance | BindingFlags.Public, Array.Empty<Type>()) ?? throw new ArgumentException("No public instance method with this name was found");
         if (!method.ReturnType.ImplementsInterface(typeof(IList), out _)) throw new ArgumentException("The return type of the method must be IList");
-        _provider = method;
+        _values = method;
         ParseToString = toSTring;
         NullAllowed = allowNull;
     }
 
-    private readonly MethodInfo _provider;
+    private readonly MethodInfo _values;
 }
 
 public class EmptyClass {}
@@ -50,10 +50,10 @@ public class DropDownElement : ConfigElement {
             ?? MemberInfo.Type.GetCustomAttribute<ValuesProviderAttribute>();
         if(provider is null) throw new MissingMemberException($"Drop down element requires the Atrribute {nameof(ValuesProviderAttribute)}");
         else _provider = provider;
-        MethodInfo? toString = (value?.GetType() ?? MemberInfo.Type).GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
+        MethodInfo? toString = value.GetType().GetMethod(_provider.ParseToString, BindingFlags.Public | BindingFlags.Instance, Array.Empty<Type>());
         if(toString is null) throw new ArgumentException("Reflexion failed");
         else _toString = toString;
-        _choices = _provider.Values();
+        _choices = _provider.Values(value);
         _index = _choices.IndexOf(value);
         TextDisplayFunction = () => (Label ?? MemberInfo.Name) + ": " + (_index == -1 ? Language.GetTextValue($"{Localization.Keys.UI}.None") : _toString.Invoke(_choices[_index], null));
         OnLeftClick += (UIMouseEvent evt, UIElement listeningElement) => {
@@ -66,7 +66,7 @@ public class DropDownElement : ConfigElement {
         RemoveAllChildren();
         _expanded = true;
 
-        _choices = _provider.Values();
+        _choices = _provider.Values(MemberInfo.GetValue(Item));
         int top = 30;
         for (int i = 0; i < _choices.Count; i++) {
             (UIElement container, UIElement element) = ConfigManager.WrapIt(this, ref top, new(s_dummyField), this, i);

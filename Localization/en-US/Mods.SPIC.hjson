@@ -48,5 +48,6 @@ Chat: {
 CommonItemTooltips: {
 	Infinite: Infinite {0}
 	PartialyInfinite: Infinite {0} below {1}
-	WeaponAmmo: Consumes {0}
+	Requirement: "{0} ({1})"
+	Requirement+: "{0} ({1}, {2})"
 }

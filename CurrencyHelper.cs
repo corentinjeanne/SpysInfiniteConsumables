@@ -110,7 +110,7 @@ public static class CurrencyHelper {
 
 
     public static string PriceText(int currency, long count) {
-        if (count == 0 || currency == None) return "";
+        if (count == 0 || currency == None) return string.Empty;
 
         List<KeyValuePair<int, long>> coins = CurrencyCountToItems(currency, count);
         List<string> parts = new();

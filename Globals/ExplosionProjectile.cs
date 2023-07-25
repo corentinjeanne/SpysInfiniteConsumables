@@ -1,6 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.VanillaGroups;
+using SPIC.Groups;
 
 namespace SPIC.Globals {
 
@@ -21,10 +21,11 @@ namespace SPIC.Globals {
             
             DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
-            Item item = System.Array.Find(detectionPlayer.Player.inventory, i => i.type == type) ?? new(type);
+            int num = detectionPlayer.Player.FindItem(type);
+            Item item = num == -1 ? new(type) : detectionPlayer.Player.inventory[num];
 
-            AmmoCategory ammo = item.GetCategory(Ammo.Instance);
-            UsableCategory usable = item.GetCategory(Usable.Instance);
+            AmmoCategory ammo = InfinityManager.GetCategory(item, Ammo.Instance);
+            UsableCategory usable = InfinityManager.GetCategory(item, Usable.Instance);
             if(ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive){
                 if(Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
                     detectionPlayer.RefilExplosive(proj.type, item);

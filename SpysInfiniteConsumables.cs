@@ -2,7 +2,6 @@ using SPIC.Configs;
 using SPIC.Configs.Presets;
 using Terraria.ModLoader;
 
-
 namespace SPIC;
 
 public class SpysInfiniteConsumables : Mod {
@@ -11,21 +10,7 @@ public class SpysInfiniteConsumables : Mod {
 
     public override void Load() {
         Instance = this;
-
-        InfinityManager.Reset();
-        
-        VanillaGroups.Placeable.ClearWandAmmos();
-        InfinityManager.ClearCache();
-
-        VanillaGroups.Ammo.Register();
-        VanillaGroups.Usable.Register();
-        VanillaGroups.Placeable.Register();
-        VanillaGroups.GrabBag.Register();
-        VanillaGroups.Material.Register();
-        VanillaGroups.JourneySacrifice.Register();
-
-        VanillaGroups.Currency.RegisterAsGlobal();
-        VanillaGroups.Mixed.RegisterAsGlobal();
+        Groups.Placeable.ClearWandAmmos();
     }
 
     public override void PostSetupContent() {
@@ -35,9 +20,10 @@ public class SpysInfiniteConsumables : Mod {
     }
 
     public override void Unload() {
-        VanillaGroups.Placeable.ClearWandAmmos();
+        Groups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
-        InfinityManager.Reset();
+        
+        InfinityManager.Unload();
         PresetLoader.Unload();
         Instance = null!;
     }
@@ -48,9 +34,11 @@ public class SpysInfiniteConsumables : Mod {
                 int playerID = (int)args[1];
                 dynamic consumable = args[2];
                 int consumed = (int)args[3];
-                string fullName = (string)args[4];
+                string[] parts = ((string)args[4]).Split('/', 2);
+                string mod = parts[0];
+                string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.ConsumableGroup(fullName)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.GetModGroup(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorect", cast);

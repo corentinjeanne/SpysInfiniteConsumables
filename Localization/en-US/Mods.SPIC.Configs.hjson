@@ -49,6 +49,16 @@ GroupSettings: {
 		Label: "[i:1913] Customs"
 		Tooltip: ""
 	}
+
+	MetaConfigs: {
+		Label: Meta Configs
+		Tooltip: ""
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
+	}
 }
 
 CategoryDetection: {
@@ -167,6 +177,16 @@ InfinityDisplay: {
 		Label: Colors
 		Tooltip: ""
 	}
+
+	dot_PageTime: {
+		Label: dot_ Page Time
+		Tooltip: ""
+	}
+
+	glow_GroupTime: {
+		Label: glow_ Group Time
+		Tooltip: ""
+	}
 }
 
 UI: {
@@ -178,7 +198,7 @@ UI: {
 	None: None
 }
 
-ConsumableGroupDefinition: {
+PresetDefinition: {
 	Tooltip: ""
 
 	IsUnloaded: {
@@ -186,8 +206,6 @@ ConsumableGroupDefinition: {
 		Tooltip: ""
 	}
 }
-
-PresetDefinition.Tooltip: ""
 
 Custom: {
 	Tooltip: ""
@@ -199,6 +217,11 @@ Custom: {
 
 	CustomRequirements: {
 		Label: Custom Requirements
+		Tooltip: ""
+	}
+
+	GlobalValue: {
+		Label: Global Value
 		Tooltip: ""
 	}
 }
@@ -230,6 +253,20 @@ CountStyle: {
 	Name.Label: Name
 }
 
+Count: {
+	Tooltip: ""
+
+	Disabled: {
+		Label: Disabled
+		Tooltip: ""
+	}
+
+	Value: {
+		Label: Value
+		Tooltip: ""
+	}
+}
+
 Corner: {
 	Tooltip: ""
 	TopLeft.Label: Top Left
@@ -245,3 +282,83 @@ Direction: {
 }
 
 CategoryWrapper.Tooltip: ""
+
+ModGroupDefinition: {
+	Tooltip: ""
+
+	IsUnloaded: {
+		Label: Is Unloaded
+		Tooltip: ""
+	}
+}
+
+MetaGroupDefinition: {
+	Tooltip: ""
+
+	IsUnloaded: {
+		Label: Is Unloaded
+		Tooltip: ""
+	}
+}
+
+MetaConfig: {
+	Tooltip: ""
+
+	Preset: {
+		Label: Preset
+		Tooltip: ""
+	}
+
+	EnabledGroups: {
+		Label: Enabled Groups
+		Tooltip: ""
+	}
+
+	MaxConsumableTypes: {
+		Label: Max Consumable Types
+		Tooltip: ""
+	}
+}
+
+LegacyConsumableGroupDefinition: {
+	Tooltip: ""
+
+	IsUnloaded: {
+		Label: Is Unloaded
+		Tooltip: ""
+	}
+}
+
+LegacyGroupSettings: {
+	DisplayName: Legacy Group Settings
+
+	PreventItemDupication: {
+		Label: Prevent Item Dupication
+		Tooltip: ""
+	}
+
+	EnabledGroups: {
+		Label: Enabled Groups
+		Tooltip: ""
+	}
+
+	MaxConsumableTypes: {
+		Label: Max Consumable Types
+		Tooltip: ""
+	}
+
+	EnabledGlobals: {
+		Label: Enabled Globals
+		Tooltip: ""
+	}
+
+	Settings: {
+		Label: Settings
+		Tooltip: ""
+	}
+
+	Customs: {
+		Label: Customs
+		Tooltip: ""
+	}
+}

@@ -40,12 +40,12 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
         Func<string> elementLabel = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(selectedElement)!;
         Func<string>? elementTooltip = (Func<string>?)ReflectionHelper.ConfigElement_TooltipFunction.GetValue(selectedElement);
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({(Value is ItemCountWrapper w && selectedProp.Name == nameof(ItemCountWrapper.Stacks) ? string.Format(elementLabel(), w.MaxStack) : elementLabel())})");
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({elementLabel})");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(selectedElement, () => {
             List<string> parts = new();
             string p = "";
-            if (TooltipFunction is not null && (p = TooltipFunction()) != "") parts.Add(p);
-            if (elementTooltip is not null && (p = elementTooltip()) != "") parts.Add(p);
+            if (TooltipFunction is not null && (p = TooltipFunction()).Length != 0) parts.Add(p);
+            if (elementTooltip is not null && (p = elementTooltip()).Length != 0) parts.Add(p);
             return string.Join('\n', parts);
         });
 

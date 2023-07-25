@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using SPIC.VanillaGroups;
+using SPIC.Groups;
 
 namespace SPIC.Systems;
 
-//TODO remove recipes crafting a fully infinite item
+// TODO remove recipes crafting a fully infinite item
 public class InfiniteRecipe : ModSystem {
 
     public static readonly HashSet<int> CraftingStations = new();
@@ -53,12 +53,12 @@ public class InfiniteRecipe : ModSystem {
     }
 
 
-    private static void HookRecipe_FindRecipes(Terraria.On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+    private static void HookRecipe_FindRecipes(On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {
         if (canDelayCheck) {
             orig(canDelayCheck);
             return;
         }
-        InfinityManager.ClearCache();
+        InfinityManager.ClearInfinities();
         orig(canDelayCheck);
     }
     

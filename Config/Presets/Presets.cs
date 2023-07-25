@@ -1,114 +1,70 @@
-using SPIC.ConsumableGroup;
-using Terraria.ModLoader;
+using System;
+using SPIC.Groups;
 
-using SPIC.VanillaGroups;
 namespace SPIC.Configs.Presets;
 
 public class Defaults : ModPreset {
+    public override int CriteriasCount => 2;
 
-    public override int CriteriasCount => 3;
-
-    public override void ApplyCriterias(GroupSettings config) {
-        config.EnabledGroups = new();
-        config.EnabledGlobals = new();
-        config.MaxConsumableTypes = 0;
-    }
-
-    public override bool MeetsCriterias(GroupSettings config) {
-
-        foreach ((IToggleable group, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
-            if (state != group.DefaultsToOn) return false;
+    public override bool MeetsCriterias(MetaConfig config) {
+        foreach ((ModGroupDefinition def, bool enable) in config.EnabledGroups.Items<ModGroupDefinition, bool>()) {
+            if (enable != InfinityManager.GetModGroup(def.Mod, def.Name)!.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
-}
-
-public class OneForAll : ModPreset {
-    public override int CriteriasCount => 2;
-
-    public override void ApplyCriterias(GroupSettings config) {
-        bool foundEnabled = false;
-        foreach ((IToggleable group, bool state, bool global) in InfinityManager.LoadedToggleableGroups()) {
-            if (global) break;
-            if (state) {
-                foundEnabled = true;
-                break;
-            }
-        }
-        if (!foundEnabled) {
-            foreach (object key in config.EnabledGroups) {
-                if (!((ConsumableGroupDefinition)key).IsUnloaded) config.EnabledGroups[key] = true;
-            }
-        }
-        config.MaxConsumableTypes = 1;
-    }
-
-    public override bool MeetsCriterias(GroupSettings config) {
-        bool foundEnabled = false;
-        foreach ((IToggleable group, bool state, bool global) in InfinityManager.LoadedToggleableGroups()) {
-            if (global) break;
-            if (state) {
-                foundEnabled = true;
-                break;
-            }
-        }
-        return foundEnabled && config.MaxConsumableTypes == 1;
-    }
-}
-
-public class AllEnabled : ModPreset {
-    public override int CriteriasCount => 3;
-
-    public override void ApplyCriterias(GroupSettings config) {
-        for (int i = 0; i < config.EnabledGroups.Count; i++) {
-            config.EnabledGroups[i] = true;
-        }
-        foreach (var key in config.EnabledGlobals.Keys) {
-            config.EnabledGlobals[key] = true;
+    public override void ApplyCriterias(MetaConfig config) {
+        for(int i = 0; i < config.EnabledGroups.Count; i++) {
+            ModGroupDefinition def = (ModGroupDefinition)config.EnabledGroups.Keys.Index(i);
+            config.EnabledGroups[i] = InfinityManager.GetModGroup(def.Mod, def.Name)!.DefaultsToOn;
         }
         config.MaxConsumableTypes = 0;
     }
 
-    public override bool MeetsCriterias(GroupSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
-            if (!state) return false;
+}
+
+public class OneForMany : ModPreset {
+    public override int CriteriasCount => 2;
+
+    public override bool MeetsCriterias(MetaConfig config) {
+        foreach (bool enable in config.EnabledGroups.Values) {
+            if (enable) return config.MaxConsumableTypes == 1;
+        }
+        return false;
+    }
+    public override void ApplyCriterias(MetaConfig config) {
+        config.MaxConsumableTypes = 1;
+        if(!MeetsCriterias(config)) config.EnabledGroups[0] = true;
+    }
+
+}
+
+public class AllEnabled : ModPreset {
+    public override int CriteriasCount => 2;
+
+    public override void ApplyCriterias(MetaConfig config) {
+        for(int i = 0; i < config.EnabledGroups.Count; i++) config.EnabledGroups[i] = true;
+        config.MaxConsumableTypes = 0;
+    }
+
+    public override bool MeetsCriterias(MetaConfig config) {
+        foreach (bool enabled in config.EnabledGroups.Values) {
+            if (!enabled) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
 }
 
 public class AllDisabled : ModPreset {
-    public override int CriteriasCount => 2;
+    public override int CriteriasCount => 1;
 
-    public override void ApplyCriterias(GroupSettings config) {
-        for (int i = 0; i < config.EnabledGroups.Count; i++) {
-            config.EnabledGroups[i] = false;
-        }
-        foreach (var key in config.EnabledGlobals.Keys) {
-            config.EnabledGlobals[key] = false;
-        }
+    public override void ApplyCriterias(MetaConfig config) {
+        for(int i = 0; i < config.EnabledGroups.Count; i++) config.EnabledGroups[i] = false;
     }
 
-    public override bool MeetsCriterias(GroupSettings config) {
-        foreach ((IToggleable _, bool state, bool _) in InfinityManager.LoadedToggleableGroups()) {
-            if (state) return false;
+    public override bool MeetsCriterias(MetaConfig config) {
+        foreach (bool enabled in config.EnabledGroups.Values) {
+            if (enabled) return false;
         }
         return true;
     }
-}
-
-public class JourneyCosts : ModPreset {
-    public override int CriteriasCount => 3;
-
-    public override void ApplyCriterias(GroupSettings config) {
-        config.EnabledGroups.Move(JourneySacrifice.Instance.ToDefinition(), 0);
-        config.EnabledGroups[0] = true;
-        config.MaxConsumableTypes = 1;
-    }
-
-    public override bool MeetsCriterias(GroupSettings config)
-        => config.MaxConsumableTypes == 1
-            && (bool)config.EnabledGroups[0]!
-            && ((ConsumableGroupDefinition)config.EnabledGroups.Keys.Index(0)).ConsumableGroup == JourneySacrifice.Instance;
-
 }

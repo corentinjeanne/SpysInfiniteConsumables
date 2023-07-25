@@ -2,11 +2,10 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Terraria.ModLoader.Config;
-using SPIC.ConsumableGroup;
 
 namespace SPIC.Configs;
 
-public class CategoryConverter : JsonConverter<CategoryWrapper> {
+public class CategoryConverter : JsonConverter<CategoryWrapper> { // TODO rework into a more generic Wrapper<T> and allow for any "extra"
 
     public override CategoryWrapper ReadJson(JsonReader reader, System.Type objectType, CategoryWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         JValue category = (JValue)JToken.Load(reader);

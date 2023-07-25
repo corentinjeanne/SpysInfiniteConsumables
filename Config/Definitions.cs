@@ -1,62 +1,84 @@
 using System.ComponentModel;
-using Newtonsoft.Json;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
-using SPIC.ConsumableGroup;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
 
 namespace SPIC.Configs;
 
-public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { } // TODO test if can remove
+public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.PresetDefinition]")]
 [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(PresetDefinition), nameof(GetPresets), nameof(Label), true)]
 public class PresetDefinition : EntityDefinition {
     public PresetDefinition() : base(){}
     public PresetDefinition(string fullName) : base(fullName) {}
     public PresetDefinition(ModPreset preset) : base(preset.Mod.Name, preset.Name) {}
 
-    public override int Type => PresetLoader.GetPreset(Mod, Name) == null ? -1 : 1;
+    public new bool IsUnloaded => Type == -1;
+    public override int Type => PresetLoader.GetPreset(Mod, Name) is null ? -1 : 1;
 
     public string Label() => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
 
-    public static List<PresetDefinition> GetPresets() {
+    public List<PresetDefinition> GetPresets() {
         List<PresetDefinition> defs = new();
         foreach (ModPreset preset in PresetLoader.Presets) defs.Add(new(preset));
         return defs;
     }
+
+    public static PresetDefinition FromString(string s) => new(s);
 }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ConsumableGroupDefinition), nameof(GetAllGroups), nameof(Label))]
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ConsumableGroupDefinition]")]
-public class ConsumableGroupDefinition : EntityDefinition {
-    public ConsumableGroupDefinition() {}
-    public ConsumableGroupDefinition(int id) : base(InfinityManager.ConsumableGroup(id).Mod.Name, InfinityManager.ConsumableGroup(id).InternalName) {}
-    public ConsumableGroupDefinition(string fullName) : base(fullName) {}
-    public ConsumableGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.MetaGroupDefinition]")]
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(MetaGroupDefinition), nameof(GetMetaGroups), nameof(Label))]
+public class MetaGroupDefinition : EntityDefinition {
+    public MetaGroupDefinition() : base(){}
+    public MetaGroupDefinition(string fullName) : base(fullName) {}
+    public MetaGroupDefinition(IMetaGroup metaGroup) : base(metaGroup.Mod.Name, metaGroup.Name) {}
 
-    public new bool IsUnloaded => Type == 0;
-    public override int Type => ConsumableGroup?.UID ?? 0;
+    public new bool IsUnloaded => Type == -1;
+    public override int Type => InfinityManager.GetMetaGroup(Mod, Name) is null ? -1 : 1;
 
-    [JsonIgnore]
-    public IConsumableGroup ConsumableGroup => InfinityManager.ConsumableGroup(Mod, Name)!;
-    
-    public string Label() {
-        if(IsUnloaded) return $"(Unloaded) {this}";
-        IConsumableGroup group = ConsumableGroup;
-        return $"[i:{group.IconType}] {group.Name}";
+    public string Label() => InfinityManager.GetMetaGroup(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
+
+    public List<MetaGroupDefinition> GetMetaGroups() {
+        List<MetaGroupDefinition> defs = new();
+        foreach (IMetaGroup metaGroup in InfinityManager.MetaGroups) defs.Add(new(metaGroup));
+        return defs;
     }
 
-    public static ConsumableGroupDefinition FromString(string s) => new(s);
+    public static MetaGroupDefinition FromString(string s) => new(s);
+}
 
-    public static List<ConsumableGroupDefinition> GetAllGroups() => GetGroups(FilterFlags.NonGlobal | FilterFlags.Global);
-    public static List<ConsumableGroupDefinition> GetGroups(FilterFlags flags) {
-        List<ConsumableGroupDefinition> groups = new();
-        groups.AddRange(InfinityManager.ConsumableGroups(flags | FilterFlags.Disabled | FilterFlags.Enabled)
-            .Where(group => group != VanillaGroups.Mixed.Instance)
-            .Select(group => group.ToDefinition()));
-        return groups;
+
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(typeof(ModGroupDefinition), nameof(GetGroups), nameof(Label))]
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ModGroupDefinition]")]
+public class ModGroupDefinition : EntityDefinition {
+    public ModGroupDefinition() : base() {}
+    public ModGroupDefinition(string fullName) : base(fullName) {}
+    public ModGroupDefinition(Mod mod, string name) : base(mod.Name, name) {}
+    public ModGroupDefinition(IModGroup group) : base(group.Mod.Name, group.Name) { }
+
+    [JsonIgnore] public IMetaGroup? MetaGroup { get; set; }
+
+
+    public new bool IsUnloaded => Type == -1;
+    public override int Type => InfinityManager.GetModGroup(Mod, Name) is null ? -1 : 1;
+
+
+    public string Label() {
+        IModGroup? group = InfinityManager.GetModGroup(Mod, Name);
+        return group is null ? $"(Unloaded) {this}" : $"[i:{group.IconType}] {group.DisplayName}";
+    }
+
+    public static ModGroupDefinition FromString(string s) => new(s);
+
+    public List<ModGroupDefinition> GetGroups() {
+        List<ModGroupDefinition> defs = new();
+        if(MetaGroup is null) foreach (IModGroup group in InfinityManager.Groups) defs.Add(new(group));
+        else foreach (IModGroup group in MetaGroup.Groups) defs.Add(new(group));
+        return defs;
     }
 }

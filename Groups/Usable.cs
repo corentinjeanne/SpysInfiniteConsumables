@@ -1,13 +1,12 @@
-﻿using Terraria;
+using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableGroup;
 using SPIC.Configs;
-using Terraria.Localization;
+using Microsoft.Xna.Framework;
+using Terraria.ModLoader;
 
-namespace SPIC.VanillaGroups; 
+namespace SPIC.Groups;
 
 public enum UsableCategory : byte {
     None = CategoryHelper.None,
@@ -28,38 +27,43 @@ public enum UsableCategory : byte {
 
 public class UsableRequirements {
     [LabelKey($"${Localization.Keys.Groups}.Usable.Weapons")]
-    public ItemCountWrapper Weapons = new(){Stacks=2};
+    public Count Weapons = 2 * 999;
     [LabelKey($"${Localization.Keys.Groups}.Usable.Potions")]
-    public ItemCountWrapper Potions = new(30){Stacks=1};
+    public Count Potions = 30;
     [LabelKey($"${Localization.Keys.Groups}.Usable.Boosters")]
-    public ItemCountWrapper Boosters = new(20){Items=5};
+    public Count Boosters = 5;
     [LabelKey($"${Localization.Keys.Groups}.Usable.Summoners")]
-    public ItemCountWrapper Summoners = new(20){Items=3};
+    public Count Summoners = 3;
     [LabelKey($"${Localization.Keys.Groups}.Usable.Critters")]
-    public ItemCountWrapper Critters = new(99){Items=10};
+    public Count Critters = 10;
     [LabelKey($"${Localization.Keys.Groups}.Usable.Tools")]
-    public ItemCountWrapper Tools = new(){Stacks=1};
+    public Count Tools = 99;
 }
 
 
-public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableRequirements>, IDetectable {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
-    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Usable.Name");
+public class Usable : ModGroupStatic<Usable, ItemMG, Item, UsableCategory> {
+
     public override int IconType => ItemID.EndlessMusketPouch;
+    public override Color DefaultColor => Colors.RarityCyan;
 
-    public override Requirement<ItemCount> GetRequirement(UsableCategory category, Item consumable) {
+    public override void SetStaticDefaults() {
+        base.SetStaticDefaults();
+        Config = InfinityManager.RegisterConfig<UsableRequirements>(this);
+    }
+
+    public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new CountRequirement<ItemCount>(this.Settings().Weapons),
-            UsableCategory.Recovery => new CountRequirement<ItemCount>(new(this.Settings().Potions){MaxStack = 99}),
-            UsableCategory.Buff => new CountRequirement<ItemCount>(this.Settings().Potions),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new CountRequirement<ItemCount>(this.Settings().Boosters),
+            UsableCategory.Weapon => new(Config.Obj.Weapons),
+            UsableCategory.Recovery => new(Config.Obj.Potions),
+            UsableCategory.Buff => new(Config.Obj.Potions),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Obj.Boosters),
 
-            UsableCategory.Summoner => new CountRequirement<ItemCount>(this.Settings().Summoners),
-            UsableCategory.Critter => new CountRequirement<ItemCount>(this.Settings().Critters),
-            UsableCategory.Explosive => new CountRequirement<ItemCount>(new(this.Settings().Tools){MaxStack=99}),
-            UsableCategory.Tool or UsableCategory.Unknown => new CountRequirement<ItemCount>(this.Settings().Tools),
+            UsableCategory.Summoner => new(Config.Obj.Summoners),
+            UsableCategory.Critter => new(Config.Obj.Critters),
+            UsableCategory.Explosive => new(Config.Obj.Tools),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Obj.Tools),
 
-            UsableCategory.None or _ => new NoRequirement<ItemCount>(),
+            UsableCategory.None or _ => new(),
         };
     }
 
@@ -96,7 +100,7 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
 
         if (item.hairDye != -1) return UsableCategory.PlayerBooster;
 
-        if(ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
+        if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
 
         // Most modded summoners, booster
         if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;
@@ -104,8 +108,14 @@ public class Usable : ItemGroup<Usable, UsableCategory>, IConfigurable<UsableReq
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityCyan;
-    public override TooltipLine TooltipLine => new(Mod, "Consumable", Lang.tip[35].Value);
+    public Wrapper<UsableRequirements> Config = null!;
 
-    public bool IncludeUnknown => true;
+    public override Item DisplayedValue(Item consumable) => consumable.fishingPole <= 0 ? consumable : Main.LocalPlayer.PickBait() ?? consumable;
+
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
+        Item ammo = DisplayedValue(item);
+        if (ammo == item) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
+        return (new(Mod, "PoleConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
+
+    }
 }

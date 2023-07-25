@@ -1,7 +1,4 @@
-using System.Reflection;
-using Terraria.ModLoader.Config;
-
-namespace SPIC.ConsumableGroup;
+namespace SPIC;
 
 public static class CategoryHelper {
 

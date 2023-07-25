@@ -12,10 +12,11 @@ public abstract class ModPreset : ModType, ILocalizedModType {
 
     protected sealed override void Register() {
         ModTypeLookup<ModPreset>.Register(this);
-        PresetLoader.Add(this);
+        PresetLoader.Register(this);
     }
 
     public abstract int CriteriasCount { get; }
-    public abstract bool MeetsCriterias(GroupSettings config);
-    public abstract void ApplyCriterias(GroupSettings config);
+
+    public abstract bool MeetsCriterias(MetaConfig config);
+    public abstract void ApplyCriterias(MetaConfig config);
 }

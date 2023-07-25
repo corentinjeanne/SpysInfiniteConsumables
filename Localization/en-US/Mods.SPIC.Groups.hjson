@@ -4,8 +4,8 @@ Ammo: {
 	Special: Special Ammo
 }
 
-Currency: {
-	Name: Currency
+Shop: {
+	DisplayName: Currency
 	Coins: Coins
 	Custom: Custom currencies
 }
@@ -17,7 +17,7 @@ GrabBag: {
 	Boss: Treasure Bags
 }
 
-Journey: {
+JourneySacrifice: {
 	Name: Journey Research
 	Sacrifices: Include non consumable sacrifices
 	LineValue: Research cost
@@ -53,5 +53,3 @@ Usable: {
 	Explosives: Explosives
 	Tools: Miscellaneous
 }
-
-Mixed.Name: Mixed

@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-using SPIC.ConsumableGroup;
 using SPIC.Configs;
-using Terraria.Localization;
+using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 
-namespace SPIC.VanillaGroups;
+namespace SPIC.Groups;
 
 public enum PlaceableCategory : byte {
     None = CategoryHelper.None,
@@ -41,69 +39,59 @@ public static class PlaceableExtension {
 
 public class PlaceableRequirements {
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Tiles")]
-    public ItemCountWrapper Tiles = new(){Stacks=1};
+    public Count Tiles = 999;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores")]
-    public ItemCountWrapper Ores = new(){Items=499};
+    public Count Ores = 499;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Torches")]
-    public ItemCountWrapper Torches = new(){Items=99};
+    public Count Torches = 99;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures")]
-    public ItemCountWrapper Furnitures = new(99){Items=3};
+    public Count Furnitures = 3;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Mechanical")]
-    public ItemCountWrapper Mechanical = new(){Items=3};
+    public Count Mechanical = 3;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Liquids")]
-    public ItemCountWrapper Liquids = new(){Items=10};
+    public Count Liquids = 10;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Seeds")]
-    public ItemCountWrapper Seeds = new(99){Items=20};
+    public Count Seeds = 20;
     [LabelKey($"${Localization.Keys.Groups}.Placeable.Paints")]
-    public ItemCountWrapper Paints = new(){Stacks=1};
+    public Count Paints = 999;
 }
 
-public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<PlaceableRequirements>, IDetectable, IStandardAmmunition<Item> {
-    public override Mod Mod => SpysInfiniteConsumables.Instance;
-    public override string Name => Language.GetTextValue($"{Localization.Keys.Groups}.Placeable.Name");
+public class Placeable : ModGroupStatic<Placeable, ItemMG, Item, PlaceableCategory> { // TODO dupplication
+
     public override int IconType => ItemID.ArchitectGizmoPack;
+    public override bool DefaultsToOn => false;
+    public override Color DefaultColor => Colors.RarityAmber;
 
-    public override Requirement<ItemCount> GetRequirement(PlaceableCategory category, Item consumable) {
-        if(GroupSettings.Instance.PreventItemDupication){
-            return category switch {
-                PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new DisableAboveRequirement<ItemCount>(this.Settings().Tiles),
-                PlaceableCategory.Torch => new DisableAboveRequirement<ItemCount>(this.Settings().Torches),
-                PlaceableCategory.Ore => new DisableAboveRequirement<ItemCount>(this.Settings().Ores),
-
-                PlaceableCategory.LightSource
-                        or PlaceableCategory.Functional or PlaceableCategory.Decoration
-                        or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                    => new DisableAboveRequirement<ItemCount>(this.Settings().Furnitures),
-                PlaceableCategory.MusicBox => new DisableAboveRequirement<ItemCount>(new(this.Settings().Furnitures) { MaxStack = 1 }),
-                PlaceableCategory.Liquid => new CountRequirement<ItemCount>(this.Settings().Liquids),
-                PlaceableCategory.Mechanical => new DisableAboveRequirement<ItemCount>(this.Settings().Mechanical),
-                PlaceableCategory.Seed => new CountRequirement<ItemCount>(this.Settings().Seeds),
-                PlaceableCategory.Paint => new CountRequirement<ItemCount>(this.Settings().Paints),
-                PlaceableCategory.None or _ => new NoRequirement<ItemCount>(),
-            };
+    public override void SetStaticDefaults() {
+        base.SetStaticDefaults();
+        Config = InfinityManager.RegisterConfig<PlaceableRequirements>(this);
+        for (int t = 0; t < ItemLoader.ItemCount; t++) {
+            Item i = new(t);
+            if (i.tileWand != -1) RegisterWand(i);
         }
+    }
+
+    public override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new CountRequirement<ItemCount>(this.Settings().Tiles),
-            PlaceableCategory.Torch => new CountRequirement<ItemCount>(this.Settings().Torches),
-            PlaceableCategory.Ore => new CountRequirement<ItemCount>(this.Settings().Ores),
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Obj.Tiles),
+            PlaceableCategory.Torch => new(Config.Obj.Torches),
+            PlaceableCategory.Ore => new(Config.Obj.Ores),
 
             PlaceableCategory.LightSource
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => new CountRequirement<ItemCount>(this.Settings().Furnitures),
-            PlaceableCategory.MusicBox => new CountRequirement<ItemCount>(new(this.Settings().Furnitures){MaxStack = 1}),
-            PlaceableCategory.Liquid => new CountRequirement<ItemCount>(this.Settings().Liquids),
-            PlaceableCategory.Mechanical => new CountRequirement<ItemCount>(this.Settings().Mechanical),
-            PlaceableCategory.Seed => new CountRequirement<ItemCount>(this.Settings().Seeds),
-            PlaceableCategory.Paint => new CountRequirement<ItemCount>(this.Settings().Paints),
-            PlaceableCategory.None or _ => new NoRequirement<ItemCount>(),
+                => new(Config.Obj.Furnitures),
+            PlaceableCategory.MusicBox => new(Config.Obj.Furnitures),
+            PlaceableCategory.Liquid => new(Config.Obj.Liquids),
+            PlaceableCategory.Mechanical => new(Config.Obj.Mechanical),
+            PlaceableCategory.Seed => new(Config.Obj.Seeds),
+            PlaceableCategory.Paint => new(Config.Obj.Paints),
+            PlaceableCategory.None or _ => new(),
         };
     }
     
     public override PlaceableCategory GetCategory(Item item) => GetCategory(item, false);
     public static PlaceableCategory GetCategory(Item item, bool wand) {
-
-
         switch (item.type) {
         case ItemID.Hellstone or ItemID.DemoniteOre or ItemID.CrimtaneOre: return PlaceableCategory.Ore; // Main.tileSpelunker[tileType] == false
         }
@@ -155,10 +143,33 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         return PlaceableCategory.None;
     }
 
-    public override Microsoft.Xna.Framework.Color DefaultColor => Colors.RarityAmber;
-    public override TooltipLine TooltipLine => new(Mod, "Placeable", Lang.tip[33].Value);
+    private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
+    internal static void ClearWandAmmos() => _wandAmmos.Clear();
+    public static void RegisterWand(Item wand) {
+        if (Instance.GetCategory(new(wand.tileWand)) == PlaceableCategory.None) _wandAmmos.TryAdd(wand.tileWand, wand.type);
+    }
 
-    public bool IncludeUnknown => false;
+    public Wrapper<PlaceableRequirements> Config = null!;
+
+    public override Item DisplayedValue(Item consumable) {
+        return GetWandType(consumable) switch {
+            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
+            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            WandType.None or _ => null
+        } ?? consumable;
+    }
+
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
+        Item ammo = DisplayedValue(item);
+        if (ammo == item) return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+        (string name, TooltipLineID position) = GetWandType(item) switch {
+            WandType.Tile => ("WandConsumes", TooltipLineID.WandConsumes),
+            WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
+            WandType.None or WandType.PaintBrush or WandType.PaintRoller or _ => ("PaintConsumes", TooltipLineID.Modded)
+        };
+        return (new(Mod, name, Lang.tip[52].Value + ammo.Name), position);
+    }
 
     public enum WandType {
         None,
@@ -168,14 +179,6 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         PaintRoller
     }
 
-    public TooltipLine WeaponLine(Item weapon, Item ammo) => new(
-        Mod,
-        GetWandType(weapon) switch {
-            WandType.Tile => "WandConsumes", WandType.Wire => "Tooltip0", WandType.None or WandType.PaintBrush or WandType.PaintRoller or _=> "PaintConsumes"
-        },
-        Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.WeaponAmmo", ammo.Name)
-    );
-
     public static WandType GetWandType(Item item) => item switch {
         { tileWand: not -1 } => WandType.Tile,
         { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
@@ -183,22 +186,6 @@ public class Placeable : ItemGroup<Placeable, PlaceableCategory>, IConfigurable<
         { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
         _ => WandType.None
     };
-
-    public bool HasAmmo(Player player, Item wand, [MaybeNullWhen(false)] out Item tile){
-        tile = GetWandType(wand) switch {
-            WandType.Tile => System.Array.Find(player.inventory, item => item.type == wand.tileWand),
-            WandType.Wire => System.Array.Find(player.inventory, item => item.type == ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
-            WandType.None or _ => null
-        };
-        return tile is not null;
-    }
-
-    private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
-    internal static void ClearWandAmmos() => _wandAmmos.Clear();
-    public static void RegisterWand(Item wand) {
-        if(Instance.GetCategory(new(wand.tileWand)) == PlaceableCategory.None) _wandAmmos.TryAdd(wand.tileWand, wand.type);
-    }
 
 
     // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));

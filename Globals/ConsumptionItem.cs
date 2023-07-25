@@ -1,20 +1,12 @@
 using Terraria;
 using Terraria.ModLoader;
 
-using SPIC.VanillaGroups;
+using SPIC.Groups;
 using Terraria.ID;
 
 namespace SPIC.Globals;
 
 public class ConsumptionItem : GlobalItem {
-
-    
-    public override void SetStaticDefaults() {
-        for(int t = 0; t < ItemLoader.ItemCount; t++){
-            Item i = new(t);
-            if (i.tileWand != -1) Placeable.RegisterWand(i);
-        }
-    }
 
     public override bool ConsumeItem(Item item, Player player) {
         Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
@@ -28,6 +20,7 @@ public class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             if (item != player.HeldItem) { // Wands
                 if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
+
                 return !player.HasInfinite(item, 1,
                     () => player.HeldItem.damage != 0 ? Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
@@ -57,7 +50,7 @@ public class ConsumptionItem : GlobalItem {
     public override bool? CanConsumeBait(Player player, Item bait) => !player.HasInfinite(bait, 1, Usable.Instance) ? null : false;
 
     public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Currency.Instance)) return false;
+        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Shop.Instance)) return false;
         reforgePrice = 0;
         return true;
     }
