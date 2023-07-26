@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Groups;
 
-public enum ShopCategory : byte {
-    None = CategoryHelper.None,
+public enum ShopCategory {
+    None,
     Coin,
     SingleCoin,
 }

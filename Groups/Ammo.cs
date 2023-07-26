@@ -8,8 +8,8 @@ using Terraria.ModLoader;
 // TODO dd2 mana consumption
 
 namespace SPIC.Groups;
-public enum AmmoCategory : byte {
-    None = CategoryHelper.None,
+public enum AmmoCategory {
+    None,
     Basic,
     Explosive, // ? Keep ?
     Cannon, // TODO impl

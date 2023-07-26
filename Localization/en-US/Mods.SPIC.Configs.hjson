@@ -362,3 +362,5 @@ LegacyGroupSettings: {
 		Tooltip: ""
 	}
 }
+
+GenericWrapper.Tooltip: ""

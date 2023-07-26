@@ -21,18 +21,19 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
     public void SetupMember(){
         RemoveAllChildren();
 
+        Value ??= (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
         MultyChoice value = Value;
-        value ??= Value = (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
+
         PropertyFieldWrapper selectedProp = value.Choice;
 
         int top = 0;
-        (UIElement coutainer, selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
+        (UIElement container, selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
         if (selectedProp.Type == typeof(object) && !selectedProp.CanWrite) {
             selectedElement.RemoveAllChildren();
             ReflectionHelper.ObjectElement_pendindChanges.SetValue(selectedElement, false);
         }
-        coutainer.Left.Pixels -= 20;
-        coutainer.Width.Pixels -= 7;
+        container.Left.Pixels -= 20;
+        container.Width.Pixels -= 7;
 
         DrawLabel = false;
         MaxHeight.Pixels = int.MaxValue;
@@ -40,7 +41,7 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
         Func<string> elementLabel = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(selectedElement)!;
         Func<string>? elementTooltip = (Func<string>?)ReflectionHelper.ConfigElement_TooltipFunction.GetValue(selectedElement);
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({elementLabel})");
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({elementLabel()})");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(selectedElement, () => {
             List<string> parts = new();
             string p = "";

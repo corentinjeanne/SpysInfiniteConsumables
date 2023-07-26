@@ -1,42 +1,9 @@
-using System;
 using System.Collections.Generic;
 
 namespace SPIC;
 
-public readonly record struct Requirement(long Count, float Multiplier = 1f) {
-    
-    public readonly bool IsNone => Count == 0 || Multiplier == 0f;
 
-    public long Infinity(long count) => count >= Count ? (long)(count * Multiplier) : 0;
-
-    public long CountForInfinity(long infinity) => Math.Max(Count, (int)MathF.Ceiling(infinity / Multiplier));
-}
-
-public interface IFullRequirement {
-    Requirement Requirement { get; }
-
-    string ExtraInfo();
-}
-
-// TODO localize extra
-public readonly record struct FullRequirement(Requirement Requirement) : IFullRequirement {
-    public string ExtraInfo() => string.Empty;
-}
-public readonly record struct FullRequirement<TCategory>(TCategory Category, Requirement Requirement) : IFullRequirement where TCategory : System.Enum {
-    public string ExtraInfo() => Category.ToString();
-}
-public readonly record struct MixedRequirement(Requirement Requirement) : IFullRequirement{
-    public string ExtraInfo() => "Mixed";
-}
-public readonly record struct CustomRequirement(Requirement Requirement) : IFullRequirement{
-    public string ExtraInfo() => "Custom";
-}
-
-public readonly record struct FullInfinity(IFullRequirement FullRequirement, long Count, long Infinity) {
-    public Requirement Requirement => FullRequirement.Requirement;
-}
-
-public class MetaInfinity<TMetaGroup, TConsumable> where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
+public class MetaInfinity {
     
     public MetaInfinity() {
         _infinities = new();
@@ -44,14 +11,14 @@ public class MetaInfinity<TMetaGroup, TConsumable> where TMetaGroup : MetaGroup<
         Mixed = new();
     }
 
-    public void AddGroup(ModGroup<TMetaGroup, TConsumable> group, FullInfinity infinity, bool used) {
+    public void AddGroup(IModGroup group, FullInfinity infinity, bool used) {
         _infinities[group] = infinity;
         if(used) UsedGroups.Add(group);
     }
     public void AddMixed(Requirement? custom = null) {
         long count = 0;
         long reqCount = 0; float reqMult = 0f;
-        foreach(ModGroup<TMetaGroup, TConsumable> group in UsedGroups){
+        foreach(IModGroup group in UsedGroups){
             FullInfinity fullInfinity = _infinities[group];
             if(count == 0 || fullInfinity.Count < count) count = fullInfinity.Count;
             if(reqCount == 0 || fullInfinity.Requirement.Count > reqCount) reqCount = fullInfinity.Requirement.Count;
@@ -66,12 +33,12 @@ public class MetaInfinity<TMetaGroup, TConsumable> where TMetaGroup : MetaGroup<
         Mixed = new(requirement, count, requirement.Requirement.Infinity(count));
     }
 
-    public FullInfinity this[ModGroup<TMetaGroup, TConsumable> group] => _infinities[group];
+    public FullInfinity this[IModGroup group] => _infinities[group];
     public FullInfinity Mixed { get; private set; }
 
-    public HashSet<ModGroup<TMetaGroup, TConsumable>> UsedGroups { get; private set; }
+    public HashSet<IModGroup> UsedGroups { get; private set; }
 
-    private readonly Dictionary<ModGroup<TMetaGroup, TConsumable>, FullInfinity> _infinities;
+    private readonly Dictionary<IModGroup, FullInfinity> _infinities;
 
 }
 

@@ -9,8 +9,8 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Groups;
 
-public enum PlaceableCategory : byte {
-    None = CategoryHelper.None,
+public enum PlaceableCategory {
+    None,
 
     Block,
     Wall,

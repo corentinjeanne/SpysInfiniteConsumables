@@ -9,12 +9,11 @@ using Terraria.ModLoader;
 using Terraria.Localization;
 
 namespace SPIC.Groups; 
-public enum GrabBagCategory : byte {
-    None = CategoryHelper.None,
+public enum GrabBagCategory {
+    None,
     Container,
     TreasureBag,
     Convertible,
-    // Unknown = CategoryHelper.Unknown,
 }
 
 // BUG capricorn leggings (tranforms)

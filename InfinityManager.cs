@@ -9,30 +9,23 @@ namespace SPIC;
 public static class InfinityManager {
 
     public static TCategory GetCategory<TMetaGroup, TConsumable, TCategory>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable, TCategory> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : Enum => group.MetaGroup.GetCategory(consumable, group);
+    public static Requirement GetRequirement<TMetaGroup, TConsumable>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
+        => group.MetaGroup.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement;
 
-    public static Requirement GetRequirement<TMetaGroup, TConsumable>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> => group.MetaGroup.GetRequirement(consumable, group);
 
-    // TODO Does not take into account if the requirement is used or not
-    public static long GetInfinity<TMetaGroup, TConsumable>(TConsumable consumable, long count, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        return group.MetaGroup.GetInfinity(consumable, count, group);
-    }
+    public static long GetInfinity<TMetaGroup, TConsumable>(TConsumable consumable, long count, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
+        => group.MetaGroup.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement.Infinity(count);
 
-    public static FullInfinity GetFullInfinity(this Player player, int type, IModGroup group) {
-        IMetaGroup metaGroup = group.MetaGroup;
-        if (!metaGroup.IsUsed(type, group)) return metaGroup.GetMixedFullInfinity(player, type);
-        return metaGroup.GetFullInfinity(player, type, group);
-    }
+    public static FullInfinity GetFullInfinity(this Player player, int type, IModGroup group)
+        => group.MetaGroup.GetEffectiveInfinity(player, type, group);
 
-    public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        MetaGroup<TMetaGroup, TConsumable> metaGroup = group.MetaGroup;
-        if (!metaGroup.IsEnabled(group)) return false;
-        if (!metaGroup.IsUsed(consumable, group)) return metaGroup.GetMixedInfinity(player, consumable) >= consumed;
-        return metaGroup.GetInfinity(player, consumable, group) >= consumed;
-    }
+    public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
+        => group.MetaGroup.GetEffectiveInfinity(player, consumable, group).Infinity >= consumed;
+
 
     public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool> retryIfNoneIncluded, params ModGroup<TMetaGroup, TConsumable>[] groups) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
         foreach (ModGroup<TMetaGroup, TConsumable> group in groups) {
-            if (!GetRequirement(consumable, group).IsNone) return player.HasInfinite(consumable, consumed, group);
+            if (!group.MetaGroup.GetRequirement(consumable, group).IsNone) return player.HasInfinite(consumable, consumed, group);
         }
         if (!retryIfNoneIncluded()) return false;
         return player.HasInfinite(consumable, consumed, groups);
@@ -40,18 +33,17 @@ public static class InfinityManager {
     public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, params ModGroup<TMetaGroup, TConsumable>[] groups) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> => player.HasInfinite(consumable, consumed, () => false, groups);
 
 
-    public static MetaDisplay GetMetaDisplay(this Player player, Item item) {
-        if (player == Main.LocalPlayer && _displays.TryGetOrCache(item, out MetaDisplay? metaDisplay)) return metaDisplay;
+    public static MetaDisplay GetLocalMetaDisplay(this Item item) {
+        if (_displays.TryGetOrCache(item, out MetaDisplay? metaDisplay)) return metaDisplay;
 
         metaDisplay = new();
         foreach (IMetaGroup metaGroup in MetaGroups) {
             foreach ((IModGroup group, int type, bool used) in metaGroup.GetDisplayedGroups(item)) {
-                long consumed = group.GetConsumedFromContext(player, item, out bool exclusive);
+                long consumed = group.GetConsumedFromContext(Main.LocalPlayer, item, out bool exclusive);
                 if(!used && exclusive) metaDisplay.AddGroup(group, type, consumed, exclusive);
                 else if (used) metaDisplay.AddGroup(group, type, consumed, exclusive);
             }
         }
-
         return metaDisplay;
     }
 
@@ -125,5 +117,5 @@ public static class InfinityManager {
     private static readonly List<IMetaGroup> s_metaGroups = new();
     private static readonly Dictionary<IModGroup, IWrapper> s_configs = new();
 
-    private static readonly Cache<Item, (int type, int stack, int prefix), MetaDisplay> _displays = new(item => (item.type, item.stack, item.prefix), item => GetMetaDisplay(Main.LocalPlayer, item));
+    private static readonly Cache<Item, (int type, int stack, int prefix), MetaDisplay> _displays = new(item => (item.type, item.stack, item.prefix), GetLocalMetaDisplay);
 }

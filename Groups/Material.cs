@@ -7,8 +7,8 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
 namespace SPIC.Groups;
-public enum MaterialCategory : byte {
-    None = CategoryHelper.None,
+public enum MaterialCategory {
+    None,
     Basic,
     Ore,
     Furniture,
@@ -79,10 +79,12 @@ public class Material : ModGroupStatic<Material, ItemMG, Item, MaterialCategory>
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
     public override long GetConsumedFromContext(Player player, Item item, out bool exclusive) {
-        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item)); // TODO no available recipes & count for groups
-        if (material is not null) {
-            exclusive = true;
-            return material.stack;
+        if (Main.numAvailableRecipes != 0) {
+            Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item)); // TODO count for groups (and infinity)
+            if (material is not null) {
+                exclusive = true;
+                return material.stack;
+            }
         }
         return base.GetConsumedFromContext(player, item, out exclusive);
     }

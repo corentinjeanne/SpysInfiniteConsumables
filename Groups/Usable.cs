@@ -8,8 +8,8 @@ using Terraria.ModLoader;
 
 namespace SPIC.Groups;
 
-public enum UsableCategory : byte {
-    None = CategoryHelper.None,
+public enum UsableCategory {
+    None,
 
     Weapon,
     Recovery,
@@ -22,7 +22,7 @@ public enum UsableCategory : byte {
     Explosive,
     Tool, // TODO Fargo's summons
 
-    Unknown = CategoryHelper.Unknown
+    Unknown
 }
 
 public class UsableRequirements {

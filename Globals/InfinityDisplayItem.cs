@@ -17,7 +17,7 @@ public class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowCategories)) return;
 
-        MetaDisplay metaDisplay = InfinityManager.GetMetaDisplay(Main.LocalPlayer, item);
+        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
         foreach (IModGroup group in metaDisplay.DisplayedGroups) {
             (TooltipLine lineToFind, TooltipLineID? position) = group.GetTooltipLine(item);
             bool added = false;
@@ -28,19 +28,6 @@ public class InfinityDisplayItem : GlobalItem {
             DisplayOnLine(line, item, group, infinity, consumed);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
-        // foreach(IMetaGroup metaGroup in InfinityManager.MetaGroups) {
-        //     IMetaDisplay metaDisplay = metaGroup.GetMetaDisplay(Main.LocalPlayer, item, true);
-        //     foreach (IModGroup group in metaDisplay.DisplayedGroups) {
-        //         (TooltipLine lineToFind, TooltipLineID? position) = group.GetTooltipLine(item);
-        //         bool added = false;
-        //         TooltipLine? line = display.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
-                
-        //         if (line is null) continue;
-        //         (FullInfinity infinity, long consumed) = metaDisplay[group];
-        //         DisplayOnLine(line, item, group, infinity, consumed);
-        //         if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
-        //     }
-        // }
     }
 
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -49,21 +36,13 @@ public class InfinityDisplayItem : GlobalItem {
         if (Main.gameMenu || !display.glow_ShowGlow || !display.general_ShowInfinities) return true;
 
 
-        MetaDisplay metaDisplay = InfinityManager.GetMetaDisplay(Main.LocalPlayer, item);
-        
+        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
+
         List<IModGroup> withDisplay = new();
         foreach(IModGroup g in metaDisplay.DisplayedGroups) {
             (FullInfinity infinity, long consumed) = metaDisplay[g];
             if (consumed != 0 && infinity.Infinity >= Math.Max(consumed, 1)) withDisplay.Add(g);
         }
-
-        // MetaDisplay metaDisplay = InfinityManager.GetMetaDisplay(Main.LocalPlayer, item, true);
-        // foreach (IMetaGroup metaGroup in InfinityManager.MetaGroups) {
-        //     IMetaDisplay md = metaGroup.GetMetaDisplay(Main.LocalPlayer, item);
-        //     foreach(IModGroup g in md.DisplayedGroups) {
-        //         if(md[g].Item1.Infinity >= md[g].Item2) withDisplay.Add(g);
-        //     }
-        // }
 
         if (withDisplay.Count == 0) return true;
         IModGroup group = withDisplay[s_groupIndex % withDisplay.Count];
@@ -91,7 +70,7 @@ public class InfinityDisplayItem : GlobalItem {
         Vector2 dotDelta = DotSize * (display.dots_Direction == Configs.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
 
 
-        MetaDisplay metaDisplay = InfinityManager.GetMetaDisplay(Main.LocalPlayer, item);
+        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
         if(metaDisplay.DisplayedGroups.Count == 0) return;
         
         foreach (IModGroup group in metaDisplay.ByMetaGroups[s_metaGroupIndex % metaDisplay.ByMetaGroups.Count]) {
@@ -101,27 +80,7 @@ public class InfinityDisplayItem : GlobalItem {
             dotPosition += dotDelta;
         }
 
-        // List<IMetaDisplay> withDisplay = new();
-        // foreach(IMetaGroup metaGroup in InfinityManager.MetaGroups){
-        //     IMetaDisplay md = metaGroup.GetMetaDisplay(Main.LocalPlayer, item);
-        //     if (md.DisplayedGroups.Count != 0) withDisplay.Add(md);
-        // }
-        // if(withDisplay.Count ==0) return;
-        // IMetaDisplay metaDisplay = withDisplay[s_metaGroupIndex % withDisplay.Count];
-        // foreach (IModGroup group in metaDisplay.DisplayedGroups) {
-        //     long consumed = group.GetConsumedFromContext(Main.LocalPlayer, item, false);
-        //     if(consumed == 0) continue;
-        //     DisplayDot(spriteBatch, dotPosition, group, metaDisplay[group], consumed);
-        //     dotPosition += dotDelta;
-        // }
     }
-
-    /*
-    classic : Inf (bellow X), C/R items | -1
-    Infinity: Inf, C/R for Inf items    | X
-    Minimum: R items                    | 0
-    No display: -                       | No call
-    */
 
     public static void DisplayOnLine(TooltipLine line, Item item, IModGroup group, FullInfinity infinity, long consumed) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
