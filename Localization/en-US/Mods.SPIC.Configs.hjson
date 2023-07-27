@@ -238,8 +238,8 @@ GroupConfig: {
 }
 
 GenericWrapper`1: {
-	Empty: {
-		Label: Value: Save the config to edit this value
+	SaveBeforeEdit: {
+		Label: Save the config to edit this value
 		Tooltip: ""
 	}
 

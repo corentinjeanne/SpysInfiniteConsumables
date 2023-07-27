@@ -42,11 +42,11 @@ public class Material : InfinityStatic<Material, Items, Item, MaterialCategory> 
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Obj.Basics, 0.5f),
-        MaterialCategory.Ore => new(Config.Obj.Ores, 0.5f),
-        MaterialCategory.Furniture => new(Config.Obj.Furnitures, 0.5f),
-        MaterialCategory.Miscellaneous => new(Config.Obj.Miscellaneous, 0.5f),
-        MaterialCategory.NonStackable => new(Config.Obj.NonStackable, 0.5f),
+        MaterialCategory.Basic => new(Config.Value.Basics, 0.5f),
+        MaterialCategory.Ore => new(Config.Value.Ores, 0.5f),
+        MaterialCategory.Furniture => new(Config.Value.Furnitures, 0.5f),
+        MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, 0.5f),
+        MaterialCategory.NonStackable => new(Config.Value.NonStackable, 0.5f),
         MaterialCategory.None or _ => new(),
     };
 

@@ -25,10 +25,6 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
         int top = 0;
         (UIElement container, _selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
-        if (selectedProp.Type == typeof(object) && !selectedProp.CanWrite) {
-            _selectedElement.RemoveAllChildren();
-            ReflectionHelper.ObjectElement_pendindChanges.SetValue(_selectedElement, false);
-        }
         container.Left.Pixels -= 20;
         container.Width.Pixels -= 7;
 
@@ -41,7 +37,7 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
         Func<string> elementLabel = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(_selectedElement)!;
         Func<string>? elementTooltip = (Func<string>?)ReflectionHelper.ConfigElement_TooltipFunction.GetValue(_selectedElement);
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(_selectedElement, () => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", TextDisplayFunction(), elementLabel()));
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(_selectedElement, () => $"{TextDisplayFunction()}: {elementLabel()}");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(_selectedElement, () => {
             List<string> parts = new();
             string? p = null;

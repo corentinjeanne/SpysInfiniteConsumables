@@ -5,7 +5,7 @@ namespace SPIC.Configs;
 public class Count : MultyChoice<int> {
 
     [Choice]
-    public object? Disabled => null;
+    public UI.Text Disabled => new();
 
     [Choice, Range(1, 9999)]
     public int Amount { get; set; }

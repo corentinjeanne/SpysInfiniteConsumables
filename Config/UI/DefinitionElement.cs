@@ -40,14 +40,14 @@ public class DefinitionElement : ConfigElement<IDefinition> {
 
     public void SetupList() {
         _dataList.Clear();
+        _elements.Clear();
         for (int i = 0; i < _values.Count; i++) {
+            Wrapper<Text> wrapper = new() { Value = new(_values[i].DisplayName, _values[i].Tooltip) };
+            _elements.Add(wrapper);
             int top = 0;
             int index = i;
-            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, index);
+            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, index);
             container.OnLeftClick += (UIMouseEvent evt, UIElement listeningElement) => CloseDropDownField(index);
-            element.RemoveAllChildren();
-            ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => _values[index].DisplayName);
         }
     }
 
@@ -82,8 +82,6 @@ public class DefinitionElement : ConfigElement<IDefinition> {
     private bool _expanded;
     private readonly UIList _dataList = new();
 
-    private static readonly FieldInfo s_dummyField = typeof(DefinitionElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private readonly EmptyClass _dummy = new();
+    private readonly List<Wrapper<Text>> _elements = new();
 
-    private class EmptyClass { }
 }

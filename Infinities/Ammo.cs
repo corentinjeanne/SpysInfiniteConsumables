@@ -33,13 +33,12 @@ public class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => new(Config.Obj.Standard),
-        AmmoCategory.Special or AmmoCategory.Explosive => new(Config.Obj.Special),
+        AmmoCategory.Basic => new(Config.Value.Standard),
+        AmmoCategory.Special or AmmoCategory.Explosive => new(Config.Value.Special),
         AmmoCategory.None or _ => new(),
     };
 
     public override AmmoCategory GetCategory(Item ammo) {
-
         if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)

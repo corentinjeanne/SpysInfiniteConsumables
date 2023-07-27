@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
@@ -34,6 +33,7 @@ public class DefinitionConverter : TypeConverter {
 public interface IDefinition {
     bool AllowNull { get; }
     string DisplayName { get; }
+    string? Tooltip { get; }
     IList<IDefinition> GetValues();
 }
 
@@ -45,6 +45,7 @@ public abstract class CustomDefinition<TDefinition> : EntityDefinition, IDefinit
     public CustomDefinition(string mod, string name) : base(mod, name) {}
 
     [JsonIgnore] public virtual string DisplayName => $"{Name} [{Mod}]{(IsUnloaded ? $" ({Language.GetTextValue($"{Localization.Keys.UI}.Unloaded")})" : string.Empty)}";
+    [JsonIgnore] public virtual string? Tooltip => null;
 
     [JsonIgnore] public virtual bool AllowNull => false;
     public abstract TDefinition[] GetValues();

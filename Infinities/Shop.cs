@@ -35,8 +35,8 @@ public class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {
-        ShopCategory.Coin => new(Config.Obj.Coins, ShopRequirements.CoinMult),
-        ShopCategory.SingleCoin => new(Config.Obj.Single, ShopRequirements.SingleCoinMult),
+        ShopCategory.Coin => new(Config.Value.Coins, ShopRequirements.CoinMult),
+        ShopCategory.SingleCoin => new(Config.Value.Single, ShopRequirements.SingleCoinMult),
         ShopCategory.None or _ => new()
     };
 

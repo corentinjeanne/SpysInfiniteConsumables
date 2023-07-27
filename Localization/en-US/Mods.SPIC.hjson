@@ -48,6 +48,4 @@ Chat: {
 CommonItemTooltips: {
 	Infinite: Infinite {0}
 	PartialyInfinite: Infinite {0} below {1}
-	Addon: "{0} ({1})"
-	Addon+: "{0} ({1}, {2})"
 }

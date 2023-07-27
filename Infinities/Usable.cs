@@ -53,15 +53,15 @@ public class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
 
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Config.Obj.Weapons),
-            UsableCategory.Recovery => new(Config.Obj.Potions),
-            UsableCategory.Buff => new(Config.Obj.Potions),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Obj.Boosters),
+            UsableCategory.Weapon => new(Config.Value.Weapons),
+            UsableCategory.Recovery => new(Config.Value.Potions),
+            UsableCategory.Buff => new(Config.Value.Potions),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Boosters),
 
-            UsableCategory.Summoner => new(Config.Obj.Summoners),
-            UsableCategory.Critter => new(Config.Obj.Critters),
-            UsableCategory.Explosive => new(Config.Obj.Tools),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Obj.Tools),
+            UsableCategory.Summoner => new(Config.Value.Summoners),
+            UsableCategory.Critter => new(Config.Value.Critters),
+            UsableCategory.Explosive => new(Config.Value.Tools),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tools),
 
             UsableCategory.None or _ => new(),
         };

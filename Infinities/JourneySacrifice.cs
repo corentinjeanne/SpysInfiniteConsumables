@@ -33,7 +33,7 @@ public class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
 
     public override Requirement GetRequirement(Item item) {
         if (!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new();
-        return IsConsumable(item) || Config.Obj.includeNonConsumable ? new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]) : new();
+        return IsConsumable(item) || Config.Value.includeNonConsumable ? new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]) : new();
     }
 
     public Wrapper<JourneySacrificeSettings> Config = null!;

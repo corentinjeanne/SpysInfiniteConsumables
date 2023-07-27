@@ -56,7 +56,7 @@ public class PlaceableRequirements {
     public Count Paints = 999;
 }
 
-public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO dupplication
+public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO Duplication
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override bool DefaultsToOn => false;
@@ -73,19 +73,19 @@ public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategor
 
     public override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Obj.Tiles),
-            PlaceableCategory.Torch => new(Config.Obj.Torches),
-            PlaceableCategory.Ore => new(Config.Obj.Ores),
+            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Value.Tiles),
+            PlaceableCategory.Torch => new(Config.Value.Torches),
+            PlaceableCategory.Ore => new(Config.Value.Ores),
 
             PlaceableCategory.LightSource
                     or PlaceableCategory.Functional or PlaceableCategory.Decoration
                     or PlaceableCategory.Container or PlaceableCategory.CraftingStation
-                => new(Config.Obj.Furnitures),
-            PlaceableCategory.MusicBox => new(Config.Obj.Furnitures),
-            PlaceableCategory.Liquid => new(Config.Obj.Liquids),
-            PlaceableCategory.Mechanical => new(Config.Obj.Mechanical),
-            PlaceableCategory.Seed => new(Config.Obj.Seeds),
-            PlaceableCategory.Paint => new(Config.Obj.Paints),
+                => new(Config.Value.Furnitures),
+            PlaceableCategory.MusicBox => new(Config.Value.Furnitures),
+            PlaceableCategory.Liquid => new(Config.Value.Liquids),
+            PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
+            PlaceableCategory.Seed => new(Config.Value.Seeds),
+            PlaceableCategory.Paint => new(Config.Value.Paints),
             PlaceableCategory.None or _ => new(),
         };
     }

@@ -41,9 +41,9 @@ public class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
         Config = InfinityManager.RegisterConfig<GrabBagRequirements>(this);
     }
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Obj.Containers),
-        GrabBagCategory.TreasureBag => new(Config.Obj.TreasureBags),
-        GrabBagCategory.Convertible => new(Config.Obj.Convertibles),
+        GrabBagCategory.Container => new(Config.Value.Containers),
+        GrabBagCategory.TreasureBag => new(Config.Value.TreasureBags),
+        GrabBagCategory.Convertible => new(Config.Value.Convertibles),
         GrabBagCategory.None /* or GrabBagCategory.Unknown */ or _ => new(),
     };
 

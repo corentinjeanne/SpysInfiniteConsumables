@@ -93,10 +93,6 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, i);
         
-            // if (element.GetType() == ReflectionHelper.ObjectElement) {
-            //     ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
-            //     ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
-            // }
             if(dict is IOrderedDictionary){
                 element.Width.Pixels -= 25;
                 element.Left.Pixels += 25;
@@ -115,7 +111,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
 
-            string? name = key switch { // TODO rework
+            string? name = key switch { // TODO change to display label of the Member
                 PresetDefinition preset => preset.DisplayName,
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 InfinityDefinition infinity => infinity.DisplayName,
@@ -126,12 +122,8 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
         }
         if(unloaded > 0){
+            _dummy = new($"{unloaded} unloaded items");
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);
-            string text = $"{unloaded} unloaded items";
-            element.RemoveAllChildren();
-            ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => text);
-
         }
         MaxHeight.Pixels = int.MaxValue;
         Recalculate();
@@ -150,10 +142,8 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
     }
 
     private static readonly FieldInfo s_dummyField = typeof(CustomDictionaryElement).GetField(nameof(_dummy), BindingFlags.NonPublic | BindingFlags.Instance)!;
-    private readonly EmptyClass _dummy = new();
+    private Text _dummy = new();
 
     private readonly List<IDictionaryEntryWrapper> _dictWrappers = new();
     private readonly UIList _dataList = new();
-
-    private class EmptyClass { }
 }
