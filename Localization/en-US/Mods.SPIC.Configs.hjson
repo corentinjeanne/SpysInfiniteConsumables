@@ -30,7 +30,6 @@ InfinitySettings: {
 		Label: "[i:1913] Customs"
 		Tooltip: ""
 	}
-
 }
 
 CategoryDetection: {
@@ -247,7 +246,18 @@ GenericWrapper`1: {
 	Tooltip: ""
 }
 
+GenericWrapper: {
+	Tooltip: ""
+
+	Empty: {
+		Label: Empty
+		Tooltip: ""
+	}
+}
+
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
 ModConsumableDefinition.Tooltip: ""
+InfinityDefinition.Tooltip: ""
+GroupDefinition.Tooltip: ""

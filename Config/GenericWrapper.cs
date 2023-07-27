@@ -9,11 +9,6 @@ using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
 
-public interface IGenericWrapper {
-    PropertyFieldWrapper Member { get; }
-    object? Value { get; set; }
-}
-
 public class GenericWrapperSerializer : JsonConverter<IGenericWrapper> {
 
     public override IGenericWrapper ReadJson(JsonReader reader, System.Type objectType, IGenericWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
@@ -27,12 +22,17 @@ public class GenericWrapperSerializer : JsonConverter<IGenericWrapper> {
 
 public class GenericWrapperConverter : TypeConverter {
     public GenericWrapperConverter(System.Type type) => ParentType = type;
-    public override bool CanConvertTo(ITypeDescriptorContext? context, System.Type? destinationType) => InnerConvertor.CanConvertTo(context, destinationType);
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, System.Type sourceType) => InnerConvertor.CanConvertFrom(context, sourceType);
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) => System.Activator.CreateInstance(ParentType, InnerConvertor.ConvertFrom(context, culture, value));
-    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, System.Type destinationType) => InnerConvertor.ConvertTo(context, culture, ((IGenericWrapper?)value)?.Value, destinationType);
+    public override bool CanConvertTo(ITypeDescriptorContext? context, System.Type? destinationType) => (destinationType != typeof(string) && InnerConvertor.CanConvertTo(context, destinationType));
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, System.Type sourceType) => (sourceType == typeof(string) && InnerConvertor.CanConvertFrom(context, sourceType)) || base.CanConvertFrom(context, sourceType);
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) => value is string ? base.ConvertFrom(context, culture, value) : System.Activator.CreateInstance(ParentType, InnerConvertor.ConvertFrom(context, culture, value));
+
     public System.Type ParentType { get; }
     public TypeConverter InnerConvertor => TypeDescriptor.GetConverter(ParentType.GenericTypeArguments[0]);
+}
+
+public interface IGenericWrapper {
+    PropertyFieldWrapper Member { get; }
+    object? Value { get; set; }
 }
 
 [JsonConverter(typeof(GenericWrapperSerializer))]
