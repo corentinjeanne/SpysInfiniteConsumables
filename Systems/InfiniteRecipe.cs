@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using SPIC.Groups;
+using SPIC.Infinities;
 
 namespace SPIC.Systems;
 
@@ -14,7 +14,7 @@ public class InfiniteRecipe : ModSystem {
 
 
     public override void Load() {
-        Terraria.On_Recipe.FindRecipes += HookRecipe_FindRecipes;
+        On_Recipe.FindRecipes += HookRecipe_FindRecipes;
     }
 
 

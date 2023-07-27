@@ -1,6 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.Groups;
+using SPIC.Infinities;
 using Terraria.DataStructures;
 
 namespace SPIC.Globals;
@@ -35,7 +35,7 @@ public class ConsumptionNPC : GlobalNPC {
     }
 
     public override void OnSpawn(NPC npc, IEntitySource source) {
-        if(source is EntitySource_Parent parent && Configs.GroupSettings.Instance.PreventItemDupication
+        if(source is EntitySource_Parent parent && Configs.InfinitySettings.Instance.PreventItemDupication
                 && parent.Entity is Player player && player.HasInfinite(new(npc.catchItem), 1, Usable.Instance)) {
             npc.SpawnedFromStatue = true;
         }

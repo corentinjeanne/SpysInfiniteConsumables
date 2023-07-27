@@ -3,7 +3,7 @@ using Terraria.ModLoader;
 
 namespace SPIC.Configs.Presets;
 
-public abstract class ModPreset : ModType, ILocalizedModType {
+public abstract class Preset : ModType, ILocalizedModType {
 
     public string LocalizationCategory => "Configs.Presets";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", new System.Func<string>(PrettyPrintName));
@@ -11,12 +11,12 @@ public abstract class ModPreset : ModType, ILocalizedModType {
     public sealed override void SetupContent() => SetStaticDefaults();
 
     protected sealed override void Register() {
-        ModTypeLookup<ModPreset>.Register(this);
+        ModTypeLookup<Preset>.Register(this);
         PresetLoader.Register(this);
     }
 
     public abstract int CriteriasCount { get; }
 
-    public abstract bool MeetsCriterias(ConsumableConfig config);
-    public abstract void ApplyCriterias(ConsumableConfig config);
+    public abstract bool MeetsCriterias(GroupConfig config);
+    public abstract void ApplyCriterias(GroupConfig config);
 }

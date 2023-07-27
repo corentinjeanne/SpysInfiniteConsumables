@@ -1,6 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.Groups;
+using SPIC.Infinities;
 
 namespace SPIC.Globals {
 

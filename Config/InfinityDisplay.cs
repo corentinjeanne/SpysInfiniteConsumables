@@ -31,7 +31,7 @@ public class InfinityDisplay : ModConfig {
     [DefaultValue(1f)]
     public float glow_Intensity;
     [DefaultValue(2), Range(0, 5), Slider]
-    public int glow_GroupTime;
+    public int glow_InfinityTime;
 
     [Header($"${Localization.Keys.InfinityDisplay}.Dots.Header")]
     [DefaultValue(true)]
@@ -47,19 +47,19 @@ public class InfinityDisplay : ModConfig {
 
     [Header($"${Localization.Keys.InfinityDisplay}.Colors.Header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
-    public Dictionary<ModGroupDefinition, Color> Colors {
+    public Dictionary<InfinityDefinition, Color> Colors {
         get => _colors;
         set {
             _colors.Clear();
-            foreach (IModGroup group in InfinityManager.Groups) {
-                ModGroupDefinition def = new(group);
+            foreach (IInfinity infinity in InfinityManager.Infinities) {
+                InfinityDefinition def = new(infinity);
                 if (value.TryGetValue(def, out Color color)) _colors[def] = color;
-                else _colors[def] = group.DefaultColor;
+                else _colors[def] = infinity.DefaultColor;
             } 
         }
     }
 
-    private readonly Dictionary<ModGroupDefinition, Color> _colors = new();
+    private readonly Dictionary<InfinityDefinition, Color> _colors = new();
 
 
     public enum CountStyle { Sprite, Name }

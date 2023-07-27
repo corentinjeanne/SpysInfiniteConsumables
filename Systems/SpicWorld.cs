@@ -121,7 +121,7 @@ namespace SPIC.Systems {
             // }
         }
         public override void OnWorldUnload(){
-            Configs.GroupSettings.Instance.SaveConfig();
+            Configs.InfinitySettings.Instance.SaveConfig();
             Configs.CategoryDetection.Instance.SaveConfig();
             Configs.InfinityDisplay.Instance.SaveConfig();
 

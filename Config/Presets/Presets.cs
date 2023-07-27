@@ -1,68 +1,65 @@
-using System;
-using SPIC.Groups;
-
 namespace SPIC.Configs.Presets;
 
-public class Defaults : ModPreset {
+public class Defaults : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool MeetsCriterias(ConsumableConfig config) {
-        foreach ((ModGroupDefinition def, bool enable) in config.EnabledGroups.Items<ModGroupDefinition, bool>()) {
-            if (enable != InfinityManager.GetModGroup(def.Mod, def.Name)!.DefaultsToOn) return false;
+    public override bool MeetsCriterias(GroupConfig config) {
+        foreach ((InfinityDefinition def, bool enable) in config.EnabledInfinities.Items<InfinityDefinition, bool>()) {
+            if (enable != InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
-    public override void ApplyCriterias(ConsumableConfig config) {
-        for(int i = 0; i < config.EnabledGroups.Count; i++) {
-            ModGroupDefinition def = (ModGroupDefinition)config.EnabledGroups.Keys.Index(i);
-            config.EnabledGroups[i] = InfinityManager.GetModGroup(def.Mod, def.Name)!.DefaultsToOn;
+    public override void ApplyCriterias(GroupConfig config) {
+        for(int i = 0; i < config.EnabledInfinities.Count; i++) {
+            InfinityDefinition def = (InfinityDefinition)config.EnabledInfinities.Keys.Index(i);
+            config.EnabledInfinities[i] = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn;
         }
         config.MaxConsumableTypes = 0;
     }
 
 }
 
-public class OneForMany : ModPreset {
+public class OneForMany : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool MeetsCriterias(ConsumableConfig config) {
-        foreach (bool enable in config.EnabledGroups.Values) {
+    public override bool MeetsCriterias(GroupConfig config) {
+        foreach (bool enable in config.EnabledInfinities.Values) {
             if (enable) return config.MaxConsumableTypes == 1;
         }
         return false;
     }
-    public override void ApplyCriterias(ConsumableConfig config) {
+    public override void ApplyCriterias(GroupConfig config) {
         config.MaxConsumableTypes = 1;
-        if(!MeetsCriterias(config)) config.EnabledGroups[0] = true;
+        if(!MeetsCriterias(config)) config.EnabledInfinities[0] = true;
     }
 
 }
 
-public class AllEnabled : ModPreset {
+public class AllEnabled : Preset {
     public override int CriteriasCount => 2;
 
-    public override void ApplyCriterias(ConsumableConfig config) {
-        for(int i = 0; i < config.EnabledGroups.Count; i++) config.EnabledGroups[i] = true;
+    public override void ApplyCriterias(GroupConfig config) {
+        for(int i = 0; i < config.EnabledInfinities.Count; i++) config.EnabledInfinities[i] = true;
         config.MaxConsumableTypes = 0;
     }
 
-    public override bool MeetsCriterias(ConsumableConfig config) {
-        foreach (bool enabled in config.EnabledGroups.Values) {
+    public override bool MeetsCriterias(GroupConfig config) {
+        foreach (bool enabled in config.EnabledInfinities.Values) {
             if (!enabled) return false;
         }
         return config.MaxConsumableTypes == 0;
     }
 }
 
-public class AllDisabled : ModPreset {
+public class AllDisabled : Preset {
     public override int CriteriasCount => 1;
 
-    public override void ApplyCriterias(ConsumableConfig config) {
-        for(int i = 0; i < config.EnabledGroups.Count; i++) config.EnabledGroups[i] = false;
+    public override void ApplyCriterias(GroupConfig config) {
+        for(int i = 0; i < config.EnabledInfinities.Count; i++) config.EnabledInfinities[i] = false;
     }
 
-    public override bool MeetsCriterias(ConsumableConfig config) {
-        foreach (bool enabled in config.EnabledGroups.Values) {
+    public override bool MeetsCriterias(GroupConfig config) {
+        foreach (bool enabled in config.EnabledInfinities.Values) {
             if (enabled) return false;
         }
         return true;

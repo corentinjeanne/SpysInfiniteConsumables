@@ -3,23 +3,23 @@ using System.Collections.Generic;
 namespace SPIC;
 
 
-public class ConsumableInfinity {
+public class GroupInfinity {
     
-    public ConsumableInfinity() {
+    public GroupInfinity() {
         _infinities = new();
-        UsedGroups = new();
+        UsedInfinities = new();
         Mixed = new();
     }
 
-    public void AddGroup(IModGroup group, FullInfinity infinity, bool used) {
-        _infinities[group] = infinity;
-        if(used) UsedGroups.Add(group);
+    public void Add(IInfinity infinity, FullInfinity fullInfinity, bool used) {
+        _infinities[infinity] = fullInfinity;
+        if(used) UsedInfinities.Add(infinity);
     }
     public void AddMixed(Requirement? custom = null) {
         long count = 0;
         long reqCount = 0; float reqMult = 0f;
-        foreach(IModGroup group in UsedGroups){
-            FullInfinity fullInfinity = _infinities[group];
+        foreach(IInfinity infinity in UsedInfinities){
+            FullInfinity fullInfinity = _infinities[infinity];
             if(count == 0 || fullInfinity.Count < count) count = fullInfinity.Count;
             if(reqCount == 0 || fullInfinity.Requirement.Count > reqCount) reqCount = fullInfinity.Requirement.Count;
             if(reqMult == 0 || fullInfinity.Requirement.Multiplier < reqMult) reqMult = fullInfinity.Requirement.Multiplier;
@@ -27,56 +27,56 @@ public class ConsumableInfinity {
         }
         IFullRequirement requirement;
         if(custom.HasValue){
-            UsedGroups.Clear();
+            UsedInfinities.Clear();
             requirement = new CustomRequirement(custom.Value);
         } else requirement = new MixedRequirement(new(reqCount, reqMult));
         Mixed = new(requirement, count, requirement.Requirement.Infinity(count));
     }
 
-    public FullInfinity this[IModGroup group] => _infinities[group];
+    public FullInfinity this[IInfinity infinity] => _infinities[infinity];
     public FullInfinity Mixed { get; private set; }
 
-    public HashSet<IModGroup> UsedGroups { get; private set; }
+    public HashSet<IInfinity> UsedInfinities { get; private set; }
 
-    private readonly Dictionary<IModGroup, FullInfinity> _infinities;
+    private readonly Dictionary<IInfinity, FullInfinity> _infinities;
 
 }
 
 public class ItemDisplay {
 
     public ItemDisplay() {
-        DisplayedGroups = new();
-        ByModConsumable = new();
+        DisplayedInfinities = new();
+        InfinitiesByGroup = new();
         _infinities = new();
     }
 
-    public (FullInfinity Infinity, long Consumed) this[IModGroup group] {
+    public (FullInfinity Infinity, long Consumed) this[IInfinity infinity] {
         get {
-            (int type, long consumed) = _infinities[group];
-            return (InfinityManager.GetFullInfinity(Terraria.Main.LocalPlayer, type, group), consumed);
+            (int type, long consumed) = _infinities[infinity];
+            return (InfinityManager.GetFullInfinity(Terraria.Main.LocalPlayer, type, infinity), consumed);
         }
     }
 
-    public void AddGroup(IModGroup group, int type, long consumed, bool exclusive) {
+    public void Add(IInfinity infinity, int type, long consumed, bool exclusive) {
         if(ExclusiveContext && !exclusive) return;
         if(!ExclusiveContext && exclusive) {
             _infinities.Clear();
-            ByModConsumable.Clear();
-            DisplayedGroups.Clear();
+            InfinitiesByGroup.Clear();
+            DisplayedInfinities.Clear();
             ExclusiveContext = true;
         }
 
-        _infinities[group] = (type, consumed);
-        DisplayedGroups.Add(group);
-        if(ByModConsumable.Count == 0 || ByModConsumable[^1][0].ModConsumable != group.ModConsumable){
-            ByModConsumable.Add(new());
+        _infinities[infinity] = (type, consumed);
+        DisplayedInfinities.Add(infinity);
+        if(InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group){
+            InfinitiesByGroup.Add(new());
         }
-        ByModConsumable[^1].Add(group);
+        InfinitiesByGroup[^1].Add(infinity);
     }
 
     public bool ExclusiveContext { get; private set; }
 
-    private readonly Dictionary<IModGroup, (int, long)> _infinities;
-    public List<IModGroup> DisplayedGroups { get; private set; }
-    public List<List<IModGroup>> ByModConsumable { get; private set; }
+    private readonly Dictionary<IInfinity, (int, long)> _infinities;
+    public List<IInfinity> DisplayedInfinities { get; private set; }
+    public List<List<IInfinity>> InfinitiesByGroup { get; private set; }
 }

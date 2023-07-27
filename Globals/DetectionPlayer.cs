@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.Groups;
+using SPIC.Infinities;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 using Terraria.UI;
@@ -186,7 +186,7 @@ public class DetectionPlayer : ModPlayer {
         Item item = self.inventory[selItem];
 
         Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
-        Configs.GroupSettings settings = Configs.GroupSettings.Instance;
+        Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
 
         if (detection.DetectMissing && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 

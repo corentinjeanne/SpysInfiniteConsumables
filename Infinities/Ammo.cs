@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 
 // TODO dd2 mana consumption
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 public enum AmmoCategory {
     None,
     Basic,
@@ -16,13 +16,13 @@ public enum AmmoCategory {
     Special
 }
 public class AmmoRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Ammo.Standard")]
+    [LabelKey($"${Localization.Keys.Infinties}.Ammo.Standard")]
     public Count Standard = 4 * 999;
-    [LabelKey($"${Localization.Keys.Groups}.Ammo.Special")]
+    [LabelKey($"${Localization.Keys.Infinties}.Ammo.Special")]
     public Count Special = 999;
 }
 
-public class Ammo : ModGroupStatic<Ammo, Items, Item, AmmoCategory> {
+public class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
 
     public override int IconType => ItemID.EndlessQuiver;
     public override Color DefaultColor => Colors.RarityLime;

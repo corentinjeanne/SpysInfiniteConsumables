@@ -10,7 +10,7 @@ public class SpysInfiniteConsumables : Mod {
 
     public override void Load() {
         Instance = this;
-        Groups.Placeable.ClearWandAmmos();
+        Infinities.Placeable.ClearWandAmmos();
     }
 
     public override void PostSetupContent() {
@@ -20,7 +20,7 @@ public class SpysInfiniteConsumables : Mod {
     }
 
     public override void Unload() {
-        Groups.Placeable.ClearWandAmmos();
+        Infinities.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         
         InfinityManager.Unload();
@@ -38,7 +38,7 @@ public class SpysInfiniteConsumables : Mod {
                 string mod = parts[0];
                 string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.GetModGroup(mod, name)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorect", cast);

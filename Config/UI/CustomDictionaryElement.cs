@@ -116,10 +116,10 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             }
 
             string? name = key switch { // TODO rework
-                PresetDefinition preset => preset.Label(),
+                PresetDefinition preset => preset.DisplayName,
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
-                ModGroupDefinition group => group.Label(),
-                ModConsumableDefinition consumable => consumable.Label(),
+                InfinityDefinition infinity => infinity.DisplayName,
+                GroupDefinition group => group.DisplayName,
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
@@ -154,4 +154,6 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
     private readonly List<IDictionaryEntryWrapper> _dictWrappers = new();
     private readonly UIList _dataList = new();
+
+    private class EmptyClass { }
 }

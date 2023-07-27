@@ -4,7 +4,7 @@ using SPIC.Configs;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 
 public enum ShopCategory {
     None,
@@ -13,16 +13,16 @@ public enum ShopCategory {
 }
 
 public class ShopRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
+    [LabelKey($"${Localization.Keys.Infinties}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
     public Count Coins = 1000;
-    [LabelKey($"${Localization.Keys.Groups}.Shop.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
+    [LabelKey($"${Localization.Keys.Infinties}.Shop.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
     public Count Single = 20;
 
     public const float CoinMult = 1 / 20f;
     public const float SingleCoinMult = 1 / 5f;
 }
 
-public class Shop : ModGroupStatic<Shop, Currencies, int, ShopCategory> {
+public class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
 
     public override int IconType => ItemID.LuckyCoin;
     public override bool DefaultsToOn => false;

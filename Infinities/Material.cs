@@ -6,7 +6,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 public enum MaterialCategory {
     None,
     Basic,
@@ -17,19 +17,19 @@ public enum MaterialCategory {
 }
 
 public class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinties}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Basics = 999;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Furnitures = 20;
-    [LabelKey($"${Localization.Keys.Groups}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinties}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Groups}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinties}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count NonStackable = 2;
 }
 
-public class Material : ModGroupStatic<Material, Items, Item, MaterialCategory> {
+public class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
     
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool DefaultsToOn => false;
@@ -61,7 +61,7 @@ public class Material : ModGroupStatic<Material, Items, Item, MaterialCategory> 
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = ModConsumable.GetCategory(item, Placeable.Instance);
+        PlaceableCategory placeable = Group.GetCategory(item, Placeable.Instance);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;

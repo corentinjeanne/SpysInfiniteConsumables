@@ -6,14 +6,14 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 
 public class JourneySacrificeSettings {
-    [LabelKey($"${Localization.Keys.Groups}.JourneySacrifice.Sacrifices")]
+    [LabelKey($"${Localization.Keys.Infinties}.JourneySacrifice.Sacrifices")]
     public bool includeNonConsumable;
 }
 
-public class JourneySacrifice : ModGroupStatic<JourneySacrifice, Items, Item> {
+public class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
 
     public override int IconType => ItemID.GoldBunny;
     public override bool DefaultsToOn => false;
@@ -25,8 +25,8 @@ public class JourneySacrifice : ModGroupStatic<JourneySacrifice, Items, Item> {
     }
 
     public bool IsConsumable(Item item) {
-        foreach (ModGroup<Items, Item> group in ModConsumable.Groups) {
-            if (group != this && !ModConsumable.GetRequirement(item, group).IsNone) return true;
+        foreach (Infinity<Items, Item> infinity in Group.Infinities) {
+            if (infinity != this && !Group.GetRequirement(item, infinity).IsNone) return true;
         }
         return false;
     }

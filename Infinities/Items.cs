@@ -1,9 +1,9 @@
 using SPIC.Configs;
 using Terraria;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 
-public class Items : ModConsumable<Items, Item> {
+public class Items : Group<Items, Item> {
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);
     public override long MaxStack(Item consumable) => consumable.IsACoin ? 100 : consumable.maxStack;
 

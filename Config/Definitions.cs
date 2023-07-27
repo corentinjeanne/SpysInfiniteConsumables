@@ -5,71 +5,94 @@ using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using System.Linq;
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Terraria.Localization;
+using System.Reflection;
 
 namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetPresets), nameof(Label), true)]
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.PresetDefinition]")]
-public class PresetDefinition : EntityDefinition {
-    public PresetDefinition() : base(){}
-    public PresetDefinition(string fullName) : base(fullName) {}
-    public PresetDefinition(ModPreset preset) : base(preset.Mod.Name, preset.Name) {}
-
-    public override int Type => PresetLoader.GetPreset(Mod, Name) is null ? -1 : 1;
-
-    public string Label() => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
-
-    public static PresetDefinition[] GetPresets() => PresetLoader.Presets.Select(preset => new PresetDefinition(preset)).ToArray();
-
-    public static PresetDefinition FromString(string s) => new(s);
-}
-
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetModConsumables), nameof(Label))]
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ModConsumableDefinition]")]
-public class ModConsumableDefinition : EntityDefinition {
-    public ModConsumableDefinition() : base(){}
-    public ModConsumableDefinition(string fullName) : base(fullName) {}
-    public ModConsumableDefinition(IModConsumable modConsumable) : base(modConsumable.Mod.Name, modConsumable.Name) {}
-
-    public override int Type => InfinityManager.GetModConsumable(Mod, Name) is null ? -1 : 1;
-
-    public string Label() => InfinityManager.GetModConsumable(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
-
-    public static ModConsumableDefinition[] GetModConsumables() => InfinityManager.ModConsumables.Select(consumable => new ModConsumableDefinition(consumable)).ToArray();
-
-    public static ModConsumableDefinition FromString(string s) => new(s);
-}
-
-
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetAllGroups), nameof(Label))]
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ModGroupDefinition]")]
-public class ModGroupDefinition : EntityDefinition {
-    public ModGroupDefinition() : base() {}
-    public ModGroupDefinition(string fullName) : base(fullName) {}
-    public ModGroupDefinition(string mod, string name) : base(mod, name) {}
-    public ModGroupDefinition(IModGroup group) : this(group.Mod.Name, group.Name) { }
-
-    public override int Type => InfinityManager.GetModGroup(Mod, Name) is null ? -1 : 1;
-
-    public string Label() {
-        IModGroup? group = InfinityManager.GetModGroup(Mod, Name);
-        return group is null ? $"(Unloaded) {this}" : $"[i:{group.IconType}] {group.DisplayName}";
+public class DefinitionConverter : TypeConverter {
+    public DefinitionConverter(Type type) {
+        if(!type.IsSubclassOfGeneric(typeof(CustomDefinition<>), out Type? gen)) throw new ArgumentException($"The type {type} does not derive from the type {typeof(DefinitionConverter)}.");
+        GenericType = gen;
+        MethodInfo? fromString = GenericType.GetMethod("FromString", BindingFlags.Static | BindingFlags.Public, new[] { typeof(string) });
+        if(fromString is null || fromString.ReturnType != GenericType.GenericTypeArguments[0]) throw new ArgumentException($"The type {GenericType} does not have a public static FromString(string) method that returns a {GenericType.GenericTypeArguments[0]}");
+        FromString = fromString;
     }
 
-    public static ModGroupDefinition FromString(string s) => new(s);
+    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) => destinationType != typeof(string) && base.CanConvertTo(context, destinationType);
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+    public override object? ConvertFrom(ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value) => value is string ? FromString.Invoke(null, new[] { value }) : base.ConvertFrom(context, culture, value);
 
-    public static ModGroupDefinition[] GetAllGroups() => InfinityManager.Groups.Select(group => new ModGroupDefinition(group)).ToArray();
-
-    public ModGroupDefinition MakeForModConsumable(IModConsumable modConsumable) => (ModGroupDefinition)Activator.CreateInstance(typeof(ModGroupDefinition<>).MakeGenericType(modConsumable.GetType()), Mod, Name)!;
+    public Type GenericType { get; }
+    public MethodInfo FromString { get; }
 }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetGroups), nameof(Label))]
-public class ModGroupDefinition<TModConsumable> : ModGroupDefinition where TModConsumable : class, IModConsumable {
-    public ModGroupDefinition() : base() { }
-    public ModGroupDefinition(string mod, string name) : base(mod, name) { }
-    public ModGroupDefinition(IModGroup group) : this(group.Mod.Name, group.Name) { }
+public interface IDefinition {
+    bool AllowNull { get; }
+    string DisplayName { get; }
+    IList<IDefinition> GetValues();
+}
 
-    public static ModGroupDefinition[] GetGroups() => ModContent.GetInstance<TModConsumable>().Groups.Select(group => new ModGroupDefinition<TModConsumable>(group)).ToArray();
+[CustomModConfigItem(typeof(DefinitionElement))]
+[TypeConverter("SPIC.Configs.DefinitionConverter")]
+public abstract class CustomDefinition<TDefinition> : EntityDefinition, IDefinition where TDefinition : CustomDefinition<TDefinition> {
+    public CustomDefinition() : base() {}
+    public CustomDefinition(string key) : base(key) { }
+    public CustomDefinition(string mod, string name) : base(mod, name) {}
+
+    [JsonIgnore] public virtual string DisplayName => $"{Name} [{Mod}]{(IsUnloaded ? $" ({Language.GetTextValue($"{Localization.Keys.UI}.Unloaded")})" : string.Empty)}";
+
+    [JsonIgnore] public virtual bool AllowNull => false;
+    public abstract TDefinition[] GetValues();
+    IList<IDefinition> IDefinition.GetValues() => GetValues();
+
+    public static TDefinition FromString(string s) => (TDefinition)Activator.CreateInstance(typeof(TDefinition), s)!;
+}
+
+public class PresetDefinition : CustomDefinition<PresetDefinition> {
+    public PresetDefinition() : base() { }
+    public PresetDefinition(string key) : base(key) { }
+    public PresetDefinition(string mod, string name) : base(mod, name) { }
+
+    public override int Type => PresetLoader.GetPreset(Mod, Name) is null ? -1 : 1;
+    
+    public override PresetDefinition[] GetValues() => PresetLoader.Presets.Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
+
+    public override bool AllowNull => true;
+
+    public override string DisplayName => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
+}
+
+public class GroupDefinition : CustomDefinition<GroupDefinition> {
+    public GroupDefinition() : base(){}
+    public GroupDefinition(string fullName) : base(fullName) {}
+    public GroupDefinition(IGroup group) : base(group.Mod.Name, group.Name) {}
+
+    public override int Type => InfinityManager.GetGroup(Mod, Name) is null ? -1 : 1;
+
+    public override string DisplayName => InfinityManager.GetGroup(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
+
+    public override GroupDefinition[] GetValues() => InfinityManager.Groups.Select(consumable => new GroupDefinition(consumable)).ToArray();
+}
+
+public class InfinityDefinition : CustomDefinition<InfinityDefinition> {
+    public InfinityDefinition() : base() { }
+    public InfinityDefinition(string fullName) : base(fullName) { }
+    public InfinityDefinition(string mod, string name) : base(mod, name) { }
+    public InfinityDefinition(IInfinity infinity) : this(infinity.Mod.Name, infinity.Name) { }
+
+    public override int Type => InfinityManager.GetInfinity(Mod, Name) is null ? -1 : 1;
+
+    [JsonIgnore] public IGroup? Filter { get; set; }
+
+    public override string DisplayName { get {
+        IInfinity? infinity = InfinityManager.GetInfinity(Mod, Name);
+        return infinity is not null ? $"[i:{infinity.IconType}] {infinity.DisplayName}" : base.DisplayName;
+    } }
+
+    public override InfinityDefinition[] GetValues() => (Filter is null ? InfinityManager.Infinities : Filter.Infinities).Select(intinity => new InfinityDefinition(intinity)).ToArray();
 }

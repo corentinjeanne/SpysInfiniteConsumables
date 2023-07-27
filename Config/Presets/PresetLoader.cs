@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 namespace SPIC.Configs.Presets;
 
 public static class PresetLoader {
-    internal static void Register(ModPreset preset) {
+    internal static void Register(Preset preset) {
         _presets.Add(preset);
     }
 
@@ -12,9 +12,9 @@ public static class PresetLoader {
         _presets.Clear();
     }
 
-    public static ModPreset? GetPreset(string mod, string name) => _presets.Find(p => p.Mod.Name == mod && p.Name == name);
+    public static Preset? GetPreset(string mod, string name) => _presets.Find(p => p.Mod.Name == mod && p.Name == name);
 
-    public static ReadOnlyCollection<ModPreset> Presets => _presets.AsReadOnly();
+    public static ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
 
-    private readonly static List<ModPreset> _presets = new();
+    private readonly static List<Preset> _presets = new();
 }

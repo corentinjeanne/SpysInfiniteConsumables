@@ -6,7 +6,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 
 public enum UsableCategory {
     None,
@@ -26,22 +26,22 @@ public enum UsableCategory {
 }
 
 public class UsableRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Weapons")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Weapons")]
     public Count Weapons = 2 * 999;
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Potions")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Potions")]
     public Count Potions = 30;
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Boosters")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Boosters")]
     public Count Boosters = 5;
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Summoners")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Summoners")]
     public Count Summoners = 3;
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Critters")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Critters")]
     public Count Critters = 10;
-    [LabelKey($"${Localization.Keys.Groups}.Usable.Tools")]
+    [LabelKey($"${Localization.Keys.Infinties}.Usable.Tools")]
     public Count Tools = 99;
 }
 
 
-public class Usable : ModGroupStatic<Usable, Items, Item, UsableCategory> {
+public class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color DefaultColor => Colors.RarityCyan;

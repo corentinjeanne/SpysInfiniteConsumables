@@ -7,7 +7,7 @@ using SPIC.Configs;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 
-namespace SPIC.Groups;
+namespace SPIC.Infinities;
 
 public enum PlaceableCategory {
     None,
@@ -38,25 +38,25 @@ public static class PlaceableExtension {
 }
 
 public class PlaceableRequirements {
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Tiles")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Tiles")]
     public Count Tiles = 999;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Ores")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores")]
     public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Torches")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Torches")]
     public Count Torches = 99;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Furnitures")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Furnitures")]
     public Count Furnitures = 3;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Mechanical")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Mechanical")]
     public Count Mechanical = 3;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Liquids")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Liquids")]
     public Count Liquids = 10;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Seeds")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Seeds")]
     public Count Seeds = 20;
-    [LabelKey($"${Localization.Keys.Groups}.Placeable.Paints")]
+    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Paints")]
     public Count Paints = 999;
 }
 
-public class Placeable : ModGroupStatic<Placeable, Items, Item, PlaceableCategory> { // TODO dupplication
+public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO dupplication
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override bool DefaultsToOn => false;

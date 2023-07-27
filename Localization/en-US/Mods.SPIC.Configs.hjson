@@ -1,6 +1,6 @@
-GroupSettings: {
-	DisplayName: Consumable group Settings
-	General.Header: Enabled groups
+InfinitySettings: {
+	DisplayName: Infinity Settings
+	General.Header: Enabled Infinities
 
 	PreventItemDupication: {
 		Label: "[i:3988] Prevent item duplication"
@@ -13,10 +13,12 @@ GroupSettings: {
 			'''
 	}
 
-	MetaConfigs: {
-		Label: EnabledGroups
+	GroupConfigs: {
+		Label: Group Configs
 		Tooltip: ""
 	}
+
+	Settings.Header: Configs Header
 
 	Configs: {
 		Label: Configs
@@ -29,12 +31,6 @@ GroupSettings: {
 		Tooltip: ""
 	}
 
-	Settings.Header: Configs Header
-
-	ConsumableConfigs: {
-		Label: Consumable Configs
-		Tooltip: ""
-	}
 }
 
 CategoryDetection: {
@@ -111,8 +107,8 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	glow_GroupTime: {
-		Label: "[i:583] Lenght (seconds)"
+	glow_InfinityTime: {
+		Label: "[i:583] Time per Infinity (seconds)"
 		Tooltip: ""
 	}
 
@@ -139,7 +135,7 @@ InfinityDisplay: {
 	}
 
 	dot_PageTime: {
-		Label: "[i:583] Time per MetaGroup (seconds)"
+		Label: "[i:583] Time per Group (seconds)"
 		Tooltip: Non visible dots will cycle every few seconds
 	}
 
@@ -160,6 +156,7 @@ UI: {
 	Change: Change to {0}
 	Up: Move Up
 	Down: Move Down
+	Unloaded: Unloaded
 }
 
 Custom: {
@@ -217,24 +214,24 @@ Direction: {
 	Horizontal.Label: Horizontal
 }
 
-MetaConfig: {
+GroupConfig: {
 	Preset: {
 		Label: Preset
 		Tooltip: ""
 	}
 
-	EnabledGroups: {
-		Label: Enabled Groups
+	EnabledInfinities: {
+		Label: Enabled Infinities
 		Tooltip: ""
 	}
 
 	MaxConsumableTypes: {
-		Label: "[i:486] Maximum used Consumable groups"
+		Label: "[i:486] Maximum used Infinities"
 		Tooltip:
 			'''
 			The maximum number of requirements taken into account directly.
-			Consumable groups that are not used take the minimum infinity as their infinity.
-			Set to 0 to use all groups.
+			Infinities that are not used take the minimum infinity as their infinity.
+			Set to 0 to use all Infinities.
 			'''
 	}
 
@@ -254,22 +251,3 @@ ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
 ModConsumableDefinition.Tooltip: ""
-
-ConsumableConfig: {
-	Tooltip: ""
-
-	Preset: {
-		Label: Preset
-		Tooltip: ""
-	}
-
-	EnabledGroups: {
-		Label: Enabled Groups
-		Tooltip: ""
-	}
-
-	MaxConsumableTypes: {
-		Label: Max Consumable Types
-		Tooltip: ""
-	}
-}
