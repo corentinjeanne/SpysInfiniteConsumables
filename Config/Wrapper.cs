@@ -5,12 +5,12 @@ namespace SPIC.Configs;
 
 public interface IWrapper {
     Type Type { get; }
-    object Obj { get; internal set; }
+    object? Obj { get; internal set; }
 }
 
-public class Wrapper<T> : IWrapper where T : class, new() {
+public class Wrapper<T> : IWrapper where T : new() {
     Type IWrapper.Type => typeof(T);
 
-    object IWrapper.Obj { get => Obj; set => Obj = (T)value; }
+    object? IWrapper.Obj { get => Obj; set => Obj = (T)value!; }
     public T Obj { get; private set; } = new();
 }

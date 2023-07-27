@@ -7,13 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Configs.UI;
 
-public class GenericWrapperElement : ConfigElement<GenericWrapper> {
-
-    private UIElement child = null!;
+public class GenericWrapperElement : ConfigElement<IGenericWrapperBase> {
 
     public override void OnBind() {
         base.OnBind();
-        GenericWrapper wrapper = Value;
+        IGenericWrapperBase wrapper = Value;
 
         int top = 0;
         (UIElement container, child) = ConfigManager.WrapIt(this, ref top, wrapper.Member, wrapper, 0);
@@ -21,10 +19,11 @@ public class GenericWrapperElement : ConfigElement<GenericWrapper> {
         container.Width.Pixels += 20;
 
         ReflectionHelper.ConfigElement_backgroundColor.SetValue(child, Color.Transparent);
-        DrawLabel = false;
         Func<string> childText = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(child)!;
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, () => $"{TextDisplayFunction()}{childText()[5..]}");
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, () => $"{TextDisplayFunction()}{childText()[wrapper.Member.Name.Length..]}");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(child, TooltipFunction);
+        DrawLabel = false;
+        TooltipFunction = null;
         MaxHeight.Pixels = int.MaxValue;
         Recalculate();
     }
@@ -34,4 +33,6 @@ public class GenericWrapperElement : ConfigElement<GenericWrapper> {
         Height = child.Height;
         if (Parent != null && Parent is UISortableElement) Parent.Height.Set(Height.Pixels, 0f);
     }
+
+    private UIElement child = null!;
 }

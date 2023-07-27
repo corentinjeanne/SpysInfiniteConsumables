@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Newtonsoft.Json.Linq;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
 using Terraria;
@@ -31,20 +29,14 @@ public class GroupSettings : ModConfig {
 
     [Header($"${Localization.Keys.GroupSettings}.Settings.Header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<ModGroupDefinition, object> Configs {
+    public Dictionary<ModGroupDefinition, GenericWrapper<object>> Configs {
         get => _configs;
         set {
             _configs.Clear();
             foreach ((IModGroup group, IWrapper wrapper) in InfinityManager.Configs) {
                 ModGroupDefinition def = new(group);
-                if (value.TryGetValue(def, out object? config)) {
-                    if (config is JObject jobj) config = jobj.ToObject(wrapper.Type)!;
-                    else if (config.GetType() != wrapper.Type) throw new NotImplementedException();
-                    _configs[def] = config;
-                } else {
-                    _configs[def] = Activator.CreateInstance(wrapper.Type)!;
-                }
-                wrapper.Obj = _configs[def];
+                _configs[def] = value.TryGetValue(def, out GenericWrapper<object>? config) ? config.MakeGeneric(wrapper.Type) : GenericWrapper<object>.From(wrapper.Type);
+                wrapper.Obj = _configs[def].Value;
             }
         }
     }
@@ -88,7 +80,7 @@ public class GroupSettings : ModConfig {
 
     private readonly Dictionary<MetaGroupDefinition, Dictionary<ItemDefinition, Custom>> _customs = new();
     private readonly Dictionary<MetaGroupDefinition, MetaConfig> _metaConfigs = new();
-    private readonly Dictionary<ModGroupDefinition, object> _configs = new();
+    private readonly Dictionary<ModGroupDefinition, GenericWrapper<object>> _configs = new();
 
     public override ConfigScope Mode => ConfigScope.ServerSide;    
     public static GroupSettings Instance = null!;

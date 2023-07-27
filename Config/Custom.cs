@@ -8,13 +8,17 @@ namespace SPIC.Configs;
 
 public class Custom : MultyChoice {
 
-
     [JsonIgnore]
     public IMetaGroup MetaGroup {
         get => _metaGroup;
         internal set {
             _metaGroup = value;
-            foreach(ModGroupDefinition def in CustomRequirements.Keys) def.MetaGroup = MetaGroup;
+
+            Dictionary<GenericWrapper<ModGroupDefinition>, Count> dict = new();
+            foreach (GenericWrapper<ModGroupDefinition> def in CustomRequirements.Keys) dict[GenericWrapper<ModGroupDefinition>.From(def.Value.MakeForMetagroup(_metaGroup))] = CustomRequirements[def];
+
+            CustomRequirements.Clear();
+            foreach((GenericWrapper<ModGroupDefinition> def, Count wrapper) in dict) CustomRequirements[def] = wrapper;
         }
     }
 
@@ -22,20 +26,20 @@ public class Custom : MultyChoice {
     public Count GlobalValue { get; set; } = new();
 
     [Choice]
-    public Dictionary<ModGroupDefinition, Count> CustomRequirements { get; set; } = new();
-    
+    public Dictionary<GenericWrapper<ModGroupDefinition>, Count> CustomRequirements { get; set; } = new();
+
     private IMetaGroup _metaGroup = null!;
 
     public bool TryGetValue(IModGroup group, [MaybeNullWhen(false)] out Count count){
-        if(Choice.Name == nameof(Globals)){
+        if(Choice == nameof(Globals)){
             count = default;
             return false;
         }
         ModGroupDefinition def = new(group);
-        return CustomRequirements.TryGetValue(def, out count);
+        return CustomRequirements.TryGetValue(new GenericWrapper<ModGroupDefinition>(def), out count);
     }
     public bool TryGetGlobal([MaybeNullWhen(false)] out Count count){
-        if(Choice.Name == nameof(GlobalValue)){
+        if(Choice == nameof(GlobalValue)){
             count = GlobalValue;
             return true;
         }

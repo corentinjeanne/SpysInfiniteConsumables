@@ -13,34 +13,13 @@ GroupSettings: {
 			'''
 	}
 
-	Preset: {
-		Label: "[i:1913] Actice Preset"
+	MetaConfigs: {
+		Label: EnabledGroups
 		Tooltip: ""
 	}
 
-	EnabledGroups: {
-		Label: Enabled Groups
-		Tooltip: ""
-	}
-
-	MaxConsumableTypes: {
-		Label: "[i:486] Maximum used Consumable groups"
-		Tooltip:
-			'''
-			The maximum number of requirements taken into account directly.
-			Consumable groups that are not used take the minimum infinity as their infinity.
-			Set to 0 to use all groups.
-			'''
-	}
-
-	EnabledGlobals: {
-		Label: Enabled Globals
-		Tooltip: ""
-	}
-
-	Settings: {
-		Header: Group Settings
-		Label: Settings
+	Configs: {
+		Label: Configs
 		Tooltip: ""
 	}
 
@@ -50,15 +29,7 @@ GroupSettings: {
 		Tooltip: ""
 	}
 
-	MetaConfigs: {
-		Label: Meta Configs
-		Tooltip: ""
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
+	Settings.Header: Configs Header
 }
 
 CategoryDetection: {
@@ -123,11 +94,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	tooltip_ShowMixed: {
-		Label: "[i:3572] Display Mixed Infinity"
-		Tooltip: ""
-	}
-
 	Glow.Header: Item Glow
 
 	glow_ShowGlow: {
@@ -140,8 +106,8 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	glow_PulseTime: {
-		Label: "[i:583] Pulse time (ticks)"
+	glow_GroupTime: {
+		Label: "[i:583] Lenght (seconds)"
 		Tooltip: ""
 	}
 
@@ -167,24 +133,14 @@ InfinityDisplay: {
 		Tooltip: "{$Mods.SPIC.Configs.InfinityDisplay.Dots.Count.Tooltip}"
 	}
 
-	dot_PulseTime: {
-		Label: "{$glow_PulseTime.Label}"
+	dot_PageTime: {
+		Label: "[i:583] Time per MetaGroup (seconds)"
 		Tooltip: Non visible dots will cycle every few seconds
 	}
 
 	Colors: {
 		Header: Infinity colors
 		Label: Colors
-		Tooltip: ""
-	}
-
-	dot_PageTime: {
-		Label: dot_ Page Time
-		Tooltip: ""
-	}
-
-	glow_GroupTime: {
-		Label: glow_ Group Time
 		Tooltip: ""
 	}
 }
@@ -196,22 +152,14 @@ UI: {
 	Items.Name: Items
 	Stacks.Name: Stacks of {0}
 	None: None
-}
-
-PresetDefinition: {
-	Tooltip: ""
-
-	IsUnloaded: {
-		Label: Is Unloaded
-		Tooltip: ""
-	}
+	Change: Change to {0}
+	Up: Move Up
+	Down: Move Down
 }
 
 Custom: {
-	Tooltip: ""
-
-	Blacklisted: {
-		Label: Blacklisted
+	GlobalValue: {
+		Label: Global Value
 		Tooltip: ""
 	}
 
@@ -220,24 +168,7 @@ Custom: {
 		Tooltip: ""
 	}
 
-	GlobalValue: {
-		Label: Global Value
-		Tooltip: ""
-	}
-}
-
-UniversalCountWrapper: {
 	Tooltip: ""
-
-	Disabled: {
-		Label: Disabled
-		Tooltip: ""
-	}
-
-	Value: {
-		Label: Value
-		Tooltip: ""
-	}
 }
 
 WelcomMessageFrequency: {
@@ -254,17 +185,17 @@ CountStyle: {
 }
 
 Count: {
-	Tooltip: ""
-
 	Disabled: {
 		Label: Disabled
 		Tooltip: ""
 	}
 
-	Value: {
-		Label: Value
+	Amount: {
+		Label: Amount
 		Tooltip: ""
 	}
+
+	Tooltip: ""
 }
 
 Corner: {
@@ -281,29 +212,7 @@ Direction: {
 	Horizontal.Label: Horizontal
 }
 
-CategoryWrapper.Tooltip: ""
-
-ModGroupDefinition: {
-	Tooltip: ""
-
-	IsUnloaded: {
-		Label: Is Unloaded
-		Tooltip: ""
-	}
-}
-
-MetaGroupDefinition: {
-	Tooltip: ""
-
-	IsUnloaded: {
-		Label: Is Unloaded
-		Tooltip: ""
-	}
-}
-
 MetaConfig: {
-	Tooltip: ""
-
 	Preset: {
 		Label: Preset
 		Tooltip: ""
@@ -315,52 +224,37 @@ MetaConfig: {
 	}
 
 	MaxConsumableTypes: {
-		Label: Max Consumable Types
-		Tooltip: ""
+		Label: "[i:486] Maximum used Consumable groups"
+		Tooltip:
+			'''
+			The maximum number of requirements taken into account directly.
+			Consumable groups that are not used take the minimum infinity as their infinity.
+			Set to 0 to use all groups.
+			'''
 	}
+
+	Tooltip: ""
 }
 
-LegacyConsumableGroupDefinition: {
+GenericWrapper: {
+	Value: {
+		Label: Value: Save the config to edit this value
+		Tooltip: ""
+	}
+
+	Tooltip: ""
+}
+
+ModGroupDefinition.Tooltip: ""
+MetaGroupDefinition.Tooltip: ""
+PresetDefinition.Tooltip: ""
+GenericWrapper`1.Tooltip: ""
+
+GenericWrapperBase`1: {
 	Tooltip: ""
 
-	IsUnloaded: {
-		Label: Is Unloaded
+	Value: {
+		Label: Value
 		Tooltip: ""
 	}
 }
-
-LegacyGroupSettings: {
-	DisplayName: Legacy Group Settings
-
-	PreventItemDupication: {
-		Label: Prevent Item Dupication
-		Tooltip: ""
-	}
-
-	EnabledGroups: {
-		Label: Enabled Groups
-		Tooltip: ""
-	}
-
-	MaxConsumableTypes: {
-		Label: Max Consumable Types
-		Tooltip: ""
-	}
-
-	EnabledGlobals: {
-		Label: Enabled Globals
-		Tooltip: ""
-	}
-
-	Settings: {
-		Label: Settings
-		Tooltip: ""
-	}
-
-	Customs: {
-		Label: Customs
-		Tooltip: ""
-	}
-}
-
-GenericWrapper.Tooltip: ""

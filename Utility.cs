@@ -160,7 +160,8 @@ public static class Utility {
         dict.Insert(destIndex, key, value);
     }
 
-    public static IEnumerable<System.Tuple<Tkey, TValue?>> Items<Tkey, TValue>(this IOrderedDictionary dict) where Tkey : notnull {
+    public static IEnumerable<(object key, object? value)> Items(this IDictionary dict) => dict.Items<object, object?>();
+    public static IEnumerable<(Tkey key, TValue? value)> Items<Tkey, TValue>(this IDictionary dict) where Tkey : notnull {
         foreach(DictionaryEntry entry in dict) {
             yield return new((Tkey)entry.Key, (TValue?)entry.Value);
         }
@@ -193,6 +194,6 @@ public static class Utility {
 
     public static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
 
-    private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
-    private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new System.Type[] { typeof(ModConfig) })!;
+    private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;
+    private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;
 }

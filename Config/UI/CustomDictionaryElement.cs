@@ -9,70 +9,54 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.Reflection;
+using Terraria.Localization;
 
 namespace SPIC.Configs.UI;
 
-
-
 public interface IDictionaryEntryWrapper {
-    [Newtonsoft.Json.JsonIgnore] public PropertyInfo ValueProp { get; }
+    [Newtonsoft.Json.JsonIgnore] public PropertyFieldWrapper Member { get; }
     object Key { get; set; }
     object? Value { get; set; }
 }
 
 public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper where Tkey : notnull{
-    public PropertyInfo ValueProp => typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty(nameof(Value), BindingFlags.Instance | BindingFlags.Public)!;
-
-    public Tkey Key {
-        get => _key;
-        set {
-            if (_dict is IOrderedDictionary ordered) {
-                int index = 0;
-                foreach (DictionaryEntry entry in ordered) {
-                    if (entry.Key.Equals(_key)) break;
-                    index++;
-                }
-                ordered.RemoveAt(index);
-                ordered.Insert(index, value, _dict[_key]);
-            } else {
-                _dict.Remove(_key);
-                _dict.Add(value, _dict[_key]);
-            }
-
-            _key = value;
-        }
-    }
-
-    [ColorNoAlpha, ColorHSLSlider]
-    public Tvalue? Value {
-        get => (Tvalue?)_dict[_key];
-        set {
-            _dict[_key] = value;
-        }
-    }
-
-    object IDictionaryEntryWrapper.Key {
-        get => Key;
-        set => Key = (Tkey)value;
-    }
-    object? IDictionaryEntryWrapper.Value {
-        get => Value;
-        set => Value = (Tvalue?)value;
-    }
-
     public DictionaryEntryWrapper(IDictionary dict, Tkey key) {
         _key = key;
         _dict = dict;
     }
 
+    public Tkey Key {
+        get => _key;
+        set {
+            object? val = _dict[_key];
+            if (_dict is IOrderedDictionary ordered) {
+                int index;
+                for (index = 0; index < _dict.Count; index++) if (_dict[index] == _dict[_key]) break;
+                ordered.Remove(_key);
+                ordered.Insert(index, value, val);
+            } else {
+                _dict.Remove(_key);
+                _dict.Add(value, val);
+            }
+            _key = value;
+        }
+    }
+
+    [ColorNoAlpha, ColorHSLSlider]
+    public Tvalue? Value { get => (Tvalue?)_dict[_key]; set => _dict[_key] = value; }
+
+    public PropertyFieldWrapper Member => new(typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty(nameof(Value), BindingFlags.Instance | BindingFlags.Public)!);
+
     private readonly IDictionary _dict;
     private Tkey _key;
+
+    object IDictionaryEntryWrapper.Key { get => Key; set => Key = (Tkey)value; }
+    object? IDictionaryEntryWrapper.Value { get => Value; set => Value = (Tvalue?)value; }
 }
 
 public class CustomDictionaryElement : ConfigElement<IDictionary> {
 
     public override void OnBind() {
-
         base.OnBind();
 
         if(Value is null) throw new ArgumentNullException("This config element only supports IDictionaries");
@@ -83,11 +67,9 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         _dataList.Width = new(0, 1f);
         _dataList.ListPadding = 5f;
         _dataList.PaddingBottom = -5f;
-        MaxHeight.Pixels = int.MaxValue;
+        SetupList();
 
         Append(_dataList);
-
-        SetupList();
     }
  
     public void SetupList(){
@@ -99,48 +81,41 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
         IDictionary dict = Value;
         int top = 0;
         int i = -1;
-        foreach (DictionaryEntry entry in dict) {
+        foreach ((object key, object? value) in dict.Items()) {
             i++;
-            (object key, object? value) = entry;
             if(value is null) continue;
-            if(key is ModGroupDefinition entity && entity.IsUnloaded){
+            if(key is EntityDefinition entity && entity.IsUnloaded){
                 unloaded++;
                 continue;
             }
-            Type genericType = typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType());
-            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(genericType, dict, key)!;
-
+            IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType()), dict, key)!;
             _dictWrappers.Add(wrapper);
-            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(wrapper.ValueProp), wrapper, i);
-            
-            
+
+            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, i);
+        
+            // if (element.GetType() == ReflectionHelper.ObjectElement) {
+            //     ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
+            //     ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
+            // }
             if(dict is IOrderedDictionary){
-                
                 element.Width.Pixels -= 25;
                 element.Left.Pixels += 25;
 
-                if (element.GetType() == ReflectionHelper.ObjectElement) {
-                    ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
-                    ReflectionHelper.ObjectElement_pendindChanges.SetValue(element, false);
-                }
 
                 int index = i;
-
-                HoverImageSplit moveButton = new(UpDownTexture, "Move up", "Move down") {
-                    VAlign = 0.5f,
-                    Left = new(2, 0f)
+                HoverImageSplit moveButton = new(UpDownTexture, Language.GetTextValue($"{Localization.Keys.UI}.Up"), Language.GetTextValue($"{Localization.Keys.UI}.Down")) {
+                    VAlign = 0.5f, Left = new(2, 0f),
                 };
                 moveButton.OnLeftClick += (UIMouseEvent a, UIElement b) => {
-                    IOrderedDictionary ordered = (IOrderedDictionary)Value;
                     if (moveButton.HoveringUp ? index <= 0 : index >= dict.Count - 1) return;
-                    ordered.Move(index, index + (moveButton.HoveringUp ? -1 : 1));
+                    ((IOrderedDictionary)Value).Move(index, index + (moveButton.HoveringUp ? -1 : 1));
                     SetupList();
                     ConfigManager.SetPendingChanges();
                 };
                 container.Append(moveButton);
             }
 
-            string? name = key switch {
+            string? name = key switch { // TODO rework
                 PresetDefinition preset => preset.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 ModGroupDefinition group => group.Label(),
@@ -158,6 +133,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => text);
 
         }
+        MaxHeight.Pixels = int.MaxValue;
         Recalculate();
     }
 

@@ -6,12 +6,11 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
+using Terraria.Localization;
 
 namespace SPIC.Configs.UI;
 
 public class MultyChoiceElement : ConfigElement<MultyChoice> {
-
-    public UIElement selectedElement = null!;
 
     public override void OnBind() {
         base.OnBind();
@@ -21,43 +20,44 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
     public void SetupMember(){
         RemoveAllChildren();
 
-        Value ??= (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
-        MultyChoice value = Value;
-
-        PropertyFieldWrapper selectedProp = value.Choice;
+        MultyChoice value = Value ??= (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
+        PropertyFieldWrapper selectedProp = value.Choices[value.ChoiceIndex];
 
         int top = 0;
-        (UIElement container, selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
+        (UIElement container, _selectedElement) = ConfigManager.WrapIt(this, ref top, selectedProp, value, 0);
         if (selectedProp.Type == typeof(object) && !selectedProp.CanWrite) {
-            selectedElement.RemoveAllChildren();
-            ReflectionHelper.ObjectElement_pendindChanges.SetValue(selectedElement, false);
+            _selectedElement.RemoveAllChildren();
+            ReflectionHelper.ObjectElement_pendindChanges.SetValue(_selectedElement, false);
         }
         container.Left.Pixels -= 20;
         container.Width.Pixels -= 7;
 
+        _tooltip = TooltipFunction;
         DrawLabel = false;
+        TooltipFunction = null;
+        
         MaxHeight.Pixels = int.MaxValue;
-        ReflectionHelper.ConfigElement_backgroundColor.SetValue(selectedElement, Color.Transparent);
+        ReflectionHelper.ConfigElement_backgroundColor.SetValue(_selectedElement, Color.Transparent);
 
-        Func<string> elementLabel = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(selectedElement)!;
-        Func<string>? elementTooltip = (Func<string>?)ReflectionHelper.ConfigElement_TooltipFunction.GetValue(selectedElement);
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(selectedElement, () => $"{TextDisplayFunction()} ({elementLabel()})");
-        ReflectionHelper.ConfigElement_TooltipFunction.SetValue(selectedElement, () => {
+        Func<string> elementLabel = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(_selectedElement)!;
+        Func<string>? elementTooltip = (Func<string>?)ReflectionHelper.ConfigElement_TooltipFunction.GetValue(_selectedElement);
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(_selectedElement, () => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", TextDisplayFunction(), elementLabel()));
+        ReflectionHelper.ConfigElement_TooltipFunction.SetValue(_selectedElement, () => {
             List<string> parts = new();
-            string p = "";
-            if (TooltipFunction is not null && (p = TooltipFunction()).Length != 0) parts.Add(p);
-            if (elementTooltip is not null && (p = elementTooltip()).Length != 0) parts.Add(p);
+            string? p = null;
+            if ((p = _tooltip?.Invoke()) is not null && p.Length != 0) parts.Add(p);
+            if ((p = elementTooltip?.Invoke()) is not null && p.Length != 0) parts.Add(p);
             return string.Join('\n', parts);
         });
 
         int count = value.Choices.Count;
         UIImage swapButton;
         if(count == 2){
-            swapButton = new HoverImage(PlayTexture, $"Change to {Value.Choices[(value.ChoiceIndex+1) % count].Name}");
+            swapButton = new HoverImage(PlayTexture, Language.GetTextValue($"{Localization.Keys.UI}.Change", value.Choices[(value.ChoiceIndex+1) % count].Name));
             swapButton.OnLeftClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + 1);
         }
         else {
-            swapButton = new HoverImageSplit(UpDownTexture, $"Change to {Value.Choices[(value.ChoiceIndex+1) % count].Name}", $"Change to {Value.Choices[(value.ChoiceIndex-1 + count) % count].Name}");
+            swapButton = new HoverImageSplit(UpDownTexture, Language.GetTextValue($"{Localization.Keys.UI}.Change", value.Choices[(value.ChoiceIndex+1) % count].Name), Language.GetTextValue($"{Localization.Keys.UI}.Change", value.Choices[(value.ChoiceIndex-1 + count) % count].Name));
             swapButton.OnLeftClick += (UIMouseEvent a, UIElement b) => ChangeChoice(value.ChoiceIndex + (((HoverImageSplit)swapButton).HoveringUp ? 1 : -1));
         }
         swapButton.VAlign = 0.5f;
@@ -74,7 +74,11 @@ public class MultyChoiceElement : ConfigElement<MultyChoice> {
 
     public override void Recalculate() {
         base.Recalculate();
-        Height = selectedElement.Height;
+        Height = _selectedElement.Height;
         if (Parent != null && Parent is UISortableElement) Parent.Height.Set(Height.Pixels, 0f);
     }
+
+    private UIElement _selectedElement = null!;
+    private Func<string>? _tooltip = null;
+
 }

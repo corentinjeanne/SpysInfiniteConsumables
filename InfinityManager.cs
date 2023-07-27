@@ -71,7 +71,7 @@ public static class InfinityManager {
         }
     }
 
-    public static Wrapper<T> RegisterConfig<T>(IModGroup group) where T : class, new() {
+    public static Wrapper<T> RegisterConfig<T>(IModGroup group) where T : new() {
         Wrapper<T> wrapper = new();
         s_configs[group] = wrapper;
         return wrapper;

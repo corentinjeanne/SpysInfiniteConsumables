@@ -25,7 +25,6 @@ public class InfinityDisplay : ModConfig {
     public bool toopltip_AddMissingLines;
     [DefaultValue(CountStyle.Name)]
     public CountStyle tooltip_RequirementStyle;
-    public bool tooltip_ShowMixed;
 
     [Header($"${Localization.Keys.InfinityDisplay}.Glow.Header")]
     public bool glow_ShowGlow;

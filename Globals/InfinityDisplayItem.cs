@@ -91,7 +91,7 @@ public class InfinityDisplayItem : GlobalItem {
         string extra = display.general_ShowCategories ? infinity.FullRequirement.ExtraInfo() : string.Empty;
         
         void AddExtra() {
-            if (extra.Length != 0) line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Requirement", line.Text, extra);
+            if (extra.Length != 0) line.Text = Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", line.Text, extra);
         }
 
 
@@ -104,8 +104,8 @@ public class InfinityDisplayItem : GlobalItem {
         }
         else if (display.general_ShowRequirement) {
             long requirement = infinity.Requirement.CountForInfinity(consumed);
-            line.Text = extra.Length == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Requirement", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle)) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Requirement+", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle), extra);
+            line.Text = extra.Length == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle)) :
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon+", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle), extra);
         }
         else AddExtra();
 
