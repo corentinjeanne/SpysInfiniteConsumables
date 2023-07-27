@@ -237,7 +237,7 @@ GroupConfig: {
 	Tooltip: ""
 }
 
-GenericWrapper`1: {
+WrapperBase`1: {
 	SaveBeforeEdit: {
 		Label: Save the config to edit this value
 		Tooltip: ""
@@ -246,18 +246,10 @@ GenericWrapper`1: {
 	Tooltip: ""
 }
 
-GenericWrapper: {
-	Tooltip: ""
-
-	Empty: {
-		Label: Empty
-		Tooltip: ""
-	}
-}
-
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
 ModConsumableDefinition.Tooltip: ""
 InfinityDefinition.Tooltip: ""
 GroupDefinition.Tooltip: ""
+Text.Tooltip: ""

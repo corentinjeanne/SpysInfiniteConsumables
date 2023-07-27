@@ -35,7 +35,7 @@ public class InfinitySettings : ModConfig {
             _configs.Clear();
             foreach ((IInfinity infinity, IWrapper wrapper) in InfinityManager.Configs) {
                 InfinityDefinition def = new(infinity);
-                _configs[def] = value.TryGetValue(def, out WrapperBase<object>? config) ? config.ChangeType(wrapper.Type) : WrapperBase<object>.From(wrapper.Type);
+                _configs[def] = value.TryGetValue(def, out WrapperBase<object>? config) ? config.ChangeType(wrapper.Member.Type) : WrapperBase<object>.From(wrapper.Member.Type);
                 wrapper.Value = _configs[def].Value;
             }
         }
