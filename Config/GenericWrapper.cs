@@ -9,19 +9,20 @@ using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
 
-public interface IGenericWrapperBase {
+public interface IGenericWrapper {
     PropertyFieldWrapper Member { get; }
     object? Value { get; set; }
 }
 
-public class GenericWrapperSerializer : JsonConverter<IGenericWrapperBase> {
+public class GenericWrapperSerializer : JsonConverter<IGenericWrapper> {
 
-    public override IGenericWrapperBase ReadJson(JsonReader reader, System.Type objectType, IGenericWrapperBase? existingValue, bool hasExistingValue, JsonSerializer serializer) {
-        existingValue ??= (IGenericWrapperBase)System.Activator.CreateInstance(objectType)!;
-        existingValue.Value = serializer.Deserialize(reader, existingValue.Member.Type);
+    public override IGenericWrapper ReadJson(JsonReader reader, System.Type objectType, IGenericWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
+        existingValue ??= (IGenericWrapper)System.Activator.CreateInstance(objectType)!;
+        System.Type type = existingValue.GetType().GenericTypeArguments[0];
+        existingValue.Value = serializer.Deserialize(reader, type == typeof(object) ? typeof(JToken) : type);
         return existingValue;
     }
-    public override void WriteJson(JsonWriter writer, [AllowNull] IGenericWrapperBase value, JsonSerializer serializer) => serializer.Serialize(writer, value?.Value);
+    public override void WriteJson(JsonWriter writer, [AllowNull] IGenericWrapper value, JsonSerializer serializer) => serializer.Serialize(writer, value?.Value);
 }
 
 public class GenericWrapperConverter : TypeConverter {
@@ -29,22 +30,24 @@ public class GenericWrapperConverter : TypeConverter {
     public override bool CanConvertTo(ITypeDescriptorContext? context, System.Type? destinationType) => InnerConvertor.CanConvertTo(context, destinationType);
     public override bool CanConvertFrom(ITypeDescriptorContext? context, System.Type sourceType) => InnerConvertor.CanConvertFrom(context, sourceType);
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) => System.Activator.CreateInstance(ParentType, InnerConvertor.ConvertFrom(context, culture, value));
-    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, System.Type destinationType) => InnerConvertor.ConvertTo(context, culture, ((IGenericWrapperBase?)value)?.Value, destinationType);
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, System.Type destinationType) => InnerConvertor.ConvertTo(context, culture, ((IGenericWrapper?)value)?.Value, destinationType);
     public System.Type ParentType { get; }
     public TypeConverter InnerConvertor => TypeDescriptor.GetConverter(ParentType.GenericTypeArguments[0]);
 }
 
 [JsonConverter(typeof(GenericWrapperSerializer))]
 [CustomModConfigItem(typeof(UI.GenericWrapperElement))]
-[TypeConverter("SPIC.Configs.GenericConverter")]
-public class GenericWrapper<TBase> : IGenericWrapperBase where TBase: new() {
+[TypeConverter("SPIC.Configs.GenericWrapperConverter")]
+public class GenericWrapper<TBase> : IGenericWrapper where TBase: new() {
     public GenericWrapper() => Value = new();
     public GenericWrapper(TBase value) => Value = value;
     public static GenericWrapper<TBase> From(System.Type type) => (GenericWrapper<TBase>)System.Activator.CreateInstance(typeof(GenericWrapper<,>).MakeGenericType(type, typeof(TBase)))!;
-    public static GenericWrapper<TBase> From(TBase value) => (GenericWrapper<TBase>)System.Activator.CreateInstance(typeof(GenericWrapper<,>).MakeGenericType(value.GetType(), typeof(TBase)), value)!;
+    public static GenericWrapper<TBase> From(TBase value) => (GenericWrapper<TBase>)System.Activator.CreateInstance(typeof(GenericWrapper<,>).MakeGenericType(value!.GetType(), typeof(TBase)), value)!;
 
-    [JsonIgnore] public virtual PropertyFieldWrapper Member => new(typeof(GenericWrapper<TBase>).GetProperty(nameof(Value), BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-    public TBase Value { get; set; }
+    [JsonIgnore] public virtual PropertyFieldWrapper Member => new(typeof(GenericWrapper<TBase>).GetProperty(nameof(Empty), BindingFlags.Public | BindingFlags.Instance));
+    [JsonIgnore] public TBase Value { get; set; }
+
+    public object Empty => null!;
 
     public GenericWrapper<TValue, TBase> MakeGeneric<TValue>() where TValue : TBase, new() => (MakeGeneric(typeof(TValue)) as GenericWrapper<TValue, TBase>)!;
     public GenericWrapper<TBase> MakeGeneric(System.Type type) {
@@ -61,7 +64,7 @@ public class GenericWrapper<TBase> : IGenericWrapperBase where TBase: new() {
     public override int GetHashCode() => Value!.GetHashCode();
     public override string? ToString() => Value?.ToString();
 
-    object? IGenericWrapperBase.Value { get => Value; set => Value = (TBase)value!; }
+    object? IGenericWrapper.Value { get => Value; set => Value = (TBase)value!; }
 }
 
 public sealed class GenericWrapper<T, TBase> : GenericWrapper<TBase> where T : TBase, new() where TBase : new() {

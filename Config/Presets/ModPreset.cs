@@ -17,6 +17,6 @@ public abstract class ModPreset : ModType, ILocalizedModType {
 
     public abstract int CriteriasCount { get; }
 
-    public abstract bool MeetsCriterias(MetaConfig config);
-    public abstract void ApplyCriterias(MetaConfig config);
+    public abstract bool MeetsCriterias(ConsumableConfig config);
+    public abstract void ApplyCriterias(ConsumableConfig config);
 }

@@ -13,7 +13,7 @@ public class JourneySacrificeSettings {
     public bool includeNonConsumable;
 }
 
-public class JourneySacrifice : ModGroupStatic<JourneySacrifice, ItemMG, Item> {
+public class JourneySacrifice : ModGroupStatic<JourneySacrifice, Items, Item> {
 
     public override int IconType => ItemID.GoldBunny;
     public override bool DefaultsToOn => false;
@@ -25,8 +25,8 @@ public class JourneySacrifice : ModGroupStatic<JourneySacrifice, ItemMG, Item> {
     }
 
     public bool IsConsumable(Item item) {
-        foreach (ModGroup<ItemMG, Item> group in MetaGroup.Groups) {
-            if (group != this && !MetaGroup.GetRequirement(item, group).IsNone) return true;
+        foreach (ModGroup<Items, Item> group in ModConsumable.Groups) {
+            if (group != this && !ModConsumable.GetRequirement(item, group).IsNone) return true;
         }
         return false;
     }

@@ -41,7 +41,7 @@ public class UsableRequirements {
 }
 
 
-public class Usable : ModGroupStatic<Usable, ItemMG, Item, UsableCategory> {
+public class Usable : ModGroupStatic<Usable, Items, Item, UsableCategory> {
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color DefaultColor => Colors.RarityCyan;

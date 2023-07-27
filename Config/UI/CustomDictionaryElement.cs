@@ -119,7 +119,7 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
                 PresetDefinition preset => preset.Label(),
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
                 ModGroupDefinition group => group.Label(),
-                MetaGroupDefinition meta => meta.Label(),
+                ModConsumableDefinition consumable => consumable.Label(),
                 EntityDefinition def => def.Name,
                 _ => key.ToString()
             };

@@ -4,7 +4,7 @@ using Terraria;
 
 namespace SPIC.Groups;
 
-public class CurrencyMG : MetaGroup<CurrencyMG, int> {
+public class Currencies : ModConsumable<Currencies, int> {
     public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);
 
     public override string CountToString(int consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false) {

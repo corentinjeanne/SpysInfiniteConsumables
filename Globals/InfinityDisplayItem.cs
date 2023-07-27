@@ -17,14 +17,14 @@ public class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
         if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowCategories)) return;
 
-        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
-        foreach (IModGroup group in metaDisplay.DisplayedGroups) {
+        ItemDisplay itemDisplay = item.GetLocalItemDisplay();
+        foreach (IModGroup group in itemDisplay.DisplayedGroups) {
             (TooltipLine lineToFind, TooltipLineID? position) = group.GetTooltipLine(item);
             bool added = false;
             TooltipLine? line = display.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             
             if (line is null) continue;
-            (FullInfinity infinity, long consumed) = metaDisplay[group];
+            (FullInfinity infinity, long consumed) = itemDisplay[group];
             DisplayOnLine(line, item, group, infinity, consumed);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
@@ -36,11 +36,11 @@ public class InfinityDisplayItem : GlobalItem {
         if (Main.gameMenu || !display.glow_ShowGlow || !display.general_ShowInfinities) return true;
 
 
-        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
+        ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
         List<IModGroup> withDisplay = new();
-        foreach(IModGroup g in metaDisplay.DisplayedGroups) {
-            (FullInfinity infinity, long consumed) = metaDisplay[g];
+        foreach(IModGroup g in itemDisplay.DisplayedGroups) {
+            (FullInfinity infinity, long consumed) = itemDisplay[g];
             if (consumed != 0 && infinity.Infinity >= Math.Max(consumed, 1)) withDisplay.Add(g);
         }
 
@@ -70,11 +70,11 @@ public class InfinityDisplayItem : GlobalItem {
         Vector2 dotDelta = DotSize * (display.dots_Direction == Configs.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
 
 
-        MetaDisplay metaDisplay = item.GetLocalMetaDisplay();
-        if(metaDisplay.DisplayedGroups.Count == 0) return;
+        ItemDisplay itemDisplay = item.GetLocalItemDisplay();
+        if(itemDisplay.DisplayedGroups.Count == 0) return;
         
-        foreach (IModGroup group in metaDisplay.ByMetaGroups[s_metaGroupIndex % metaDisplay.ByMetaGroups.Count]) {
-            (FullInfinity infinity, long consumed) = metaDisplay[group];
+        foreach (IModGroup group in itemDisplay.ByModConsumable[s_modConsumableIndex % itemDisplay.ByModConsumable.Count]) {
+            (FullInfinity infinity, long consumed) = itemDisplay[group];
             if(consumed == 0) continue;
             DisplayDot(spriteBatch, dotPosition, group, infinity, consumed);
             dotPosition += dotDelta;
@@ -84,7 +84,7 @@ public class InfinityDisplayItem : GlobalItem {
 
     public static void DisplayOnLine(TooltipLine line, Item item, IModGroup group, FullInfinity infinity, long consumed) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
-        IMetaGroup metaGroup = group.MetaGroup;
+        IModConsumable modConsumable = group.ModConsumable;
 
         bool canDisplayInfinity = consumed != 0 && display.general_ShowInfinities;
         long count = canDisplayInfinity ? infinity.Count : 0;
@@ -99,13 +99,13 @@ public class InfinityDisplayItem : GlobalItem {
             line.OverrideColor = display.Colors[new(group)]; // TODO access directly
             line.Text = infinity.Requirement.Multiplier >= 1 || consumed == -1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, metaGroup.CountToString(item, 0, infinity.Infinity, display.tooltip_RequirementStyle));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, modConsumable.CountToString(item, 0, infinity.Infinity, display.tooltip_RequirementStyle));
             AddExtra();
         }
         else if (display.general_ShowRequirement) {
             long requirement = infinity.Requirement.CountForInfinity(consumed);
-            line.Text = extra.Length == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle)) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon+", line.Text, metaGroup.CountToString(item, count, requirement, display.tooltip_RequirementStyle), extra);
+            line.Text = extra.Length == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon", line.Text, modConsumable.CountToString(item, count, requirement, display.tooltip_RequirementStyle)) :
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Addon+", line.Text, modConsumable.CountToString(item, count, requirement, display.tooltip_RequirementStyle), extra);
         }
         else AddExtra();
 
@@ -175,17 +175,17 @@ public class InfinityDisplayItem : GlobalItem {
 
     public static void IncrementCounters() {
         InfinityManager.CacheTimer();
-        if(Main.GlobalTimeWrappedHourly >= s_metaTimer){
-            s_metaTimer = (s_metaTimer + Configs.InfinityDisplay.Instance.dot_PageTime) % 3600;
-            s_metaGroupIndex = (s_metaGroupIndex + 1) % InfinityManager.MetaGroupsLCM;
+        if(Main.GlobalTimeWrappedHourly >= s_consumableTimer){
+            s_consumableTimer = (s_consumableTimer + Configs.InfinityDisplay.Instance.dot_PageTime) % 3600;
+            s_modConsumableIndex = (s_modConsumableIndex + 1) % InfinityManager.ModConsumablesLCM;
         }
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
             s_groupTimer = (s_groupTimer + Configs.InfinityDisplay.Instance.glow_GroupTime) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
         }
     }
-    private static int s_metaGroupIndex = 0, s_groupIndex = 0;
-    private static float s_metaTimer = 0, s_groupTimer = 0;
+    private static int s_modConsumableIndex = 0, s_groupIndex = 0;
+    private static float s_consumableTimer = 0, s_groupTimer = 0;
 
     public const int MaxDots = 8;
     public const int DotScale = 2;

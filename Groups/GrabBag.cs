@@ -27,7 +27,7 @@ public class GrabBagRequirements {
     public Count TreasureBags = 3;
 }
 
-public class GrabBag : ModGroupStatic<GrabBag, ItemMG, Item, GrabBagCategory> {
+public class GrabBag : ModGroupStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color DefaultColor => Colors.RarityDarkPurple;

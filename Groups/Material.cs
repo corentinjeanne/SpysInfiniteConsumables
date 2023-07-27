@@ -29,7 +29,7 @@ public class MaterialRequirements {
     public Count NonStackable = 2;
 }
 
-public class Material : ModGroupStatic<Material, ItemMG, Item, MaterialCategory> {
+public class Material : ModGroupStatic<Material, Items, Item, MaterialCategory> {
     
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool DefaultsToOn => false;
@@ -61,7 +61,7 @@ public class Material : ModGroupStatic<Material, ItemMG, Item, MaterialCategory>
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = MetaGroup.GetCategory(item, Placeable.Instance);
+        PlaceableCategory placeable = ModConsumable.GetCategory(item, Placeable.Instance);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;

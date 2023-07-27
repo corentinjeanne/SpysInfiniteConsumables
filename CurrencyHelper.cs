@@ -135,9 +135,7 @@ public static class CurrencyHelper {
         FieldInfo valuesField = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance)!;
         Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)curField.GetValue(null)!;
         _currencies = new();
-        foreach (var (key, system) in currencies) {
-            _currencies[key] = new(system, (Dictionary<int, int>)valuesField.GetValue(system)!);
-        }
+        foreach (var (key, system) in currencies) _currencies[key] = new(system, (Dictionary<int, int>)valuesField.GetValue(system)!);
     }
     internal static void ClearCurrencies() => _currencies = null;
 

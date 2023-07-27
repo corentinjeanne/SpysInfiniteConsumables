@@ -22,7 +22,7 @@ public class AmmoRequirements {
     public Count Special = 999;
 }
 
-public class Ammo : ModGroupStatic<Ammo, ItemMG, Item, AmmoCategory> {
+public class Ammo : ModGroupStatic<Ammo, Items, Item, AmmoCategory> {
 
     public override int IconType => ItemID.EndlessQuiver;
     public override Color DefaultColor => Colors.RarityLime;

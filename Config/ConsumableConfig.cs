@@ -8,13 +8,13 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public class MetaConfig {
+public class ConsumableConfig {
 
-    [JsonIgnore] public IMetaGroup MetaGroup {
-        get => _metaGroup;
+    [JsonIgnore] public IModConsumable ModConsumable {
+        get => _modConsumable;
         internal set {
-            _metaGroup = value;
-            foreach (IModGroup group in _metaGroup.Groups) _groups.TryAdd(new ModGroupDefinition(group), group.DefaultsToOn);
+            _modConsumable = value;
+            foreach (IModGroup group in _modConsumable.Groups) _groups.TryAdd(new ModGroupDefinition(group), group.DefaultsToOn);
         }
     }
 
@@ -53,5 +53,5 @@ public class MetaConfig {
     public int MaxConsumableTypes { get; set; }
 
     private readonly OrderedDictionary _groups = new();
-    private IMetaGroup _metaGroup = null!;
+    private IModConsumable _modConsumable = null!;
 }

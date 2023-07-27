@@ -9,7 +9,7 @@ namespace SPIC;
 // ItemID.Sets.ShimmerTransformToItem; // ? shimmer + chloro extra group (conversions) 
 
 public interface IModGroup : ILocalizedModType, ILoadable {
-    IMetaGroup MetaGroup { get; }
+    IModConsumable ModConsumable { get; }
     int IconType { get; }
     bool DefaultsToOn { get; }
     Color DefaultColor { get; }
@@ -20,7 +20,7 @@ public interface IModGroup : ILocalizedModType, ILoadable {
     (TooltipLine, TooltipLineID?) GetTooltipLine(Item item);
 }
 
-public abstract class ModGroup<TMetaGroup, TConsumable> : ModType, IModGroup where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
+public abstract class ModGroup<TModConsumable, TConsumable> : ModType, IModGroup where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
     public string LocalizationCategory => "Groups";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
@@ -29,13 +29,13 @@ public abstract class ModGroup<TMetaGroup, TConsumable> : ModType, IModGroup whe
     public abstract Color DefaultColor { get; }
 
     protected sealed override void Register() {
-        ModTypeLookup<ModGroup<TMetaGroup, TConsumable>>.Register(this);
+        ModTypeLookup<ModGroup<TModConsumable, TConsumable>>.Register(this);
         InfinityManager.Register(this);
     }
 
     public sealed override void SetupContent() => SetStaticDefaults();
     public abstract Requirement GetRequirement(TConsumable consumable);
-    public virtual IFullRequirement GetFullRequirement(TConsumable consumable) => new FullRequirement(MetaGroup.GetRequirement(consumable, this));
+    public virtual IFullRequirement GetFullRequirement(TConsumable consumable) => new FullRequirement(ModConsumable.GetRequirement(consumable, this));
     public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, Name, DisplayName.Value), null);
 
 
@@ -45,30 +45,30 @@ public abstract class ModGroup<TMetaGroup, TConsumable> : ModType, IModGroup whe
         return player.IsFromVisibleInventory(item) ? -1 : 0;
     }
 
-    IMetaGroup IModGroup.MetaGroup => MetaGroup;
-    public TMetaGroup MetaGroup { get; internal set; } = null!;
+    IModConsumable IModGroup.ModConsumable => ModConsumable;
+    public TModConsumable ModConsumable { get; internal set; } = null!;
 }
 
-public abstract class ModGroup<TMetaGroup, TConsumable, TCategory> : ModGroup<TMetaGroup, TConsumable> where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : Enum {
+public abstract class ModGroup<TModConsumable, TConsumable, TCategory> : ModGroup<TModConsumable, TConsumable> where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull where TCategory : Enum {
 
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement GetRequirement(TCategory category);
 
-    public sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(MetaGroup.GetCategory(consumable, this));
+    public sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(ModConsumable.GetCategory(consumable, this));
     public override IFullRequirement GetFullRequirement(TConsumable consumable) {
-        return new FullRequirement<TCategory>(MetaGroup.GetCategory(consumable, this), MetaGroup.GetRequirement(consumable, this));
+        return new FullRequirement<TCategory>(ModConsumable.GetCategory(consumable, this), ModConsumable.GetRequirement(consumable, this));
     }
 }
 
 
-public abstract class ModGroupStatic<TGroup, TMetaGroup, TConsumable> : ModGroup<TMetaGroup, TConsumable> where TGroup : ModGroupStatic<TGroup, TMetaGroup, TConsumable> where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
+public abstract class ModGroupStatic<TGroup, TModConsumable, TConsumable> : ModGroup<TModConsumable, TConsumable> where TGroup : ModGroupStatic<TGroup, TModConsumable, TConsumable> where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
    
     public override void SetStaticDefaults() => Instance = (TGroup)this;
     public override void Unload() => Instance = null!;
 
     public static TGroup Instance = null!;
 }
-public abstract class ModGroupStatic<TGroup, TMetaGroup, TConsumable, TCategory> : ModGroup<TMetaGroup, TConsumable, TCategory> where TGroup : ModGroupStatic<TGroup, TMetaGroup, TConsumable, TCategory> where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : Enum {
+public abstract class ModGroupStatic<TGroup, TModConsumable, TConsumable, TCategory> : ModGroup<TModConsumable, TConsumable, TCategory> where TGroup : ModGroupStatic<TGroup, TModConsumable, TConsumable, TCategory> where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull where TCategory : Enum {
     public override void SetStaticDefaults() => Instance = (TGroup)this;
     public override void Unload() => Instance = null!;
 

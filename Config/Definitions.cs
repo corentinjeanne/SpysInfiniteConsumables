@@ -26,20 +26,20 @@ public class PresetDefinition : EntityDefinition {
     public static PresetDefinition FromString(string s) => new(s);
 }
 
-[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetMetaGroups), nameof(Label))]
-[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.MetaGroupDefinition]")]
-public class MetaGroupDefinition : EntityDefinition {
-    public MetaGroupDefinition() : base(){}
-    public MetaGroupDefinition(string fullName) : base(fullName) {}
-    public MetaGroupDefinition(IMetaGroup metaGroup) : base(metaGroup.Mod.Name, metaGroup.Name) {}
+[CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetModConsumables), nameof(Label))]
+[TypeConverter("SPIC.Configs.ToFromStringConverterFix`1[SPIC.Configs.ModConsumableDefinition]")]
+public class ModConsumableDefinition : EntityDefinition {
+    public ModConsumableDefinition() : base(){}
+    public ModConsumableDefinition(string fullName) : base(fullName) {}
+    public ModConsumableDefinition(IModConsumable modConsumable) : base(modConsumable.Mod.Name, modConsumable.Name) {}
 
-    public override int Type => InfinityManager.GetMetaGroup(Mod, Name) is null ? -1 : 1;
+    public override int Type => InfinityManager.GetModConsumable(Mod, Name) is null ? -1 : 1;
 
-    public string Label() => InfinityManager.GetMetaGroup(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
+    public string Label() => InfinityManager.GetModConsumable(Mod, Name)?.DisplayName.Value ?? $"(Unloaded) {this}";
 
-    public static MetaGroupDefinition[] GetMetaGroups() => InfinityManager.MetaGroups.Select(meta => new MetaGroupDefinition(meta)).ToArray();
+    public static ModConsumableDefinition[] GetModConsumables() => InfinityManager.ModConsumables.Select(consumable => new ModConsumableDefinition(consumable)).ToArray();
 
-    public static MetaGroupDefinition FromString(string s) => new(s);
+    public static ModConsumableDefinition FromString(string s) => new(s);
 }
 
 
@@ -62,13 +62,14 @@ public class ModGroupDefinition : EntityDefinition {
 
     public static ModGroupDefinition[] GetAllGroups() => InfinityManager.Groups.Select(group => new ModGroupDefinition(group)).ToArray();
 
-    public ModGroupDefinition MakeForMetagroup(IMetaGroup metaGroup) => (ModGroupDefinition)Activator.CreateInstance(typeof(ModGroupDefinition<>).MakeGenericType(metaGroup.GetType()), Mod, Name)!;
+    public ModGroupDefinition MakeForModConsumable(IModConsumable modConsumable) => (ModGroupDefinition)Activator.CreateInstance(typeof(ModGroupDefinition<>).MakeGenericType(modConsumable.GetType()), Mod, Name)!;
 }
 
 [CustomModConfigItem(typeof(DropDownElement)), ValuesProvider(nameof(GetGroups), nameof(Label))]
-public class ModGroupDefinition<TMetaGroup> : ModGroupDefinition where TMetaGroup : class, IMetaGroup {
+public class ModGroupDefinition<TModConsumable> : ModGroupDefinition where TModConsumable : class, IModConsumable {
+    public ModGroupDefinition() : base() { }
     public ModGroupDefinition(string mod, string name) : base(mod, name) { }
     public ModGroupDefinition(IModGroup group) : this(group.Mod.Name, group.Name) { }
 
-    public static ModGroupDefinition[] GetGroups() => ModContent.GetInstance<TMetaGroup>().Groups.Select(group => new ModGroupDefinition<TMetaGroup>(group)).ToArray();
+    public static ModGroupDefinition[] GetGroups() => ModContent.GetInstance<TModConsumable>().Groups.Select(group => new ModGroupDefinition<TModConsumable>(group)).ToArray();
 }

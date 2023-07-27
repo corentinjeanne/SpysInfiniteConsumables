@@ -7,20 +7,21 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Configs.UI;
 
-public class GenericWrapperElement : ConfigElement<IGenericWrapperBase> {
+public class GenericWrapperElement : ConfigElement<IGenericWrapper> {
 
     public override void OnBind() {
         base.OnBind();
-        IGenericWrapperBase wrapper = Value;
+        IGenericWrapper wrapper = Value;
 
         int top = 0;
-        (UIElement container, child) = ConfigManager.WrapIt(this, ref top, wrapper.Member, wrapper, 0);
+        PropertyFieldWrapper member = wrapper.Member;
+        (UIElement container, child) = ConfigManager.WrapIt(this, ref top, member, wrapper, 0);
         container.Left.Pixels -= 20;
         container.Width.Pixels += 20;
 
         ReflectionHelper.ConfigElement_backgroundColor.SetValue(child, Color.Transparent);
         Func<string> childText = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(child)!;
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, () => $"{TextDisplayFunction()}{childText()[wrapper.Member.Name.Length..]}");
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, () => $"{TextDisplayFunction()}{childText()[member.Name.Length..]}");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(child, TooltipFunction);
         DrawLabel = false;
         TooltipFunction = null;

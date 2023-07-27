@@ -28,20 +28,20 @@ public class CategoryDetection : ModConfig {
         }
     }
 
-    public bool SaveDetectedCategory<TMetaGroup, TConsumable, TCategory>(TConsumable consumable, TCategory category, ModGroup<TMetaGroup, TConsumable, TCategory> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : System.Enum, new() {
+    public bool SaveDetectedCategory<TModConsumable, TConsumable, TCategory>(TConsumable consumable, TCategory category, ModGroup<TModConsumable, TConsumable, TCategory> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull where TCategory : System.Enum, new() {
         if (InfinityManager.GetCategory(consumable, group).Equals(category)) return false;
-        TMetaGroup metaGroup = group.MetaGroup;
+        TModConsumable modConsumable = group.ModConsumable;
 
         GenericWrapper<TCategory, object> wrapper = new(category);
         DetectedCategories.TryAdd(new(group), new());
-        if (!DetectedCategories[new(group)].TryAdd(new(metaGroup.ToItem(consumable).type), wrapper)) return false;
-        metaGroup.ClearInfinities();
+        if (!DetectedCategories[new(group)].TryAdd(new(modConsumable.ToItem(consumable).type), wrapper)) return false;
+        modConsumable.ClearInfinities();
         return true; 
     }
-    public bool HasDetectedCategory<TMetaGroup, TConsumable, TCategory>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable, TCategory> group, [NotNullWhen(true)] out TCategory? category) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : System.Enum {
+    public bool HasDetectedCategory<TModConsumable, TConsumable, TCategory>(TConsumable consumable, ModGroup<TModConsumable, TConsumable, TCategory> group, [NotNullWhen(true)] out TCategory? category) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull where TCategory : System.Enum {
         if(DetectMissing && DetectedCategories.TryGetValue(new(group), out Dictionary<ItemDefinition, GenericWrapper<object>>? categories)) {
-            TMetaGroup metaGroup = group.MetaGroup;
-            ItemDefinition def = new(metaGroup.ToItem(consumable).type);
+            TModConsumable modConsumable = group.ModConsumable;
+            ItemDefinition def = new(modConsumable.ToItem(consumable).type);
             if(categories.TryGetValue(def, out GenericWrapper<object>? wrapper)){
                 category = (TCategory)wrapper.Value!;
                 return true;

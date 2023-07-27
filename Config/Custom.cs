@@ -9,13 +9,13 @@ namespace SPIC.Configs;
 public class Custom : MultyChoice {
 
     [JsonIgnore]
-    public IMetaGroup MetaGroup {
-        get => _metaGroup;
+    public IModConsumable ModConsumable {
+        get => _modConsumable;
         internal set {
-            _metaGroup = value;
+            _modConsumable = value;
 
             Dictionary<GenericWrapper<ModGroupDefinition>, Count> dict = new();
-            foreach (GenericWrapper<ModGroupDefinition> def in CustomRequirements.Keys) dict[GenericWrapper<ModGroupDefinition>.From(def.Value.MakeForMetagroup(_metaGroup))] = CustomRequirements[def];
+            foreach (GenericWrapper<ModGroupDefinition> def in CustomRequirements.Keys) dict[GenericWrapper<ModGroupDefinition>.From(def.Value.MakeForModConsumable(_modConsumable))] = CustomRequirements[def];
 
             CustomRequirements.Clear();
             foreach((GenericWrapper<ModGroupDefinition> def, Count wrapper) in dict) CustomRequirements[def] = wrapper;
@@ -28,7 +28,7 @@ public class Custom : MultyChoice {
     [Choice]
     public Dictionary<GenericWrapper<ModGroupDefinition>, Count> CustomRequirements { get; set; } = new();
 
-    private IMetaGroup _metaGroup = null!;
+    private IModConsumable _modConsumable = null!;
 
     public bool TryGetValue(IModGroup group, [MaybeNullWhen(false)] out Count count){
         if(Choice == nameof(Globals)){

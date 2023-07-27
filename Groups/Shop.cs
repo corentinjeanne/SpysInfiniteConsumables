@@ -22,7 +22,7 @@ public class ShopRequirements {
     public const float SingleCoinMult = 1 / 5f;
 }
 
-public class Shop : ModGroupStatic<Shop, CurrencyMG, int, ShopCategory> {
+public class Shop : ModGroupStatic<Shop, Currencies, int, ShopCategory> {
 
     public override int IconType => ItemID.LuckyCoin;
     public override bool DefaultsToOn => false;

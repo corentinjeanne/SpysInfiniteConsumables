@@ -8,66 +8,66 @@ namespace SPIC;
 
 public static class InfinityManager {
 
-    public static TCategory GetCategory<TMetaGroup, TConsumable, TCategory>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable, TCategory> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> where TCategory : Enum => group.MetaGroup.GetCategory(consumable, group);
-    public static Requirement GetRequirement<TMetaGroup, TConsumable>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
-        => group.MetaGroup.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement;
+    public static TCategory GetCategory<TModConsumable, TConsumable, TCategory>(TConsumable consumable, ModGroup<TModConsumable, TConsumable, TCategory> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull where TCategory : Enum => group.ModConsumable.GetCategory(consumable, group);
+    public static Requirement GetRequirement<TModConsumable, TConsumable>(TConsumable consumable, ModGroup<TModConsumable, TConsumable> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull
+        => group.ModConsumable.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement;
 
 
-    public static long GetInfinity<TMetaGroup, TConsumable>(TConsumable consumable, long count, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
-        => group.MetaGroup.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement.Infinity(count);
+    public static long GetInfinity<TModConsumable, TConsumable>(TConsumable consumable, long count, ModGroup<TModConsumable, TConsumable> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull
+        => group.ModConsumable.GetEffectiveInfinity(Main.LocalPlayer, consumable, group).Requirement.Infinity(count);
 
     public static FullInfinity GetFullInfinity(this Player player, int type, IModGroup group)
-        => group.MetaGroup.GetEffectiveInfinity(player, type, group);
+        => group.ModConsumable.GetEffectiveInfinity(player, type, group);
 
-    public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable>
-        => group.MetaGroup.GetEffectiveInfinity(player, consumable, group).Infinity >= consumed;
+    public static bool HasInfinite<TModConsumable, TConsumable>(this Player player, TConsumable consumable, long consumed, ModGroup<TModConsumable, TConsumable> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull
+        => group.ModConsumable.GetEffectiveInfinity(player, consumable, group).Infinity >= consumed;
 
 
-    public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool> retryIfNoneIncluded, params ModGroup<TMetaGroup, TConsumable>[] groups) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        foreach (ModGroup<TMetaGroup, TConsumable> group in groups) {
-            if (!group.MetaGroup.GetRequirement(consumable, group).IsNone) return player.HasInfinite(consumable, consumed, group);
+    public static bool HasInfinite<TModConsumable, TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool> retryIfNoneIncluded, params ModGroup<TModConsumable, TConsumable>[] groups) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
+        foreach (ModGroup<TModConsumable, TConsumable> group in groups) {
+            if (!group.ModConsumable.GetRequirement(consumable, group).IsNone) return player.HasInfinite(consumable, consumed, group);
         }
         if (!retryIfNoneIncluded()) return false;
         return player.HasInfinite(consumable, consumed, groups);
     }
-    public static bool HasInfinite<TMetaGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, params ModGroup<TMetaGroup, TConsumable>[] groups) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> => player.HasInfinite(consumable, consumed, () => false, groups);
+    public static bool HasInfinite<TModConsumable, TConsumable>(this Player player, TConsumable consumable, long consumed, params ModGroup<TModConsumable, TConsumable>[] groups) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, groups);
 
 
-    public static MetaDisplay GetLocalMetaDisplay(this Item item) {
-        if (_displays.TryGetOrCache(item, out MetaDisplay? metaDisplay)) return metaDisplay;
+    public static ItemDisplay GetLocalItemDisplay(this Item item) {
+        if (_displays.TryGetOrCache(item, out ItemDisplay? itemDisplay)) return itemDisplay;
 
-        metaDisplay = new();
-        foreach (IMetaGroup metaGroup in MetaGroups) {
-            foreach ((IModGroup group, int type, bool used) in metaGroup.GetDisplayedGroups(item)) {
+        itemDisplay = new();
+        foreach (IModConsumable modConsumable in ModConsumables) {
+            foreach ((IModGroup group, int type, bool used) in modConsumable.GetDisplayedGroups(item)) {
                 long consumed = group.GetConsumedFromContext(Main.LocalPlayer, item, out bool exclusive);
-                if(!used && exclusive) metaDisplay.AddGroup(group, type, consumed, exclusive);
-                else if (used) metaDisplay.AddGroup(group, type, consumed, exclusive);
+                if(!used && exclusive) itemDisplay.AddGroup(group, type, consumed, exclusive);
+                else if (used) itemDisplay.AddGroup(group, type, consumed, exclusive);
             }
         }
-        return metaDisplay;
+        return itemDisplay;
     }
 
     public static void ClearInfinities() {
-        foreach (IMetaGroup metaGroup in s_metaGroups) metaGroup.ClearInfinities();
+        foreach (IModConsumable modConsumable in s_modConsumables) modConsumable.ClearInfinities();
         _displays.Clear();
         LogCacheStats();
     }
     public static void ClearInfinity(Item item) {
-        foreach (IMetaGroup metaGroup in s_metaGroups) metaGroup.ClearInfinity(item);
+        foreach (IModConsumable modConsumable in s_modConsumables) modConsumable.ClearInfinity(item);
         _displays.Clear(item);
     }
 
-    internal static void Register<TMetaGroup, TConsumable>(ModGroup<TMetaGroup, TConsumable> group) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        MetaGroup<TMetaGroup, TConsumable>? metaGroup = (MetaGroup<TMetaGroup, TConsumable>?)s_metaGroups.Find(mg => mg is TMetaGroup);
-        metaGroup?.Add(group);
+    internal static void Register<TModConsumable, TConsumable>(ModGroup<TModConsumable, TConsumable> group) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
+        ModConsumable<TModConsumable, TConsumable>? modConsumable = (ModConsumable<TModConsumable, TConsumable>?)s_modConsumables.Find(mg => mg is TModConsumable);
+        modConsumable?.Add(group);
         s_groups.Add(group);
         GroupsLCM = s_groups.Count * GroupsLCM / Utility.GCD(GroupsLCM, s_groups.Count);
     }
-    internal static void Register<TMetaGroup, TConsumable>(MetaGroup<TMetaGroup, TConsumable> metaGroup) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        s_metaGroups.Add(metaGroup);
-        MetaGroupsLCM = s_metaGroups.Count * MetaGroupsLCM / Utility.GCD(MetaGroupsLCM, s_metaGroups.Count);
+    internal static void Register<TModConsumable, TConsumable>(ModConsumable<TModConsumable, TConsumable> modConsumable) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
+        s_modConsumables.Add(modConsumable);
+        ModConsumablesLCM = s_modConsumables.Count * ModConsumablesLCM / Utility.GCD(ModConsumablesLCM, s_modConsumables.Count);
         foreach (IModGroup group in s_groups) {
-            if (group is ModGroup<TMetaGroup, TConsumable> g) metaGroup.Add(g);
+            if (group is ModGroup<TModConsumable, TConsumable> g) modConsumable.Add(g);
         }
     }
 
@@ -77,18 +77,18 @@ public static class InfinityManager {
         return wrapper;
     }
 
-    public static IMetaGroup? GetMetaGroup(string mod, string name) => s_metaGroups.Find(mg => mg.Mod.Name == mod && mg.Name == name);
+    public static IModConsumable? GetModConsumable(string mod, string name) => s_modConsumables.Find(mg => mg.Mod.Name == mod && mg.Name == name);
     public static IModGroup? GetModGroup(string mod, string name) => s_groups.Find(g => g.Mod.Name == mod && g.Name == name);
 
 
     public static void Unload() {
-        s_metaGroups.Clear();
+        s_modConsumables.Clear();
         s_groups.Clear();
         s_configs.Clear();
     }
 
     public static void SortGroups() {
-        foreach (IMetaGroup metaGroup in s_metaGroups) metaGroup.SortGroups();
+        foreach (IModConsumable modConsumable in s_modConsumables) modConsumable.SortGroups();
     }
 
 
@@ -98,7 +98,7 @@ public static class InfinityManager {
         LogCacheStats();
     }
     private static void LogCacheStats() {
-        foreach(IMetaGroup meta in MetaGroups) if(meta is Groups.ItemMG) meta.LogCacheStats();
+        foreach(IModConsumable consumable in ModConsumables) if(consumable is Groups.Items) consumable.LogCacheStats();
         SpysInfiniteConsumables.Instance.Logger.Debug($"Diplay values:{_displays}");
         s_cacheTime = 120;
         _displays.ResetStats();
@@ -106,16 +106,16 @@ public static class InfinityManager {
 
     private static int s_cacheTime = 0;
 
-    public static ReadOnlyCollection<IMetaGroup> MetaGroups => new(s_metaGroups);
+    public static ReadOnlyCollection<IModConsumable> ModConsumables => new(s_modConsumables);
     public static ReadOnlyCollection<IModGroup> Groups => new(s_groups);
     public static ReadOnlyDictionary<IModGroup, IWrapper> Configs => new(s_configs);
 
-    public static int MetaGroupsLCM { get; private set; } = 1;
+    public static int ModConsumablesLCM { get; private set; } = 1;
     public static int GroupsLCM { get; private set; } = 1;
 
     private static readonly List<IModGroup> s_groups = new();
-    private static readonly List<IMetaGroup> s_metaGroups = new();
+    private static readonly List<IModConsumable> s_modConsumables = new();
     private static readonly Dictionary<IModGroup, IWrapper> s_configs = new();
 
-    private static readonly Cache<Item, (int type, int stack, int prefix), MetaDisplay> _displays = new(item => (item.type, item.stack, item.prefix), GetLocalMetaDisplay);
+    private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> _displays = new(item => (item.type, item.stack, item.prefix), GetLocalItemDisplay);
 }

@@ -30,6 +30,11 @@ GroupSettings: {
 	}
 
 	Settings.Header: Configs Header
+
+	ConsumableConfigs: {
+		Label: Consumable Configs
+		Tooltip: ""
+	}
 }
 
 CategoryDetection: {
@@ -236,8 +241,8 @@ MetaConfig: {
 	Tooltip: ""
 }
 
-GenericWrapper: {
-	Value: {
+GenericWrapper`1: {
+	Empty: {
 		Label: Value: Save the config to edit this value
 		Tooltip: ""
 	}
@@ -248,13 +253,23 @@ GenericWrapper: {
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
-GenericWrapper`1.Tooltip: ""
+ModConsumableDefinition.Tooltip: ""
 
-GenericWrapperBase`1: {
+ConsumableConfig: {
 	Tooltip: ""
 
-	Value: {
-		Label: Value
+	Preset: {
+		Label: Preset
+		Tooltip: ""
+	}
+
+	EnabledGroups: {
+		Label: Enabled Groups
+		Tooltip: ""
+	}
+
+	MaxConsumableTypes: {
+		Label: Max Consumable Types
 		Tooltip: ""
 	}
 }

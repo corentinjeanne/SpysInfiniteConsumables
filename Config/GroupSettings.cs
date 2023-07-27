@@ -15,14 +15,14 @@ public class GroupSettings : ModConfig {
     public bool PreventItemDupication { get; set; }
 
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<MetaGroupDefinition, MetaConfig> MetaConfigs {
-        get => _metaConfigs;
+    public Dictionary<ModConsumableDefinition, ConsumableConfig> ConsumableConfigs {
+        get => _consumableConfigs;
         set {
-            _metaConfigs.Clear();
-            foreach (IMetaGroup metaGroup in InfinityManager.MetaGroups) {
-                MetaGroupDefinition def = new(metaGroup);
-                metaGroup.Config = _metaConfigs[def] = value.TryGetValue(def, out MetaConfig? config) ? config : new();
-                metaGroup.Config.MetaGroup = metaGroup;
+            _consumableConfigs.Clear();
+            foreach (IModConsumable modConsumable in InfinityManager.ModConsumables) {
+                ModConsumableDefinition def = new(modConsumable);
+                modConsumable.Config = _consumableConfigs[def] = value.TryGetValue(def, out ConsumableConfig? config) ? config : new();
+                modConsumable.Config.ModConsumable = modConsumable;
             }
         }
     }
@@ -43,29 +43,29 @@ public class GroupSettings : ModConfig {
 
     [Header($"${Localization.Keys.GroupSettings}.Customs.Header")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<MetaGroupDefinition, Dictionary<ItemDefinition, Custom>> Customs {
+    public Dictionary<ModConsumableDefinition, Dictionary<ItemDefinition, Custom>> Customs {
         get => _customs;
         set {
             _customs.Clear();
-            foreach (IMetaGroup metaGroup in InfinityManager.MetaGroups) {
-                MetaGroupDefinition def = new(metaGroup);
+            foreach (IModConsumable modConsumable in InfinityManager.ModConsumables) {
+                ModConsumableDefinition def = new(modConsumable);
                 _customs[def] = value.TryGetValue(def, out Dictionary<ItemDefinition, Custom>? customs) ? customs : new();
-                foreach(Custom custom in _customs[def].Values) custom.MetaGroup = metaGroup;
+                foreach(Custom custom in _customs[def].Values) custom.ModConsumable = modConsumable;
             }
         }
     }
 
-    public bool HasCustomCount<TMetaGroup, TConsumable>(TConsumable consumable, ModGroup<TMetaGroup, TConsumable> group, [MaybeNullWhen(false)] out Count count) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        TMetaGroup metaGroup = group.MetaGroup;
-        Dictionary<ItemDefinition, Custom> customs = Customs[new(metaGroup)];
-        ItemDefinition def = new(metaGroup.ToItem(consumable).type);
+    public bool HasCustomCount<TModConsumable, TConsumable>(TConsumable consumable, ModGroup<TModConsumable, TConsumable> group, [MaybeNullWhen(false)] out Count count) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
+        TModConsumable modConsumable = group.ModConsumable;
+        Dictionary<ItemDefinition, Custom> customs = Customs[new(modConsumable)];
+        ItemDefinition def = new(modConsumable.ToItem(consumable).type);
         if(customs.TryGetValue(def, out Custom? custom) && custom.TryGetValue(group, out count)) return true;
         count = default;
         return false;
     }
-    public bool HasCustomGlobalRequirement<TMetaGroup, TConsumable>(TConsumable consumable, MetaGroup<TMetaGroup, TConsumable> metaGroup, [MaybeNullWhen(false)] out Requirement requirement) where TMetaGroup : MetaGroup<TMetaGroup, TConsumable> {
-        Dictionary<ItemDefinition, Custom> customs = Customs[new(metaGroup)];
-        ItemDefinition def = new(metaGroup.ToItem(consumable).type);
+    public bool HasCustomGlobalRequirement<TModConsumable, TConsumable>(TConsumable consumable, ModConsumable<TModConsumable, TConsumable> modConsumable, [MaybeNullWhen(false)] out Requirement requirement) where TModConsumable : ModConsumable<TModConsumable, TConsumable> where TConsumable : notnull {
+        Dictionary<ItemDefinition, Custom> customs = Customs[new(modConsumable)];
+        ItemDefinition def = new(modConsumable.ToItem(consumable).type);
         if(customs.TryGetValue(def, out Custom? custom) && custom.TryGetGlobal(out Count? count)) {
             requirement = new(count);
             return true;
@@ -78,8 +78,8 @@ public class GroupSettings : ModConfig {
         if(Main.netMode != NetmodeID.Server) InfinityManager.SortGroups();
     }
 
-    private readonly Dictionary<MetaGroupDefinition, Dictionary<ItemDefinition, Custom>> _customs = new();
-    private readonly Dictionary<MetaGroupDefinition, MetaConfig> _metaConfigs = new();
+    private readonly Dictionary<ModConsumableDefinition, Dictionary<ItemDefinition, Custom>> _customs = new();
+    private readonly Dictionary<ModConsumableDefinition, ConsumableConfig> _consumableConfigs = new();
     private readonly Dictionary<ModGroupDefinition, GenericWrapper<object>> _configs = new();
 
     public override ConfigScope Mode => ConfigScope.ServerSide;    

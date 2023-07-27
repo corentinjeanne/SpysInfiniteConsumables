@@ -3,9 +3,9 @@ using System.Collections.Generic;
 namespace SPIC;
 
 
-public class MetaInfinity {
+public class ConsumableInfinity {
     
-    public MetaInfinity() {
+    public ConsumableInfinity() {
         _infinities = new();
         UsedGroups = new();
         Mixed = new();
@@ -42,11 +42,11 @@ public class MetaInfinity {
 
 }
 
-public class MetaDisplay {
+public class ItemDisplay {
 
-    public MetaDisplay() {
+    public ItemDisplay() {
         DisplayedGroups = new();
-        ByMetaGroups = new();
+        ByModConsumable = new();
         _infinities = new();
     }
 
@@ -61,22 +61,22 @@ public class MetaDisplay {
         if(ExclusiveContext && !exclusive) return;
         if(!ExclusiveContext && exclusive) {
             _infinities.Clear();
-            ByMetaGroups.Clear();
+            ByModConsumable.Clear();
             DisplayedGroups.Clear();
             ExclusiveContext = true;
         }
 
         _infinities[group] = (type, consumed);
         DisplayedGroups.Add(group);
-        if(ByMetaGroups.Count == 0 || ByMetaGroups[^1][0].MetaGroup != group.MetaGroup){
-            ByMetaGroups.Add(new());
+        if(ByModConsumable.Count == 0 || ByModConsumable[^1][0].ModConsumable != group.ModConsumable){
+            ByModConsumable.Add(new());
         }
-        ByMetaGroups[^1].Add(group);
+        ByModConsumable[^1].Add(group);
     }
 
     public bool ExclusiveContext { get; private set; }
 
     private readonly Dictionary<IModGroup, (int, long)> _infinities;
     public List<IModGroup> DisplayedGroups { get; private set; }
-    public List<List<IModGroup>> ByMetaGroups { get; private set; }
+    public List<List<IModGroup>> ByModConsumable { get; private set; }
 }

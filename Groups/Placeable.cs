@@ -56,7 +56,7 @@ public class PlaceableRequirements {
     public Count Paints = 999;
 }
 
-public class Placeable : ModGroupStatic<Placeable, ItemMG, Item, PlaceableCategory> { // TODO dupplication
+public class Placeable : ModGroupStatic<Placeable, Items, Item, PlaceableCategory> { // TODO dupplication
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override bool DefaultsToOn => false;
