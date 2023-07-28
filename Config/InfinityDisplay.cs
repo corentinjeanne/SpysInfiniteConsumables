@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.ComponentModel;
-using Microsoft.Xna.Framework;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
 using Newtonsoft.Json;
@@ -8,7 +7,7 @@ using Newtonsoft.Json;
 namespace SPIC.Configs;
 
 public class InfinityDisplay : ModConfig {
-    [Header($"${Localization.Keys.InfinityDisplay}.General.Header")]
+    [Header("General")]
     [DefaultValue(true)]
     public bool general_ShowInfinities;
     [DefaultValue(true)]
@@ -18,7 +17,7 @@ public class InfinityDisplay : ModConfig {
     public WelcomMessageFrequency general_welcomeMessage;
     [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";
 
-    [Header($"${Localization.Keys.InfinityDisplay}.Tooltip.Header")]
+    [Header("Tooltip")]
     [DefaultValue(true)]
     public bool toopltip_ShowTooltip;
     [DefaultValue(true)]
@@ -26,41 +25,40 @@ public class InfinityDisplay : ModConfig {
     [DefaultValue(CountStyle.Name)]
     public CountStyle tooltip_RequirementStyle;
 
-    [Header($"${Localization.Keys.InfinityDisplay}.Glow.Header")]
+    [Header("Glow")]
     public bool glow_ShowGlow;
     [DefaultValue(1f)]
     public float glow_Intensity;
     [DefaultValue(2), Range(0, 5), Slider]
     public int glow_InfinityTime;
 
-    [Header($"${Localization.Keys.InfinityDisplay}.Dots.Header")]
+    [Header("Dots")]
     [DefaultValue(true)]
     public bool dots_ShowDots;
     [DefaultValue(Corner.BottomRight)]
     public Corner dots_Start;
     [DefaultValue(Direction.Horizontal)]
     public Direction dots_Direction;
-    [Range(1,Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots)]
+    [Range(1, Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots)]
     public int dots_Count;
-    [DefaultValue(5), Range(1,10), Slider]
+    [DefaultValue(5), Range(1, 10), Slider]
     public int dot_PageTime;
 
-    [Header($"${Localization.Keys.InfinityDisplay}.Colors.Header")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
-    public Dictionary<InfinityDefinition, Color> Colors {
+    [Header("Colors")]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
+    public Dictionary<GroupDefinition, GroupColors> Colors {
         get => _colors;
         set {
-            _colors.Clear();
-            foreach (IInfinity infinity in InfinityManager.Infinities) {
-                InfinityDefinition def = new(infinity);
-                if (value.TryGetValue(def, out Color color)) _colors[def] = color;
-                else _colors[def] = infinity.DefaultColor;
-            } 
+            foreach (IGroup group in InfinityManager.Groups) {
+                GroupDefinition def = new(group);
+                if (value.TryGetValue(def, out GroupColors? colors)) colors.SetGroup(group);
+                else value[def] = colors = new(group);
+                group.Colors = colors;
+            }
+            _colors = value;
         }
     }
-
-    private readonly Dictionary<InfinityDefinition, Color> _colors = new();
-
+    private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
     public enum CountStyle { Sprite, Name }
     public enum Direction {Vertical, Horizontal}

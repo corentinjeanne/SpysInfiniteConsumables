@@ -96,7 +96,7 @@ public class InfinityDisplayItem : GlobalItem {
 
 
         if (canDisplayInfinity && fullInfinity.Infinity >= Math.Max(consumed, 1)) {
-            line.OverrideColor = display.Colors[new(infinity)]; // TODO access directly
+            line.OverrideColor = infinity.Color;
             line.Text = fullInfinity.Requirement.Multiplier >= 1 || consumed == -1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(item, 0, fullInfinity.Infinity, display.tooltip_RequirementStyle));
@@ -139,7 +139,7 @@ public class InfinityDisplayItem : GlobalItem {
             } else ratio = 0;
         }
         
-        Color color = display.Colors[new(infinity)] * maxAlpha;
+        Color color = infinity.Color * maxAlpha;
         for (int i = 0; i < s_innerPixels.Length; i++) {
             float alpha = ratio >= (i + 1f) / s_innerPixels.Length ? 1f : 0.5f;
             spriteBatch.Draw(
@@ -165,7 +165,7 @@ public class InfinityDisplayItem : GlobalItem {
         alpha *= 2; // 0->1->0
 
         angle += item.type % 16 / 16;
-        Color color = display.Colors[new(infinity)];
+        Color color = infinity.Color;
 
         for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * alpha).RotatedBy((f*2 + angle) * Math.PI), new Rectangle?(frame), color * (alpha * 0.75f), 0, origin, scale, 0, 0f);
         for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * alpha).RotatedBy((f + angle) * -2 * Math.PI), new Rectangle?(frame), color * (alpha * 0.5f), 0, origin, scale, 0, 0f);

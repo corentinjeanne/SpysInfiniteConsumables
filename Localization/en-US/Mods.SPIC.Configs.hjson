@@ -1,6 +1,19 @@
 InfinitySettings: {
 	DisplayName: Infinity Settings
-	General.Header: Enabled Infinities
+
+	Headers: {
+		Features: Features
+		Configs: Configs
+	}
+
+	DetectMissingCategories: {
+		Label: "[i:1299] Detect missing categories"
+		Tooltip:
+			'''
+			Detect the categories of items if they are unknown.
+			You can see the detected categories below.
+			'''
+	}
 
 	PreventItemDupication: {
 		Label: "[i:3988] Prevent item duplication"
@@ -13,49 +26,22 @@ InfinitySettings: {
 			'''
 	}
 
-	GroupConfigs: {
-		Label: Group Configs
-		Tooltip: ""
-	}
-
-	Settings.Header: Configs Header
-
 	Configs: {
 		Label: Configs
-		Tooltip: ""
-	}
-
-	Customs: {
-		Header: Custom Requirements
-		Label: "[i:1913] Customs"
-		Tooltip: ""
-	}
-}
-
-CategoryDetection: {
-	DisplayName: Category Detection
-	General.Header: Tooggle
-
-	DetectMissing: {
-		Label: "[i:1299] Detect missing categories"
-		Tooltip:
-			'''
-			Detect the categories of items if they are unknown.
-			You can see the detected categories below.
-			'''
-	}
-
-	Categories.Header: Detected Categories
-
-	DetectedCategories: {
-		Label: Detected Categories
 		Tooltip: ""
 	}
 }
 
 InfinityDisplay: {
 	DisplayName: Infinities Display
-	General.Header: General
+
+	Headers: {
+		General: General
+		Tooltip: Item Tooltip
+		Glow: Item Glow
+		Dots: Colored Dots
+		Colors: Infinity colors
+	}
 
 	general_ShowInfinities: {
 		Label: "[i:3084] Show Infinities"
@@ -77,8 +63,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	Tooltip.Header: Item Tooltip
-
 	toopltip_ShowTooltip: {
 		Label: "[i:171] Display infinity in item tooltip"
 		Tooltip: ""
@@ -94,8 +78,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	Glow.Header: Item Glow
-
 	glow_ShowGlow: {
 		Label: "[i:75] Display infinity colored glow"
 		Tooltip: ""
@@ -110,8 +92,6 @@ InfinityDisplay: {
 		Label: "[i:583] Time per Infinity (seconds)"
 		Tooltip: ""
 	}
-
-	Dots.Header: Colored Dots
 
 	dots_ShowDots: {
 		Label: "[i:3603] Display infinity colored dots"
@@ -139,18 +119,62 @@ InfinityDisplay: {
 	}
 
 	Colors: {
-		Header: Infinity colors
 		Label: Colors
 		Tooltip: ""
 	}
 }
 
+GroupConfig: {
+	Headers: {
+		Infinities: Enabled Infinities
+		Configs: Infinity Configs
+		Customs: Custom Requirements
+	}
+
+	Preset: {
+		Label: Active Preset
+		Tooltip: ""
+	}
+
+	Infinities: {
+		Label: Enabled Infinities
+		Tooltip: ""
+	}
+
+	MaxUsedInfinities: {
+		Label: "[i:486] Maximum used Infinities"
+		Tooltip:
+			'''
+			The maximum number of requirements taken into account directly.
+			Infinities that are not used take the minimum infinity as their infinity.
+			Set to 0 to use all Infinities.
+			'''
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
+	}
+
+	Customs: {
+		Label: "[i:1913] Customs"
+		Tooltip: ""
+	}
+
+	Tooltip: ""
+}
+
+GroupColors: {
+	Colors: {
+		Label: Colors
+		Tooltip: ""
+	}
+
+	Tooltip: ""
+}
+
 UI: {
 	InfinityMultiplier: Infinity is {0} of the requirement
-	Count.Name: Count
-	Value.Name: Value
-	Items.Name: Items
-	Stacks.Name: Stacks of {0}
 	None: None
 	Change: Change to {0}
 	Up: Move Up
@@ -159,30 +183,17 @@ UI: {
 }
 
 Custom: {
-	GlobalValue: {
-		Label: Global Value
+	Global: {
+		Label: Global
 		Tooltip: ""
 	}
 
-	CustomRequirements: {
-		Label: Custom Requirements
+	Individual: {
+		Label: Individual
 		Tooltip: ""
 	}
 
 	Tooltip: ""
-}
-
-WelcomMessageFrequency: {
-	Tooltip: ""
-	Never.Label: Never
-	OncePerUpdate.Label: Once Per Update
-	Always.Label: Always
-}
-
-CountStyle: {
-	Tooltip: ""
-	Sprite.Label: Sprite
-	Name.Label: Name
 }
 
 Count: {
@@ -194,44 +205,6 @@ Count: {
 	Amount: {
 		Label: Amount
 		Tooltip: ""
-	}
-
-	Tooltip: ""
-}
-
-Corner: {
-	Tooltip: ""
-	TopLeft.Label: Top Left
-	TopRight.Label: Top Right
-	BottomLeft.Label: Bottom Left
-	BottomRight.Label: Bottom Right
-}
-
-Direction: {
-	Tooltip: ""
-	Vertical.Label: Vertical
-	Horizontal.Label: Horizontal
-}
-
-GroupConfig: {
-	Preset: {
-		Label: Preset
-		Tooltip: ""
-	}
-
-	EnabledInfinities: {
-		Label: Enabled Infinities
-		Tooltip: ""
-	}
-
-	MaxConsumableTypes: {
-		Label: "[i:486] Maximum used Infinities"
-		Tooltip:
-			'''
-			The maximum number of requirements taken into account directly.
-			Infinities that are not used take the minimum infinity as their infinity.
-			Set to 0 to use all Infinities.
-			'''
 	}
 
 	Tooltip: ""
@@ -253,3 +226,30 @@ ModConsumableDefinition.Tooltip: ""
 InfinityDefinition.Tooltip: ""
 GroupDefinition.Tooltip: ""
 Text.Tooltip: ""
+
+WelcomMessageFrequency: {
+	Tooltip: ""
+	Never.Label: Never
+	OncePerUpdate.Label: Once Per Update
+	Always.Label: Always
+}
+
+CountStyle: {
+	Tooltip: ""
+	Sprite.Label: Sprite
+	Name.Label: Name
+}
+
+Corner: {
+	Tooltip: ""
+	TopLeft.Label: Top Left
+	TopRight.Label: Top Right
+	BottomLeft.Label: Bottom Left
+	BottomRight.Label: Bottom Right
+}
+
+Direction: {
+	Tooltip: ""
+	Vertical.Label: Vertical
+	Horizontal.Label: Horizontal
+}

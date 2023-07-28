@@ -29,7 +29,7 @@ public class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<AmmoRequirements>(this);
+        Config = Group.AddConfig<AmmoRequirements>(this);
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {

@@ -21,7 +21,7 @@ public class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<JourneySacrificeSettings>(this);
+        Config = Group.AddConfig<JourneySacrificeSettings>(this);
     }
 
     public bool IsConsumable(Item item) {

@@ -21,7 +21,7 @@ public interface IFullRequirement {
 public readonly record struct FullRequirement(Requirement Requirement) : IFullRequirement {
     public string ExtraInfo() => string.Empty;
 }
-public readonly record struct FullRequirement<TCategory>(TCategory Category, Requirement Requirement) : IFullRequirement where TCategory : System.Enum {
+public readonly record struct FullRequirement<TCategory>(TCategory Category, Requirement Requirement) : IFullRequirement where TCategory : struct, System.Enum {
     public string ExtraInfo() => Category.ToString();
 }
 public readonly record struct MixedRequirement(Requirement Requirement) : IFullRequirement {

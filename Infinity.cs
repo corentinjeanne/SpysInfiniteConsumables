@@ -10,6 +10,8 @@ namespace SPIC;
 
 public interface IInfinity : ILocalizedModType, ILoadable {
     IGroup Group { get; }
+    bool Enabled { get; }
+    Color Color { get; }
     int IconType { get; }
     bool DefaultsToOn { get; }
     Color DefaultColor { get; }
@@ -46,10 +48,13 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     }
 
     public TGroup Group { get; internal set; } = null!;
+    public bool Enabled { get; internal set; }
+    public Color Color { get; internal set; }
+
     IGroup IInfinity.Group => Group;
 }
 
-public abstract class Infinity<TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : Enum {
+public abstract class Infinity<TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
 
     public abstract TCategory GetCategory(TConsumable consumable);
     public abstract Requirement GetRequirement(TCategory category);
@@ -68,7 +73,7 @@ public abstract class InfinityStatic<TInfinity, TGroup, TConsumable> : Infinity<
 
     public static TInfinity Instance = null!;
 }
-public abstract class InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable, TCategory> where TInfinity : InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : Enum {
+public abstract class InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable, TCategory> where TInfinity : InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
     public override void SetStaticDefaults() => Instance = (TInfinity)this;
     public override void Unload() => Instance = null!;
 

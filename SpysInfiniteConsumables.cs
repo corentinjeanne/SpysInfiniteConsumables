@@ -15,8 +15,6 @@ public class SpysInfiniteConsumables : Mod {
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
-        CategoryDetection.Instance.LoadConfig();
-        InfinityDisplay.Instance.LoadConfig();
     }
 
     public override void Unload() {

@@ -64,7 +64,7 @@ public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategor
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<PlaceableRequirements>(this);
+        Config = Group.AddConfig<PlaceableRequirements>(this);
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);

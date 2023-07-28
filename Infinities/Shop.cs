@@ -31,7 +31,7 @@ public class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<ShopRequirements>(this);
+        Config = Group.AddConfig<ShopRequirements>(this);
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {

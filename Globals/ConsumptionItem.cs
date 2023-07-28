@@ -9,12 +9,11 @@ namespace SPIC.Globals;
 public class ConsumptionItem : GlobalItem {
 
     public override bool ConsumeItem(Item item, Player player) {
-        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
 
         DetectionPlayer detectionPlayer = player.GetModPlayer<DetectionPlayer>();
 
         
-        if(detection.DetectMissing) detectionPlayer.TryDetectCategory(true);
+        if(Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
 
         // LeftClick
         if (detectionPlayer.InItemCheck) {
@@ -22,7 +21,7 @@ public class ConsumptionItem : GlobalItem {
                 if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
 
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): Configs.CategoryDetection.Instance.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
                 );
             }
@@ -33,12 +32,12 @@ public class ConsumptionItem : GlobalItem {
 
         } else if(DetectionPlayer.InRightClick)
             return !player.HasInfinite(item, 1,
-                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
+                () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
                 GrabBag.Instance, Usable.Instance
             );
         else { // Hotkey or special right click action
             return !player.HasInfinite(item, 1,
-                () => Configs.CategoryDetection.Instance.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance)
+                () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance)
                 , Usable.Instance, GrabBag.Instance
             );
         }

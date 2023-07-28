@@ -31,7 +31,7 @@ public class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.CategoryDetection.Instance.DetectMissing && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem, true);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
@@ -49,6 +49,7 @@ public class DetectionPlayer : ModPlayer {
 
 
     public override void OnEnterWorld(){
+        ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
         if(version.Length == 0) version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
         bool newChanges = Mod.Version > new System.Version(version);
@@ -92,13 +93,13 @@ public class DetectionPlayer : ModPlayer {
         if (DetectingCategoryOf is null) return false;
 
         void SaveUsable(UsableCategory category) {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
-            if(!_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
+            InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
+            if(!_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
         
         void SaveBag(GrabBagCategory category) {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-            if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
+            InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+            if (_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
         }
 
         DetectionDataScreenShot data = GetDetectionData();
@@ -132,7 +133,6 @@ public class DetectionPlayer : ModPlayer {
         return category != GrabBagCategory.None;
     }
 
-
     public int FindPotentialExplosivesType(int proj) {
         foreach (Dictionary<int, int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values) {
             foreach ((int item, int shoot) in projectiles) if (shoot == proj) return item;
@@ -147,9 +147,11 @@ public class DetectionPlayer : ModPlayer {
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0)
-                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && InfinityManager.GetInfinity(refill, owned + used, Ammo.Instance) != 0))
+        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShoudRefill(refill, owned, used, Usable.Instance))
+                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShoudRefill(refill, owned, used, Ammo.Instance)))
             Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
+
+        static bool ShoudRefill(Item refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
 
@@ -167,7 +169,7 @@ public class DetectionPlayer : ModPlayer {
     //     if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
     //     InRightClick = true;
     //     DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-    //     if (Configs.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
+    //     if (InfinityManager.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
     //         modPlayer.PrepareDetection(inv[slot], false);
 
     //     bool res = orig(inv, context, slot, player);
@@ -185,10 +187,9 @@ public class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
         Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
 
-        if (detection.DetectMissing && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
+        if (settings.DetectMissingCategories && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

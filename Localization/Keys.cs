@@ -14,6 +14,6 @@ public static class Keys {
     public const string Infinties = $"{Root}.{nameof(Infinties)}";
 
     public const string InfinitySettings = $"{Configs}.{nameof(SPIC.Configs.InfinitySettings)}";
+    public const string GroupConfig = $"{Configs}.{nameof(SPIC.Configs.GroupConfig)}";
     public const string InfinityDisplay = $"{Configs}.{nameof(SPIC.Configs.InfinityDisplay)}";
-    public const string CategoryDetection = $"{Configs}.{nameof(SPIC.Configs.CategoryDetection)}";
 }

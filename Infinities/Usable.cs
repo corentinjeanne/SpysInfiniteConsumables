@@ -48,7 +48,7 @@ public class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<UsableRequirements>(this);
+        Config = Group.AddConfig<UsableRequirements>(this);
     }
 
     public override Requirement GetRequirement(UsableCategory category) {
@@ -96,11 +96,10 @@ public class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
         if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Buff;
         if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Recovery;
 
+        if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
         if (item.hairDye != -1) return UsableCategory.PlayerBooster;
-
-        if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
 
         // Most modded summoners, booster
         if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;

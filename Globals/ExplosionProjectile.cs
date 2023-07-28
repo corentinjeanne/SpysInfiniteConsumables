@@ -10,13 +10,12 @@ namespace SPIC.Globals {
 			On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
 			On_Projectile.ExplodeTiles += HookExplodeTiles;
 			On_Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
-            ClearExploded();
         }
         public override void Unload() => ClearExploded();
 
 
         private static void Explode(Projectile proj){
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.CategoryDetection.Instance.DetectMissing) return;
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.InfinitySettings.Instance.DetectMissingCategories) return;
             _explodedProjTypes.Add(proj.type);
             
             DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
@@ -27,11 +26,11 @@ namespace SPIC.Globals {
             AmmoCategory ammo = InfinityManager.GetCategory(item, Ammo.Instance);
             UsableCategory usable = InfinityManager.GetCategory(item, Usable.Instance);
             if(ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive){
-                if(Configs.CategoryDetection.Instance.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
+                if(InfinityManager.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
                     detectionPlayer.RefilExplosive(proj.type, item);
             }
             else if(usable != UsableCategory.None && usable != UsableCategory.Explosive){
-                if(Configs.CategoryDetection.Instance.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance))
+                if(InfinityManager.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance))
                     detectionPlayer.RefilExplosive(proj.type, item);
             }
         }

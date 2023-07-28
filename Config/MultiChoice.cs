@@ -60,6 +60,15 @@ public abstract class MultyChoice {
         }
     }
 
+    public bool TryGet<T>(string name, [NotNullWhen(true)] out T? value){
+        if(Choice == name) {
+            value = (T)Data!;
+            return true;
+        }
+        value = default;
+        return false;
+    }
+
     internal virtual object? Data {
         get => Choices[ChoiceIndex].GetValue(this);
         set => Choices[ChoiceIndex].SetValue(this, value);
@@ -76,6 +85,8 @@ public abstract class MultyChoice {
 }
 
 public abstract class MultyChoice<T> : MultyChoice {
+    public MultyChoice() : base() {}
+    public MultyChoice(T value) : base() => Value = value;
     internal override object? Data { get => Value; set => Value = (T?)value; }
     [JsonIgnore] public abstract T? Value { get; set; }
 

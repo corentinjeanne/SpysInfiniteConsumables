@@ -38,7 +38,7 @@ public class Material : InfinityStatic<Material, Items, Item, MaterialCategory> 
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = InfinityManager.RegisterConfig<MaterialRequirements>(this);
+        Config = Group.AddConfig<MaterialRequirements>(this);
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
