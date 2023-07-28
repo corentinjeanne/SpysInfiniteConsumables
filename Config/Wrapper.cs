@@ -78,7 +78,7 @@ public class Wrapper<T, TBase> : WrapperBase<TBase> where T : TBase, new() where
     public static implicit operator T(Wrapper<T, TBase> wrapper) => wrapper.Value;
 }
 
-public sealed class Wrapper<T> : WrapperBase<object?> where T : new() {
+public sealed class Wrapper<T> : Wrapper<T, object?> where T : new() {
     public Wrapper() : base() { }
     public Wrapper(T value) : base(value) { }
 }
