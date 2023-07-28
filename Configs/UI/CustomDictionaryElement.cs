@@ -111,6 +111,8 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
 
+            if (element.GetType() == ReflectionHelper.ObjectElement) ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
+
             string? name = key switch {
                 IDefinition preset => preset.DisplayName,
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",

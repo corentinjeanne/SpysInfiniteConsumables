@@ -13,9 +13,9 @@ public enum ShopCategory {
 }
 
 public sealed class ShopRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
+    [LabelKey($"${Localization.Keys.Infinities}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
     public Count Coins = 1000;
-    [LabelKey($"${Localization.Keys.Infinties}.Shop.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
+    [LabelKey($"${Localization.Keys.Infinities}.Shop.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
     public Count Single = 20;
 
     public const float CoinMult = 1 / 20f;

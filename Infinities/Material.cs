@@ -17,15 +17,15 @@ public enum MaterialCategory {
 }
 
 public sealed class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Basics = 999;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Furnitures = 20;
-    [LabelKey($"${Localization.Keys.Infinties}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Infinties}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count NonStackable = 2;
 }
 

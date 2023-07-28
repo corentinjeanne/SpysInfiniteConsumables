@@ -26,17 +26,17 @@ public enum UsableCategory {
 }
 
 public sealed class UsableRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Weapons")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapons")]
     public Count Weapons = 2 * 999;
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Potions")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Potions")]
     public Count Potions = 30;
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Boosters")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Boosters")]
     public Count Boosters = 5;
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Summoners")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoners")]
     public Count Summoners = 3;
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Critters")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Critters")]
     public Count Critters = 10;
-    [LabelKey($"${Localization.Keys.Infinties}.Usable.Tools")]
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Tools")]
     public Count Tools = 99;
 }
 

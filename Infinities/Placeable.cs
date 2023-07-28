@@ -38,21 +38,21 @@ public static class PlaceableExtension {
 }
 
 public sealed class PlaceableRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Tiles")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Tiles")]
     public Count Tiles = 999;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ores")]
     public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Torches")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Torches")]
     public Count Torches = 99;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Furnitures")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furnitures")]
     public Count Furnitures = 3;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Mechanical")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Mechanical")]
     public Count Mechanical = 3;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Liquids")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Liquids")]
     public Count Liquids = 10;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Seeds")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seeds")]
     public Count Seeds = 20;
-    [LabelKey($"${Localization.Keys.Infinties}.Placeable.Paints")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paints")]
     public Count Paints = 999;
 }
 

@@ -16,9 +16,9 @@ public enum AmmoCategory {
     Special
 }
 public sealed class AmmoRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.Ammo.Standard")]
+    [LabelKey($"${Localization.Keys.Infinities}.Ammo.Standard")]
     public Count Standard = 4 * 999;
-    [LabelKey($"${Localization.Keys.Infinties}.Ammo.Special")]
+    [LabelKey($"${Localization.Keys.Infinities}.Ammo.Special")]
     public Count Special = 999;
 }
 

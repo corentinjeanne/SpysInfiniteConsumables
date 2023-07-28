@@ -11,7 +11,7 @@ public static class Keys {
     public const string Buffs = $"{Root}.{nameof(Buffs)}";
     public const string RecipesGroups = $"{Root}.{nameof(RecipesGroups)}";
     public const string InfoDisplays = $"{Root}.{nameof(InfoDisplays)}";
-    public const string Infinties = $"{Root}.{nameof(Infinties)}";
+    public const string Infinities = $"{Root}.{nameof(Infinities)}";
 
     public const string InfinitySettings = $"{Configs}.{nameof(SPIC.Configs.InfinitySettings)}";
     public const string GroupConfig = $"{Configs}.{nameof(SPIC.Configs.GroupConfig)}";

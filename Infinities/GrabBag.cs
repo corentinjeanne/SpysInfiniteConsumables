@@ -7,6 +7,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using Terraria.Localization;
+using Terraria.GameContent.ItemDropRules;
 
 namespace SPIC.Infinities; 
 public enum GrabBagCategory {
@@ -19,11 +20,11 @@ public enum GrabBagCategory {
 // BUG capricorn leggings (tranforms)
 
 public sealed class GrabBagRequirements {
-    [LabelKey($"${Localization.Keys.Infinties}.GrabBag.Containers")]
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Containers")]
     public Count Containers = 10;
-    [LabelKey($"${Localization.Keys.Infinties}.GrabBag.Convertibles")]
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Convertibles")]
     public Count Convertibles = 499;
-    [LabelKey($"${Localization.Keys.Infinties}.GrabBag.Boss")]
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Boss")]
     public Count TreasureBags = 3;
 }
 
@@ -52,7 +53,11 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
         case ItemID.Geode: return GrabBagCategory.Container;
         }
         if (ItemID.Sets.BossBag[item.type]) return GrabBagCategory.TreasureBag;
-        if (Main.ItemDropsDB.GetRulesForItemID(item.type).Count != 0) return GrabBagCategory.Container;
+        var drops = Main.ItemDropsDB.GetRulesForItemID(item.type);
+        if (drops.Count != 0){
+            if(drops.Count == 1 && drops[0] is CommonDrop commonDrop && Main.ItemDropsDB.GetRulesForItemID(commonDrop.itemId).Count == 1) return GrabBagCategory.None;
+            return GrabBagCategory.Container;
+        }
         if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Convertible;
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }

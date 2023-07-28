@@ -8,8 +8,10 @@ using Terraria.ModLoader;
 
 namespace SPIC.Infinities;
 
+// TODO Only display in journey of if it is the only group dislay
+
 public sealed class JourneySacrificeSettings {
-    [LabelKey($"${Localization.Keys.Infinties}.JourneySacrifice.Sacrifices")]
+    [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
     public bool includeNonConsumable;
 }
 

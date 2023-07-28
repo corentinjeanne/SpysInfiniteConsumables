@@ -57,6 +57,8 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         return wrapper;
     }
 
+    public override void Load() => Instance = (TGroup)this;
+
     public override void Unload() {
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             infinity.Group = null!;
@@ -64,6 +66,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         }
         _infinities.Clear();
         _infinityConfigs.Clear();
+        Instance = null!;
     }
     protected sealed override void Register() {
         ModTypeLookup<Group<TGroup, TConsumable>>.Register(this);
@@ -202,6 +205,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
+    public static TGroup Instance { get; private set; } = null!;
 
     IEnumerable<IInfinity> IGroup.Infinities => Infinities;
     public IEnumerable<Infinity<TGroup, TConsumable>> Infinities => _infinities;
