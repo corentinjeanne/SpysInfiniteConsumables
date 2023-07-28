@@ -2,14 +2,16 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public class GroupConfig {
+public sealed class GroupConfig {
     [Header("Infinities")]
+    [JsonIgnore]
     public PresetDefinition Preset {
         get {
             if (Infinities.Count == 0) return new();
@@ -79,7 +81,7 @@ public class GroupConfig {
 
 }
 
-public class GroupColors {
+public sealed class GroupColors {
 
     [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
     public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();

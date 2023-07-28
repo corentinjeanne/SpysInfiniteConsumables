@@ -4,7 +4,7 @@ using SPIC.Infinities;
 
 namespace SPIC.Globals {
 
-	public class ExplosionProjectile : GlobalProjectile {
+	public sealed class ExplosionProjectile : GlobalProjectile {
 
         public override void Load() {
 			On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;

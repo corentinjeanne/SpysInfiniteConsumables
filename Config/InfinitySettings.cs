@@ -7,7 +7,7 @@ using Terraria.ID;
 
 namespace SPIC.Configs;
 
-public class InfinitySettings : ModConfig {
+public sealed class InfinitySettings : ModConfig {
 
     [Header("Features")]
     [DefaultValue(true)]

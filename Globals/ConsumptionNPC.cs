@@ -5,7 +5,7 @@ using Terraria.DataStructures;
 
 namespace SPIC.Globals;
 
-public class ConsumptionNPC : GlobalNPC {
+public sealed class ConsumptionNPC : GlobalNPC {
     
     public override void Load() {
         On_Chest.SetupShop_string_NPC += HookSetupShop;

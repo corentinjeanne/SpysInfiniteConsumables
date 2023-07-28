@@ -1,10 +1,8 @@
-using SPIC.Configs;
-using SPIC.Configs.Presets;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
-public class SpysInfiniteConsumables : Mod {
+public sealed class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
@@ -22,7 +20,7 @@ public class SpysInfiniteConsumables : Mod {
         CurrencyHelper.ClearCurrencies();
         
         InfinityManager.Unload();
-        PresetLoader.Unload();
+        Configs.Presets.PresetLoader.Unload();
         Instance = null!;
     }
 

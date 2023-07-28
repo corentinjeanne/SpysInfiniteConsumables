@@ -16,7 +16,7 @@ public enum MaterialCategory {
     NonStackable
 }
 
-public class MaterialRequirements {
+public sealed class MaterialRequirements {
     [LabelKey($"${Localization.Keys.Infinties}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Basics = 999;
     [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
@@ -29,7 +29,7 @@ public class MaterialRequirements {
     public Count NonStackable = 2;
 }
 
-public class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
+public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
     
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool DefaultsToOn => false;

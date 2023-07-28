@@ -5,7 +5,7 @@ using Terraria.ModLoader.Config.UI;
 namespace SPIC.Configs.UI;
 
 [CustomModConfigItem(typeof(TextElement))]
-public class Text {
+public sealed class Text {
     public Text() {}
     public Text(string? label = null, string? tooltip = null) {
         Label = label;
@@ -16,7 +16,7 @@ public class Text {
     [JsonIgnore] public string? Tooltip { get; }
 }
 
-public class TextElement : ConfigElement<Text> {
+public sealed class TextElement : ConfigElement<Text> {
 
     public override void OnBind() {
         base.OnBind();

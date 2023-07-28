@@ -19,7 +19,7 @@ public interface IDictionaryEntryWrapper {
     object? Value { get; set; }
 }
 
-public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper where Tkey : notnull{
+public sealed class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper where Tkey : notnull{
     public DictionaryEntryWrapper(IDictionary dict, Tkey key) {
         _key = key;
         _dict = dict;
@@ -54,7 +54,7 @@ public class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapper wher
     object? IDictionaryEntryWrapper.Value { get => Value; set => Value = (Tvalue?)value; }
 }
 
-public class CustomDictionaryElement : ConfigElement<IDictionary> {
+public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
 
     public override void OnBind() {
         base.OnBind();
@@ -111,12 +111,9 @@ public class CustomDictionaryElement : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
 
-            string? name = key switch { // TODO change to display label of the Member
-                PresetDefinition preset => preset.DisplayName,
+            string? name = key switch {
+                IDefinition preset => preset.DisplayName,
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
-                InfinityDefinition infinity => infinity.DisplayName,
-                GroupDefinition group => group.DisplayName,
-                EntityDefinition def => def.Name,
                 _ => key.ToString()
             };
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);

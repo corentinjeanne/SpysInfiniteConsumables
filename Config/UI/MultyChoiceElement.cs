@@ -10,7 +10,7 @@ using Terraria.Localization;
 
 namespace SPIC.Configs.UI;
 
-public class MultyChoiceElement : ConfigElement<MultyChoice> {
+public sealed class MultyChoiceElement : ConfigElement<MultyChoice> {
 
     public override void OnBind() {
         base.OnBind();

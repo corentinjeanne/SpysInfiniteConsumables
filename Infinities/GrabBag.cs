@@ -18,7 +18,7 @@ public enum GrabBagCategory {
 
 // BUG capricorn leggings (tranforms)
 
-public class GrabBagRequirements {
+public sealed class GrabBagRequirements {
     [LabelKey($"${Localization.Keys.Infinties}.GrabBag.Containers")]
     public Count Containers = 10;
     [LabelKey($"${Localization.Keys.Infinties}.GrabBag.Convertibles")]
@@ -27,7 +27,7 @@ public class GrabBagRequirements {
     public Count TreasureBags = 3;
 }
 
-public class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
+public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color DefaultColor => Colors.RarityDarkPurple;

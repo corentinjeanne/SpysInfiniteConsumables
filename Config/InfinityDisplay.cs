@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace SPIC.Configs;
 
-public class InfinityDisplay : ModConfig {
+public sealed class InfinityDisplay : ModConfig {
     [Header("General")]
     [DefaultValue(true)]
     public bool general_ShowInfinities;

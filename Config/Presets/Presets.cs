@@ -1,6 +1,6 @@
 namespace SPIC.Configs.Presets;
 
-public class Defaults : Preset {
+public sealed class Defaults : Preset {
     public override int CriteriasCount => 2;
 
     public override bool MeetsCriterias(GroupConfig config) {
@@ -19,7 +19,7 @@ public class Defaults : Preset {
 
 }
 
-public class OneForMany : Preset {
+public sealed class OneForMany : Preset {
     public override int CriteriasCount => 2;
 
     public override bool MeetsCriterias(GroupConfig config) {
@@ -35,7 +35,7 @@ public class OneForMany : Preset {
 
 }
 
-public class AllEnabled : Preset {
+public sealed class AllEnabled : Preset {
     public override int CriteriasCount => 2;
 
     public override void ApplyCriterias(GroupConfig config) {
@@ -51,7 +51,7 @@ public class AllEnabled : Preset {
     }
 }
 
-public class AllDisabled : Preset {
+public sealed class AllDisabled : Preset {
     public override int CriteriasCount => 1;
 
     public override void ApplyCriterias(GroupConfig config) {

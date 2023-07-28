@@ -11,11 +11,9 @@ using System.Reflection;
 
 namespace SPIC.Configs;
 
-public class ToFromStringConverterFix<T> : ToFromStringConverter<T> { }
-
-public class DefinitionConverter : TypeConverter {
+public sealed class DefinitionConverter : TypeConverter {
     public DefinitionConverter(Type type) {
-        if(!type.IsSubclassOfGeneric(typeof(CustomDefinition<>), out Type? gen)) throw new ArgumentException($"The type {type} does not derive from the type {typeof(DefinitionConverter)}.");
+        if(!type.IsSubclassOfGeneric(typeof(Definition<>), out Type? gen)) throw new ArgumentException($"The type {type} does not derive from the type {typeof(DefinitionConverter)}.");
         GenericType = gen;
         MethodInfo? fromString = GenericType.GetMethod("FromString", BindingFlags.Static | BindingFlags.Public, new[] { typeof(string) });
         if(fromString is null || fromString.ReturnType != GenericType.GenericTypeArguments[0]) throw new ArgumentException($"The type {GenericType} does not have a public static FromString(string) method that returns a {GenericType.GenericTypeArguments[0]}");
@@ -39,10 +37,10 @@ public interface IDefinition {
 
 [CustomModConfigItem(typeof(DefinitionElement))]
 [TypeConverter("SPIC.Configs.DefinitionConverter")]
-public abstract class CustomDefinition<TDefinition> : EntityDefinition, IDefinition where TDefinition : CustomDefinition<TDefinition> {
-    public CustomDefinition() : base() {}
-    public CustomDefinition(string key) : base(key) { }
-    public CustomDefinition(string mod, string name) : base(mod, name) {}
+public abstract class Definition<TDefinition> : EntityDefinition, IDefinition where TDefinition : Definition<TDefinition> {
+    public Definition() : base() {}
+    public Definition(string key) : base(key) { }
+    public Definition(string mod, string name) : base(mod, name) {}
 
     [JsonIgnore] public virtual string DisplayName => $"{Name} [{Mod}]{(IsUnloaded ? $" ({Language.GetTextValue($"{Localization.Keys.UI}.Unloaded")})" : string.Empty)}";
     [JsonIgnore] public virtual string? Tooltip => null;
@@ -54,7 +52,7 @@ public abstract class CustomDefinition<TDefinition> : EntityDefinition, IDefinit
     public static TDefinition FromString(string s) => (TDefinition)Activator.CreateInstance(typeof(TDefinition), s)!;
 }
 
-public class PresetDefinition : CustomDefinition<PresetDefinition> {
+public sealed class PresetDefinition : Definition<PresetDefinition> {
     public PresetDefinition() : base() { }
     public PresetDefinition(string key) : base(key) { }
     public PresetDefinition(string mod, string name) : base(mod, name) { }
@@ -68,7 +66,7 @@ public class PresetDefinition : CustomDefinition<PresetDefinition> {
     public override string DisplayName => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
 }
 
-public class GroupDefinition : CustomDefinition<GroupDefinition> {
+public sealed class GroupDefinition : Definition<GroupDefinition> {
     public GroupDefinition() : base(){}
     public GroupDefinition(string fullName) : base(fullName) {}
     public GroupDefinition(IGroup group) : base(group.Mod.Name, group.Name) {}
@@ -80,7 +78,7 @@ public class GroupDefinition : CustomDefinition<GroupDefinition> {
     public override GroupDefinition[] GetValues() => InfinityManager.Groups.Select(consumable => new GroupDefinition(consumable)).ToArray();
 }
 
-public class InfinityDefinition : CustomDefinition<InfinityDefinition> {
+public sealed class InfinityDefinition : Definition<InfinityDefinition> {
     public InfinityDefinition() : base() { }
     public InfinityDefinition(string fullName) : base(fullName) { }
     public InfinityDefinition(string mod, string name) : base(mod, name) { }

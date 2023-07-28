@@ -31,13 +31,13 @@ public enum PlaceableCategory {
     Paint
 }
 
-public static class PlaceableExtension {
+public static sealed class PlaceableExtension {
     public static bool IsCommonTile(this PlaceableCategory category) => category != PlaceableCategory.None && category < PlaceableCategory.LightSource;
     public static bool IsFurniture(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && category < PlaceableCategory.Mechanical;
     public static bool IsMisc(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && !category.IsFurniture();
 }
 
-public class PlaceableRequirements {
+public sealed class PlaceableRequirements {
     [LabelKey($"${Localization.Keys.Infinties}.Placeable.Tiles")]
     public Count Tiles = 999;
     [LabelKey($"${Localization.Keys.Infinties}.Placeable.Ores")]
@@ -56,7 +56,7 @@ public class PlaceableRequirements {
     public Count Paints = 999;
 }
 
-public class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO Duplication
+public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO Duplication
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override bool DefaultsToOn => false;

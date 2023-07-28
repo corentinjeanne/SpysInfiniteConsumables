@@ -12,7 +12,7 @@ public enum ShopCategory {
     SingleCoin,
 }
 
-public class ShopRequirements {
+public sealed class ShopRequirements {
     [LabelKey($"${Localization.Keys.Infinties}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
     public Count Coins = 1000;
     [LabelKey($"${Localization.Keys.Infinties}.Shop.Custom"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
@@ -22,7 +22,7 @@ public class ShopRequirements {
     public const float SingleCoinMult = 1 / 5f;
 }
 
-public class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
+public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
 
     public override int IconType => ItemID.LuckyCoin;
     public override bool DefaultsToOn => false;

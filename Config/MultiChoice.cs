@@ -11,9 +11,9 @@ using System.Collections.ObjectModel;
 namespace SPIC.Configs;
 
 [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, Inherited = false)]
-public class ChoiceAttribute : System.Attribute {} 
+public sealed class ChoiceAttribute : System.Attribute {} 
 
-public class MultyChoiceConverter : JsonConverter<MultyChoice> {
+public sealed class MultyChoiceConverter : JsonConverter<MultyChoice> {
     public override MultyChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultyChoice existingValue, bool hasExistingValue, JsonSerializer serializer) {
         existingValue ??= (MultyChoice)System.Activator.CreateInstance(objectType)!;
         if(objectType.IsSubclassOfGeneric(typeof(MultyChoice<>), out System.Type? type)) {

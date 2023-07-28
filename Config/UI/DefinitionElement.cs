@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.Localization;
@@ -11,7 +10,7 @@ using Terraria.UI;
 namespace SPIC.Configs.UI;
 
 
-public class DefinitionElement : ConfigElement<IDefinition> {
+public sealed class DefinitionElement : ConfigElement<IDefinition> {
     public override void OnBind() {
         base.OnBind();
         IDefinition defintion = Value;
@@ -42,7 +41,7 @@ public class DefinitionElement : ConfigElement<IDefinition> {
         _dataList.Clear();
         _elements.Clear();
         for (int i = 0; i < _values.Count; i++) {
-            Wrapper<Text> wrapper = new() { Value = new(_values[i].DisplayName, _values[i].Tooltip) };
+            Wrapper<Text> wrapper = new(new(_values[i].DisplayName, _values[i].Tooltip));
             _elements.Add(wrapper);
             int top = 0;
             int index = i;

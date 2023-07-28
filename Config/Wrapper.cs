@@ -9,7 +9,7 @@ using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
 
-public class WrapperSerializer : JsonConverter<IWrapper> {
+public sealed class WrapperSerializer : JsonConverter<IWrapper> {
 
     public override IWrapper ReadJson(JsonReader reader, System.Type objectType, IWrapper? existingValue, bool hasExistingValue, JsonSerializer serializer) {
         existingValue ??= (IWrapper)System.Activator.CreateInstance(objectType)!;
@@ -20,7 +20,7 @@ public class WrapperSerializer : JsonConverter<IWrapper> {
     public override void WriteJson(JsonWriter writer, [AllowNull] IWrapper value, JsonSerializer serializer) => serializer.Serialize(writer, value?.Value);
 }
 
-public class WrapperStringConverter : TypeConverter {
+public sealed class WrapperStringConverter : TypeConverter {
     public WrapperStringConverter(System.Type type) => ParentType = type;
     public override bool CanConvertTo(ITypeDescriptorContext? context, System.Type? destinationType) => (destinationType != typeof(string) && InnerConvertor.CanConvertTo(context, destinationType));
     public override bool CanConvertFrom(ITypeDescriptorContext? context, System.Type sourceType) => (sourceType == typeof(string) && InnerConvertor.CanConvertFrom(context, sourceType)) || base.CanConvertFrom(context, sourceType);
@@ -38,7 +38,7 @@ public interface IWrapper {
 [JsonConverter(typeof(WrapperSerializer))]
 [CustomModConfigItem(typeof(UI.WrapperElement))]
 [TypeConverter("SPIC.Configs.WrapperStringConverter")]
-public class WrapperBase<TBase> : IWrapper where TBase: new() {
+public class WrapperBase<TBase> : IWrapper where TBase : new() {
     public WrapperBase() => Value = new();
     public WrapperBase(TBase value) => Value = value;
 
@@ -57,7 +57,7 @@ public class WrapperBase<TBase> : IWrapper where TBase: new() {
         })!;
     }
 
-    public override bool Equals(object? obj) => obj is WrapperBase<TBase> other && (Value?.Equals(other.Value) ?? other is null);
+    public override bool Equals(object? obj) => obj is WrapperBase<TBase> other && Value is not null && Value.Equals(other.Value);
     public override int GetHashCode() => Value!.GetHashCode();
     public override string? ToString() => Value?.ToString();
 
@@ -78,7 +78,7 @@ public class Wrapper<T, TBase> : WrapperBase<TBase> where T : TBase, new() where
     public static implicit operator T(Wrapper<T, TBase> wrapper) => wrapper.Value;
 }
 
-public class Wrapper<T> : Wrapper<T, object?> where T : new() {
-        public Wrapper() : base() {}
-        public Wrapper(T value) : base(value) {}
+public sealed class Wrapper<T> : WrapperBase<object?> where T : new() {
+    public Wrapper() : base() { }
+    public Wrapper(T value) : base(value) { }
 }

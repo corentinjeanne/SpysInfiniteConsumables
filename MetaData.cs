@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace SPIC;
 
 
-public class GroupInfinity {
+public sealed class GroupInfinity {
     
     public GroupInfinity() {
         _infinities = new();
@@ -42,7 +42,7 @@ public class GroupInfinity {
 
 }
 
-public class ItemDisplay {
+public sealed class ItemDisplay {
 
     public ItemDisplay() {
         DisplayedInfinities = new();

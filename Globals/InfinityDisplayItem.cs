@@ -11,7 +11,7 @@ namespace SPIC.Globals;
 
 // TODO test lag magic storage 1k+ items
 
-public class InfinityDisplayItem : GlobalItem {
+public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;

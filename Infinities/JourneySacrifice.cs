@@ -8,12 +8,12 @@ using Terraria.ModLoader;
 
 namespace SPIC.Infinities;
 
-public class JourneySacrificeSettings {
+public sealed class JourneySacrificeSettings {
     [LabelKey($"${Localization.Keys.Infinties}.JourneySacrifice.Sacrifices")]
     public bool includeNonConsumable;
 }
 
-public class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
+public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
 
     public override int IconType => ItemID.GoldBunny;
     public override bool DefaultsToOn => false;

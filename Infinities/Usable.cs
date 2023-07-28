@@ -25,7 +25,7 @@ public enum UsableCategory {
     Unknown
 }
 
-public class UsableRequirements {
+public sealed class UsableRequirements {
     [LabelKey($"${Localization.Keys.Infinties}.Usable.Weapons")]
     public Count Weapons = 2 * 999;
     [LabelKey($"${Localization.Keys.Infinties}.Usable.Potions")]
@@ -41,7 +41,7 @@ public class UsableRequirements {
 }
 
 
-public class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
+public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color DefaultColor => Colors.RarityCyan;

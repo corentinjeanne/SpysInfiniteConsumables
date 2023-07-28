@@ -5,7 +5,7 @@ using Terraria.GameContent.UI.Elements;
 
 namespace SPIC.Configs.UI;
 
-public class HoverImage : UIImage {
+public sealed class HoverImage : UIImage {
 
     public HoverImage(Asset<Texture2D> texture, string hoverText) : base(texture) {
         HoverText = hoverText;
@@ -18,7 +18,7 @@ public class HoverImage : UIImage {
     public string HoverText {get; set;}
 }
 
-public class HoverImageSplit : UIImage {
+public sealed class HoverImageSplit : UIImage {
 
     public bool HoveringUp => Main.mouseY < GetDimensions().Y + GetDimensions().Height / 2;
 

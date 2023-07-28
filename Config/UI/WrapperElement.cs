@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Configs.UI;
 
-public class WrapperElement : ConfigElement<IWrapper> {
+public sealed class WrapperElement : ConfigElement<IWrapper> {
 
     public override void OnBind() {
         base.OnBind();

@@ -6,7 +6,7 @@ using Terraria.ID;
 
 namespace SPIC.Globals;
 
-public class ConsumptionItem : GlobalItem {
+public sealed class ConsumptionItem : GlobalItem {
 
     public override bool ConsumeItem(Item item, Player player) {
 

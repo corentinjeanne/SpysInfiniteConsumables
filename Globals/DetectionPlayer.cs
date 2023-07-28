@@ -11,7 +11,7 @@ namespace SPIC.Globals;
 
 // TODO review detection
 
-public class DetectionPlayer : ModPlayer {
+public sealed class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
     public static bool InRightClick { get; private set; }
