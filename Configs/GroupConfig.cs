@@ -60,15 +60,10 @@ public sealed class GroupConfig {
     internal GroupConfig() { }
     internal GroupConfig(IGroup group) => SetGroup(group);
     internal void SetGroup(IGroup group) {
-        foreach (IInfinity infinity in group.Infinities) {
-            InfinityDefinition def = new(infinity);
-            string name = def.ToString();
-            if (!Infinities.Contains(name)) Infinities[def] = infinity.DefaultsToOn;
-            else {
-                Infinities[def] = (bool)Infinities[name]!;
-                Infinities.Remove(name);
-            }
-        }
+        OrderedDictionary infinities = new();
+        foreach((string key, bool enabled) in Infinities.Items<string, bool>()) infinities[new InfinityDefinition(key)] = enabled;
+        Infinities = infinities;
+        foreach (IInfinity infinity in group.Infinities) Infinities.TryAdd(new InfinityDefinition(infinity), infinity.DefaultsToOn);
 
         foreach ((IInfinity infinity, IWrapper wrapper) in group.InfinityConfigs) {
             InfinityDefinition def = new(infinity);
