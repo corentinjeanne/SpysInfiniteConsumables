@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 
 namespace SPIC.Infinities;
 public enum MaterialCategory {
@@ -39,6 +40,7 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<MaterialRequirements>(this);
+        InfinityManager.ExclusiveDisplays += CraftingMaterial;
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
@@ -78,14 +80,9 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
-    public override long GetConsumedFromContext(Player player, Item item, out bool exclusive) {
-        if (Main.numAvailableRecipes != 0) {
-            Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item)); // TODO count for groups (and infinity)
-            if (material is not null) {
-                exclusive = true;
-                return material.stack;
-            }
-        }
-        return base.GetConsumedFromContext(player, item, out exclusive);
+    public static void CraftingMaterial(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
+        if (Main.numAvailableRecipes == 0) return;
+        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item)); // TODO count for groups (and infinity)
+        if (material is not null) exclusiveGroups.Add((Material.Instance, material.stack));
     }
 }

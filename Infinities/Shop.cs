@@ -3,6 +3,8 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
+using Terraria;
+using System.Collections.Generic;
 
 namespace SPIC.Infinities;
 
@@ -32,6 +34,7 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<ShopRequirements>(this);
+        InfinityManager.ExclusiveDisplays += CoinSlot;
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {
@@ -47,4 +50,9 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     }
     
     public Wrapper<ShopRequirements> Config = null!;
+
+    public static void CoinSlot(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (50 <= index && index < 53) exclusiveGroups.Add((Instance, 1));
+    }
 }

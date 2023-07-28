@@ -22,6 +22,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
 
     FullInfinity GetEffectiveInfinity(Player player, int type, IInfinity infinity);
 
+    (int type, bool displayed) GetDisplay(Item item, IInfinity infinity);
     IEnumerable<(IInfinity infinity, int type, bool used)> GetDisplayedInfinities(Item item);
 
     IEnumerable<IInfinity> Infinities { get; }
@@ -105,13 +106,19 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public FullInfinity GetEffectiveInfinity(Player player, int type, IInfinity group) => !group.Enabled ? FullInfinity.None : IsUsed(type, group) ? GetFullInfinity(player, type, group) : GetMixedFullInfinity(player, type);
     public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> group) => !group.Enabled ? FullInfinity.None : IsUsed(consumable, group) ? GetFullInfinity(player, consumable, group) : GetMixedFullInfinity(player, consumable);
 
+    public (int type, bool displayed) GetDisplay(Item item, IInfinity infinity) => GetDisplay(ToConsumable(item), (InfinityRoot<TGroup, TConsumable>)infinity);
+    public (int type, bool displayed) GetDisplay(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) {
+        TConsumable displayed = infinity.DisplayedValue(consumable);
+        return (GetType(displayed), infinity.Enabled && !GetRequirement(consumable, infinity).IsNone);
+    }
+    
     public IEnumerable<(IInfinity infinity, int type, bool used)> GetDisplayedInfinities(Item item) {
         TConsumable consumable = ToConsumable(item);
         bool hasCustom = Config.HasCustomGlobal(consumable, this, out _);
 
         foreach (InfinityRoot<TGroup, TConsumable> infinity in _infinities) {
             if (!infinity.Enabled) continue;
-            TConsumable displayed = infinity.DisplayedValue(consumable); // TODO Ammos with non used groups for weapons
+            TConsumable displayed = infinity.DisplayedValue(consumable);
             if (!hasCustom || GetRequirement(consumable, infinity).IsNone) {
                 yield return (infinity, GetType(displayed), !consumable.Equals(displayed) || IsUsed(displayed, infinity));
                 continue;

@@ -6,6 +6,10 @@ namespace SPIC;
 
 public static class InfinityManager {
 
+    public delegate void ExclusiveDisplay(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups);
+
+    public static event ExclusiveDisplay? ExclusiveDisplays;
+
     public static TCategory GetCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum => infinity.Group.GetFullInfinity(Main.LocalPlayer, consumable, infinity).Has(out TCategory category) ? category : default;
 
     public static Requirement GetRequirement<TGroup, TConsumable>(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
@@ -35,12 +39,22 @@ public static class InfinityManager {
     public static ItemDisplay GetLocalItemDisplay(this Item item) {
         if (s_displays.TryGetOrCache(item, out ItemDisplay? itemDisplay)) return itemDisplay;
 
+        List<(IInfinity infinity, long consumed)> exclusiveGroups = new();
+        ExclusiveDisplays?.Invoke(item, exclusiveGroups);
+
         itemDisplay = new();
-        foreach (IGroup group in Groups) {
-            foreach ((IInfinity infinity, int type, bool used) in group.GetDisplayedInfinities(item)) {
-                long consumed = infinity.GetConsumedFromContext(Main.LocalPlayer, item, out bool exclusive);
-                if(!used && exclusive) itemDisplay.Add(infinity, type, consumed, exclusive);
-                else if (used) itemDisplay.Add(infinity, type, consumed, exclusive);
+        if(exclusiveGroups.Count != 0) {
+            foreach ((IInfinity infinity, long consumed) in exclusiveGroups) {
+                (int type, bool displayed) = infinity.Group.GetDisplay(item, infinity);
+                if(displayed) itemDisplay.Add(infinity, type, consumed);
+            }
+        }
+        else  {
+            foreach (IGroup group in Groups) {
+                foreach ((IInfinity infinity, int type, bool used) in group.GetDisplayedInfinities(item)) {
+                    long consumed = Main.LocalPlayer.IsFromVisibleInventory(item) ? 1 : 0;
+                    if (used) itemDisplay.Add(infinity, type, consumed);
+                }
             }
         }
         return itemDisplay;

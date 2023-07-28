@@ -4,6 +4,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 
 // TODO dd2 mana consumption
 
@@ -30,6 +31,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<AmmoRequirements>(this);
+        InfinityManager.ExclusiveDisplays += AmmoSlot;
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
@@ -54,5 +56,14 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
         Item ammo = DisplayedValue(item);
         if (ammo == item) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
+    }
+
+    public static void AmmoSlot(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index < 50 || 58 <= index) return;
+        exclusiveGroups.Add((Ammo.Instance, 1));
+        if(InfinityManager.GetCategory(item, Usable.Instance) == UsableCategory.Critter) exclusiveGroups.Add((Usable.Instance, 1));
+        PlaceableCategory category = Placeable.Instance.GetCategory(item);
+        if(category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || Placeable.IsWandAmmo(item.type, out _)) exclusiveGroups.Add((Placeable.Instance, 1));
     }
 }

@@ -11,7 +11,7 @@ namespace SPIC.Configs;
 
 public sealed class GroupConfig {
     [Header("Infinities")]
-    [JsonIgnore]
+    [JsonIgnore, ShowDespiteJsonIgnore]
     public PresetDefinition Preset {
         get {
             if (Infinities.Count == 0) return new();

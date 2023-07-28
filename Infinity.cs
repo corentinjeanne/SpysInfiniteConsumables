@@ -16,7 +16,6 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     int IconType { get; }
     LocalizedText DisplayName { get; }
 
-    long GetConsumedFromContext(Player player, Item item, out bool exclusive);
     (TooltipLine, TooltipLineID?) GetTooltipLine(Item item);
 }
 
@@ -32,11 +31,6 @@ public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity whe
     public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, Name, DisplayName.Value), null);
 
     public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable;
-    
-    public virtual long GetConsumedFromContext(Player player, Item item, out bool exclusive) {
-        exclusive = false;
-        return player.IsFromVisibleInventory(item) ? -1 : 0;
-    }
 
     public TGroup Group { get; internal set; } = null!;
     public bool Enabled { get; internal set; }

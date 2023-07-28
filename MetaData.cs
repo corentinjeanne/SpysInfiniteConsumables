@@ -50,7 +50,7 @@ public sealed class GroupInfinity {
 public sealed class ItemDisplay {
 
     public ItemDisplay() {
-        DisplayedInfinities = new();
+        Infinities = new();
         InfinitiesByGroup = new();
         _infinities = new();
     }
@@ -62,26 +62,15 @@ public sealed class ItemDisplay {
         }
     }
 
-    public void Add(IInfinity infinity, int type, long consumed, bool exclusive) { // ? compte the infinity already
-        if(ExclusiveContext && !exclusive) return;
-        if(!ExclusiveContext && exclusive) {
-            _infinities.Clear();
-            InfinitiesByGroup.Clear();
-            DisplayedInfinities.Clear();
-            ExclusiveContext = true;
-        }
-
+    public void Add(IInfinity infinity, int type, long consumed) { // ? comptute the infinity already
         _infinities[infinity] = (type, consumed);
-        DisplayedInfinities.Add(infinity);
-        if(InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group){
-            InfinitiesByGroup.Add(new());
-        }
+        Infinities.Add(infinity);
+        
+        if(InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group) InfinitiesByGroup.Add(new());
         InfinitiesByGroup[^1].Add(infinity);
     }
 
-    public bool ExclusiveContext { get; private set; }
-
     private readonly Dictionary<IInfinity, (int, long)> _infinities;
-    public List<IInfinity> DisplayedInfinities { get; private set; }
+    public List<IInfinity> Infinities { get; private set; }
     public List<List<IInfinity>> InfinitiesByGroup { get; private set; }
 }

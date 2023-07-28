@@ -18,7 +18,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowCategories)) return;
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        foreach (IInfinity infinity in itemDisplay.DisplayedInfinities) {
+        foreach (IInfinity infinity in itemDisplay.Infinities) {
             (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item);
             bool added = false;
             TooltipLine? line = display.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
@@ -39,9 +39,9 @@ public sealed class InfinityDisplayItem : GlobalItem {
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
         List<IInfinity> withDisplay = new();
-        foreach(IInfinity g in itemDisplay.DisplayedInfinities) {
+        foreach(IInfinity g in itemDisplay.Infinities) {
             (FullInfinity fullInfinity, long consumed) = itemDisplay[g];
-            if (consumed != 0 && fullInfinity.Infinity >= Math.Max(consumed, 1)) withDisplay.Add(g);
+            if (consumed != 0 && fullInfinity.Infinity >= consumed) withDisplay.Add(g);
         }
 
         if (withDisplay.Count == 0) return true;
@@ -71,7 +71,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        if(itemDisplay.DisplayedInfinities.Count == 0) return;
+        if(itemDisplay.Infinities.Count == 0) return;
         
         foreach (IInfinity infinity in itemDisplay.InfinitiesByGroup[s_groupIndex % itemDisplay.InfinitiesByGroup.Count]) {
             (FullInfinity fullInfinity, long consumed) = itemDisplay[infinity];
@@ -95,7 +95,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         }
 
 
-        if (canDisplayInfinity && fullInfinity.Infinity >= Math.Max(consumed, 1)) {
+        if (canDisplayInfinity && fullInfinity.Infinity >= consumed) {
             line.OverrideColor = infinity.Color;
             line.Text = fullInfinity.Requirement.Multiplier >= 1 || consumed == -1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
@@ -116,7 +116,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         
         float maxAlpha = Main.mouseTextColor / 255f;
         float ratio;
-        if(display.general_ShowInfinities && fullInfinity.Infinity >= Math.Max(consumed, 1)){
+        if(display.general_ShowInfinities && fullInfinity.Infinity >= consumed){
             for (int i = 0; i < s_outerPixels.Length; i++) {
                 spriteBatch.Draw(
                     TextureAssets.MagicPixel.Value,

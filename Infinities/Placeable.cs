@@ -89,19 +89,22 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             PlaceableCategory.None or _ => new(),
         };
     }
-    
-    public override PlaceableCategory GetCategory(Item item) => GetCategory(item, false);
+
+    public override PlaceableCategory GetCategory(Item item) {
+        PlaceableCategory category = GetCategory(item, false);
+        return category == PlaceableCategory.None && IsWandAmmo(item.type, out int wandType) ? GetCategory(new(wandType), true) : category;
+    }
+
     public static PlaceableCategory GetCategory(Item item, bool wand) {
         switch (item.type) {
         case ItemID.Hellstone or ItemID.DemoniteOre or ItemID.CrimtaneOre: return PlaceableCategory.Ore; // Main.tileSpelunker[tileType] == false
         }
 
-        if (_wandAmmos.TryGetValue(item.type, out int wandType)) return GetCategory(new(wandType), true);
         if (item.paint != 0) return PlaceableCategory.Paint;
         if(ItemID.Sets.AlsoABuildingItem[item.type]) {
-            if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
             // TODO buckets
         }
+        if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
 
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
        
@@ -145,9 +148,8 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
 
     private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
     internal static void ClearWandAmmos() => _wandAmmos.Clear();
-    public static void RegisterWand(Item wand) {
-        if (Instance.GetCategory(new(wand.tileWand)) == PlaceableCategory.None) _wandAmmos.TryAdd(wand.tileWand, wand.type);
-    }
+    public static void RegisterWand(Item wand) => _wandAmmos.TryAdd(wand.tileWand, wand.type);
+    public static bool IsWandAmmo(int type, out int wandType) => _wandAmmos.TryGetValue(type, out wandType);
 
     public Wrapper<PlaceableRequirements> Config = null!;
 

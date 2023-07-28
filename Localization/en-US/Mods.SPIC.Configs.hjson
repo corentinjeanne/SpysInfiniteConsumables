@@ -11,7 +11,7 @@ InfinitySettings: {
 		Tooltip:
 			'''
 			Detect the categories of items if they are unknown.
-			You can see the detected categories below.
+			You can see the detected catgories in the Customs below.
 			'''
 	}
 

@@ -51,7 +51,7 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void OnEnterWorld(){
         ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
-        if(version.Length == 0) version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
+        if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^1];
         bool newChanges = Mod.Version > new System.Version(version);
 
         if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
