@@ -8,7 +8,7 @@ public sealed class GroupInfinity {
     public GroupInfinity() {
         _infinities = new();
         UsedInfinities = new();
-        Mixed = new();
+        Mixed = FullInfinity.None;
     }
 
     public void Add(IInfinity infinity, FullInfinity fullInfinity, bool used) {
@@ -25,12 +25,17 @@ public sealed class GroupInfinity {
             if(reqMult == 0 || fullInfinity.Requirement.Multiplier < reqMult) reqMult = fullInfinity.Requirement.Multiplier;
 
         }
-        IFullRequirement requirement;
+        InfinityOverride extra;
+        Requirement requirement;
         if(custom.HasValue){
+            extra = new("Custom");
+            requirement = custom.Value;
             UsedInfinities.Clear();
-            requirement = new CustomRequirement(custom.Value);
-        } else requirement = new MixedRequirement(new(reqCount, reqMult));
-        Mixed = new(requirement, count, requirement.Requirement.Infinity(count));
+        } else {
+            extra = new("Mixed");
+            requirement = new(reqCount, reqMult);
+        }
+        Mixed = FullInfinity.With(requirement, count, requirement.Infinity(count), extra);
     }
 
     public FullInfinity this[IInfinity infinity] => _infinities[infinity];
@@ -57,7 +62,7 @@ public sealed class ItemDisplay {
         }
     }
 
-    public void Add(IInfinity infinity, int type, long consumed, bool exclusive) {
+    public void Add(IInfinity infinity, int type, long consumed, bool exclusive) { // ? compte the infinity already
         if(ExclusiveContext && !exclusive) return;
         if(!ExclusiveContext && exclusive) {
             _infinities.Clear();

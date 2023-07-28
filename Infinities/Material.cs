@@ -61,7 +61,7 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = Group.GetCategory(item, Placeable.Instance);
+        PlaceableCategory placeable = Placeable.Instance.GetCategory(item);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;

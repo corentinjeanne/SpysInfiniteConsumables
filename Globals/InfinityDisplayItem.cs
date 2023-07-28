@@ -88,7 +88,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
         bool canDisplayInfinity = consumed != 0 && display.general_ShowInfinities;
         long count = canDisplayInfinity ? fullInfinity.Count : 0;
-        string extra = display.general_ShowCategories ? fullInfinity.FullRequirement.ExtraInfo() : string.Empty;
+        string extra = display.general_ShowCategories ? string.Join(", ", fullInfinity.Extras) : string.Empty;
         
         void AddExtra() {
             if (extra.Length != 0) line.Text += $" ({extra})";

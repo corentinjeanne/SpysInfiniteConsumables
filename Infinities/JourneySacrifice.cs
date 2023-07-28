@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 
 namespace SPIC.Infinities;
 
-// TODO Only display in journey of if it is the only group dislay
+// ? Only display in journey of if it is the only group dislay
 
 public sealed class JourneySacrificeSettings {
     [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
@@ -27,7 +27,7 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
     }
 
     public bool IsConsumable(Item item) {
-        foreach (Infinity<Items, Item> infinity in Group.Infinities) {
+        foreach (InfinityRoot<Items, Item> infinity in Group.Infinities) {
             if (infinity != this && !Group.GetRequirement(item, infinity).IsNone) return true;
         }
         return false;
