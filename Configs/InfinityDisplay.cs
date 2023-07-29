@@ -13,6 +13,8 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(true)]
     public bool general_ShowRequirement;
     public bool general_ShowInfo;
+    [DefaultValue(true)]
+    public bool general_ExclusiveDisplay;
     [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
     public WelcomMessageFrequency general_welcomeMessage;
     [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";

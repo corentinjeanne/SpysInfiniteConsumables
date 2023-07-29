@@ -68,6 +68,7 @@ public sealed class GroupConfig {
                 int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
                 if(i == -1) continue;
                 yield return infinities[i];
+                infinities[i].Enabled = (bool)Infinities[def]!;
                 infinities.RemoveAt(i);
             }
             foreach (IInfinity infinity in infinities) {
