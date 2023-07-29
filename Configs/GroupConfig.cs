@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using Terraria.ModLoader.Config;
@@ -59,10 +58,26 @@ public sealed class GroupConfig {
     internal GroupConfig() { }
     internal GroupConfig(IGroup group) => SetGroup(group);
     internal void SetGroup(IGroup group) {
-        OrderedDictionary infinities = new();
-        foreach((string key, bool enabled) in Infinities.Items<string, bool>()) infinities[new InfinityDefinition(key)] = enabled;
-        Infinities = infinities;
-        foreach (IInfinity infinity in group.Infinities) Infinities.TryAdd(new InfinityDefinition(infinity), infinity.DefaultsToOn);
+        OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();
+        foreach((string key, bool enabled) in Infinities.Items<string, bool>()) infinitiesBool[new InfinityDefinition(key)] = enabled;
+        Infinities = infinitiesBool;
+        
+        List<IInfinity> infinities = new(group.Infinities);
+        IEnumerable<IInfinity> InfinitiesByOrder() {
+            foreach((InfinityDefinition def, bool enabled) in Infinities.Items<InfinityDefinition, bool>()) {
+                int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
+                if(i == -1) continue;
+                yield return infinities[i];
+                infinities.RemoveAt(i);
+            }
+            foreach (IInfinity infinity in infinities) {
+                InfinityDefinition def = new(infinity);
+                Infinities.TryAdd(def, infinity.DefaultsToOn);
+                infinity.Enabled = (bool)Infinities[def]!;
+                yield return infinity;
+            }
+        }
+        group.SetInfinities(InfinitiesByOrder());
 
         foreach ((IInfinity infinity, Wrapper wrapper) in group.InfinityConfigs) {
             InfinityDefinition def = new(infinity);
@@ -84,7 +99,10 @@ public sealed class GroupColors {
     internal GroupColors() { }
     internal GroupColors(IGroup group) => SetGroup(group);
     internal void SetGroup(IGroup group) {
-        foreach (IInfinity infinity in group.Infinities) Colors.TryAdd(new(infinity), infinity.DefaultColor);
+        foreach (IInfinity infinity in group.Infinities) {
+            InfinityDefinition def = new(infinity);
+            infinity.Color = Colors[def] = Colors.GetValueOrDefault(def, infinity.DefaultColor);
+        }
         group.Colors = this;
     }
 

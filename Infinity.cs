@@ -9,10 +9,10 @@ namespace SPIC;
 
 public interface IInfinity : ILocalizedModType, ILoadable {
     IGroup Group { get; }
-    bool Enabled { get; }
+    bool Enabled { get; internal set; }
     bool DefaultsToOn { get; }
     
-    Color Color { get; }
+    Color Color { get; internal set; }
     Color DefaultColor { get; }
     int IconType { get; }
     LocalizedText DisplayName { get; }
@@ -39,15 +39,17 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable;
 
     public TGroup Group { get; internal set; } = null!;
-    public bool Enabled { get; internal set; }
+    public bool Enabled { get; private set; }
     public virtual bool DefaultsToOn => true;
 
     public abstract int IconType { get; }
-    public Color Color { get; internal set; }
+    public Color Color { get; private set; }
     public abstract Color DefaultColor { get; }
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
     
+    bool IInfinity.Enabled { get => Enabled; set => Enabled = value; }
+    Color IInfinity.Color { get => Color; set => Color = value; }
     IGroup IInfinity.Group => Group;
 
     public event OverrideRequirementFn? RequirementOverrides;

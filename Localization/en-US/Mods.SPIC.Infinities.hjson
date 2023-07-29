@@ -20,6 +20,8 @@ GrabBag: {
 JourneySacrifice: {
 	Name: Journey Research
 	Sacrifices: Include non consumable sacrifices
+	Consumable: Consumable
+	NotConsumable: Not Consumable
 	LineValue: Research cost
 }
 

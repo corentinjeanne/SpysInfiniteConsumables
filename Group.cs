@@ -27,7 +27,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
     IDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
 
 
-    internal void UpdateInfinities();
+    internal void SetInfinities(IEnumerable<IInfinity> infinities);
     internal void LogCacheStats();
 }
 
@@ -144,15 +144,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         return owned == 0 ? CountToString(consumable, infinity, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, infinity, style)}";
     }
 
-    void IGroup.UpdateInfinities() {
-        List<Infinity<TGroup, TConsumable>> infinities = new(Infinities);
+    void IGroup.SetInfinities(IEnumerable<IInfinity> infinities) {
         _infinities.Clear();
-        foreach ((var def, var enabled) in Config.Infinities.Items<InfinityDefinition, bool>()) {
-            Infinity<TGroup, TConsumable> infinity = infinities.Find(i => i.Mod.Name == def.Mod && i.Name == def.Name)!;
-            infinity.Enabled = enabled;
-            infinity.Color = Colors.Colors[def];
-            _infinities.Add(infinity);
-        }
+        foreach(IInfinity infinity in infinities) _infinities.Add((Infinity<TGroup, TConsumable>)infinity);
     }
 
     void IGroup.LogCacheStats(){
@@ -163,12 +157,12 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
-    public IEnumerable<Infinity<TGroup, TConsumable>> Infinities => _infinities;
+    public ReadOnlyCollection<Infinity<TGroup, TConsumable>> Infinities => _infinities.AsReadOnly();
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
     public ReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs => new(_infinityConfigs);
     
-    IEnumerable<IInfinity> IGroup.Infinities => Infinities;
+    IEnumerable<IInfinity> IGroup.Infinities => _infinities;
     IDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
     GroupConfig IGroup.Config { get => Config; set => Config = value; }
     GroupColors IGroup.Colors { get => Colors; set => Colors = value; }

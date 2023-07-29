@@ -90,13 +90,11 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
             }
             IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType()), dict, key)!;
             _dictWrappers.Add(wrapper);
-
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, i);
         
             if(dict is IOrderedDictionary){
                 element.Width.Pixels -= 25;
                 element.Left.Pixels += 25;
-
 
                 int index = i;
                 HoverImageSplit moveButton = new(UpDownTexture, Language.GetTextValue($"{Localization.Keys.UI}.Up"), Language.GetTextValue($"{Localization.Keys.UI}.Down")) {
@@ -117,6 +115,8 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
                 _ => key.ToString()
             };
             ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
+            if(key is InfinityDefinition inf) ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, InfinityManager.GetInfinity(inf.Mod, inf.Name)!.Color);
+
         }
         if(unloaded > 0){
             _dummy = new($"{unloaded} unloaded items");

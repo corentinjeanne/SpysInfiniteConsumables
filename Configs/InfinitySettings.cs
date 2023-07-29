@@ -32,7 +32,6 @@ public sealed class InfinitySettings : ModConfig {
 
     public override void OnChanged() {
         if(!Main.gameMenu && Main.netMode != NetmodeID.Server) InfinityManager.ClearInfinities();
-        if(Main.netMode != NetmodeID.Server) InfinityManager.UpdateInfinities();
     }
 
     private Dictionary<GroupDefinition, GroupConfig> _configs = new();

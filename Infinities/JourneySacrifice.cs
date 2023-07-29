@@ -9,6 +9,8 @@ using System.Collections.Generic;
 
 namespace SPIC.Infinities;
 
+public enum JourneyCategory { NotConsumable, Consumable }
+
 public sealed class JourneySacrificeSettings {
     [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
     public bool includeNonConsumable;
@@ -31,18 +33,18 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
     }
 
 
-    public bool IsConsumable(Item item) {
+    public JourneyCategory GetCategory(Item item) {
         foreach (Infinity<Items, Item> infinity in Group.Infinities) {
-            if (infinity != this && !Group.GetRequirement(item, infinity).IsNone) return true;
+            if (infinity != this && !Group.GetRequirement(item, infinity).IsNone) return JourneyCategory.Consumable;
         }
-        return false;
+        return JourneyCategory.NotConsumable;
     }
 
     public override Requirement GetRequirement(Item item, List<object> extras) {
         if (!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new();
-        bool isConsumable = IsConsumable(item);
-        extras.Add(isConsumable);
-        return isConsumable || Config.Value.includeNonConsumable ? new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]) : new();
+        JourneyCategory category = GetCategory(item);
+        extras.Add(category);
+        return category == JourneyCategory.Consumable || Config.Value.includeNonConsumable ? new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]) : new();
     }
 
     public Wrapper<JourneySacrificeSettings> Config = null!;
