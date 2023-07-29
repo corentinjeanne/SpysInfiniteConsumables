@@ -27,10 +27,10 @@ public sealed class InfinityDisplay : ModConfig {
 
     [Header("Glow")]
     public bool glow_ShowGlow;
-    [DefaultValue(1f)]
+    [DefaultValue(0.75f)]
     public float glow_Intensity;
-    [DefaultValue(2), Range(0, 5), Slider]
-    public int glow_InfinityTime;
+    [DefaultValue(2), Range(1f, 5f), Increment(0.1f)]
+    public float glow_InfinityTime;
 
     [Header("Dots")]
     [DefaultValue(true)]
@@ -39,10 +39,8 @@ public sealed class InfinityDisplay : ModConfig {
     public Corner dots_Start;
     [DefaultValue(Direction.Horizontal)]
     public Direction dots_Direction;
-    [Range(1, Globals.InfinityDisplayItem.MaxDots), DefaultValue(Globals.InfinityDisplayItem.MaxDots)]
-    public int dots_Count;
-    [DefaultValue(5), Range(1, 10), Slider]
-    public int dot_PageTime;
+    [DefaultValue(5), Range(1f, 10f),  Increment(0.1f)]
+    public float dot_PageTime;
 
     [Header("Colors")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]

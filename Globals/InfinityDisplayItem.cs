@@ -151,18 +151,17 @@ public sealed class InfinityDisplayItem : GlobalItem {
     }
     
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
+        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         Texture2D texture = TextureAssets.Item[item.type].Value;
 
-        float angle = Main.GlobalTimeWrappedHourly % display.glow_InfinityTime/display.glow_InfinityTime; // 0->1
-        float alpha = angle <= 0.5f ? angle : (1 - angle); // 0->0.5->0
-        alpha *= 2; // 0->1->0
-
+        float angle = Main.GlobalTimeWrappedHourly % config.glow_InfinityTime/config.glow_InfinityTime; // 0>1
+        float distance = (angle <= 0.5f ? angle : (1 - angle)) * 2; // 0>1>0
         angle += item.type % 16 / 16;
-        Color color = infinity.Color;
 
-        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * alpha).RotatedBy((f*2 + angle) * Math.PI), new Rectangle?(frame), color * (alpha * 0.75f), 0, origin, scale, 0, 0f);
-        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * alpha).RotatedBy((f + angle) * -2 * Math.PI), new Rectangle?(frame), color * (alpha * 0.5f), 0, origin, scale, 0, 0f);
+        Color color = infinity.Color * config.glow_Intensity * distance;
+        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f*2 + angle) * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
+        color *= 0.67f;
+        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
     }
 
 

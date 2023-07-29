@@ -108,11 +108,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	dots_Count: {
-		Label: "[i:3095] Number of visible dots"
-		Tooltip: "{$Mods.SPIC.Configs.InfinityDisplay.Dots.Count.Tooltip}"
-	}
-
 	dot_PageTime: {
 		Label: "[i:583] Time per Group (seconds)"
 		Tooltip: Non visible dots will cycle every few seconds

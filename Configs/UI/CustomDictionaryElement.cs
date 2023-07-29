@@ -42,7 +42,7 @@ public sealed class DictionaryEntryWrapper<Tkey, Tvalue> : IDictionaryEntryWrapp
         }
     }
 
-    [ColorNoAlpha, ColorHSLSlider]
+    [Expand(false, false), ColorNoAlpha, ColorHSLSlider]
     public Tvalue? Value { get => (Tvalue?)_dict[_key]; set => _dict[_key] = value; }
 
     public PropertyFieldWrapper Member => new(typeof(DictionaryEntryWrapper<Tkey, Tvalue>).GetProperty(nameof(Value), BindingFlags.Instance | BindingFlags.Public)!);
@@ -110,8 +110,6 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
                 };
                 container.Append(moveButton);
             }
-
-            if (element.GetType() == ReflectionHelper.ObjectElement) ReflectionHelper.ObjectElement_expanded.SetValue(element, false);
 
             string? name = key switch {
                 IDefinition preset => preset.DisplayName,

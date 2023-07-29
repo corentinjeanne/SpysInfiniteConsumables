@@ -14,6 +14,5 @@ namespace SPIC.Configs.UI {
         public static readonly PropertyInfo ConfigElement_DrawLabel = typeof(ConfigElement).GetProperty("DrawLabel", BindingFlags.Instance | BindingFlags.NonPublic)!;
         public static readonly FieldInfo ConfigElement_backgroundColor = typeof(ConfigElement).GetField("backgroundColor", BindingFlags.Instance | BindingFlags.NonPublic)!;
         public static readonly FieldInfo ObjectElement_pendindChanges = ObjectElement.GetField("pendingChanges", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        public static readonly FieldInfo ObjectElement_expanded = ObjectElement.GetField("expanded", BindingFlags.Instance | BindingFlags.NonPublic)!;
     }
 }
