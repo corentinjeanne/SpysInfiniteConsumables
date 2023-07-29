@@ -40,11 +40,14 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
     private static Dictionary<int, int> s_itemGroupCounts = null!;
 
 
-    public override void SetStaticDefaults() {
-        s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-        base.SetStaticDefaults();
-        Config = Group.AddConfig<MaterialRequirements>(this);
+    public override void Load() {
+        base.Load();
         DisplayOverrides += CraftingMaterial;
+    }
+    public override void SetStaticDefaults() {
+        base.SetStaticDefaults();
+        s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        Config = Group.AddConfig<MaterialRequirements>(this);
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
@@ -53,7 +56,7 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         MaterialCategory.Furniture => new(Config.Value.Furnitures, 0.5f),
         MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, 0.5f),
         MaterialCategory.NonStackable => new(Config.Value.NonStackable, 0.5f),
-        MaterialCategory.None or _ => new(),
+        _ => new(),
     };
 
     public override MaterialCategory GetCategory(Item item) {

@@ -15,7 +15,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
-        if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowCategories)) return;
+        if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowInfo)) return;
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
         foreach (IInfinity infinity in itemDisplay.DisplayedInfinities) {
@@ -84,7 +84,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
         bool canDisplayInfinity = config.general_ShowInfinities;
         long count = canDisplayInfinity ? display.Count : 0;
-        string extra = config.general_ShowCategories ? string.Join(", ", display.Extras) : string.Empty;
+        string extra = config.general_ShowInfo ? display.LocalizeExtras(infinity) : string.Empty;
         
         void AddExtra() {
             if (extra.Length != 0) line.Text += $" ({extra})";

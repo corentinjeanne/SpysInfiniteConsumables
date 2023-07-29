@@ -38,7 +38,7 @@ public interface IWrapper {
 [JsonConverter(typeof(WrapperSerializer))]
 [CustomModConfigItem(typeof(UI.WrapperElement))]
 [TypeConverter("SPIC.Configs.WrapperStringConverter")]
-public class WrapperBase<TBase> : IWrapper where TBase : new() {
+public class WrapperBase<TBase> : IWrapper where TBase : new() { // TODO remove
     public WrapperBase() => Value = new();
     public WrapperBase(TBase value) => Value = value;
 

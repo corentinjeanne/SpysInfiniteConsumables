@@ -53,8 +53,8 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	general_ShowCategories: {
-		Label: "[i:393] Show Categories"
+	general_ShowInfo: {
+		Label: "[i:393] Show Extra Info"
 		Tooltip: ""
 	}
 

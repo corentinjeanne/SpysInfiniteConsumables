@@ -151,7 +151,7 @@ public sealed class DetectionPlayer : ModPlayer {
                 || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShoudRefill(refill, owned, used, Ammo.Instance)))
             Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
 
-        static bool ShoudRefill(int refill, int owned, int used, InfinityRoot<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShoudRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
 

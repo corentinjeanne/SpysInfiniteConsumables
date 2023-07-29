@@ -47,10 +47,14 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color DefaultColor => Colors.RarityCyan;
 
+    public override void Load() {
+        base.Load();
+        DisplayOverrides += AmmoSlots;
+    }
+
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<UsableRequirements>(this);
-        DisplayOverrides += AmmoSlots;
     }
 
     public override Requirement GetRequirement(UsableCategory category) {
@@ -65,7 +69,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
             UsableCategory.Explosive => new(Config.Value.Tools),
             UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tools),
 
-            UsableCategory.None or _ => new(),
+            _ => new(),
         };
     }
 
@@ -120,8 +124,8 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
     }
 
-    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, Usable.Instance) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
+        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
     }
 }

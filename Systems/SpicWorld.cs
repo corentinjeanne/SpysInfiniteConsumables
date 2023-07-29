@@ -107,7 +107,7 @@ namespace SPIC.Systems {
         }
 
         public override void SaveWorldData(TagCompound tag) {
-            Configs.InfinitySettings.Instance.SaveConfig(); // TODO test multi
+            Configs.InfinitySettings.Instance.SaveConfig();
 
             // if (_chunks.Count != 0) {
             //     tag.Add(TAG_SIZE, _chunkSize);

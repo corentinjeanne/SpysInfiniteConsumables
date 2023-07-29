@@ -13,28 +13,28 @@ public static class InfinityManager {
     public static TCategory GetCategory<TGroup, TConsumable, TCategory>(int consumable, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum
         => (TCategory?)infinity.Group.GetFullInfinity(Main.LocalPlayer, consumable, infinity).Extras.Find(i => i is TCategory) ?? default;
 
-    public static long GetInfinity<TGroup, TConsumable>(this Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static long GetInfinity<TGroup, TConsumable>(this Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
-    public static long GetInfinity<TGroup, TConsumable>(this Player player, int consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static long GetInfinity<TGroup, TConsumable>(this Player player, int consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
 
-    public static long GetInfinity<TGroup, TConsumable>(TConsumable consumable, long count, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static long GetInfinity<TGroup, TConsumable>(TConsumable consumable, long count, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
-    public static long GetInfinity<TGroup, TConsumable>(int consumable, long count, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static long GetInfinity<TGroup, TConsumable>(int consumable, long count, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
 
-    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
-    public static bool HasInfinite<TGroup, TConsumable>(this Player player, int consumable, long consumed, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+    public static bool HasInfinite<TGroup, TConsumable>(this Player player, int consumable, long consumed, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
-    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, System.Func<bool> retryIfNoneIncluded, params InfinityRoot<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
-        foreach (InfinityRoot<TGroup, TConsumable> infinity in infinities) {
+    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, System.Func<bool> retryIfNoneIncluded, params Infinity<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+        foreach (Infinity<TGroup, TConsumable> infinity in infinities) {
             if (!infinity.Group.GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
         }
         if (!retryIfNoneIncluded()) return false;
         return player.HasInfinite(consumable, consumed, infinities);
     }
-    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, params InfinityRoot<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
+    public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
 
 
     public static ItemDisplay GetLocalItemDisplay(this Item item) {
@@ -58,7 +58,7 @@ public static class InfinityManager {
         s_displays.Clear(item);
     }
 
-    internal static void Register<TGroup, TConsumable>(InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    internal static void Register<TGroup, TConsumable>(Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
         Group<TGroup, TConsumable>? group = (Group<TGroup, TConsumable>?)s_groups.Find(mg => mg is TGroup);
         group?.Add(infinity);
         s_infinities.Add(infinity);
@@ -69,7 +69,7 @@ public static class InfinityManager {
         else s_groups.Add(group);
         GroupsLCM = s_groups.Count * GroupsLCM / Utility.GCD(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
-            if (infinity is InfinityRoot<TGroup, TConsumable> inf) group.Add(inf);
+            if (infinity is Infinity<TGroup, TConsumable> inf) group.Add(inf);
         }
     }
 

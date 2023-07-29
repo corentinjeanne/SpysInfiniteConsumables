@@ -26,17 +26,17 @@ public sealed class GroupInfinity {
             if(reqMult == 0 || fullInfinity.Requirement.Multiplier < reqMult) reqMult = fullInfinity.Requirement.Multiplier;
 
         }
-        InfinityOverride extra;
+        string extra;
         Requirement requirement;
         if(custom.HasValue){
-            extra = new("Custom");
+            extra = "Custom";
             requirement = custom.Value;
             UsedInfinities.Clear();
         } else {
-            extra = new("Mixed");
+            extra = "Mixed";
             requirement = new(reqCount, reqMult);
         }
-        Mixed = FullInfinity.With(requirement, count, requirement.Infinity(count), extra);
+        Mixed = FullInfinity.With(requirement, count, requirement.Infinity(count), $"{Localization.Keys.CommonItemTooltips}.{extra}");
     }
 
     public FullInfinity this[IInfinity infinity] => _infinities[infinity];
@@ -82,8 +82,6 @@ public sealed class ItemDisplay {
             }
             Add(infinity);
             _exclusiveDisplay = true;
-            break;
-        case InfinityVisibility.Hidden or _:
             break;
         }
     }

@@ -14,8 +14,7 @@ public sealed class Currencies : Group<Currencies, int> {
             List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(consumable, count);
             List<string> parts = new();
             foreach ((int t, long c) in items) parts.Add($"{c}[i:{t}]");
-            return string.Join(" ", parts);
-        case InfinityDisplay.CountStyle.Name or _:
+            return string.Join(' ', parts);
         default:
             return CurrencyHelper.PriceText(consumable, count);
         }

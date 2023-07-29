@@ -37,7 +37,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         _cachedInfinities = new(GetType, consumable => GetGroupInfinity(Main.LocalPlayer, consumable));
     }
 
-    internal void Add(InfinityRoot<TGroup, TConsumable> infinity) {
+    internal void Add(Infinity<TGroup, TConsumable> infinity) {
         _infinities.Add(infinity);
         infinity.Group = (TGroup)this;
         infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, infinity);
@@ -52,7 +52,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public override void Load() => Instance = (TGroup)this;
 
     public override void Unload() {
-        foreach (InfinityRoot<TGroup, TConsumable> infinity in _infinities) {
+        foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             infinity.Group = null!;
             infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, null);
         }
@@ -68,10 +68,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         SetStaticDefaults();
     }
 
-    public Requirement GetRequirement(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity].Requirement : FullInfinity.WithRequirement(consumable, infinity).Requirement;
-    public long GetInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) => GetFullInfinity(player, consumable, infinity).Infinity;
-    public FullInfinity GetFullInfinity(Player player, int consumable, InfinityRoot<TGroup, TConsumable> infinity) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : GetFullInfinity(player, FromType(consumable), infinity);
-    public FullInfinity GetFullInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity)
+    public Requirement GetRequirement(TConsumable consumable, Infinity<TGroup, TConsumable> infinity) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity].Requirement : FullInfinity.WithRequirement(consumable, infinity).Requirement;
+    public long GetInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity) => GetFullInfinity(player, consumable, infinity).Infinity;
+    public FullInfinity GetFullInfinity(Player player, int consumable, Infinity<TGroup, TConsumable> infinity) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : GetFullInfinity(player, FromType(consumable), infinity);
+    public FullInfinity GetFullInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity)
         => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : FullInfinity.WithInfinity(player, consumable, infinity);
 
     public Requirement GetMixedRequirement(TConsumable consumable) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ?
@@ -85,7 +85,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) {
         if (player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity)) return groupInfinity;
         groupInfinity = new();
-        foreach (InfinityRoot<TGroup, TConsumable> infinity in _infinities) {
+        foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             FullInfinity fullInfinity = GetFullInfinity(player, consumable, infinity);
             bool used = infinity.Enabled && !fullInfinity.Requirement.IsNone && (Config.MaxUsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.MaxUsedInfinities);
             groupInfinity.Add(infinity, fullInfinity, used);
@@ -95,8 +95,8 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     }
 
     public bool IsUsed(TConsumable consumable, IInfinity infinity) => (_cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.UsedInfinities : GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities).Contains(infinity);
-    public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
-    public FullInfinity GetEffectiveInfinity(Player player, int consumable, InfinityRoot<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
+    public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
+    public FullInfinity GetEffectiveInfinity(Player player, int consumable, Infinity<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
 
 
     public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
@@ -104,7 +104,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
         bool forcedByCustom = Config.HasCustomGlobal(consumable, this, out _);
 
-        foreach (InfinityRoot<TGroup, TConsumable> infinity in _infinities) {
+        foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             TConsumable displayed = infinity.DisplayedValue(consumable);
             FullInfinity display = GetEffectiveInfinity(player, displayed, infinity);
 
@@ -113,10 +113,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             long count = display.Count;
             InfinityVisibility visibility = IsUsed(displayed, infinity) || !consumable.Equals(displayed) ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
 
-            infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
-            
             if(requirement.IsNone) visibility = InfinityVisibility.None;
             else {
+                infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
                 if (forcedByCustom) {
                     if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
                     forcedByCustom = false;
@@ -146,10 +145,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     }
 
     void IGroup.UpdateInfinities() {
-        List<InfinityRoot<TGroup, TConsumable>> infinities = new(Infinities);
+        List<Infinity<TGroup, TConsumable>> infinities = new(Infinities);
         _infinities.Clear();
         foreach ((var def, var enabled) in Config.Infinities.Items<InfinityDefinition, bool>()) {
-            InfinityRoot<TGroup, TConsumable> infinity = infinities.Find(i => i.Mod.Name == def.Mod && i.Name == def.Name)!;
+            Infinity<TGroup, TConsumable> infinity = infinities.Find(i => i.Mod.Name == def.Mod && i.Name == def.Name)!;
             infinity.Enabled = enabled;
             infinity.Color = Colors.Colors[def];
             _infinities.Add(infinity);
@@ -164,7 +163,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
-    public IEnumerable<InfinityRoot<TGroup, TConsumable>> Infinities => _infinities;
+    public IEnumerable<Infinity<TGroup, TConsumable>> Infinities => _infinities;
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
     public ReadOnlyDictionary<IInfinity, IWrapper> InfinityConfigs => new(_infinityConfigs);
@@ -174,7 +173,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     GroupConfig IGroup.Config { get => Config; set => Config = value; }
     GroupColors IGroup.Colors { get => Colors; set => Colors = value; }
 
-    private readonly List<InfinityRoot<TGroup, TConsumable>> _infinities = new();
+    private readonly List<Infinity<TGroup, TConsumable>> _infinities = new();
     private readonly Dictionary<IInfinity, IWrapper> _infinityConfigs = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
     

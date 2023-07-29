@@ -12,7 +12,7 @@ public sealed class InfinityDisplay : ModConfig {
     public bool general_ShowInfinities;
     [DefaultValue(true)]
     public bool general_ShowRequirement;
-    public bool general_ShowCategories;
+    public bool general_ShowInfo;
     [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
     public WelcomMessageFrequency general_welcomeMessage;
     [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";

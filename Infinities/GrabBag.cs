@@ -34,16 +34,16 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.RightClickToOpen")), TooltipLineID.Tooltip); // TODO detected items opened uppon use
 
-
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<GrabBagRequirements>(this);
     }
+
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
         GrabBagCategory.Container => new(Config.Value.Containers),
         GrabBagCategory.TreasureBag => new(Config.Value.TreasureBags),
         GrabBagCategory.Convertible => new(Config.Value.Convertibles),
-        GrabBagCategory.None /* or GrabBagCategory.Unknown */ or _ => new(),
+        _ => new(),
     };
 
     public override GrabBagCategory GetCategory(Item item) {

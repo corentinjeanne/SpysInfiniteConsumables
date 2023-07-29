@@ -30,17 +30,20 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     public override bool DefaultsToOn => false;
     public override Color DefaultColor => Colors.CoinGold;
 
+    public override void Load() {
+        base.Load();
+        DisplayOverrides += CoinSlots;
+    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<ShopRequirements>(this);
-        DisplayOverrides += CoinSlots;
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {
         ShopCategory.Coin => new(Config.Value.Coins, ShopRequirements.CoinMult),
         ShopCategory.SingleCoin => new(Config.Value.Single, ShopRequirements.SingleCoinMult),
-        ShopCategory.None or _ => new()
+        _ => new()
     };
 
     public override ShopCategory GetCategory(int currency) {

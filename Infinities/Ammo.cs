@@ -28,16 +28,21 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     public override int IconType => ItemID.EndlessQuiver;
     public override Color DefaultColor => Colors.RarityLime;
 
+    public override void Load() {
+        base.Load();
+        RequirementOverrides += MaxStack;
+        DisplayOverrides += AmmoSlots;
+    }
+
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<AmmoRequirements>(this);
-        DisplayOverrides += AmmoSlots;
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
         AmmoCategory.Basic => new(Config.Value.Standard),
         AmmoCategory.Special or AmmoCategory.Explosive => new(Config.Value.Special),
-        AmmoCategory.None or _ => new(),
+        _ => new(),
     };
 
     public override AmmoCategory GetCategory(Item ammo) {
@@ -58,6 +63,13 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
     }
 
+
+    public static void MaxStack(Item consumable, ref Requirement requirement, List<object> extras) {
+        if(requirement.Count > consumable.maxStack){
+            requirement = new(requirement.Count, requirement.Multiplier);
+        }
+    }
+    
     public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;

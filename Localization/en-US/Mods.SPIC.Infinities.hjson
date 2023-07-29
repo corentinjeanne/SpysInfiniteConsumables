@@ -31,6 +31,7 @@ Material: {
 }
 
 Placeable: {
+	TileDuplication: Exact Infinity
 	Name: Placeable
 	Tiles: Tiles
 	Torches: Torches

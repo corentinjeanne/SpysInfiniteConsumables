@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Localization;
@@ -21,9 +20,9 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     (TooltipLine, TooltipLineID?) GetTooltipLine(Item item);
 }
 
-public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
     protected sealed override void Register() {
-        ModTypeLookup<InfinityRoot<TGroup, TConsumable>>.Register(this);
+        ModTypeLookup<Infinity<TGroup, TConsumable>>.Register(this);
         InfinityManager.Register(this);
     }
     public sealed override void SetupContent() => SetStaticDefaults();
@@ -51,8 +50,12 @@ public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity whe
     
     IGroup IInfinity.Group => Group;
 
+    public event OverrideRequirementFn? RequirementOverrides;
+    public void OverrideRequirement(TConsumable consumable, ref Requirement requirement, List<object> extras) => RequirementOverrides?.Invoke(consumable, ref requirement, extras);
+    public delegate void OverrideRequirementFn(TConsumable consumable, ref Requirement requirement, List<object> extras);
+    
     public event OverrideInfinityFn? InfinityOverrides;
-    public void OverrideInfinity(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras) => InfinityOverrides?.Invoke(player, consumable, requirement,  count, ref infinity, extras);
+    public void OverrideInfinity(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras) => InfinityOverrides?.Invoke(player, consumable, requirement, count, ref infinity, extras);
     public delegate void OverrideInfinityFn(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras);
     
     public event OverrideDisplayFn? DisplayOverrides;
@@ -60,17 +63,24 @@ public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity whe
     public delegate void OverrideDisplayFn(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility);
 }
 
-public abstract class Infinity<TGroup, TConsumable> : InfinityRoot<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
-    public override Requirement GetRequirement(TConsumable consumable, List<object> extras) => GetRequirement(consumable);
+public abstract class Infinity<TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
 
-    public abstract Requirement GetRequirement(TConsumable consumable);
-}
+    public override void Load() {
+        base.Load();
+        RequirementOverrides += CustomRequirement;
+    }
 
-public abstract class Infinity<TGroup, TConsumable, TCategory> : InfinityRoot<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
     public override Requirement GetRequirement(TConsumable consumable, List<object> extras) {
-        if(!Group.Config.HasCustomCategory(consumable, this, out TCategory category)) category = GetCategory(consumable);
+        TCategory category = GetCategory(consumable);
         extras.Add(category);
         return GetRequirement(category);
+    }
+
+    private void CustomRequirement(TConsumable consumable, ref Requirement requirement, List<object> extras) {
+        if (!Group.Config.HasCustomCategory(consumable, this, out TCategory category)) return;
+        extras.Clear();
+        extras.Add(category);
+        requirement = GetRequirement(category);
     }
 
     public abstract TCategory GetCategory(TConsumable consumable);

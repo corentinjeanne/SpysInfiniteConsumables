@@ -62,17 +62,21 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
     public override bool DefaultsToOn => false;
     public override Color DefaultColor => Colors.RarityAmber;
 
+    public override void Load() {
+        base.Load();
+        DisplayOverrides += AmmoSlots;
+        InfinityOverrides += DuplicationInfinity;
+    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
-        Config = Group.AddConfig<PlaceableRequirements>(this);
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
         }
-        DisplayOverrides += AmmoSlots;
-        InfinityOverrides += DuplicationInfinity;
+        Config = Group.AddConfig<PlaceableRequirements>(this);
     }
+
 
     public override void Unload() {
         base.Unload();
@@ -94,7 +98,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
             PlaceableCategory.Seed => new(Config.Value.Seeds),
             PlaceableCategory.Paint => new(Config.Value.Paints),
-            PlaceableCategory.None or _ => new(),
+            _ => new(),
         };
     }
 
@@ -166,7 +170,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
             WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
             WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            WandType.None or _ => null
+            _ => null
         } ?? consumable;
     }
 
@@ -174,9 +178,9 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         Item ammo = DisplayedValue(item);
         if (ammo == item) return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
         (string name, TooltipLineID position) = GetWandType(item) switch {
-            WandType.Tile => ("WandConsumes", TooltipLineID.WandConsumes),
             WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
-            WandType.None or WandType.PaintBrush or WandType.PaintRoller or _ => ("PaintConsumes", TooltipLineID.Modded)
+            WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
+            WandType.Tile or _ => ("WandConsumes", TooltipLineID.WandConsumes),
         };
         return (new(Mod, name, Lang.tip[52].Value + ammo.Name), position);
     }
@@ -197,18 +201,18 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         _ => WandType.None
     };
 
-    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index < 50 || 58 <= index) return;
 
-        PlaceableCategory category = Instance.GetCategory(item);
+        PlaceableCategory category = GetCategory(item);
         if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
     }
 
-    public static void DuplicationInfinity(Player _, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
+    public void DuplicationInfinity(Player _, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
         if(!InfinitySettings.Instance.PreventItemDupication || count <= requirement.Count) return;
         if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
-            extras.Add(new InfinityOverride("Tile duplication"));
+            extras.Add(this.GetLocalizationKey("TileDuplication"));
             infinity = 0;
         }
     }

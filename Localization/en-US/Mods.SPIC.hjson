@@ -47,6 +47,8 @@ Chat: {
 }
 
 CommonItemTooltips: {
+	Mixed: Mixed
+	Custom: Custom
 	Infinite: Infinite {0}
 	PartialyInfinite: Infinite {0} below {1}
 }
