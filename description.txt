@@ -2,34 +2,34 @@
 
 Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of groups for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
+There are a wide variety of Infinities for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
 
 
-        No more item duplication
+        No item duplication
 
-***WORK IN PROGRESS, DOES NOT WORK FOR TILES***
-
+***WORK IN PROGRESS***
 NPCs, Tiles, walls, etc dropping an item when destroyed, killed, etc won't drop if they were infinite when used.
 Include all placeable, critter, and other items.
 
 
-        Alter the behaviour of the mod
+        Hightly Customisable
 
-Edit the `Consumable Group Settings` config to modify the behaviour of the mod!
-Toggle on/off certain groups and blacklist consumables if necessary.
+Edit the 'Infinity Settings' config to modify the behaviour of the mod!
+Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
 
-        Easely see the infinities of an item
+        Easely see the Infinities of an item
 
-The infinities of every item can be displayed in various ways: 
- - In its tooltip via colored lines. This can also be used to display the categories and requirements of item.
- - On the item sprite via glow. Not that it can sometimes be hard to see.
- - In the item slot via colored dots.
+The Infinities of every item can be displayed in various ways: 
+ - With colored tooltip lines. This can also be used to display extra information about the item such as its requirement or category.
+ - With a glow around the item. Note that it can sometimes be hard to see.
+ - With colored dot in the inventory slot.
 
-Edit the `Infinities Display` config to change which one is active and display aditional informations or change the color of the infinities.
+Edit the 'Infinities Display' config to change which one is active, display additional informations or change the color of the Infinities.
 
-        Automaticaly detect the category of almost all items
+
+        Automaticaly detect the category of almost every item
 
 If an item's category cannot be determined with the items's stats, it will be determined when the item is used!
 This should work for almost every summoner, player booster and more.
-Edit the `Category Detection` config to modify disable this or clear all the detected categories.
+If this fails, you can always set it via a custom requirement.
