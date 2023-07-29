@@ -38,7 +38,7 @@ public class FullInfinity {
         if (group.Config.HasCustomCount(consumable, infinity, out Count? custom)) {
             extras.Clear();
             extras.Add($"{Localization.Keys.CommonItemTooltips}.Custom");
-            requirement = new Requirement(custom, requirement.Multiplier);
+            requirement = new Requirement(custom, requirement.Multiplier == 0 ? 1 : requirement.Multiplier);
         }
 
         fullInfinity.Requirement = requirement;

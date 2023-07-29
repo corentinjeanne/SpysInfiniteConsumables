@@ -11,7 +11,6 @@ namespace SPIC.Configs;
 
 public sealed class GroupConfig {
     [Header("Infinities")]
-    [JsonIgnore, ShowDespiteJsonIgnore]
     public PresetDefinition Preset {
         get {
             if (Infinities.Count == 0) return new();
@@ -33,7 +32,7 @@ public sealed class GroupConfig {
 
     [Header("Configs")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<InfinityDefinition, WrapperBase<object>> Configs { get; set; } = new();
+    public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
 
     [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
@@ -65,9 +64,9 @@ public sealed class GroupConfig {
         Infinities = infinities;
         foreach (IInfinity infinity in group.Infinities) Infinities.TryAdd(new InfinityDefinition(infinity), infinity.DefaultsToOn);
 
-        foreach ((IInfinity infinity, IWrapper wrapper) in group.InfinityConfigs) {
+        foreach ((IInfinity infinity, Wrapper wrapper) in group.InfinityConfigs) {
             InfinityDefinition def = new(infinity);
-            Configs[def] = Configs.TryGetValue(def, out var config) ? config.ChangeType(wrapper.Member.Type) : WrapperBase<object>.From(wrapper.Member.Type);
+            Configs[def] = Configs.TryGetValue(def, out var config) ? config.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
             wrapper.Value = Configs[def].Value;
         }
 

@@ -7,11 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace SPIC.Configs.UI;
 
-public sealed class WrapperElement : ConfigElement<IWrapper> {
+public sealed class WrapperElement : ConfigElement<Wrapper> {
 
     public override void OnBind() {
         base.OnBind();
-        IWrapper wrapper = Value;
+        Wrapper wrapper = Value;
 
         int top = 0;
         PropertyFieldWrapper member = wrapper.Member;
@@ -21,7 +21,7 @@ public sealed class WrapperElement : ConfigElement<IWrapper> {
 
         ReflectionHelper.ConfigElement_backgroundColor.SetValue(child, Color.Transparent);
         Func<string> childText = (Func<string>)ReflectionHelper.ConfigElement_TextDisplayFunction.GetValue(child)!;
-        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, wrapper.Member.Name == nameof(WrapperBase<object>.Value) ? () => $"{TextDisplayFunction()}{childText()[member.Name.Length..]}" : () => $"{TextDisplayFunction()} ({childText()})");
+        ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(child, wrapper.Member.Name == nameof(Wrapper.Value) ? () => $"{TextDisplayFunction()}{childText()[member.Name.Length..]}" : () => $"{TextDisplayFunction()} ({childText()})");
         ReflectionHelper.ConfigElement_TooltipFunction.SetValue(child, TooltipFunction);
         DrawLabel = false;
         TooltipFunction = null;

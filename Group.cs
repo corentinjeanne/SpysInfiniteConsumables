@@ -24,7 +24,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
     GroupConfig Config { get; internal set; }
     GroupColors Colors { get; internal set; }
 
-    IDictionary<IInfinity, IWrapper> InfinityConfigs { get; }
+    IDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
 
 
     internal void UpdateInfinities();
@@ -166,15 +166,15 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public IEnumerable<Infinity<TGroup, TConsumable>> Infinities => _infinities;
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
-    public ReadOnlyDictionary<IInfinity, IWrapper> InfinityConfigs => new(_infinityConfigs);
+    public ReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs => new(_infinityConfigs);
     
     IEnumerable<IInfinity> IGroup.Infinities => Infinities;
-    IDictionary<IInfinity, IWrapper> IGroup.InfinityConfigs => InfinityConfigs;
+    IDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
     GroupConfig IGroup.Config { get => Config; set => Config = value; }
     GroupColors IGroup.Colors { get => Colors; set => Colors = value; }
 
     private readonly List<Infinity<TGroup, TConsumable>> _infinities = new();
-    private readonly Dictionary<IInfinity, IWrapper> _infinityConfigs = new();
+    private readonly Dictionary<IInfinity, Wrapper> _infinityConfigs = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
     
     public static TGroup Instance { get; private set; } = null!;

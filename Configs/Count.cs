@@ -16,7 +16,7 @@ public class Count : MultyChoice<int> {
     public override int Value {
         get => Choice == nameof(Disabled) ? 0 : Amount;
         set {
-            Choice = value > 0 ? nameof(Amount) : nameof(Disabled);
+            Choice = value == 0 ? nameof(Disabled) : nameof(Amount);
             Amount = value;
         }
     }

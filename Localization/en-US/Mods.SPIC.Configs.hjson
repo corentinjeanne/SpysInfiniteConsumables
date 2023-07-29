@@ -210,7 +210,7 @@ Count: {
 	Tooltip: ""
 }
 
-WrapperBase`1: {
+Wrapper: {
 	SaveBeforeEdit: {
 		Label: Save the config to edit this value
 		Tooltip: ""
