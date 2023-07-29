@@ -20,18 +20,14 @@ namespace SPIC.Globals {
             
             DetectionPlayer detectionPlayer = Main.player[proj.owner].GetModPlayer<DetectionPlayer>();
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
-            int num = detectionPlayer.Player.FindItem(type);
-            Item item = num == -1 ? new(type) : detectionPlayer.Player.inventory[num];
 
-            AmmoCategory ammo = InfinityManager.GetCategory(item, Ammo.Instance);
-            UsableCategory usable = InfinityManager.GetCategory(item, Usable.Instance);
+            AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Instance);
+            UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
             if(ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive){
-                if(InfinityManager.SaveDetectedCategory(item, AmmoCategory.Explosive, Ammo.Instance))
-                    detectionPlayer.RefilExplosive(proj.type, item);
+                if(InfinityManager.SaveDetectedCategory(new(type), AmmoCategory.Explosive, Ammo.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
             }
             else if(usable != UsableCategory.None && usable != UsableCategory.Explosive){
-                if(InfinityManager.SaveDetectedCategory(item, UsableCategory.Explosive, Usable.Instance))
-                    detectionPlayer.RefilExplosive(proj.type, item);
+                if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Explosive, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
             }
         }
 

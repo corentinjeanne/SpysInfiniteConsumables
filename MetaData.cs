@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace SPIC;
 
+// TODO option to reduce cache to minimum
 
 public sealed class GroupInfinity {
     
@@ -40,6 +41,11 @@ public sealed class GroupInfinity {
 
     public FullInfinity this[IInfinity infinity] => _infinities[infinity];
     public FullInfinity Mixed { get; private set; }
+    public FullInfinity EffectiveInfinity(IInfinity group) {
+        if (!group.Enabled) return FullInfinity.None;
+        FullInfinity fullInfinity = this[group];
+        return fullInfinity.Requirement.IsNone || UsedInfinities.Contains(group) ? fullInfinity : Mixed;
+    }
 
     public HashSet<IInfinity> UsedInfinities { get; private set; }
 
@@ -50,27 +56,41 @@ public sealed class GroupInfinity {
 public sealed class ItemDisplay {
 
     public ItemDisplay() {
-        Infinities = new();
+        DisplayedInfinities = new();
         InfinitiesByGroup = new();
         _infinities = new();
     }
 
-    public (FullInfinity Infinity, long Consumed) this[IInfinity infinity] {
-        get {
-            (int type, long consumed) = _infinities[infinity];
-            return (InfinityManager.GetFullInfinity(Terraria.Main.LocalPlayer, type, infinity), consumed);
+    public FullInfinity this[IInfinity infinity] => _infinities[infinity];
+
+    public void Add(IInfinity infinity, FullInfinity display, InfinityVisibility visibility) {
+        void Add(IInfinity infinity){
+            DisplayedInfinities.Add(infinity);
+            if (InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group) InfinitiesByGroup.Add(new());
+            InfinitiesByGroup[^1].Add(infinity);
+        }
+        
+        _infinities[infinity] = display;
+        switch (visibility) {
+        case InfinityVisibility.Normal:
+            if(!_exclusiveDisplay) Add(infinity);
+            break;
+        case InfinityVisibility.Exclusive:
+            if (!_exclusiveDisplay) {
+                DisplayedInfinities.Clear();
+                InfinitiesByGroup.Clear();
+            }
+            Add(infinity);
+            _exclusiveDisplay = true;
+            break;
+        case InfinityVisibility.Hidden or _:
+            break;
         }
     }
 
-    public void Add(IInfinity infinity, int type, long consumed) { // ? comptute the infinity already
-        _infinities[infinity] = (type, consumed);
-        Infinities.Add(infinity);
-        
-        if(InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group) InfinitiesByGroup.Add(new());
-        InfinitiesByGroup[^1].Add(infinity);
-    }
+    private bool _exclusiveDisplay;
 
-    private readonly Dictionary<IInfinity, (int, long)> _infinities;
-    public List<IInfinity> Infinities { get; private set; }
+    private readonly Dictionary<IInfinity, FullInfinity> _infinities;
+    public List<IInfinity> DisplayedInfinities { get; private set; }
     public List<List<IInfinity>> InfinitiesByGroup { get; private set; }
 }

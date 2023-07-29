@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Localization;
@@ -26,7 +28,12 @@ public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity whe
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 
-    public abstract Requirement GetRequirement(TConsumable consumable, FullInfinity steps);
+    public override void Unload() {
+        DisplayOverrides = null;
+        InfinityOverrides = null;
+    }
+
+    public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
     
     public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, Name, DisplayName.Value), null);
 
@@ -43,18 +50,27 @@ public abstract class InfinityRoot<TGroup, TConsumable> : ModType, IInfinity whe
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
     
     IGroup IInfinity.Group => Group;
+
+    public event OverrideInfinityFn? InfinityOverrides;
+    public void OverrideInfinity(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras) => InfinityOverrides?.Invoke(player, consumable, requirement,  count, ref infinity, extras);
+    public delegate void OverrideInfinityFn(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras);
+    
+    public event OverrideDisplayFn? DisplayOverrides;
+    public void OverrideDisplay(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) => DisplayOverrides?.Invoke(player, item, consumable, ref requirement, ref count, extras, ref visibility);
+    public delegate void OverrideDisplayFn(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility);
 }
 
 public abstract class Infinity<TGroup, TConsumable> : InfinityRoot<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
-    public override Requirement GetRequirement(TConsumable consumable, FullInfinity steps) => GetRequirement(consumable);
+    public override Requirement GetRequirement(TConsumable consumable, List<object> extras) => GetRequirement(consumable);
 
     public abstract Requirement GetRequirement(TConsumable consumable);
 }
 
 public abstract class Infinity<TGroup, TConsumable, TCategory> : InfinityRoot<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
-    public override Requirement GetRequirement(TConsumable consumable, FullInfinity steps) {
+    public override Requirement GetRequirement(TConsumable consumable, List<object> extras) {
         if(!Group.Config.HasCustomCategory(consumable, this, out TCategory category)) category = GetCategory(consumable);
-        return GetRequirement(steps.Add(category));
+        extras.Add(category);
+        return GetRequirement(category);
     }
 
     public abstract TCategory GetCategory(TConsumable consumable);
@@ -63,13 +79,19 @@ public abstract class Infinity<TGroup, TConsumable, TCategory> : InfinityRoot<TG
 
 public abstract class InfinityStatic<TInfinity, TGroup, TConsumable> : Infinity<TGroup, TConsumable> where TInfinity : InfinityStatic<TInfinity, TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
     public override void SetStaticDefaults() => Instance = (TInfinity)this;
-    public override void Unload() => Instance = null!;
+    public override void Unload() {
+        Instance = null!;
+        base.Unload();
+    }
 
     public static TInfinity Instance = null!;
 }
 public abstract class InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable, TCategory> where TInfinity : InfinityStatic<TInfinity, TGroup, TConsumable, TCategory> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
     public override void SetStaticDefaults() => Instance = (TInfinity)this;
-    public override void Unload() => Instance = null!;
+    public override void Unload() {
+        Instance = null!;
+        base.Unload();
+    }
 
     public static TInfinity Instance = null!;
 }

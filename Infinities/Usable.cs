@@ -5,6 +5,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
+using System.Collections.Generic;
 
 namespace SPIC.Infinities;
 
@@ -49,6 +50,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<UsableRequirements>(this);
+        DisplayOverrides += AmmoSlots;
     }
 
     public override Requirement GetRequirement(UsableCategory category) {
@@ -116,5 +118,10 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         if (ammo == item) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
         return (new(Mod, "PoleConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
 
+    }
+
+    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, Usable.Instance) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
     }
 }

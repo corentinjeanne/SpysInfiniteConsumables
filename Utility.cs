@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ModLoader.Config;
 using System.Reflection;
+using System.Collections.ObjectModel;
 
 namespace SPIC;
 
@@ -151,7 +152,19 @@ public static class Utility {
         }
         throw new System.IndexOutOfRangeException("The index was outside the bounds of the array");
     }
-    
+
+    public static T? Find<T>(this ReadOnlyCollection<T> list, System.Predicate<T> predicate) {
+        foreach(T value in list){
+            if(predicate(value)) return value;
+        }
+        return default;
+    }
+
+    public static bool TryAdd(this IOrderedDictionary dict, object key, object value) {
+        if (dict.Contains(key)) return false;
+        dict.Add(key, value);
+        return true;
+    }
     public static void Move(this IOrderedDictionary dict, int origIndex, int destIndex)
         => dict.Move(dict.Keys.Index(origIndex), destIndex);
     public static void Move(this IOrderedDictionary dict, object key, int destIndex){
@@ -167,18 +180,9 @@ public static class Utility {
         }
     }
 
-    
-    
-    public static bool TryAdd(this IOrderedDictionary dict, object key, object value){
-        if(dict.Contains(key)) return false;
-        dict.Add(key, value);
-        return true;
-    }
-
 
     public static bool ImplementsInterface(this System.Type type, System.Type iType, [NotNullWhen(true)] out System.Type? impl)
         => (impl = System.Array.Find(type.GetInterfaces(), i => iType.IsGenericType ? i.IsGenericType && i.GetGenericTypeDefinition() == iType : iType == i)) != null;
-
     public static bool IsSubclassOfGeneric(this System.Type? type, System.Type generic, [NotNullWhen(true)] out System.Type? impl) {
         while (type != null && type != typeof(object)) {
             System.Type cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
@@ -191,6 +195,7 @@ public static class Utility {
         impl = null;
         return false;
     }
+
 
     public static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
 

@@ -34,7 +34,7 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<ShopRequirements>(this);
-        InfinityManager.ExclusiveDisplays += CoinSlot;
+        DisplayOverrides += CoinSlots;
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {
@@ -51,8 +51,8 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     
     public Wrapper<ShopRequirements> Config = null!;
 
-    public static void CoinSlot(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
+    public static void CoinSlots(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (50 <= index && index < 53) exclusiveGroups.Add((Instance, 1));
+        if (50 <= index && index < 53) visibility = InfinityVisibility.Exclusive;
     }
 }

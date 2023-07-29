@@ -6,6 +6,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SPIC.Infinities;
 public enum MaterialCategory {
@@ -36,11 +37,14 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
     public override bool DefaultsToOn => false;
     public override Color DefaultColor => Colors.RarityPink;
 
+    private static Dictionary<int, int> s_itemGroupCounts = null!;
+
 
     public override void SetStaticDefaults() {
+        s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
         base.SetStaticDefaults();
         Config = Group.AddConfig<MaterialRequirements>(this);
-        InfinityManager.ExclusiveDisplays += CraftingMaterial;
+        DisplayOverrides += CraftingMaterial;
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
@@ -80,9 +84,24 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
+    public static void CraftingMaterial(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+        if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
+        Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
+        Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
+        if (material is null) return;
+
+        visibility = InfinityVisibility.Exclusive;
+        requirement = requirement.ForInfinity(material.stack, 1);
+
+        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
+        if (group == -1) return;
+        count = s_itemGroupCounts[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+
+    }
+
     public static void CraftingMaterial(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
         if (Main.numAvailableRecipes == 0) return;
-        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item)); // TODO count for groups (and infinity)
-        if (material is not null) exclusiveGroups.Add((Material.Instance, material.stack));
+        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item));
+        if (material is not null) exclusiveGroups.Add((Instance, material.stack));
     }
 }

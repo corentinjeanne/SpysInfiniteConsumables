@@ -10,7 +10,6 @@ public sealed class SpysInfiniteConsumables : Mod {
 
     public override void Load() {
         Instance = this;
-        Infinities.Placeable.ClearWandAmmos();
     }
 
     public override void PostSetupContent() {
@@ -18,7 +17,6 @@ public sealed class SpysInfiniteConsumables : Mod {
     }
 
     public override void Unload() {
-        Infinities.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
         
         InfinityManager.Unload();

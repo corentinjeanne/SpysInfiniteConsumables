@@ -8,11 +8,7 @@ using Terraria.ModLoader;
 
 namespace SPIC;
 
-public enum InfinityState {
-    Disabled,
-    Used,
-    Unused
-}
+public enum InfinityVisibility { None, Hidden, Normal, Exclusive }
 
 public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
@@ -20,10 +16,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
 
     string CountToString(Item item, long owned, long infinity, InfinityDisplay.CountStyle style);
 
-    FullInfinity GetEffectiveInfinity(Player player, int type, IInfinity infinity);
-
-    (int type, bool displayed) GetDisplay(Item item, IInfinity infinity);
-    IEnumerable<(IInfinity infinity, int type, bool used)> GetDisplayedInfinities(Item item);
+    IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
     IEnumerable<IInfinity> Infinities { get; }
     
@@ -77,7 +70,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
     public Requirement GetRequirement(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity].Requirement : FullInfinity.WithRequirement(consumable, infinity).Requirement;
     public long GetInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) => GetFullInfinity(player, consumable, infinity).Infinity;
-    public FullInfinity GetFullInfinity(Player player, int type, IInfinity infinity) => _cachedInfinities.TryGet(type, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : GetFullInfinity(player, FromType(type), (Infinity<TGroup, TConsumable>)infinity);
+    public FullInfinity GetFullInfinity(Player player, int consumable, InfinityRoot<TGroup, TConsumable> infinity) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : GetFullInfinity(player, FromType(consumable), infinity);
     public FullInfinity GetFullInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity)
         => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : FullInfinity.WithInfinity(player, consumable, infinity);
 
@@ -85,10 +78,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         groupInfinity.Mixed.Requirement : GetMixedFullInfinity(Main.LocalPlayer, consumable).Requirement;
     public long GetMixedInfinity(Player player, TConsumable consumable)
         => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.Mixed.Infinity : GetMixedFullInfinity(player, consumable).Infinity;
-    public FullInfinity GetMixedFullInfinity(Player player, int type) => _cachedInfinities.TryGet(type, out GroupInfinity? groupInfinity) ? groupInfinity.Mixed : GetMixedFullInfinity(player, FromType(type));
     public FullInfinity GetMixedFullInfinity(Player player, TConsumable consumable)
         => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.Mixed : GetGroupInfinity(player, consumable).Mixed;
-
+    
+    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
     public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) {
         if (player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity)) return groupInfinity;
         groupInfinity = new();
@@ -101,30 +94,36 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         return groupInfinity;
     }
 
-    public bool IsUsed(int type, IInfinity infinity) => _cachedInfinities.TryGet(type, out GroupInfinity? groupInfinity) ? groupInfinity.UsedInfinities.Contains(infinity) : IsUsed(FromType(type), infinity);
     public bool IsUsed(TConsumable consumable, IInfinity infinity) => (_cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.UsedInfinities : GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities).Contains(infinity);
-    public FullInfinity GetEffectiveInfinity(Player player, int type, IInfinity group) => !group.Enabled ? FullInfinity.None : IsUsed(type, group) ? GetFullInfinity(player, type, group) : GetMixedFullInfinity(player, type);
-    public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> group) => !group.Enabled ? FullInfinity.None : IsUsed(consumable, group) ? GetFullInfinity(player, consumable, group) : GetMixedFullInfinity(player, consumable);
+    public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
+    public FullInfinity GetEffectiveInfinity(Player player, int consumable, InfinityRoot<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
 
-    public (int type, bool displayed) GetDisplay(Item item, IInfinity infinity) => GetDisplay(ToConsumable(item), (InfinityRoot<TGroup, TConsumable>)infinity);
-    public (int type, bool displayed) GetDisplay(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) {
-        TConsumable displayed = infinity.DisplayedValue(consumable);
-        return (GetType(displayed), infinity.Enabled && !GetRequirement(consumable, infinity).IsNone);
-    }
-    
-    public IEnumerable<(IInfinity infinity, int type, bool used)> GetDisplayedInfinities(Item item) {
+
+    public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
         TConsumable consumable = ToConsumable(item);
-        bool hasCustom = Config.HasCustomGlobal(consumable, this, out _);
+
+        bool forcedByCustom = Config.HasCustomGlobal(consumable, this, out _);
 
         foreach (InfinityRoot<TGroup, TConsumable> infinity in _infinities) {
-            if (!infinity.Enabled) continue;
             TConsumable displayed = infinity.DisplayedValue(consumable);
-            if (!hasCustom || GetRequirement(consumable, infinity).IsNone) {
-                yield return (infinity, GetType(displayed), !consumable.Equals(displayed) || IsUsed(displayed, infinity));
-                continue;
+            FullInfinity display = GetEffectiveInfinity(player, displayed, infinity);
+
+            List<object> extras = new(display.Extras);
+            Requirement requirement = display.Requirement;
+            long count = display.Count;
+            InfinityVisibility visibility = IsUsed(displayed, infinity) || !consumable.Equals(displayed) ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
+
+            infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
+            
+            if(requirement.IsNone) visibility = InfinityVisibility.None;
+            else {
+                if (forcedByCustom) {
+                    if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
+                    forcedByCustom = false;
+                }
+                if(visibility != InfinityVisibility.Exclusive && !Main.LocalPlayer.IsFromVisibleInventory(item)) count = 0;
             }
-            yield return (infinity, GetType(displayed), true);
-            hasCustom = false;
+            yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
         }
     }
 

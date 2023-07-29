@@ -31,7 +31,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<AmmoRequirements>(this);
-        InfinityManager.ExclusiveDisplays += AmmoSlot;
+        DisplayOverrides += AmmoSlots;
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
@@ -58,12 +58,8 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
     }
 
-    public static void AmmoSlot(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
+    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index < 50 || 58 <= index) return;
-        exclusiveGroups.Add((Ammo.Instance, 1));
-        if(InfinityManager.GetCategory(item, Usable.Instance) == UsableCategory.Critter) exclusiveGroups.Add((Usable.Instance, 1));
-        PlaceableCategory category = Placeable.Instance.GetCategory(item);
-        if(category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || Placeable.IsWandAmmo(item.type, out _)) exclusiveGroups.Add((Placeable.Instance, 1));
+        if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;
     }
 }

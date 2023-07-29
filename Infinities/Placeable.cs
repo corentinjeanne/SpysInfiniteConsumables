@@ -56,11 +56,12 @@ public sealed class PlaceableRequirements {
     public Count Paints = 999;
 }
 
-public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> { // TODO Duplication
+public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> {
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override bool DefaultsToOn => false;
     public override Color DefaultColor => Colors.RarityAmber;
+
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
@@ -69,6 +70,13 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
         }
+        DisplayOverrides += AmmoSlots;
+        InfinityOverrides += DuplicationInfinity;
+    }
+
+    public override void Unload() {
+        base.Unload();
+        ClearWandAmmos();
     }
 
     public override Requirement GetRequirement(PlaceableCategory category) {
@@ -189,6 +197,21 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         _ => WandType.None
     };
 
+    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index < 50 || 58 <= index) return;
+
+        PlaceableCategory category = Instance.GetCategory(item);
+        if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
+    }
+
+    public static void DuplicationInfinity(Player _, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
+        if(!InfinitySettings.Instance.PreventItemDupication || count <= requirement.Count) return;
+        if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
+            extras.Add(new InfinityOverride("Tile duplication"));
+            infinity = 0;
+        }
+    }
 
     // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
 

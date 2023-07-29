@@ -36,7 +36,7 @@ public sealed class ConsumptionNPC : GlobalNPC {
 
     public override void OnSpawn(NPC npc, IEntitySource source) {
         if(source is EntitySource_Parent parent && Configs.InfinitySettings.Instance.PreventItemDupication
-                && parent.Entity is Player player && player.HasInfinite(new(npc.catchItem), 1, Usable.Instance)) {
+                && parent.Entity is Player player && player.HasInfinite(npc.catchItem, 1, Usable.Instance)) {
             npc.SpawnedFromStatue = true;
         }
     }

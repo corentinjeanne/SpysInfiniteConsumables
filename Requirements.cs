@@ -8,5 +8,5 @@ public readonly record struct Requirement(long Count, float Multiplier = 1f) {
 
     public long Infinity(long count) => count >= Count ? (long)(count * Multiplier) : 0;
 
-    public long CountForInfinity(long infinity) => Math.Max(Count, (int)MathF.Ceiling(infinity / Multiplier));
+    public Requirement ForInfinity(long infinity, float? multiplier = null) => new(Math.Max(Count, (int)MathF.Ceiling(infinity / Multiplier)), multiplier ?? Multiplier);
 }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using SPIC.Configs;
 using Terraria;
 
@@ -10,22 +9,10 @@ public class FullInfinity {
 
     private FullInfinity() {}
 
-    public T Add<T>(T value) where T : notnull {
-        _extras.Add(value);
-        return value;
-    }
-
-    public bool Has<T>([NotNullWhen(true)] out T? value) {
-        value = (T?)_extras.Find(e => e is T);
-        return value is not null;
-    }
-
     public Requirement Requirement { get; private set; }
     public long Count { get; private set; }
     public long Infinity { get; private set; }
-    public ReadOnlyCollection<object> Extras => _extras.AsReadOnly();
-
-    private List<object> _extras = new();
+    public List<object> Extras { get; private set; } = new();
 
     public static FullInfinity None => new();
 
@@ -33,28 +20,35 @@ public class FullInfinity {
         Requirement = requirement,
         Count = count,
         Infinity = infinity,
-        _extras = new(extras)
+        Extras = new(extras)
     };
 
     internal static FullInfinity WithRequirement<TGroup, TConsumable>(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
         FullInfinity fullInfinity = new();
         Group<TGroup, TConsumable> group = infinity.Group;
-        if (group.Config.HasCustomCount(consumable, infinity, out Count? custom)) { // Not used
-            fullInfinity.Add(new InfinityOverride("Custom"));
-            fullInfinity.Requirement = new Requirement(custom, infinity.GetRequirement(consumable, new()).Multiplier);
-        } else {
-            Requirement requirement = infinity.GetRequirement(consumable, fullInfinity);
-            long maxStack = group.MaxStack(consumable);
-            if (maxStack != 0 && requirement.Count > maxStack) requirement = new(maxStack, requirement.Multiplier);
-            fullInfinity.Requirement = requirement;
+
+        List<object> extras = new();
+        Requirement requirement = infinity.GetRequirement(consumable, extras);
+        long maxStack = group.MaxStack(consumable); // TODO rework
+        if (maxStack != 0 && requirement.Count > maxStack) requirement = new(maxStack, requirement.Multiplier);
+        
+        if (group.Config.HasCustomCount(consumable, infinity, out Count? custom)) {
+            extras.Clear();
+            extras.Add(new InfinityOverride("Custom"));
+            requirement = new Requirement(custom, requirement.Multiplier);
         }
+
+        fullInfinity.Requirement = requirement;
+        fullInfinity.Extras = extras;
         return fullInfinity;
     }
 
     internal static FullInfinity WithInfinity<TGroup, TConsumable>(Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
         FullInfinity fullInfinity = WithRequirement(consumable, infinity);
         fullInfinity.Count = infinity.Group.CountConsumables(player, consumable);
-        fullInfinity.Infinity = fullInfinity.Requirement.Infinity(fullInfinity.Count);
+        long infinityValue = fullInfinity.Requirement.Infinity(fullInfinity.Count);
+        infinity.OverrideInfinity(player, consumable, fullInfinity.Requirement, fullInfinity.Count, ref infinityValue, fullInfinity.Extras);
+        fullInfinity.Infinity = infinityValue;
         return fullInfinity;
     }
 }

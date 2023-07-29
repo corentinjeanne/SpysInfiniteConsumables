@@ -17,8 +17,6 @@ public enum GrabBagCategory {
     Convertible,
 }
 
-// BUG capricorn leggings (tranforms)
-
 public sealed class GrabBagRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Containers")]
     public Count Containers = 10;

@@ -4,28 +4,29 @@ using Terraria;
 
 namespace SPIC;
 
+// TODO lag when picking up loads of items (1k+) with right click
+
 public static class InfinityManager {
 
-    public delegate void ExclusiveDisplay(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups);
+    public static TCategory GetCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum
+        => (TCategory?)infinity.Group.GetFullInfinity(Main.LocalPlayer, consumable, infinity).Extras.Find(i => i is TCategory) ?? default;
+    public static TCategory GetCategory<TGroup, TConsumable, TCategory>(int consumable, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum
+        => (TCategory?)infinity.Group.GetFullInfinity(Main.LocalPlayer, consumable, infinity).Extras.Find(i => i is TCategory) ?? default;
 
-    public static event ExclusiveDisplay? ExclusiveDisplays;
-
-    public static TCategory GetCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum => infinity.Group.GetFullInfinity(Main.LocalPlayer, consumable, infinity).Has(out TCategory category) ? category : default;
-
-    public static Requirement GetRequirement<TGroup, TConsumable>(TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement;
-
+    public static long GetInfinity<TGroup, TConsumable>(this Player player, TConsumable consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
+    public static long GetInfinity<TGroup, TConsumable>(this Player player, int consumable, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
 
     public static long GetInfinity<TGroup, TConsumable>(TConsumable consumable, long count, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
-
-    public static FullInfinity GetFullInfinity(this Player player, int type, IInfinity infinity)
-        => infinity.Group.GetEffectiveInfinity(player, type, infinity);
+    public static long GetInfinity<TGroup, TConsumable>(int consumable, long count, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+        => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
 
     public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
         => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
-
-
+    public static bool HasInfinite<TGroup, TConsumable>(this Player player, int consumable, long consumed, InfinityRoot<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull
+        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
     public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, System.Func<bool> retryIfNoneIncluded, params InfinityRoot<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
         foreach (InfinityRoot<TGroup, TConsumable> infinity in infinities) {
             if (!infinity.Group.GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
@@ -39,24 +40,11 @@ public static class InfinityManager {
     public static ItemDisplay GetLocalItemDisplay(this Item item) {
         if (s_displays.TryGetOrCache(item, out ItemDisplay? itemDisplay)) return itemDisplay;
 
-        List<(IInfinity infinity, long consumed)> exclusiveGroups = new();
-        ExclusiveDisplays?.Invoke(item, exclusiveGroups);
-
         itemDisplay = new();
-        if(exclusiveGroups.Count != 0) {
-            foreach ((IInfinity infinity, long consumed) in exclusiveGroups) {
-                (int type, bool displayed) = infinity.Group.GetDisplay(item, infinity);
-                if(displayed) itemDisplay.Add(infinity, type, consumed);
-            }
+        foreach (IGroup group in Groups) {
+            foreach ((IInfinity infinity, FullInfinity display, InfinityVisibility visibility) in group.GetDisplayedInfinities(Main.LocalPlayer, item)) itemDisplay.Add(infinity, display, visibility);
         }
-        else  {
-            foreach (IGroup group in Groups) {
-                foreach ((IInfinity infinity, int type, bool used) in group.GetDisplayedInfinities(item)) {
-                    long consumed = Main.LocalPlayer.IsFromVisibleInventory(item) ? 1 : 0;
-                    if (used) itemDisplay.Add(infinity, type, consumed);
-                }
-            }
-        }
+        
         return itemDisplay;
     }
 
@@ -88,17 +76,9 @@ public static class InfinityManager {
     public static IGroup? GetGroup(string mod, string name) => s_groups.Find(mg => mg.Mod.Name == mod && mg.Name == name);
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
 
-
-    public static void Unload() {
-        s_groups.Clear();
-        s_infinities.Clear();
-    }
-
     public static void UpdateInfinities() {
         foreach (IGroup group in s_groups) group.UpdateInfinities();
     }
-
-
 
     public static bool SaveDetectedCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum {
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
@@ -110,6 +90,11 @@ public static class InfinityManager {
         custom.Individual.Add(new(infinity), new Configs.Count<TCategory>(category));
         infinity.Group.Config.Customs[def] = custom;
         return true;
+    }
+
+    public static void Unload() {
+        s_groups.Clear();
+        s_infinities.Clear();
     }
 
     public static ReadOnlyCollection<IGroup> Groups => new(s_groups);
@@ -131,8 +116,6 @@ public static class InfinityManager {
         s_displays.ResetStats();
     }
     private static int s_cacheTime = 0;
-
-
 
     private static readonly List<IGroup> s_groups = new();
     private static readonly List<IInfinity> s_infinities = new();
