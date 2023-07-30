@@ -85,6 +85,7 @@ public static class InfinityManager {
         };
         custom.Individual.Add(new(infinity), new Configs.Count<TCategory>(category));
         infinity.Group.Config.Customs[def] = custom;
+        ClearInfinity(infinity.Group.ToItem(consumable));
         return true;
     }
 

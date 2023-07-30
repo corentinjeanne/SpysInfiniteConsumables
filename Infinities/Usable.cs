@@ -15,7 +15,7 @@ public enum UsableCategory {
     Weapon,
     Recovery,
     Buff,
-    PlayerBooster,
+    PlayerBooster, // TODO shimer boosters
     WorldBooster,
 
     Summoner,
@@ -27,18 +27,18 @@ public enum UsableCategory {
 }
 
 public sealed class UsableRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapons")]
-    public Count Weapons = 2 * 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Potions")]
-    public Count Potions = 30;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Boosters")]
-    public Count Boosters = 5;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoners")]
-    public Count Summoners = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Critters")]
-    public Count Critters = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Tools")]
-    public Count Tools = 99;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapon")]
+    public Count Weapon = 2 * 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Potion")]
+    public Count Potion = 30;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Booster")]
+    public Count Booster = 5;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoner")]
+    public Count Summoner = 3;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Critter")]
+    public Count Critter = 10;
+    [LabelKey($"${Localization.Keys.Infinities}.Usable.Tool")]
+    public Count Tool = 99;
 }
 
 
@@ -59,15 +59,15 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Config.Value.Weapons),
-            UsableCategory.Recovery => new(Config.Value.Potions),
-            UsableCategory.Buff => new(Config.Value.Potions),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Boosters),
+            UsableCategory.Weapon => new(Config.Value.Weapon),
+            UsableCategory.Recovery => new(Config.Value.Potion),
+            UsableCategory.Buff => new(Config.Value.Potion),
+            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Booster),
 
-            UsableCategory.Summoner => new(Config.Value.Summoners),
-            UsableCategory.Critter => new(Config.Value.Critters),
-            UsableCategory.Explosive => new(Config.Value.Tools),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tools),
+            UsableCategory.Summoner => new(Config.Value.Summoner),
+            UsableCategory.Critter => new(Config.Value.Critter),
+            UsableCategory.Explosive => new(Config.Value.Tool),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tool),
 
             _ => new(),
         };

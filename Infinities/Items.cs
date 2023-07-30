@@ -1,7 +1,8 @@
 using SPIC.Configs;
 using Terraria;
 using Terraria.Localization;
-using Terraria.ModLoader;
+
+// ? extra infinity for transformations
 
 namespace SPIC.Infinities;
 

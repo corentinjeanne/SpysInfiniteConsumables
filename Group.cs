@@ -87,7 +87,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         groupInfinity = new();
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             FullInfinity fullInfinity = GetFullInfinity(player, consumable, infinity);
-            bool used = infinity.Enabled && !fullInfinity.Requirement.IsNone && (Config.MaxUsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.MaxUsedInfinities);
+            bool used = infinity.Enabled && !fullInfinity.Requirement.IsNone && (Config.UsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.UsedInfinities);
             groupInfinity.Add(infinity, fullInfinity, used);
         }
         groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom!) : null);
@@ -111,16 +111,21 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             List<object> extras = new(display.Extras);
             Requirement requirement = display.Requirement;
             long count = display.Count;
-            InfinityVisibility visibility = IsUsed(displayed, infinity) || !consumable.Equals(displayed) ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
+            InfinityVisibility visibility;
 
             if(requirement.IsNone) visibility = InfinityVisibility.None;
             else {
+                bool weapon = !consumable.Equals(displayed);
+                visibility = IsUsed(displayed, infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
                 infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
                 if (forcedByCustom) {
                     if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
                     forcedByCustom = false;
                 }
-                if(visibility != InfinityVisibility.Exclusive && !Main.LocalPlayer.IsFromVisibleInventory(item)) count = 0;
+                if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
+                    count = 0;
+                    if(weapon) visibility = InfinityVisibility.Hidden;
+                }
             }
             if(!InfinityDisplay.Instance.general_ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
             yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
@@ -140,7 +145,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public virtual long MaxStack(TConsumable consumable) => 0;
 
     public abstract string CountToString(TConsumable consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false);
-    public virtual string CountToString(Item item, long owned, long infinity, InfinityDisplay.CountStyle style) {
+    public virtual string CountToString(Item item, long owned, long infinity, InfinityDisplay.CountStyle style) { // BUG Visual bug with Sprite display and Weapons
         TConsumable consumable = ToConsumable(item);
         return owned == 0 ? CountToString(consumable, infinity, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, infinity, style)}";
     }

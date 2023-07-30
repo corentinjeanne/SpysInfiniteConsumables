@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 
-// TODO dd2 mana consumption
+// ? remove dd2 mana consumption
 
 namespace SPIC.Infinities;
 public enum AmmoCategory {

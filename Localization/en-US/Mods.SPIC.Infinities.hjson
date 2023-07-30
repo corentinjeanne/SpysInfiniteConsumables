@@ -4,20 +4,21 @@ Currencies.DisplayName: Currencies
 Ammo: {
 	DisplayName: Ammunition
 	Standard: Standard Ammo
+	Explosive: Explosive
 	Special: Special Ammo
 }
 
 Shop: {
 	DisplayName: Currency
 	Coins: Coins
-	Custom: Custom currencies
+	SingleCoin: Single Coin
 }
 
 GrabBag: {
 	DisplayName: Grab bag
-	Containers: Containers and Bags
-	Convertibles: Convertibles
-	Boss: Treasure Bags
+	Container: Container or Bag
+	Extractinator: Extractinator
+	TreasureBag: Treasure Bag
 }
 
 JourneySacrifice: {
@@ -25,37 +26,52 @@ JourneySacrifice: {
 	Sacrifices: Include non consumable sacrifices
 	Consumable: Consumable
 	NotConsumable: Not Consumable
-	LineValue: Research cost
+	Tooltip: Research cost
 }
 
 Material: {
 	DisplayName: Material
-	Basics: Basic materials
-	Misc: Miscellaneous
-	Special: Non stackable
+	Basic: Basic
+	Ore: Ore
+	Furniture: Furniture
+	Miscellaneous: Miscellaneous
+	NonStackable: Non Stackable
 }
 
 Placeable: {
 	TileDuplication: Exact Infinity
 	DisplayName: Placeable
-	Tiles: Tiles
-	Torches: Torches
-	Ores: Valuable Tiles
-	Furnitures: Furnitures
-	Mechanical: Mechanical parts
-	Liquids: Liquids
-	Seeds: Seeds
-	Paints: Paints
+	Block: Block
+	Wall: Wall
 	Wiring: Wiring
+	Torch: Torch
+	Ore: Ore
+	LightSource: LightSource
+	Container: Container
+	Functional: Functional
+	CraftingStation: CraftingStation
+	Decoration: Decoration
+	MusicBox: MusicBox
+	Mechanical: Mechanical
+	Liquid: Liquid
+	Seed: Seed
+	Paint: Paint
+	Tile: Tile
+	Furniture: Furniture
 }
 
 Usable: {
 	DisplayName: Usable
-	Weapons: Thrown weapons
-	Potions: Potions
-	Boosters: Permanent Boosters
-	Summoners: Boss and Event summoners
-	Critters: Criters and Baits
-	Explosives: Explosives
-	Tools: Miscellaneous
+	Weapon: Thrown weapon
+	Recovery: Recovery
+	Buff: Buff
+	PlayerBooster: Player Booster
+	WorldBooster: World Booster
+	Summoner: Boss or Event summoner
+	Critter: Critter or Bait
+	Explosive: Explosive
+	Tool: Tool
+	Unknown: Unknown
+	Potion: Buffs or Potion
+	Booster: Permanent Boosters
 }

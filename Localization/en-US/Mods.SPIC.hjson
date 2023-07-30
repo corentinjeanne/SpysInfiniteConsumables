@@ -61,7 +61,7 @@ Chat: {
 }
 
 CommonItemTooltips: {
-	Items: {0} {^0:item:items}
+	Items: "{0} {^0:item;items}"
 	Mixed: Mixed
 	Custom: Custom
 	Infinite: Infinite {0}

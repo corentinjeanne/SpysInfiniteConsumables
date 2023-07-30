@@ -2,8 +2,6 @@ using Terraria.ModLoader;
 
 namespace SPIC;
 
-// ItemID.Sets.ShimmerTransformToItem; // ? shimmer + chloro extra Infinity (conversions) 
-
 public sealed class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;

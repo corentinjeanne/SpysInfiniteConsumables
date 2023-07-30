@@ -54,7 +54,7 @@ public sealed class ConsumptionItem : GlobalItem {
         return true;
     }
 
-    public override void OnResearched(Item item, bool fullyResearched) {
+    public override void OnResearched(Item item, bool fullyResearched) { // BUG not working, sacrifices already made
         int sacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type);
         int researchCost = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
         int consumed = System.Math.Min(Utils.Clamp(researchCost - sacrifices, 0, researchCost), item.stack);

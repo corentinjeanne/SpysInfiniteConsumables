@@ -111,28 +111,29 @@ public sealed class InfinityDisplayItem : GlobalItem {
         
         float maxAlpha = Main.mouseTextColor / 255f;
         float ratio;
-        if(config.general_ShowInfinities && display.Infinity > 0){
-            for (int i = 0; i < s_outerPixels.Length; i++) {
-                spriteBatch.Draw(
-                    TextureAssets.MagicPixel.Value,
-                    position+s_outerPixels[i]*scale,
-                    new Rectangle(0,0,1,1),
-                    Color.Black * maxAlpha,
-                    0f,
-                    Vector2.Zero,
-                    scale,
-                    SpriteEffects.None,
-                    0
-                );
-            }
-            ratio = 1f;
-        } else {
-            maxAlpha *= 0.9f;
-            if (config.general_ShowInfinities && config.general_ShowRequirement) {
+        if(config.general_ShowInfinities) {
+            if (display.Infinity > 0) {
+                for (int i = 0; i < s_outerPixels.Length; i++) {
+                    spriteBatch.Draw(
+                        TextureAssets.MagicPixel.Value,
+                        position + s_outerPixels[i] * scale,
+                        new Rectangle(0, 0, 1, 1),
+                        Color.Black * maxAlpha,
+                        0f,
+                        Vector2.Zero,
+                        scale,
+                        SpriteEffects.None,
+                        0
+                    );
+                }
+                ratio = 1f;
+            } else if(!config.general_ShowRequirement) return;
+            else {
+                maxAlpha *= 0.9f;
                 ratio = (float)display.Count / display.Requirement.Count;
-            } else ratio = 0;
-        }
-        
+            }
+        } else ratio = 0;
+
         Color color = infinity.Color * maxAlpha;
         for (int i = 0; i < s_innerPixels.Length; i++) {
             float alpha = ratio >= (i + 1f) / s_innerPixels.Length ? 1f : 0.5f;
@@ -167,12 +168,13 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     public static void IncrementCounters() {
         InfinityManager.CacheTimer();
+        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
-            s_groupTimer = (s_groupTimer + Configs.InfinityDisplay.Instance.dot_PageTime) % 3600;
+            s_groupTimer = (s_groupTimer + config.dot_PageTime) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
         }
         if(Main.GlobalTimeWrappedHourly >= s_infinityTimer){
-            s_infinityTimer = (s_infinityTimer + Configs.InfinityDisplay.Instance.glow_InfinityTime) % 3600;
+            s_infinityTimer = (int)(Main.GlobalTimeWrappedHourly/config.glow_InfinityTime + 1) * config.glow_InfinityTime % 3600;
             s_InfinityIndex = (s_InfinityIndex + 1) % InfinityManager.InfinitiesLCM;
         }
     }

@@ -19,15 +19,15 @@ public enum MaterialCategory {
 }
 
 public sealed class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Basics"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
-    public Count Basics = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ores"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
-    public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furnitures"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
-    public Count Furnitures = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Misc"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Basic"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    public Count Basic = 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    public Count Ore = 499;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    public Count Furniture = 20;
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Special"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
     public Count NonStackable = 2;
 }
 
@@ -51,9 +51,9 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Value.Basics, 0.5f),
-        MaterialCategory.Ore => new(Config.Value.Ores, 0.5f),
-        MaterialCategory.Furniture => new(Config.Value.Furnitures, 0.5f),
+        MaterialCategory.Basic => new(Config.Value.Basic, 0.5f),
+        MaterialCategory.Ore => new(Config.Value.Ore, 0.5f),
+        MaterialCategory.Furniture => new(Config.Value.Furniture, 0.5f),
         MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, 0.5f),
         MaterialCategory.NonStackable => new(Config.Value.NonStackable, 0.5f),
         _ => new(),

@@ -15,7 +15,7 @@ InfinitySettings: {
 			'''
 	}
 
-	PreventItemDupication: {
+	PreventItemDuplication: {
 		Label: "[i:3988] Prevent item duplication"
 		Tooltip:
 			'''
@@ -55,7 +55,7 @@ InfinityDisplay: {
 
 	general_ShowInfo: {
 		Label: "[i:393] Show Extra Info"
-		Tooltip: ""
+		Tooltip: Displays more precise info about the item, such as its category
 	}
 
 	general_ExclusiveDisplay: {
@@ -141,12 +141,12 @@ GroupConfig: {
 		Tooltip: ""
 	}
 
-	MaxUsedInfinities: {
-		Label: "[i:486] Maximum used Infinities"
+	UsedInfinities: {
+		Label: "[i:486] Used Infinities"
 		Tooltip:
 			'''
-			The maximum number of requirements taken into account directly.
-			Infinities that are not used take the minimum infinity as their infinity.
+			The maximum number of Infinities taken into account directly.
+			Infinities that are not used take the minimum used infinity as their value.
 			Set to 0 to use all Infinities.
 			'''
 	}
@@ -243,8 +243,8 @@ WelcomMessageFrequency: {
 
 CountStyle: {
 	Tooltip: ""
-	Sprite.Label: Sprite
-	Name.Label: Name
+	Sprite.Label: Sprite (12/30 [i:289])
+	Name.Label: Name (12/30 items)
 }
 
 Corner: {

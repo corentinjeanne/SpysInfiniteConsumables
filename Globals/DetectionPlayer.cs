@@ -106,7 +106,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (to reproduce)
+        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster);
         else return false;
         DetectingCategoryOf = null;
 
@@ -194,7 +194,7 @@ public sealed class DetectionPlayer : ModPlayer {
         item.stack++;
         InfinityManager.ClearInfinity(item);
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (settings.PreventItemDupication) return;
+        else if (settings.PreventItemDuplication) return;
 
         orig(self, type, selItem);
     }

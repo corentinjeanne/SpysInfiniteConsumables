@@ -6,6 +6,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using Terraria.Localization;
 
 namespace SPIC.Infinities;
 
@@ -89,11 +90,9 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             PlaceableCategory.Torch => new(Config.Value.Torches),
             PlaceableCategory.Ore => new(Config.Value.Ores),
 
-            PlaceableCategory.LightSource
-                    or PlaceableCategory.Functional or PlaceableCategory.Decoration
-                    or PlaceableCategory.Container or PlaceableCategory.CraftingStation
+            PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
+                    or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
                 => new(Config.Value.Furnitures),
-            PlaceableCategory.MusicBox => new(Config.Value.Furnitures),
             PlaceableCategory.Liquid => new(Config.Value.Liquids),
             PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
             PlaceableCategory.Seed => new(Config.Value.Seeds),
@@ -176,7 +175,10 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
         Item ammo = DisplayedValue(item);
-        if (ammo == item) return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+        if (ammo == item) {
+            if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
+            return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+        }
         (string name, TooltipLineID position) = GetWandType(item) switch {
             WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
             WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
@@ -210,7 +212,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
     }
 
     public void DuplicationInfinity(Player _, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
-        if(!InfinitySettings.Instance.PreventItemDupication || count <= requirement.Count) return;
+        if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
         if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
             extras.Add(this.GetLocalizationKey("TileDuplication"));
             infinity = 0;

@@ -27,7 +27,7 @@ public sealed class GroupConfig {
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
 
-    public int MaxUsedInfinities { get; set; }
+    public int UsedInfinities { get; set; } // ? Apply Infinity overrides when effective infinity is mixed
 
     [Header("Configs")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]

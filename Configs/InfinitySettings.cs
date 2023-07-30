@@ -13,7 +13,7 @@ public sealed class InfinitySettings : ModConfig {
     [DefaultValue(true)]
     public bool DetectMissingCategories;
     [DefaultValue(true)]
-    public bool PreventItemDupication { get; set; }
+    public bool PreventItemDuplication { get; set; }
 
     [Header("Configs")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]

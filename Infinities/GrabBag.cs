@@ -6,33 +6,33 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
-using Terraria.Localization;
 using Terraria.GameContent.ItemDropRules;
 
 namespace SPIC.Infinities; 
 public enum GrabBagCategory {
     None,
     Container,
+    Extractinator,
     TreasureBag,
-    Convertible,
 }
 
 public sealed class GrabBagRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Containers")]
-    public Count Containers = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Convertibles")]
-    public Count Convertibles = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Boss")]
-    public Count TreasureBags = 3;
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Container")]
+    public Count Container = 10;
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Extractinator")]
+    public Count Extractinator = 499;
+    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.TreasureBag")]
+    public Count TreasureBag = 3;
 }
+
+// TODO display requirement for both golden lootbox and key
 
 public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color DefaultColor => Colors.RarityDarkPurple;
 
-
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.RightClickToOpen")), TooltipLineID.Tooltip); // TODO detected items opened on use
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip); // TODO detected items opened on use
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
@@ -40,9 +40,9 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
     }
 
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Value.Containers),
-        GrabBagCategory.TreasureBag => new(Config.Value.TreasureBags),
-        GrabBagCategory.Convertible => new(Config.Value.Convertibles),
+        GrabBagCategory.Container => new(Config.Value.Container),
+        GrabBagCategory.TreasureBag => new(Config.Value.TreasureBag),
+        GrabBagCategory.Extractinator => new(Config.Value.Extractinator),
         _ => new(),
     };
 
@@ -56,7 +56,7 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
             if(drops.Count == 1 && drops[0] is CommonDrop commonDrop && Main.ItemDropsDB.GetRulesForItemID(commonDrop.itemId).Count == 1) return GrabBagCategory.None;
             return GrabBagCategory.Container;
         }
-        if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Convertible;
+        if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Extractinator;
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
