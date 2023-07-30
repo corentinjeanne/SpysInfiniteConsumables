@@ -1,7 +1,5 @@
 namespace SPIC.Configs.Presets;
 
-// TODO add desciption
-
 public sealed class Defaults : Preset {
     public override int CriteriasCount => 2;
 

@@ -41,10 +41,9 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
     }
 
     public override Requirement GetRequirement(Item item, List<object> extras) {
-        if (!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(item.type)) return new();
         JourneyCategory category = GetCategory(item);
         extras.Add(category);
-        return category == JourneyCategory.Consumable || Config.Value.includeNonConsumable ? new(CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type]) : new();
+        return category == JourneyCategory.Consumable || Config.Value.includeNonConsumable ? new(item.ResearchUnlockCount) : new();
     }
 
     public Wrapper<JourneySacrificeSettings> Config = null!;

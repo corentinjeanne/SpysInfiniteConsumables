@@ -58,12 +58,13 @@ public sealed class DefinitionElement : ConfigElement<IDefinition> {
 
     public void CloseDropDownField(int index) {
         if (!Value.AllowNull && index < 0) return;
-        if (_index != index) MemberInfo.SetValue(Item, _values[index]);
-        _index = index;
-
-        RemoveChild(_dataList);
         _expanded = false;
-        ConfigManager.SetPendingChanges();
+        if (_index != index) {
+            MemberInfo.SetValue(Item, _values[index]);
+            _index = index;
+            ConfigManager.SetPendingChanges();
+        }
+        RemoveChild(_dataList);
         Recalculate();
     }
 

@@ -145,7 +145,7 @@ GroupConfig: {
 		Label: "[i:486] Used Infinities"
 		Tooltip:
 			'''
-			The maximum number of Infinities taken into account directly.
+			The maximum number of Infinities taken into account directly, uses the order above from top to bottom.
 			Infinities that are not used take the minimum used infinity as their value.
 			Set to 0 to use all Infinities.
 			'''
@@ -220,10 +220,25 @@ Wrapper: {
 }
 
 Presets: {
-	Defaults.DisplayName: Defaults
-	OneForMany.DisplayName: One For Many
-	AllEnabled.DisplayName: All Enabled
-	AllDisabled.DisplayName: All Disabled
+	Defaults: {
+		DisplayName: Defaults
+		Tooltip: ""
+	}
+
+	OneForMany: {
+		DisplayName: One For Many
+		Tooltip: ""
+	}
+
+	AllEnabled: {
+		DisplayName: All Enabled
+		Tooltip: ""
+	}
+
+	AllDisabled: {
+		DisplayName: All Disabled
+		Tooltip: ""
+	}
 }
 
 ModGroupDefinition.Tooltip: ""

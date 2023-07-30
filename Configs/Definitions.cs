@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Terraria.Localization;
+using Terraria.ModLoader;
 using System.Reflection;
 
 namespace SPIC.Configs;
@@ -64,6 +65,7 @@ public sealed class PresetDefinition : Definition<PresetDefinition> {
     public override bool AllowNull => true;
 
     public override string DisplayName => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
+    public override string? Tooltip => PresetLoader.GetPreset(Mod, Name)?.GetLocalization("Tooltip").Value;
 }
 
 public sealed class GroupDefinition : Definition<GroupDefinition> {

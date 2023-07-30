@@ -147,11 +147,11 @@ public sealed class DetectionPlayer : ModPlayer {
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShoudRefill(refill, owned, used, Usable.Instance))
-                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShoudRefill(refill, owned, used, Ammo.Instance)))
+        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))
+                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShouldRefill(refill, owned, used, Ammo.Instance)))
             Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
 
-        static bool ShoudRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShouldRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
 

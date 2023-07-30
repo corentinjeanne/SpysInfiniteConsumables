@@ -14,9 +14,9 @@ sealed internal class Cache<TItem, TKey, TValue> where TKey : notnull {
     }
 
     public bool TryGet(TKey key, [MaybeNullWhen(false)] out TValue value) {
-        Calls++;
+        // Calls++;
         bool res = _cache.TryGetValue(key, out value);
-        if(res) Hits++;
+        // if(res) Hits++;
         return res;
     }
     public bool TryGet(TItem item, [MaybeNullWhen(false)] out TValue value) => TryGet(Indexer(item), out value);
@@ -42,9 +42,9 @@ sealed internal class Cache<TItem, TKey, TValue> where TKey : notnull {
         Hits = 0;
     }
 
-    public int Calls { get; private set; }
-    public int Hits { get; private set; }
-    public int Entries => _cache.Count;
+    public long Calls { get; private set; }
+    public long Hits { get; private set; }
+    public long Entries => _cache.Count;
 
     private readonly Dictionary<TKey, TValue> _cache;
     private readonly HashSet<TKey> _building;

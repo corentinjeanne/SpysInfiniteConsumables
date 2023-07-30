@@ -51,7 +51,7 @@ public static class InfinityManager {
     public static void ClearInfinities() {
         foreach (IGroup group in s_groups) group.ClearInfinities();
         s_displays.Clear();
-        LogCacheStats();
+        // LogCacheStats();
     }
     public static void ClearInfinity(Item item) {
         foreach (IGroup group in s_groups) group.ClearInfinity(item);
