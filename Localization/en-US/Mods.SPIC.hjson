@@ -9,6 +9,7 @@ Changelog: {
 		- Major code rewrites to used more of tML's API
 		- Fixed lag caused by cutoms
 		'''
+
 	2: {
 		2: {
 			1:
@@ -16,6 +17,7 @@ Changelog: {
 				- New a startup message (you can change its visibility in the InfinityDisplay config)
 				- Added back Custom Requirements for any consumables
 				'''
+
 			0: {
 				1: - Fixed a multiplayer crash
 				$parentVal:
@@ -45,7 +47,7 @@ Changelog: {
 }
 
 Chat: {
-	Welcome: 
+	Welcome:
 		'''
 		          ***** Thank you for downloading SPIC v{0}! *****
 		If you found a bug, please repport it on the Steam workshop page or GitHub.
@@ -59,6 +61,7 @@ Chat: {
 }
 
 CommonItemTooltips: {
+	Items: {0} {^0:item:items}
 	Mixed: Mixed
 	Custom: Custom
 	Infinite: Infinite {0}

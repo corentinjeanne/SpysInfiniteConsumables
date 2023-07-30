@@ -58,6 +58,11 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
+	general_ExclusiveDisplay: {
+		Label: "[i:5075] Exclusive Displays"
+		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
+	}
+
 	general_welcomeMessage: {
 		Label: "[i:3617] Welcome message"
 		Tooltip: ""
@@ -110,7 +115,7 @@ InfinityDisplay: {
 
 	dot_PageTime: {
 		Label: "[i:583] Time per Group (seconds)"
-		Tooltip: Non visible dots will cycle every few seconds
+		Tooltip: ""
 	}
 
 	Colors: {
@@ -212,6 +217,13 @@ Wrapper: {
 	}
 
 	Tooltip: ""
+}
+
+Presets: {
+	Defaults.DisplayName: Defaults
+	OneForMany.DisplayName: One For Many
+	AllEnabled.DisplayName: All Enabled
+	AllDisabled.DisplayName: All Disabled
 }
 
 ModGroupDefinition.Tooltip: ""

@@ -122,6 +122,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
                 }
                 if(visibility != InfinityVisibility.Exclusive && !Main.LocalPlayer.IsFromVisibleInventory(item)) count = 0;
             }
+            if(!InfinityDisplay.Instance.general_ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
             yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
         }
     }

@@ -34,7 +34,7 @@ public sealed class SpysInfiniteConsumables : Mod {
                 string mod = parts[0];
                 string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.GetInfinity(mod, name)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityManager.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorect", cast);

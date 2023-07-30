@@ -192,6 +192,7 @@ public sealed class DetectionPlayer : ModPlayer {
         if (settings.DetectMissingCategories && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
 
         item.stack++;
+        InfinityManager.ClearInfinity(item);
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
         else if (settings.PreventItemDupication) return;
 

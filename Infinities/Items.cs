@@ -1,5 +1,7 @@
 using SPIC.Configs;
 using Terraria;
+using Terraria.Localization;
+using Terraria.ModLoader;
 
 namespace SPIC.Infinities;
 
@@ -15,7 +17,7 @@ public sealed class Items : Group<Items, Item> {
         if (rawValue) return count.ToString();
         return style switch {
             InfinityDisplay.CountStyle.Sprite => $"{count}[i:{consumable.type}]",
-            _ or InfinityDisplay.CountStyle.Name => $"{count} items",
+            _ or InfinityDisplay.CountStyle.Name => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count),
         };
     }
 

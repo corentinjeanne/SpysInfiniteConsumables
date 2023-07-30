@@ -1,5 +1,8 @@
+Items.DisplayName: Items
+Currencies.DisplayName: Currencies
+
 Ammo: {
-	Name: Ammunition
+	DisplayName: Ammunition
 	Standard: Standard Ammo
 	Special: Special Ammo
 }
@@ -11,14 +14,14 @@ Shop: {
 }
 
 GrabBag: {
-	Name: Grab bag
+	DisplayName: Grab bag
 	Containers: Containers and Bags
 	Convertibles: Convertibles
 	Boss: Treasure Bags
 }
 
 JourneySacrifice: {
-	Name: Journey Research
+	DisplayName: Journey Research
 	Sacrifices: Include non consumable sacrifices
 	Consumable: Consumable
 	NotConsumable: Not Consumable
@@ -26,7 +29,7 @@ JourneySacrifice: {
 }
 
 Material: {
-	Name: Material
+	DisplayName: Material
 	Basics: Basic materials
 	Misc: Miscellaneous
 	Special: Non stackable
@@ -34,7 +37,7 @@ Material: {
 
 Placeable: {
 	TileDuplication: Exact Infinity
-	Name: Placeable
+	DisplayName: Placeable
 	Tiles: Tiles
 	Torches: Torches
 	Ores: Valuable Tiles
@@ -47,7 +50,7 @@ Placeable: {
 }
 
 Usable: {
-	Name: Usable
+	DisplayName: Usable
 	Weapons: Thrown weapons
 	Potions: Potions
 	Boosters: Permanent Boosters
