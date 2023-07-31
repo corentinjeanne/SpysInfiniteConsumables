@@ -13,6 +13,7 @@
             "cwd": "C:/Program Files (x86)/Steam/steamapps/common/tModLoader/",
             "console": "internalConsole",
             "stopAtEntry": false,
+            "requireExactSource": false,
             "enableStepFiltering": false
         },
         {
