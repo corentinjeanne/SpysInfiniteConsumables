@@ -48,13 +48,6 @@ public sealed class ConsumptionItem : GlobalItem {
 
     public override bool? CanConsumeBait(Player player, Item bait) => !player.HasInfinite(bait, 1, Usable.Instance) ? null : false;
 
-    public override bool ReforgePrice(Item item, ref int reforgePrice, ref bool canApplyDiscount) {
-        if (!Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, reforgePrice, Shop.Instance)) return false;
-        reforgePrice = 0;
-        return true;
-    }
-
-
     public override bool CanResearch(Item item) {
         s_preResearchSacrifices = Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type);
         return base.CanResearch(item);

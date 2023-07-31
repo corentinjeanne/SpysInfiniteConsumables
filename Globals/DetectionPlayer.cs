@@ -23,6 +23,12 @@ public sealed class DetectionPlayer : ModPlayer {
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
         On_Player.Spawn += HookSpawn;
+        On_Player.PayCurrency += HookPayCurrency;
+    }
+
+    private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
+        if(self.HasInfinite(customCurrency, price, Shop.Instance)) return true;
+        return orig(self, price, customCurrency);
     }
 
     private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
@@ -36,13 +42,6 @@ public sealed class DetectionPlayer : ModPlayer {
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
         detectionPlayer.InItemCheck = false;
-    }
-
-    public override void ModifyNursePrice(NPC nurse, int health, bool removeDebuffs, ref int price) {
-        if(price > 0 && Player.HasInfinite(CurrencyHelper.Coins, price, Shop.Instance)) price = 1;
-    }
-    public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) {
-        if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
     }
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinity(item);
