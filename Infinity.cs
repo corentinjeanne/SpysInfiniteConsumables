@@ -36,7 +36,7 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     
     public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, Name, DisplayName.Value), null);
 
-    public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable;
+    public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable; // TODO rework into a secondary diplay allowing for both to be visible
 
     public TGroup Group { get; internal set; } = null!;
     public bool Enabled { get; private set; }

@@ -25,8 +25,7 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-// TODO display requirement for both golden lootbox and key
-
+// TODO lootbox and keys
 public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;

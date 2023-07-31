@@ -6,15 +6,13 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 
-// ? remove dd2 mana consumption
-
 namespace SPIC.Infinities;
 public enum AmmoCategory {
     None,
     Basic,
     Explosive, // ? Keep ?
     Cannon, // TODO impl
-    Special
+    Special // ? remove dd2 mana consumption
 }
 public sealed class AmmoRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Standard")]

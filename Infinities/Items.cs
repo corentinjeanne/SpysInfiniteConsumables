@@ -2,7 +2,7 @@ using SPIC.Configs;
 using Terraria;
 using Terraria.Localization;
 
-// ? extra infinity for transformations
+// ? Add transformations Infinity
 
 namespace SPIC.Infinities;
 
