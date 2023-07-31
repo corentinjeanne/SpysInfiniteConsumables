@@ -52,56 +52,8 @@ public sealed class GroupConfig {
         count = default;
         return false;
     }
-
-    internal GroupConfig() { }
-    internal GroupConfig(IGroup group) => SetGroup(group);
-    internal void SetGroup(IGroup group) {
-        OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();
-        foreach((string key, bool enabled) in Infinities.Items<string, bool>()) infinitiesBool[new InfinityDefinition(key)] = enabled;
-        Infinities = infinitiesBool;
-        
-        List<IInfinity> infinities = new(group.Infinities);
-        IEnumerable<IInfinity> InfinitiesByOrder() {
-            foreach((InfinityDefinition def, bool enabled) in Infinities.Items<InfinityDefinition, bool>()) {
-                int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
-                if(i == -1) continue;
-                yield return infinities[i];
-                infinities[i].Enabled = (bool)Infinities[def]!;
-                infinities.RemoveAt(i);
-            }
-            foreach (IInfinity infinity in infinities) {
-                InfinityDefinition def = new(infinity);
-                Infinities.TryAdd(def, infinity.DefaultsToOn);
-                infinity.Enabled = (bool)Infinities[def]!;
-                yield return infinity;
-            }
-        }
-        group.SetInfinities(InfinitiesByOrder());
-
-        foreach ((IInfinity infinity, Wrapper wrapper) in group.InfinityConfigs) {
-            InfinityDefinition def = new(infinity);
-            Configs[def] = Configs.TryGetValue(def, out var config) ? config.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
-            wrapper.Value = Configs[def].Value;
-        }
-
-        foreach (Custom custom in Customs.Values) custom.SetGroup(group);
-        group.Config = this;
-    }
-
 }
 
 public sealed class GroupColors {
-
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
-
-    internal GroupColors() { }
-    internal GroupColors(IGroup group) => SetGroup(group);
-    internal void SetGroup(IGroup group) {
-        foreach (IInfinity infinity in group.Infinities) {
-            InfinityDefinition def = new(infinity);
-            infinity.Color = Colors[def] = Colors.GetValueOrDefault(def, infinity.DefaultColor);
-        }
-        group.Colors = this;
-    }
-
 }

@@ -19,9 +19,8 @@ public sealed class InfinitySettings : ModConfig {
         set {
             foreach (IGroup group in InfinityManager.Groups) {
                 GroupDefinition def = new(group);
-                if (value.TryGetValue(def, out GroupConfig? config)) config.SetGroup(group);
-                else value[def] = config = new(group);
-                group.Config = config;
+                value[def] = value.GetValueOrDefault(def, new());
+                group.LoadConfig(value[def]);
             }
             _configs = value;
         }

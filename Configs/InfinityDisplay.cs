@@ -38,9 +38,8 @@ public sealed class InfinityDisplay : ModConfig {
         set {
             foreach (IGroup group in InfinityManager.Groups) {
                 GroupDefinition def = new(group);
-                if (value.TryGetValue(def, out GroupColors? colors)) colors.SetGroup(group);
-                else value[def] = colors = new(group);
-                group.Colors = colors;
+                value[def] = value.GetValueOrDefault(def, new());
+                group.LoadConfig(value[def]);
             }
             _colors = value;
         }
