@@ -17,13 +17,10 @@ public enum ShopCategory {
 }
 
 public sealed class ShopRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Shop.Coins"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/20")]
-    public Count Coins = 1000;
-    [LabelKey($"${Localization.Keys.Infinities}.Shop.SingleCoin"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/5")]
-    public Count SingleCoin = 20;
-
-    public const float CoinMult = 1 / 20f;
-    public const float SingleCoinMult = 1 / 5f;
+    [LabelKey($"${Localization.Keys.Infinities}.Shop.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Shop.Coins")]
+    public float Coins = 1/20f;
+    [LabelKey($"${Localization.Keys.Infinities}.Shop.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Shop.SingleCoin")]
+    public float SingleCoin = 1/5f;
 }
 
 public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
@@ -43,8 +40,8 @@ public sealed class Shop : InfinityStatic<Shop, Currencies, int, ShopCategory> {
     }
 
     public override Requirement GetRequirement(ShopCategory category) => category switch {
-        ShopCategory.Coins => new(Config.Value.Coins, ShopRequirements.CoinMult),
-        ShopCategory.SingleCoin => new(Config.Value.SingleCoin, ShopRequirements.SingleCoinMult),
+        ShopCategory.Coins => new(10000, Config.Value.Coins),
+        ShopCategory.SingleCoin => new(20, Config.Value.SingleCoin),
         _ => new()
     };
 

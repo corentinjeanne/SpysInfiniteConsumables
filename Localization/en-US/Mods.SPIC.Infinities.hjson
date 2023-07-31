@@ -10,6 +10,7 @@ Ammo: {
 
 Shop: {
 	DisplayName: Currency
+	Multiplier: "{0} infinity Multiplier"
 	Coins: Coins
 	SingleCoin: Single Coin
 }
