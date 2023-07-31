@@ -3,7 +3,7 @@ Changelog: {
 		'''
 		- Ported SPIC to 1.4.4
 		- Renamed 'Consumabled Groups' to 'Infinity' and grouped them into 'Groups' by their type of consumable (Items, Currencies...)
-		- Overhalled the configs (again). Each Group has its own subconfig similar to the previous version's config and Merged the Category Detection Config into Customs
+		- Overhalled the configs (you will have to reconfigure any custom settings you had). Each Group has its own subconfig similar to the previous version's config and Merged the Category Detection Config into Customs
 		- Added Areas where only certain Infinities are displayed
 		- Fixed lag caused by cutoms
 		'''
