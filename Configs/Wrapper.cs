@@ -57,7 +57,7 @@ public class Wrapper {
     public override string? ToString() => Value?.ToString();
 
     public static Wrapper From(System.Type type) => (Wrapper)System.Activator.CreateInstance(typeof(Wrapper<>).MakeGenericType(type))!;
-    public static Wrapper From(object value) => (Wrapper)System.Activator.CreateInstance(typeof(Wrapper<>).MakeGenericType(value!.GetType()), value)!;
+    public static Wrapper From(object value) => (Wrapper)System.Activator.CreateInstance(typeof(Wrapper<>).MakeGenericType(value.GetType()), value)!;
 }
 
 public class Wrapper<T> : Wrapper where T : new() {

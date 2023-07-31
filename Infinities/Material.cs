@@ -19,16 +19,19 @@ public enum MaterialCategory {
 }
 
 public sealed class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Basic"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Basic")]
     public Count Basic = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
     public Count Ore = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
     public Count Furniture = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous")]
     public Count Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable"), TooltipKey($"${Localization.Keys.UI}.InfinityMultiplier"), TooltipArgs("1/2")]
+    [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
     public Count NonStackable = 2;
+    [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
+    public float Multiplier = 0.5f;
+
 }
 
 public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
@@ -51,11 +54,11 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Value.Basic, 0.5f),
-        MaterialCategory.Ore => new(Config.Value.Ore, 0.5f),
-        MaterialCategory.Furniture => new(Config.Value.Furniture, 0.5f),
-        MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, 0.5f),
-        MaterialCategory.NonStackable => new(Config.Value.NonStackable, 0.5f),
+        MaterialCategory.Basic => new(Config.Value.Basic, Config.Value.Multiplier),
+        MaterialCategory.Ore => new(Config.Value.Ore, Config.Value.Multiplier),
+        MaterialCategory.Furniture => new(Config.Value.Furniture, Config.Value.Multiplier),
+        MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, Config.Value.Multiplier),
+        MaterialCategory.NonStackable => new(Config.Value.NonStackable, Config.Value.Multiplier),
         _ => new(),
     };
 
@@ -83,7 +86,7 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         return MaterialCategory.Miscellaneous;
     }
 
-    public Wrapper<MaterialRequirements> Config = null!;
+    public static Wrapper<MaterialRequirements> Config = null!;
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 

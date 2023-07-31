@@ -21,7 +21,7 @@ public sealed class ConsumptionItem : GlobalItem {
                 if(item.type == ItemID.DD2EnergyCrystal) return !player.HasInfinite(item, 1, Ammo.Instance);
 
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Block, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Tile, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
                 );
             }

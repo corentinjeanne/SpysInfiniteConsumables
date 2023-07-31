@@ -1,6 +1,5 @@
 using Terraria;
 using Terraria.ID;
-using Terraria.GameContent.Creative;
 using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
@@ -46,7 +45,7 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
         return category == JourneyCategory.Consumable || Config.Value.includeNonConsumable ? new(item.ResearchUnlockCount) : new();
     }
 
-    public Wrapper<JourneySacrificeSettings> Config = null!;
+    public static Wrapper<JourneySacrificeSettings> Config = null!;
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("Tooltip")), TooltipLineID.JourneyResearch);
     

@@ -90,7 +90,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             bool used = infinity.Enabled && !fullInfinity.Requirement.IsNone && (Config.UsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.UsedInfinities);
             groupInfinity.Add(infinity, fullInfinity, used);
         }
-        groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom!) : null);
+        groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom) : null);
         return groupInfinity;
     }
 
@@ -180,8 +180,8 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         foreach (Custom custom in config.Customs.Values) {
             foreach (InfinityDefinition def in custom.Individual.Keys) {
                 def.Filter = this;
-                if (def.IsUnloaded || !InfinityManager.GetInfinity(def.Mod, def.Name)!.GetType().IsSubclassOfGeneric(typeof(Infinity<,,>), out System.Type? infinity3)) custom.Individual[def] = new Count(custom.Individual[def].Value);
-                else custom.Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3.GenericTypeArguments[2]), custom.Individual[def].Value)!;
+                if ((InfinityManager.GetInfinity(def.Mod, def.Name)?.GetType().IsSubclassOfGeneric(typeof(Infinity<,,>), out System.Type? infinity3)) != true) custom.Individual[def] = new Count(custom.Individual[def].Value);
+                else custom.Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3!.GenericTypeArguments[2]), custom.Individual[def].Value)!;
             }
         }
         Config = config;

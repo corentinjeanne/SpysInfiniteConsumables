@@ -9,14 +9,14 @@ using System.Collections.Generic;
 namespace SPIC.Infinities;
 public enum AmmoCategory {
     None,
-    Basic,
-    Explosive, // ? Keep ?
-    Cannon, // TODO impl
-    Special // ? remove dd2 mana consumption
+    Classic,
+    // Explosive,
+    // Cannon,
+    Special
 }
 public sealed class AmmoRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Ammo.Standard")]
-    public Count Standard = 4 * 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Ammo.Classic")]
+    public Count Classic = 4 * 999;
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Special")]
     public Count Special = 999;
 }
@@ -38,20 +38,20 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Basic => new(Config.Value.Standard),
-        AmmoCategory.Special or AmmoCategory.Explosive => new(Config.Value.Special),
+        AmmoCategory.Classic => new(Config.Value.Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Value.Special),
         _ => new(),
     };
 
     public override AmmoCategory GetCategory(Item ammo) {
-        if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
+        if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special; // TODO test // ? Keep
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
-            return AmmoCategory.Basic;
+            return AmmoCategory.Classic;
         return AmmoCategory.Special;
     }
 
-    public Wrapper<AmmoRequirements> Config = null!;
+    public static Wrapper<AmmoRequirements> Config = null!;
 
     public override Item DisplayedValue(Item consumable) => consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) ?? consumable : consumable;
 

@@ -13,14 +13,16 @@ public enum UsableCategory {
     None,
 
     Weapon,
-    Recovery,
-    Buff,
-    PlayerBooster, // TODO shimer boosters
-    WorldBooster,
+    Potion,
+    // Recovery,
+    // Buff,
+    Booster, // TODO shimer boosters
+    // PlayerBooster,
+    // WorldBooster,
 
     Summoner,
     Critter,
-    Explosive,
+    // Explosive,
     Tool, // TODO Fargo's summons
 
     Unknown
@@ -60,15 +62,15 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
             UsableCategory.Weapon => new(Config.Value.Weapon),
-            UsableCategory.Recovery => new(Config.Value.Potion),
-            UsableCategory.Buff => new(Config.Value.Potion),
-            UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Booster),
-
+            UsableCategory.Potion => new(Config.Value.Potion),
+            // UsableCategory.Recovery => new(Config.Value.Potion),
+            // UsableCategory.Buff => new(Config.Value.Potion),
+            UsableCategory.Booster => new(Config.Value.Booster),
+            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Booster),
             UsableCategory.Summoner => new(Config.Value.Summoner),
             UsableCategory.Critter => new(Config.Value.Critter),
-            UsableCategory.Explosive => new(Config.Value.Tool),
+            // UsableCategory.Explosive => new(Config.Value.Tool),
             UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tool),
-
             _ => new(),
         };
     }
@@ -81,8 +83,8 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         case ItemID.FallenStar: return UsableCategory.None; // usable
         case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority error
         case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None
-        case ItemID.RedPotion: return UsableCategory.Buff;
-        case ItemID.TreeGlobe or ItemID.WorldGlobe: return UsableCategory.WorldBooster;
+        case ItemID.RedPotion: return UsableCategory.Potion; // TODO check
+        case ItemID.TreeGlobe or ItemID.WorldGlobe: return UsableCategory.Booster;
         }
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
@@ -99,13 +101,13 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
         if (item.damage > 0) return UsableCategory.Weapon;
 
-        if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Buff;
-        if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Recovery;
+        if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Potion;
+        if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Potion;
 
-        if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
+        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Tool;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
-        if (item.hairDye != -1) return UsableCategory.PlayerBooster;
+        if (item.hairDye != -1) return UsableCategory.Booster;
 
         // Most modded summoners, booster
         if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;
@@ -113,7 +115,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool;
     }
 
-    public Wrapper<UsableRequirements> Config = null!;
+    public static Wrapper<UsableRequirements> Config = null!;
 
     public override Item DisplayedValue(Item consumable) => consumable.fishingPole <= 0 ? consumable : Main.LocalPlayer.PickBait() ?? consumable;
 

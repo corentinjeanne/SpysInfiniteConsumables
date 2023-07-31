@@ -60,9 +60,9 @@ public abstract class MultyChoice {
         }
     }
 
-    public bool TryGet<T>(string name, [NotNullWhen(true)] out T? value){
+    public bool TryGet<T>(string name, [MaybeNullWhen(false)] out T? value){
         if(Choice == name) {
-            value = (T)Data!;
+            value = (T?)Data;
             return true;
         }
         value = default;

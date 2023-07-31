@@ -22,13 +22,13 @@ namespace SPIC.Globals {
             int type = detectionPlayer.FindPotentialExplosivesType(proj.type);
 
             AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Instance);
-            UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
-            if(ammo != AmmoCategory.None && ammo != AmmoCategory.Explosive){
-                if(InfinityManager.SaveDetectedCategory(new(type), AmmoCategory.Explosive, Ammo.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
+            // UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
+            if(ammo != AmmoCategory.None && ammo != AmmoCategory.Special){
+                if(InfinityManager.SaveDetectedCategory(new(type), AmmoCategory.Special, Ammo.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
             }
-            else if(usable != UsableCategory.None && usable != UsableCategory.Explosive){
-                if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Explosive, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
-            }
+            // else if(usable != UsableCategory.None && usable != UsableCategory.Tool){
+            //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
+            // }
         }
 
 		private void HookExplodeCrackedTiles(On_Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ){

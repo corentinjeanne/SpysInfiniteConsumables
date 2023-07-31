@@ -27,8 +27,12 @@ public sealed class DetectionPlayer : ModPlayer {
     }
 
     private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
-        if(self.HasInfinite(customCurrency, price, Shop.Instance)) return true;
-        return orig(self, price, customCurrency);
+        bool enabled;
+        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Value.Nurse;
+        else if (Main.InReforgeMenu) enabled = Currency.Config.Value.Reforging;
+        else if (Main.npcShop != 0) enabled = Currency.Config.Value.Shop;
+        else enabled = Currency.Config.Value.Others;
+        return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
     }
 
     private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
@@ -106,7 +110,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster);
+        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.Booster);
         else return false;
         DetectingCategoryOf = null;
 
@@ -119,10 +123,10 @@ public sealed class DetectionPlayer : ModPlayer {
         else if (data.NPCStats.Boss != _preUseData.NPCStats.Boss || data.Invasion != _preUseData.Invasion) category = UsableCategory.Summoner;
         else if (data.NPCStats.Total != _preUseData.NPCStats.Total) category = UsableCategory.Critter;
 
-        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart) category = UsableCategory.PlayerBooster;
-        else if (data.Difficulty != _preUseData.Difficulty) category = UsableCategory.WorldBooster;
+        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart) category = UsableCategory.Booster;
+        else if (data.Difficulty != _preUseData.Difficulty) category = UsableCategory.Booster;
 
-        else if (_teleport || data.Position != _preUseData.Position) category = UsableCategory.Recovery;
+        else if (_teleport || data.Position != _preUseData.Position) category = UsableCategory.Tool;
 
         else category = UsableCategory.Unknown;
         return category != UsableCategory.Unknown;
@@ -147,8 +151,8 @@ public sealed class DetectionPlayer : ModPlayer {
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))
-                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShouldRefill(refill, owned, used, Ammo.Instance)))
+        if (ShouldRefill(refill, owned, used, Ammo.Instance))
+                /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
             Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
 
         static bool ShouldRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;

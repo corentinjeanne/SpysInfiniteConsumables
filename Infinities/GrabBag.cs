@@ -59,5 +59,5 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
-    public Wrapper<GrabBagRequirements> Config = null!;
+    public static Wrapper<GrabBagRequirements> Config = null!;
 }

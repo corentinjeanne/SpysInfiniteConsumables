@@ -3,16 +3,20 @@ Currencies.DisplayName: Currencies
 
 Ammo: {
 	DisplayName: Ammunition
-	Standard: Standard Ammo
-	Explosive: Explosive
+	Classic: Classic Ammo
+	// Explosive: Explosive
 	Special: Special Ammo
 }
 
-Shop: {
+Currency: {
 	DisplayName: Currency
-	Multiplier: "{0} infinity Multiplier"
+	Multiplier.Label: "{0} infinity Multiplier"
 	Coins: Coins
 	SingleCoin: Single Coin
+	Shop: NPC Shop
+	Nurse: Nurse Healing
+	Reforging: Item Reforging
+	Others: Others
 }
 
 GrabBag: {
@@ -32,6 +36,12 @@ JourneySacrifice: {
 
 Material: {
 	DisplayName: Material
+
+	Multiplier: {
+		Label: Infinity Multiplier
+		Tooltip: Applies to all material requirements
+	}
+
 	Basic: Basic
 	Ore: Ore
 	Furniture: Furniture
@@ -42,37 +52,37 @@ Material: {
 Placeable: {
 	TileDuplication: Exact Infinity
 	DisplayName: Placeable
-	Block: Block
-	Wall: Wall
-	Wiring: Wiring
+	Tile: Tile
+	// Block: Block
+	// Wall: Wall
 	Torch: Torch
 	Ore: Ore
-	LightSource: LightSource
-	Container: Container
-	Functional: Functional
-	CraftingStation: CraftingStation
-	Decoration: Decoration
-	MusicBox: MusicBox
+	Furniture: Furniture
+	// LightSource: LightSource
+	// Container: Container
+	// Functional: Functional
+	// CraftingStation: CraftingStation
+	// Decoration: Decoration
+	// MusicBox: MusicBox
+	Wiring: Wiring
 	Mechanical: Mechanical
 	Liquid: Liquid
 	Seed: Seed
-	Paint: Paint
-	Tile: Tile
-	Furniture: Furniture
+	Paint: Paint or Coating
 }
 
 Usable: {
 	DisplayName: Usable
 	Weapon: Thrown weapon
-	Recovery: Recovery
-	Buff: Buff
-	PlayerBooster: Player Booster
-	WorldBooster: World Booster
+	Potion: Buff or Potion
+	// Recovery: Recovery
+	// Buff: Buff
+	Booster: Permanent Booster
+	// PlayerBooster: Player Booster
+	// WorldBooster: World Booster
 	Summoner: Boss or Event summoner
 	Critter: Critter or Bait
-	Explosive: Explosive
+	// Explosive: Explosive
 	Tool: Tool
 	Unknown: Unknown
-	Potion: Buffs or Potion
-	Booster: Permanent Boosters
 }

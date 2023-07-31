@@ -5,14 +5,14 @@ public sealed class Defaults : Preset {
 
     public override bool MeetsCriterias(GroupConfig config) {
         foreach ((InfinityDefinition def, bool enable) in config.Infinities.Items<InfinityDefinition, bool>()) {
-            if (enable != InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn) return false;
+            if (!enable == InfinityManager.GetInfinity(def.Mod, def.Name)?.DefaultsToOn) return false;
         }
         return config.UsedInfinities == 0;
     }
     public override void ApplyCriterias(GroupConfig config) {
         for(int i = 0; i < config.Infinities.Count; i++) {
             InfinityDefinition def = (InfinityDefinition)config.Infinities.Keys.Index(i);
-            config.Infinities[i] = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn;
+            if(!def.IsUnloaded) config.Infinities[i] = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn;
         }
         config.UsedInfinities = 0;
     }

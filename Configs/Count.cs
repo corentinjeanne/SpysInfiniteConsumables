@@ -30,7 +30,7 @@ public class Count<TCategory> : Count where TCategory : struct, System.Enum {
     public Count(TCategory category) : base(-System.Convert.ToInt32(category)) { }
 
     [Choice]
-    public TCategory Category { get; set; } = default!;
+    public TCategory Category { get; set; } = default;
 
     public override int Value {
         get => Choice == nameof(Category) ? -System.Convert.ToInt32(Category) : base.Value;
