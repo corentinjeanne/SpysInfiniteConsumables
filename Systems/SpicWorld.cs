@@ -121,9 +121,6 @@ namespace SPIC.Systems {
             // }
         }
         public override void OnWorldUnload(){
-            Configs.InfinitySettings.Instance.SaveConfig();
-            Configs.InfinityDisplay.Instance.SaveConfig();
-
             // _chunks.Clear();
         }
     }

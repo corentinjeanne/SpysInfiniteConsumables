@@ -50,14 +50,15 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void OnEnterWorld(){
         ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
-        if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^1];
-        bool newChanges = Mod.Version > new System.Version(version);
+        byte changes = 0;
+        if(version.Length == 0) changes = 1;
+        else if (Mod.Version > new System.Version(version)) changes = 2;
 
         if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
-                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && newChanges)) {
+                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome", Mod.Version.ToString()), Colors.RarityCyan);
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Message"), Colors.RarityCyan);
-            if (newChanges) {
+            if (changes == 2) {
                 Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Changelog", version), Colors.RarityCyan);
                 for (int i = System.Array.IndexOf(SpysInfiniteConsumables.Versions, version)+1; i < SpysInfiniteConsumables.Versions.Length; i++)
                     Main.NewText(Language.GetTextValue($"{Localization.Keys.Changelog}.{SpysInfiniteConsumables.Versions[i]}"), Colors.RarityCyan);
