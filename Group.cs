@@ -14,7 +14,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
     void ClearInfinity(Item item);
 
-    string CountToString(Item item, long owned, long infinity, InfinityDisplay.CountStyle style);
+    string CountToString(Item item, IInfinity infinity, long owned, long value, InfinityDisplay.CountStyle style);
 
     IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
@@ -145,9 +145,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public virtual long MaxStack(TConsumable consumable) => 0;
 
     public abstract string CountToString(TConsumable consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false);
-    public virtual string CountToString(Item item, long owned, long infinity, InfinityDisplay.CountStyle style) { // BUG Visual bug with Sprite display and Weapons
-        TConsumable consumable = ToConsumable(item);
-        return owned == 0 ? CountToString(consumable, infinity, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, infinity, style)}";
+    public virtual string CountToString(Item item, IInfinity infinity, long owned, long value, InfinityDisplay.CountStyle style) {
+        TConsumable consumable = ((Infinity<TGroup, TConsumable>)infinity).DisplayedValue(ToConsumable(item));
+        return owned == 0 ? CountToString(consumable, value, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, value, style)}";
     }
 
     void IGroup.SetInfinities(IEnumerable<IInfinity> infinities) {

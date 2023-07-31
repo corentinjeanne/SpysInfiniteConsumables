@@ -4,7 +4,7 @@ using Terraria;
 
 namespace SPIC.Infinities;
 
-// ? Add quest fish group
+// ? Add quest fish Infinity
 
 public sealed class Currencies : Group<Currencies, int> {
     public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);

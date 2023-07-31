@@ -95,11 +95,11 @@ public sealed class InfinityDisplayItem : GlobalItem {
             line.OverrideColor = infinity.Color;
             line.Text = display.Requirement.Multiplier >= 1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(item, 0, display.Infinity, config.tooltip_RequirementStyle));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(item, infinity, 0, display.Infinity, config.tooltip_RequirementStyle));
             AddExtra();
         }
         else if (config.general_ShowRequirement) {
-            line.Text += extra.Length == 0 ? $" ({group.CountToString(item, count, display.Requirement.Count, config.tooltip_RequirementStyle)})" : $" ({group.CountToString(item, count, display.Requirement.Count, config.tooltip_RequirementStyle)}, {extra})";
+            line.Text += extra.Length == 0 ? $" ({group.CountToString(item, infinity, count, display.Requirement.Count, config.tooltip_RequirementStyle)})" : $" ({group.CountToString(item, infinity, count, display.Requirement.Count, config.tooltip_RequirementStyle)}, {extra})";
         }
         else AddExtra();
 
