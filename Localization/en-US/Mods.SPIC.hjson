@@ -3,7 +3,7 @@ Changelog: {
 		'''
 		- Ported SPIC to 1.4.4
 		- Renamed 'Consumabled Groups' to 'Infinity' and grouped them into 'Groups' by their type of consumable (Items, Currencies...)
-		- Overhalled the configs (you will have to reconfigure any custom settings you had). Each Group has its own subconfig similar to the previous version's config and Merged the Category Detection Config into Customs
+		- Overhalled the configs (you will have to reconfigure them). Each Group has its own subconfig similar to the previous version's config and Merged the Category Detection into Customs
 		- Added Areas where only certain Infinities are displayed
 		- Fixed lag caused by cutoms
 		'''
@@ -53,7 +53,7 @@ Chat: {
 	Message:
 		'''
 		As the 1.4.4 port turned out to be much bigger than I thought, I didn't have time to fix all of the performances issues I'm avare of.
-		The lag caused by customs fixed it self, but it can become laggy when your inventory changes constantly (e.g. when picking uphundreds by rick click).
+		The lag caused by customs fixed it self, but it can become laggy when your inventory changes constantly (e.g. when picking up hundreds of items with right click).
 		'''
 	Changelog: "             --- New features and changes since v{0} ---"
 }

@@ -24,14 +24,12 @@ public sealed class GroupConfig {
             PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
         }
     }
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
 
     public int UsedInfinities { get; set; } // ? Apply Infinity overrides when effective infinity is mixed
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
 
     [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
@@ -94,8 +92,7 @@ public sealed class GroupConfig {
 
 public sealed class GroupColors {
 
-    [CustomModConfigItem(typeof(CustomDictionaryElement)), ColorNoAlpha, ColorHSLSlider]
-    public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 
     internal GroupColors() { }
     internal GroupColors(IGroup group) => SetGroup(group);

@@ -51,8 +51,8 @@ public sealed class DetectionPlayer : ModPlayer {
         ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
         byte changes = 0;
-        if(version.Length == 0) changes = 1;
-        else if (Mod.Version > new System.Version(version)) changes = 2;
+        if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^2];
+        if (Mod.Version > new System.Version(version)) changes = 2;
 
         if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
                 || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {

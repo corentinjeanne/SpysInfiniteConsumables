@@ -10,14 +10,11 @@ namespace SPIC.Configs;
 public sealed class InfinitySettings : ModConfig {
 
     [Header("Features")]
-    [DefaultValue(true)]
-    public bool DetectMissingCategories;
-    [DefaultValue(true)]
-    public bool PreventItemDuplication { get; set; }
+    [DefaultValue(true)] public bool DetectMissingCategories;
+    [DefaultValue(true)] public bool PreventItemDuplication { get; set; }
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<GroupDefinition, GroupConfig> Configs {
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupConfig> Configs {
         get => _configs;
         set {
             foreach (IGroup group in InfinityManager.Groups) {
