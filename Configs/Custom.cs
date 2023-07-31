@@ -1,0 +1,30 @@
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+namespace SPIC.Configs;
+
+
+
+public sealed class Custom : MultyChoice {
+
+    [Choice]
+    public Count Global { get; set; } = new();
+
+    [Choice]
+    public Dictionary<InfinityDefinition, Count> Individual { get; set; } = new(); // Count | Count<TCategory>
+
+    public bool TryGetIndividial(IInfinity infinity, [MaybeNullWhen(false)] out Count choice) {
+        if (Choice == nameof(Individual)) return Individual.TryGetValue(new(infinity), out choice);
+        choice = default;
+        return false;
+    }
+    public bool TryGetGlobal([MaybeNullWhen(false)] out Count count) => TryGet(nameof(Global), out count);
+
+    internal void SetGroup(IGroup group) {
+        foreach (InfinityDefinition def in Individual.Keys) {
+            def.Filter = group;
+            if (def.IsUnloaded || !InfinityManager.GetInfinity(def.Mod, def.Name)!.GetType().IsSubclassOfGeneric(typeof(Infinity<,,>), out System.Type? infinity3)) Individual[def] = new Count(Individual[def].Value);
+            else Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3.GenericTypeArguments[2]), Individual[def].Value)!;
+        }
+    }
+}

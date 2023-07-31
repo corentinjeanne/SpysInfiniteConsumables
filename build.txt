@@ -1,8 +1,8 @@
 displayName = Spy's Infinite Consumables
 author = Spiky
-version = 2.2.1
+version = 3.0
 homepage = https://github.com/Spiky-73/SpysInfiniteConsumables
 
-weakReferences = MagicStorage@0.5.6.5
+weakReferences = MagicStorage@0.5.7.10
 
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vscode\*, .vs\*, .git\*

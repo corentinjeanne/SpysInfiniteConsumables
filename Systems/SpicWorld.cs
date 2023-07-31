@@ -97,17 +97,17 @@ namespace SPIC.Systems {
 
     //     }
 
-    //     public override void LoadWorldData(TagCompound tag) {
-    //         if(!tag.ContainsKey(TAG_CREATED)) return;
-    //         _chunks.Clear();
-    //         _chunkSize = tag.GetInt(TAG_SIZE);
-    //         List<ChunkID> createdChunks = (tag[TAG_CREATED] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
-    //         foreach (ChunkID id in createdChunks) 
-    //             _chunks.Add(id, new Chunk(_chunkSize, tag.GetByteArray(id.Tag())));
-    //     }
+        public override void LoadWorldData(TagCompound tag) {
+            // if(!tag.ContainsKey(TAG_CREATED)) return;
+            // _chunks.Clear();
+            // _chunkSize = tag.GetInt(TAG_SIZE);
+            // List<ChunkID> createdChunks = (tag[TAG_CREATED] as List<int[]>).ConvertAll(ia => new ChunkID(ia[0], ia[1]));
+            // foreach (ChunkID id in createdChunks) 
+            //     _chunks.Add(id, new Chunk(_chunkSize, tag.GetByteArray(id.Tag())));
+        }
 
         public override void SaveWorldData(TagCompound tag) {
-            Configs.CategoryDetection.Instance.SaveConfig();
+            Configs.InfinitySettings.Instance.SaveConfig();
 
             // if (_chunks.Count != 0) {
             //     tag.Add(TAG_SIZE, _chunkSize);
@@ -121,10 +121,6 @@ namespace SPIC.Systems {
             // }
         }
         public override void OnWorldUnload(){
-            Configs.GroupSettings.Instance.SaveConfig();
-            Configs.CategoryDetection.Instance.SaveConfig();
-            Configs.InfinityDisplay.Instance.SaveConfig();
-
             // _chunks.Clear();
         }
     }

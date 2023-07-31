@@ -1,0 +1,78 @@
+Items.DisplayName: Items
+Currencies.DisplayName: Currencies
+
+Ammo: {
+	DisplayName: Ammunition
+	Standard: Standard Ammo
+	Explosive: Explosive
+	Special: Special Ammo
+}
+
+Shop: {
+	DisplayName: Currency
+	Multiplier: "{0} infinity Multiplier"
+	Coins: Coins
+	SingleCoin: Single Coin
+}
+
+GrabBag: {
+	DisplayName: Grab bag
+	Container: Container or Bag
+	Extractinator: Extractinator
+	TreasureBag: Treasure Bag
+}
+
+JourneySacrifice: {
+	DisplayName: Journey Research
+	Sacrifices: Include non consumable sacrifices
+	Consumable: Consumable
+	NotConsumable: Not Consumable
+	Tooltip: Research
+}
+
+Material: {
+	DisplayName: Material
+	Basic: Basic
+	Ore: Ore
+	Furniture: Furniture
+	Miscellaneous: Miscellaneous
+	NonStackable: Non Stackable
+}
+
+Placeable: {
+	TileDuplication: Exact Infinity
+	DisplayName: Placeable
+	Block: Block
+	Wall: Wall
+	Wiring: Wiring
+	Torch: Torch
+	Ore: Ore
+	LightSource: LightSource
+	Container: Container
+	Functional: Functional
+	CraftingStation: CraftingStation
+	Decoration: Decoration
+	MusicBox: MusicBox
+	Mechanical: Mechanical
+	Liquid: Liquid
+	Seed: Seed
+	Paint: Paint
+	Tile: Tile
+	Furniture: Furniture
+}
+
+Usable: {
+	DisplayName: Usable
+	Weapon: Thrown weapon
+	Recovery: Recovery
+	Buff: Buff
+	PlayerBooster: Player Booster
+	WorldBooster: World Booster
+	Summoner: Boss or Event summoner
+	Critter: Critter or Bait
+	Explosive: Explosive
+	Tool: Tool
+	Unknown: Unknown
+	Potion: Buffs or Potion
+	Booster: Permanent Boosters
+}

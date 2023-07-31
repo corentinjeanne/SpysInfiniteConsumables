@@ -2,60 +2,63 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using SPIC.VanillaGroups;
+using SPIC.Infinities;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
+using Terraria.UI;
 
 namespace SPIC.Globals;
 
+// TODO review detection
 
-public class DetectionPlayer : ModPlayer {
+public sealed class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
     public static bool InRightClick { get; private set; }
 
 
     public override void Load() {
-        On.Terraria.Player.ItemCheck_Inner += HookItemCheck_Inner;
-        On.Terraria.UI.ItemSlot.RightClick_FindSpecialActions += HookRightClick_Inner;
-        On.Terraria.Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
-        On.Terraria.Player.Teleport += HookTeleport;
-        On.Terraria.Player.Spawn += HookSpawn;
+        On_Player.ItemCheck_Inner += HookItemCheck_Inner;
+        On_ItemSlot.RightClick_ItemArray_int_int += HookRightClick;
+        On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
+        On_Player.Teleport += HookTeleport;
+        On_Player.Spawn += HookSpawn;
+        On_Player.PayCurrency += HookPayCurrency;
     }
 
-    private static void HookItemCheck_Inner(On.Terraria.Player.orig_ItemCheck_Inner orig, Player self, int i) {
+    private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
+        if(self.HasInfinite(customCurrency, price, Shop.Instance)) return true;
+        return orig(self, price, customCurrency);
+    }
+
+    private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
         DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
         detectionPlayer.InItemCheck = true;
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.CategoryDetection.Instance.DetectMissing && self.HeldItem.GetCategory(Usable.Instance) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem, true);
-        orig(self, i);
+        orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
         detectionPlayer.InItemCheck = false;
     }
 
-    public override void ModifyNursePrice(NPC nurse, int health, bool removeDebuffs, ref int price) {
-        if(price > 0 && Player.HasInfinite(CurrencyHelper.Coins, price, Currency.Instance)) price = 1;
-    }
-    public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) {
-        if(price == 1) Player.GetItem(Player.whoAmI, new(ItemID.CopperCoin), new(NoText: true));
-    }
-
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache(item);
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinity(item);
 
 
-    public override void OnEnterWorld(Player player){
+    public override void OnEnterWorld(){
+        ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
-        if(version == "") version = Mod.Version.ToString() == "2.2.1" ? SpysInfiniteConsumables.Versions[^2] : SpysInfiniteConsumables.Versions[^1];
-        bool newChanges = Mod.Version > new System.Version(version);
+        byte changes = 0;
+        if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^2];
+        if (Mod.Version > new System.Version(version)) changes = 2;
 
         if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
-                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && newChanges)) {
+                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome", Mod.Version.ToString()), Colors.RarityCyan);
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Message"), Colors.RarityCyan);
-            if (newChanges) {
+            if (changes == 2) {
                 Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Changelog", version), Colors.RarityCyan);
                 for (int i = System.Array.IndexOf(SpysInfiniteConsumables.Versions, version)+1; i < SpysInfiniteConsumables.Versions.Length; i++)
                     Main.NewText(Language.GetTextValue($"{Localization.Keys.Changelog}.{SpysInfiniteConsumables.Versions[i]}"), Colors.RarityCyan);
@@ -90,20 +93,20 @@ public class DetectionPlayer : ModPlayer {
         if (DetectingCategoryOf is null) return false;
 
         void SaveUsable(UsableCategory category) {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
-            if(!_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
+            InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
+            if(!_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
         
         void SaveBag(GrabBagCategory category) {
-            Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-            if (_detectingConsumable) Configs.CategoryDetection.Instance.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
+            InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
+            if (_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
         }
 
         DetectionDataScreenShot data = GetDetectionData();
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
         else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
-        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster); // BUG consumed when detected (reproduce)
+        else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.PlayerBooster);
         else return false;
         DetectingCategoryOf = null;
 
@@ -126,10 +129,9 @@ public class DetectionPlayer : ModPlayer {
     }
 
     private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
-        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Crate : GrabBagCategory.Unknown;
-        return category != GrabBagCategory.Unknown;
+        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Container : GrabBagCategory.None;
+        return category != GrabBagCategory.None;
     }
-
 
     public int FindPotentialExplosivesType(int proj) {
         foreach (Dictionary<int, int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values) {
@@ -139,37 +141,45 @@ public class DetectionPlayer : ModPlayer {
         return ItemID.None;
     }
 
-    public void RefilExplosive(int projType, Item refill) {
-        int owned = Player.CountItems(refill.type);
+    public void RefilExplosive(int projType, int refill) {
+        int owned = Player.CountItems(refill);
         int used = 0;
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
 
-        if ((refill.GetCategory(Usable.Instance) == UsableCategory.Explosive && !refill.GetInfinity(owned + used, Usable.Instance).Value.IsNone)
-                || (refill.GetCategory(Ammo.Instance) == AmmoCategory.Explosive && !refill.GetInfinity(owned + used, Ammo.Instance).Value.IsNone))
-            Player.GetItem(Player.whoAmI, new(refill.type, used), new(NoText: true));
+        if ((InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))
+                || (InfinityManager.GetCategory(refill, Ammo.Instance) == AmmoCategory.Explosive && ShouldRefill(refill, owned, used, Ammo.Instance)))
+            Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
+
+        static bool ShouldRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
 
     public void Teleported() => _teleport = true;
 
 
-    private bool HookRightClick_Inner(On.Terraria.UI.ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
-        DetectingCategoryOf = null;
-        if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
+    private void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot){
         InRightClick = true;
-        DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-        if (Configs.CategoryDetection.Instance.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
-            modPlayer.PrepareDetection(inv[slot], false);
-
-        bool res = orig(inv, context, slot, player);
-        if (modPlayer.DetectingCategoryOf is not null)
-            modPlayer.TryDetectCategory();
+        orig(inv, context, slot);
         InRightClick = false;
-        return res;
     }
 
-    private static void HookPutItemInInventory(On.Terraria.Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
+    // private bool HookRightClick_Inner(Terraria.UI.On_ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
+    //     DetectingCategoryOf = null;
+    //     if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
+    //     InRightClick = true;
+    //     DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
+    //     if (InfinityManager.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
+    //         modPlayer.PrepareDetection(inv[slot], false);
+
+    //     bool res = orig(inv, context, slot, player);
+    //     if (modPlayer.DetectingCategoryOf is not null)
+    //         modPlayer.TryDetectCategory();
+    //     InRightClick = false;
+    //     return res;
+    // }
+
+    private static void HookPutItemInInventory(On_Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
         if (selItem < 0){
             orig(self, type, selItem);
             return;
@@ -177,23 +187,21 @@ public class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Configs.CategoryDetection detection = Configs.CategoryDetection.Instance;
-        Configs.GroupSettings settings = Configs.GroupSettings.Instance;
-
-        if (detection.DetectMissing && item.GetCategory(Placeable.Instance) == PlaceableCategory.None) detection.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
-
+        Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
+        if (settings.DetectMissingCategories && InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
+        
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (settings.PreventItemDupication) return;
+        else if (settings.PreventItemDuplication) return;
 
         orig(self, type, selItem);
     }
 
-    private static void HookSpawn(On.Terraria.Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
+    private static void HookSpawn(On_Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
         orig(self, context);
         self.GetModPlayer<DetectionPlayer>().Teleported();
     }
-    private static void HookTeleport(On.Terraria.Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
+    private static void HookTeleport(On_Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
         orig(self, newPos, Style, extraInfo);
         self.GetModPlayer<DetectionPlayer>().Teleported();
     }

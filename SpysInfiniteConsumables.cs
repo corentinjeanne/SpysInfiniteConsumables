@@ -1,50 +1,24 @@
-using SPIC.Configs;
 using Terraria.ModLoader;
-
 
 namespace SPIC;
 
-public class SpysInfiniteConsumables : Mod {
+public sealed class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
     public override void Load() {
         Instance = this;
-
-        InfinityManager.Reset();
-        PresetManager.Reset();
-
-        VanillaGroups.Placeable.ClearWandAmmos();
-        InfinityManager.ClearCache();
-
-        VanillaGroups.Ammo.Register();
-        VanillaGroups.Usable.Register();
-        VanillaGroups.Placeable.Register();
-        VanillaGroups.GrabBag.Register();
-        VanillaGroups.Material.Register();
-        VanillaGroups.JourneySacrifice.Register();
-
-        VanillaGroups.Currency.RegisterAsGlobal();
-        VanillaGroups.Mixed.RegisterAsGlobal();
-        
-        Configs.Presets.Defaults.Register();
-        Configs.Presets.AllDisabled.Register();
-        Configs.Presets.AllEnabled.Register();
-        Configs.Presets.OneForAll.Register();
-        Configs.Presets.JourneyCosts.Register();
     }
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
-        CategoryDetection.Instance.LoadConfig();
-        InfinityDisplay.Instance.LoadConfig();
     }
 
     public override void Unload() {
-        VanillaGroups.Placeable.ClearWandAmmos();
         CurrencyHelper.ClearCurrencies();
-        InfinityManager.Reset();
-        PresetManager.Reset();
+        
+        InfinityManager.Unload();
+        Configs.Presets.PresetLoader.Unload();
         Instance = null!;
     }
 
@@ -54,9 +28,11 @@ public class SpysInfiniteConsumables : Mod {
                 int playerID = (int)args[1];
                 dynamic consumable = args[2];
                 int consumed = (int)args[3];
-                string fullName = (string)args[4];
+                string[] parts = ((string)args[4]).Split('/', 2);
+                string mod = parts[0];
+                string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, InfinityManager.ConsumableGroup(fullName)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityManager.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorect", cast);
@@ -66,8 +42,6 @@ public class SpysInfiniteConsumables : Mod {
         return base.Call();
     }
 
-    public readonly static string[] Versions = new string[] { "2.0.0", "2.1.0", "2.2.0", "2.2.0.1", "2.2.1" };
-
-    private static readonly System.WeakReference<SpysInfiniteConsumables> s_instance = new(null!);
+    public readonly static string[] Versions = new[] { "2.0.0", "2.1.0", "2.2.0", "2.2.0.1", "2.2.1", "3.0" };
 }
 

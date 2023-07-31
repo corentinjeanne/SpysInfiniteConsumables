@@ -110,7 +110,7 @@ public static class CurrencyHelper {
 
 
     public static string PriceText(int currency, long count) {
-        if (count == 0 || currency == None) return "";
+        if (count == 0 || currency == None) return string.Empty;
 
         List<KeyValuePair<int, long>> coins = CurrencyCountToItems(currency, count);
         List<string> parts = new();
@@ -135,9 +135,7 @@ public static class CurrencyHelper {
         FieldInfo valuesField = typeof(CustomCurrencySystem).GetField("_valuePerUnit", BindingFlags.NonPublic | BindingFlags.Instance)!;
         Dictionary<int, CustomCurrencySystem> currencies = (Dictionary<int, CustomCurrencySystem>)curField.GetValue(null)!;
         _currencies = new();
-        foreach (var (key, system) in currencies) {
-            _currencies[key] = new(system, (Dictionary<int, int>)valuesField.GetValue(system)!);
-        }
+        foreach (var (key, system) in currencies) _currencies[key] = new(system, (Dictionary<int, int>)valuesField.GetValue(system)!);
     }
     internal static void ClearCurrencies() => _currencies = null;
 

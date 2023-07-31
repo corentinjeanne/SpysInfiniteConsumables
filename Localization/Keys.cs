@@ -11,9 +11,9 @@ public static class Keys {
     public const string Buffs = $"{Root}.{nameof(Buffs)}";
     public const string RecipesGroups = $"{Root}.{nameof(RecipesGroups)}";
     public const string InfoDisplays = $"{Root}.{nameof(InfoDisplays)}";
-    public const string Groups = $"{Root}.{nameof(Groups)}";
+    public const string Infinities = $"{Root}.{nameof(Infinities)}";
 
-    public const string GroupSettings = $"{Configs}.{nameof(SPIC.Configs.GroupSettings)}";
+    public const string InfinitySettings = $"{Configs}.{nameof(SPIC.Configs.InfinitySettings)}";
+    public const string GroupConfig = $"{Configs}.{nameof(SPIC.Configs.GroupConfig)}";
     public const string InfinityDisplay = $"{Configs}.{nameof(SPIC.Configs.InfinityDisplay)}";
-    public const string CategoryDetection = $"{Configs}.{nameof(SPIC.Configs.CategoryDetection)}";
 }

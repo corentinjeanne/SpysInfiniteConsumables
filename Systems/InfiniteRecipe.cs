@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using SPIC.VanillaGroups;
+using SPIC.Infinities;
 
 namespace SPIC.Systems;
 
-//TODO remove recipes crafting a fully infinite item
+// TODO remove recipes crafting a fully infinite item
 public class InfiniteRecipe : ModSystem {
 
     public static readonly HashSet<int> CraftingStations = new();
@@ -14,7 +14,7 @@ public class InfiniteRecipe : ModSystem {
 
 
     public override void Load() {
-        On.Terraria.Recipe.FindRecipes += HookRecipe_FindRecipes;
+        On_Recipe.FindRecipes += HookRecipe_FindRecipes;
     }
 
 
@@ -36,29 +36,24 @@ public class InfiniteRecipe : ModSystem {
 
     public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
         if(CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0,5,7,9)) <= 0 && CrossMod.MagicStorageIntegration.InMagicStorage) return;
-        if (Main.LocalPlayer.HasInfinite(new(type), amount, Material.Instance)) {
+        if (Main.LocalPlayer.HasInfinite(type, amount, Material.Instance)) {
             amount = 0;
             return;
         }
-        foreach (int g in recipe.acceptedGroups) {
-            if (RecipeGroup.recipeGroups[g].ContainsItem(type)) {
-                foreach (int groupItemType in RecipeGroup.recipeGroups[g].ValidItems) {
-                    if (Main.LocalPlayer.HasInfinite(new(groupItemType), amount, Material.Instance)) {
-                        amount = 0;
-                        return;
-                    }
-                }
-            }
-        }
+        int group = recipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == type);
+        if(group == -1) return;
+        long total = 0;
+        foreach (int groupItemType in RecipeGroup.recipeGroups[group].ValidItems) total += Main.LocalPlayer.GetInfinity(groupItemType, Material.Instance);
+        if (total >= amount) amount = 0;
     }
 
 
-    private static void HookRecipe_FindRecipes(On.Terraria.Recipe.orig_FindRecipes orig, bool canDelayCheck) {
+    private static void HookRecipe_FindRecipes(On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {
         if (canDelayCheck) {
             orig(canDelayCheck);
             return;
         }
-        InfinityManager.ClearCache();
+        InfinityManager.ClearInfinities();
         orig(canDelayCheck);
     }
     
