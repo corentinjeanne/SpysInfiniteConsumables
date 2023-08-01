@@ -41,6 +41,7 @@ InfinityDisplay: {
 		Glow: Item Glow
 		Dots: Colored Dots
 		Colors: Infinity colors
+		Performances: Performances
 	}
 
 	general_ShowInfinities: {
@@ -122,6 +123,16 @@ InfinityDisplay: {
 		Label: Colors
 		Tooltip: ""
 	}
+
+	CacheLevel: {
+		Label: Cache Level
+		Tooltip: ""
+	}
+
+	DisableCache: {
+		Label: Disable Cache
+		Tooltip: ""
+	}
 }
 
 GroupConfig: {
@@ -179,7 +190,6 @@ UI: {
 	Change: Change to {0}
 	Up: Move Up
 	Down: Move Down
-	Unloaded: Unloaded
 }
 
 Custom: {
@@ -274,4 +284,13 @@ Direction: {
 	Tooltip: ""
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
+}
+
+CacheLevel: {
+	Tooltip: ""
+	Disabled.Label: Disabled
+	Minimal.Label: Minimal
+	All.Label: All
+	None.Label: None
+	Everything.Label: Everything
 }

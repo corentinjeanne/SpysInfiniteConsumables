@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using SPIC.Configs;
 using Terraria;
 using Terraria.ModLoader;
@@ -69,4 +68,6 @@ public class FullInfinity {
         }
         return string.Join(", ", parts);
     }
+
+    internal static int EstimatedSize => sizeof(long) * 3 + sizeof(float) + System.IntPtr.Size * 3;
 }

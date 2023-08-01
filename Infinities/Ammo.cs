@@ -44,7 +44,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     };
 
     public override AmmoCategory GetCategory(Item ammo) {
-        if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special; // TODO test // ? Keep
+        if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
             return AmmoCategory.Classic;

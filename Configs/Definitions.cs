@@ -43,7 +43,7 @@ public abstract class Definition<TDefinition> : EntityDefinition, IDefinition wh
     public Definition(string key) : base(key) { }
     public Definition(string mod, string name) : base(mod, name) {}
 
-    [JsonIgnore] public virtual string DisplayName => $"{Name} [{Mod}]{(IsUnloaded ? $" ({Language.GetTextValue($"{Localization.Keys.UI}.Unloaded")})" : string.Empty)}";
+    [JsonIgnore] public virtual string DisplayName => $"{Name} [{Mod}]{(IsUnloaded ? $" ({Language.GetTextValue("Mods.ModLoader.Unloaded")})" : string.Empty)}";
     [JsonIgnore] public virtual string? Tooltip => null;
 
     [JsonIgnore] public virtual bool AllowNull => false;

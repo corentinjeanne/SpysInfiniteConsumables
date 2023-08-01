@@ -58,8 +58,8 @@ public sealed class DetectionPlayer : ModPlayer {
         if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^2];
         if (Mod.Version > new System.Version(version)) changes = 2;
 
-        if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.Always
-                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.InfinityDisplay.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {
+        if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.WelcomMessageFrequency.Always
+                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome", Mod.Version.ToString()), Colors.RarityCyan);
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Message"), Colors.RarityCyan);
             if (changes == 2) {

@@ -46,11 +46,15 @@ public sealed class InfinityDisplay : ModConfig {
     }
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
-    public enum CountStyle { Sprite, Name }
-    public enum Direction {Vertical, Horizontal}
-    public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
-    public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
+    [Header("Performances")]
+    public bool DisableCache { get; set; }
+    
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance = null!;
 }
+
+public enum CountStyle { Sprite, Name }
+public enum Direction {Vertical, Horizontal}
+public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
+public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}

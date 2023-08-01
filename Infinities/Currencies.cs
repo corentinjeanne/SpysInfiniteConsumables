@@ -9,10 +9,10 @@ namespace SPIC.Infinities;
 public sealed class Currencies : Group<Currencies, int> {
     public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);
 
-    public override string CountToString(int consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false) {
+    public override string CountToString(int consumable, long count, CountStyle style, bool rawValue = false) {
         if(rawValue && InfinityManager.GetCategory(consumable, Currency.Instance) == CurrencyCategory.SingleCoin) return count.ToString();
         switch (style) {
-        case InfinityDisplay.CountStyle.Sprite:
+        case CountStyle.Sprite:
             List<KeyValuePair<int, long>> items = CurrencyHelper.CurrencyCountToItems(consumable, count);
             List<string> parts = new();
             foreach ((int t, long c) in items) parts.Add($"{c}[i:{t}]");

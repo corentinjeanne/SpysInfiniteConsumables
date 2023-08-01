@@ -1,37 +1,33 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 
 namespace SPIC;
 
-// TODO option to reduce cache to minimum
-
 public sealed class GroupInfinity {
-    
-    public GroupInfinity() {
-        _infinities = new();
-        UsedInfinities = new();
-        Mixed = FullInfinity.None;
-    }
 
-    public void Add(IInfinity infinity, FullInfinity fullInfinity, bool used) {
-        _infinities[infinity] = fullInfinity;
-        if(used) UsedInfinities.Add(infinity);
-    }
-    public void AddMixed(Requirement? custom = null) {
-        long count = 0;
-        long reqCount = 0; float reqMult = 0f;
-        foreach(IInfinity infinity in UsedInfinities){
-            FullInfinity fullInfinity = _infinities[infinity];
-            if(count == 0 || fullInfinity.Count < count) count = fullInfinity.Count;
-            if(reqCount == 0 || fullInfinity.Requirement.Count > reqCount) reqCount = fullInfinity.Requirement.Count;
-            if(reqMult == 0 || fullInfinity.Requirement.Multiplier < reqMult) reqMult = fullInfinity.Requirement.Multiplier;
+    internal GroupInfinity() {}
 
+    internal void Add(IInfinity infinity, FullInfinity fullInfinity, bool used) {
+        if (used) _infinities[infinity] = fullInfinity;
+        else if(!fullInfinity.Requirement.IsNone) _unused.Add(infinity);
+    }
+    internal void AddMixed(Requirement? custom = null) {
+        long count = long.MaxValue;
+        long reqCount = 0; float reqMult = 1;
+        foreach(FullInfinity fullInfinity in _infinities.Values){
+            count = Math.Min(count, fullInfinity.Count);
+            reqCount = Math.Max(reqCount, fullInfinity.Requirement.Count);
+            reqMult = Math.Min(reqMult, fullInfinity.Requirement.Multiplier);
         }
         string extra;
         Requirement requirement;
         if(custom.HasValue){
             extra = "Custom";
             requirement = custom.Value;
-            UsedInfinities.Clear();
+            foreach (IInfinity infinity in _infinities.Keys) _unused.Add(infinity);
+            _infinities.Clear();
         } else {
             extra = "Mixed";
             requirement = new(reqCount, reqMult);
@@ -39,56 +35,48 @@ public sealed class GroupInfinity {
         Mixed = FullInfinity.With(requirement, count, requirement.Infinity(count), $"{Localization.Keys.CommonItemTooltips}.{extra}");
     }
 
-    public FullInfinity this[IInfinity infinity] => _infinities[infinity];
-    public FullInfinity Mixed { get; private set; }
-    public FullInfinity EffectiveInfinity(IInfinity group) {
-        if (!group.Enabled) return FullInfinity.None;
-        FullInfinity fullInfinity = this[group];
-        return fullInfinity.Requirement.IsNone || UsedInfinities.Contains(group) ? fullInfinity : Mixed;
+    public FullInfinity EffectiveInfinity(IInfinity infinity) {
+        if(_infinities.TryGetValue(infinity, out FullInfinity? effective)) return effective;
+        if(_unused.Contains(infinity)) return Mixed;
+        return FullInfinity.None;
     }
 
-    public HashSet<IInfinity> UsedInfinities { get; private set; }
+    public ReadOnlyDictionary<IInfinity, FullInfinity> UsedInfinities => new(_infinities);
+    public IReadOnlySet<IInfinity> UnusedInfinities => _unused;
+    public FullInfinity Mixed { get; private set; } = FullInfinity.None;
 
-    private readonly Dictionary<IInfinity, FullInfinity> _infinities;
-
+    internal readonly Dictionary<IInfinity, FullInfinity> _infinities = new();
+    private readonly HashSet<IInfinity> _unused = new();
 }
 
 public sealed class ItemDisplay {
 
-    public ItemDisplay() {
-        DisplayedInfinities = new();
-        InfinitiesByGroup = new();
-        _infinities = new();
-    }
+    internal ItemDisplay() {}
 
-    public FullInfinity this[IInfinity infinity] => _infinities[infinity];
-
-    public void Add(IInfinity infinity, FullInfinity display, InfinityVisibility visibility) {
-        void Add(IInfinity infinity){
-            DisplayedInfinities.Add(infinity);
-            if (InfinitiesByGroup.Count == 0 || InfinitiesByGroup[^1][0].Group != infinity.Group) InfinitiesByGroup.Add(new());
-            InfinitiesByGroup[^1].Add(infinity);
-        }
-        
-        _infinities[infinity] = display;
+    internal void Add(IInfinity infinity, FullInfinity display, InfinityVisibility visibility) {
         switch (visibility) {
         case InfinityVisibility.Normal:
-            if(!_exclusiveDisplay) Add(infinity);
+            if (ExclusiveDisplay) return;
             break;
         case InfinityVisibility.Exclusive:
-            if (!_exclusiveDisplay) {
-                DisplayedInfinities.Clear();
-                InfinitiesByGroup.Clear();
+            if (!ExclusiveDisplay) {
+                _infinities.Clear();
+                ExclusiveDisplay = true;
             }
-            Add(infinity);
-            _exclusiveDisplay = true;
             break;
         }
+        if(_infinities.Count == 0 || _infinities[^1].infinity.Group != infinity.Group) _groups.Add(_infinities.Count);
+        _infinities.Add((infinity, display));
     }
 
-    private bool _exclusiveDisplay;
+    public ReadOnlySpan<(IInfinity infinity, FullInfinity display)> DisplayedInfinities => CollectionsMarshal.AsSpan(_infinities);
+    public ReadOnlySpan<(IInfinity infinity, FullInfinity display)> InfinitiesByGroups(int index)
+        => index >= Groups-1 ? CollectionsMarshal.AsSpan(_infinities)[_groups[index]..] : CollectionsMarshal.AsSpan(_infinities)[_groups[index].._groups[index+1]];
 
-    private readonly Dictionary<IInfinity, FullInfinity> _infinities;
-    public List<IInfinity> DisplayedInfinities { get; private set; }
-    public List<List<IInfinity>> InfinitiesByGroup { get; private set; }
+    public int Groups => _groups.Count;
+
+    public bool ExclusiveDisplay { get; private set; }
+
+    private readonly List<(IInfinity infinity, FullInfinity display)> _infinities = new();
+    private readonly List<int> _groups = new();
 }

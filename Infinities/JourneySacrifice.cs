@@ -5,6 +5,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace SPIC.Infinities;
 
@@ -12,7 +13,7 @@ public enum JourneyCategory { NotConsumable, Consumable }
 
 public sealed class JourneySacrificeSettings {
     [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
-    public bool includeNonConsumable;
+    [DefaultValue(true)] public bool hideWhenResearched;
 }
 
 public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
@@ -31,19 +32,7 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
         Config = Group.AddConfig<JourneySacrificeSettings>(this);
     }
 
-
-    public JourneyCategory GetCategory(Item item) {
-        foreach (Infinity<Items, Item> infinity in Group.Infinities) {
-            if (infinity != this && !Group.GetRequirement(item, infinity).IsNone) return JourneyCategory.Consumable;
-        }
-        return JourneyCategory.NotConsumable;
-    }
-
-    public override Requirement GetRequirement(Item item, List<object> extras) {
-        JourneyCategory category = GetCategory(item);
-        extras.Add(category);
-        return category == JourneyCategory.Consumable || Config.Value.includeNonConsumable ? new(item.ResearchUnlockCount) : new();
-    }
+    public override Requirement GetRequirement(Item item, List<object> extras) => new(item.ResearchUnlockCount);
 
     public static Wrapper<JourneySacrificeSettings> Config = null!;
 
@@ -52,5 +41,6 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
     public static void JourneyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.LocalPlayer.difficulty != PlayerDifficultyID.Creative && Instance.Group.Config.UsedInfinities == 0) visibility = InfinityVisibility.Hidden;
         if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
+        else if(Config.Value.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
     }
 }

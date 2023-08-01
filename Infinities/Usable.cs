@@ -77,18 +77,17 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
     public override UsableCategory GetCategory(Item item) {
 
+        if (!item.consumable || item.Placeable()) return UsableCategory.None;
+
         // Vanilla inconsitancies or special items
         switch (item.type) {
         case ItemID.Geode: return UsableCategory.None; // Grabbag
         case ItemID.FallenStar: return UsableCategory.None; // usable
-        case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority error
+        case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority
         case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None
-        case ItemID.RedPotion: return UsableCategory.Potion; // TODO check
+        case ItemID.RedPotion: return UsableCategory.Potion;
         case ItemID.TreeGlobe or ItemID.WorldGlobe: return UsableCategory.Booster;
         }
-
-        if (!item.consumable || item.Placeable()) return UsableCategory.None;
-
 
         if (item.bait == 0 && item.useStyle == ItemUseStyleID.None) return UsableCategory.None;
 
@@ -96,8 +95,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         if (0 < ItemID.Sets.SortingPriorityBossSpawns[item.type] && ItemID.Sets.SortingPriorityBossSpawns[item.type] <= 17 && item.type != ItemID.TreasureMap)
             return UsableCategory.Summoner;
 
-        if (item.bait != 0) return UsableCategory.Critter;
-        if (item.makeNPC != NPCID.None) return UsableCategory.Critter;
+        if (item.bait != 0 || item.makeNPC != NPCID.None) return UsableCategory.Critter;
 
         if (item.damage > 0) return UsableCategory.Weapon;
 
@@ -112,7 +110,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         // Most modded summoners, booster
         if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;
 
-        return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool;
+        return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool; // TODO readd Unknown: Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
     public static Wrapper<UsableRequirements> Config = null!;

@@ -14,17 +14,17 @@ namespace SPIC.Globals;
 public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
-        if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowInfo)) return;
+        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
+        if (!config.toopltip_ShowTooltip || !(config.general_ShowInfinities || config.general_ShowRequirement || config.general_ShowInfo)) return;
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        foreach (IInfinity infinity in itemDisplay.DisplayedInfinities) {
+        foreach ((IInfinity infinity, FullInfinity display) in itemDisplay.DisplayedInfinities) {
             (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item);
             bool added = false;
-            TooltipLine? line = display.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
-            
+            TooltipLine? line = config.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
-            DisplayOnLine(line, item, infinity, itemDisplay[infinity]);
+
+            DisplayOnLine(line, item, infinity, display);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
@@ -37,8 +37,8 @@ public sealed class InfinityDisplayItem : GlobalItem {
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
         List<IInfinity> withDisplay = new();
-        foreach(IInfinity g in itemDisplay.DisplayedInfinities) {
-            if (itemDisplay[g].Infinity > 0) withDisplay.Add(g);
+        foreach((IInfinity i, FullInfinity display) in itemDisplay.DisplayedInfinities) {
+            if (display.Infinity > 0) withDisplay.Add(i);
         }
 
         if (withDisplay.Count == 0) return true;
@@ -54,23 +54,22 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (Main.gameMenu || !config.dots_ShowDots || !(config.general_ShowInfinities || config.general_ShowRequirement)) return;
 
         Vector2 cornerDirection = config.dots_Start switch {
-            Configs.InfinityDisplay.Corner.TopLeft => new(-1, -1),
-            Configs.InfinityDisplay.Corner.TopRight => new(1, -1),
-            Configs.InfinityDisplay.Corner.BottomLeft => new(-1, 1),
-            Configs.InfinityDisplay.Corner.BottomRight => new(1, 1),
+            Configs.Corner.TopLeft => new(-1, -1),
+            Configs.Corner.TopRight => new(1, -1),
+            Configs.Corner.BottomLeft => new(-1, 1),
+            Configs.Corner.BottomRight => new(1, 1),
             _ => new(0, 0)
         };
 
         Vector2 slotCenter = position;
         Vector2 dotPosition = slotCenter + (TextureAssets.InventoryBack.Value.Size() / 2f * Main.inventoryScale - Borders) * cornerDirection - DotSize / 2f * Main.inventoryScale;
-        Vector2 dotDelta = DotSize * (config.dots_Direction == Configs.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
+        Vector2 dotDelta = DotSize * (config.dots_Direction == Configs.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
 
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        if(itemDisplay.DisplayedInfinities.Count == 0) return;
+        if(itemDisplay.DisplayedInfinities.Length == 0) return;
         
-        foreach (IInfinity infinity in itemDisplay.InfinitiesByGroup[s_groupIndex % itemDisplay.InfinitiesByGroup.Count]) {
-            FullInfinity display = itemDisplay[infinity];
+        foreach ((IInfinity infinity, FullInfinity display) in itemDisplay.InfinitiesByGroups(s_groupIndex % itemDisplay.Groups)) {
             if(display.Count == 0) continue;
             DisplayDot(spriteBatch, dotPosition, infinity, display);
             dotPosition += dotDelta;
@@ -167,7 +166,6 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
 
     public static void IncrementCounters() {
-        // InfinityManager.CacheTimer();
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
             s_groupTimer = (s_groupTimer + config.dot_PageTime) % 3600;

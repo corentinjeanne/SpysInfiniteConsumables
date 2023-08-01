@@ -28,9 +28,7 @@ GrabBag: {
 
 JourneySacrifice: {
 	DisplayName: Journey Research
-	Sacrifices: Include non consumable sacrifices
-	Consumable: Consumable
-	NotConsumable: Not Consumable
+	Sacrifices: Hide Infinity for Researched items
 	Tooltip: Research
 }
 

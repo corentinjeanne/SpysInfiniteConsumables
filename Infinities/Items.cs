@@ -14,11 +14,11 @@ public sealed class Items : Group<Items, Item> {
     public override Item ToItem(Item consumable) => consumable;
     public override int GetType(Item consumable) => consumable.type;
 
-    public override string CountToString(Item consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false) {
+    public override string CountToString(Item consumable, long count, CountStyle style, bool rawValue = false) {
         if (rawValue) return count.ToString();
         return style switch {
-            InfinityDisplay.CountStyle.Sprite => $"{count}[i:{consumable.type}]",
-            _ or InfinityDisplay.CountStyle.Name => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count),
+            CountStyle.Sprite => $"{count}[i:{consumable.type}]",
+            _ or CountStyle.Name => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count),
         };
     }
 
