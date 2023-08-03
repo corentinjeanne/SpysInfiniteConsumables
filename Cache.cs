@@ -24,7 +24,7 @@ sealed internal class Cache<TItem, TKey, TValue> where TKey : notnull {
     public bool TryGetOrCache(TItem item, [MaybeNullWhen(false)] out TValue value) {
         TKey key = Indexer(item);
         if (TryGet(key, out value)) return true;
-        if (Configs.InfinityDisplay.Instance.DisableCache || !_building.Add(key)) return false;
+        if (Configs.InfinityDisplay.Instance.Cache == Configs.CacheStyle.None || !_building.Add(key)) return false;
         value = _cache[key] = Builder(item);
         _building.Remove(key);
         if(ValueSizeEstimate is not null) EstimatedSize += ValueSizeEstimate(value);
@@ -58,5 +58,5 @@ sealed internal class Cache<TItem, TKey, TValue> where TKey : notnull {
     private readonly Dictionary<TKey, TValue> _cache;
     private readonly HashSet<TKey> _building;
 
-    public string Stats() => $"{Hits} hits ({(Calls == 0 ? 100 : Hits * 100f / Calls):F2}%), {Count} keys{(EstimatedSize.HasValue ? $" ({EstimatedSize}B)" : string.Empty)} in {Terraria.Main.GlobalTimeWrappedHourly - LastClearTime:F0}s";
+    public string Stats() => $"{Hits} hits ({(Calls * Hits == 0 ? 100 : Hits * 100f / Calls):F2}%), {Count} keys{(EstimatedSize.HasValue ? $" (~{EstimatedSize}B)" : string.Empty)} in {Terraria.Main.GlobalTimeWrappedHourly - LastClearTime:F0}s";
 }

@@ -166,6 +166,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
 
     public static void IncrementCounters() {
+        InfinityManager.DecreaseCacheLock();
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
             s_groupTimer = (s_groupTimer + config.dot_PageTime) % 3600;

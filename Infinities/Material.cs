@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace SPIC.Infinities;
 public enum MaterialCategory {
@@ -30,7 +31,7 @@ public sealed class MaterialRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
     public Count NonStackable = 2;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
-    public float Multiplier = 0.5f;
+    [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 
 }
 

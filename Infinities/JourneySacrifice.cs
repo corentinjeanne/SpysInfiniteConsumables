@@ -13,7 +13,7 @@ public enum JourneyCategory { NotConsumable, Consumable }
 
 public sealed class JourneySacrificeSettings {
     [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
-    [DefaultValue(true)] public bool hideWhenResearched;
+    [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
 public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {

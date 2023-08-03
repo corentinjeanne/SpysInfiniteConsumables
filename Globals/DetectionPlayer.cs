@@ -48,8 +48,7 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.InItemCheck = false;
     }
 
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinity(item);
-
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinities();
 
     public override void OnEnterWorld(){
         ExplosionProjectile.ClearExploded();

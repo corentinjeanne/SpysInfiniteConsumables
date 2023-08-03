@@ -129,9 +129,24 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	DisableCache: {
-		Label: Disable Cache
-		Tooltip: ""
+	Cache: {
+		Label: Cache
+		Tooltip:
+			'''
+			Performances: Optimal performances, "Large" cache (~10kB)
+			Memory: Ok performances, Small cache (~3kB)
+			None: Horrendous perfomances, No cache
+			'''
+	}
+
+	CacheRefreshDelay: {
+		Label: Cache Refresh Delay
+		Tooltip:
+			'''
+			Forces a minimum delay (in frames) between each cache refresh
+			Increase this value if the game lags when your inventory changes extremely quickly
+			May cause visual inconsitencies, especialy for large values (>15)
+			'''
 	}
 }
 
@@ -158,7 +173,6 @@ GroupConfig: {
 			'''
 			The maximum number of Infinities taken into account directly, uses the order above from top to bottom.
 			Infinities that are not used take the minimum used infinity as their value.
-			Set to 0 to use all Infinities.
 			'''
 	}
 
@@ -293,4 +307,25 @@ CacheLevel: {
 	All.Label: All
 	None.Label: None
 	Everything.Label: Everything
+}
+
+CacheStyle: {
+	Tooltip: ""
+	None.Label: None (Just don't)
+	Memory.Label: Memory
+	Performances.Label: Performances (Recommanded)
+}
+
+UsedInfinities: {
+	Tooltip: ""
+
+	All: {
+		Label: All
+		Tooltip: ""
+	}
+
+	Used: {
+		Label: Used
+		Tooltip: ""
+	}
 }

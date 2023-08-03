@@ -37,7 +37,7 @@ public interface IGroup : ILocalizedModType, ILoadable {
 public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
 
     public Group() {
-        _cachedInfinities = new(GetType, consumable => GetGroupInfinity(Main.LocalPlayer, consumable)) {
+        _cachedInfinities = new(GetType, consumable => ComputeGroupInfinity(Main.LocalPlayer, consumable)) {
             ValueSizeEstimate = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
         };
     }
@@ -73,9 +73,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         SetStaticDefaults();
     }
 
-    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) {
-        if (player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity)) return groupInfinity;
-        groupInfinity = new();
+    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
+    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : ComputeGroupInfinity(player, consumable);
+    private GroupInfinity ComputeGroupInfinity(Player player, TConsumable consumable) {
+        GroupInfinity groupInfinity = new();
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             FullInfinity fullInfinity = FullInfinity.WithInfinity(player, consumable, infinity);
             if(!infinity.Enabled || fullInfinity.Requirement.IsNone) continue;
@@ -85,7 +86,6 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom) : null);
         return groupInfinity;
     }
-    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
 
     public bool IsUsed(TConsumable consumable, IInfinity infinity) => GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities.ContainsKey(infinity);
     public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
@@ -97,20 +97,23 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
 
     public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
+        GroupInfinity Getter(TConsumable consumable) => InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable);
         TConsumable consumable = ToConsumable(item);
 
-        bool forcedByCustom = Config.HasCustomGlobal(consumable, this, out _);
+        GroupInfinity consumableInfinity = Getter(consumable);
+        bool forcedByCustom = consumableInfinity.UnusedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             TConsumable displayed = infinity.DisplayedValue(consumable);
-            FullInfinity effective = GetEffectiveInfinity(player, displayed, infinity);
+            bool weapon = !consumable.Equals(displayed);
+            GroupInfinity displayedInfinity = weapon ? Getter(displayed) : consumableInfinity;
+            FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
 
             if (effective.Requirement.IsNone) continue;
             List<object> extras = new(effective.Extras);
             Requirement requirement = effective.Requirement;
             long count = effective.Count;
-            bool weapon = !consumable.Equals(displayed);
-            InfinityVisibility visibility = IsUsed(displayed, infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
+            InfinityVisibility visibility = displayedInfinity.UsedInfinities.ContainsKey(infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
             infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
             if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
                 if (weapon) visibility = InfinityVisibility.Hidden;

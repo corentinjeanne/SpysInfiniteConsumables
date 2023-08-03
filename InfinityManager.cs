@@ -49,11 +49,20 @@ public static class InfinityManager {
 
     public static void ClearInfinities() {
         foreach (IGroup group in s_groups) group.ClearInfinities();
-        s_displays.Clear();
+        if (s_cacheRefresh != 0) s_delayed = true;
+        else {
+            s_displays.Clear();
+            s_cacheRefresh = Configs.InfinityDisplay.Instance.CacheRefreshDelay;
+        }
     }
-    public static void ClearInfinity(Item item) {
-        foreach (IGroup group in s_groups) group.ClearInfinity(item);
-        s_displays.Clear(item);
+
+    public static void DecreaseCacheLock(){
+        if (s_cacheRefresh > 0) s_cacheRefresh--;
+        else {
+            if (!s_delayed) return;
+            ClearInfinities();
+            s_delayed = false;
+        }
     }
 
     internal static void Register<TGroup, TConsumable>(Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
@@ -83,7 +92,7 @@ public static class InfinityManager {
         };
         custom.Individual.Add(new(infinity), new Configs.Count<TCategory>(category));
         infinity.Group.Config.Customs[def] = custom;
-        ClearInfinity(infinity.Group.ToItem(consumable));
+        ClearInfinities();
         return true;
     }
 
@@ -107,6 +116,8 @@ public static class InfinityManager {
 
     private static readonly List<IGroup> s_groups = new();
     private static readonly List<IInfinity> s_infinities = new();
+    private static int s_cacheRefresh = 0;
+    private static bool s_delayed;
 
     private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), GetLocalItemDisplay) {
         ValueSizeEstimate = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
