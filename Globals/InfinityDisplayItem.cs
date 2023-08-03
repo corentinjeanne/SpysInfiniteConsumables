@@ -9,21 +9,17 @@ using System;
 
 namespace SPIC.Globals;
 
-// TODO test lag magic storage 1k+ items
-
 public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if (!config.toopltip_ShowTooltip || !(config.general_ShowInfinities || config.general_ShowRequirement || config.general_ShowInfo)) return;
-
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
         foreach ((IInfinity infinity, FullInfinity display) in itemDisplay.DisplayedInfinities) {
             (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item);
             bool added = false;
             TooltipLine? line = config.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
-
             DisplayOnLine(line, item, infinity, display);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
@@ -32,7 +28,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
 
-        if (Main.gameMenu || !config.glow_ShowGlow || !config.general_ShowInfinities) return true;
+        if (Main.gameMenu || config.glow_ShowGlow == Configs.Glow.Off || !config.general_ShowInfinities) return true;
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
@@ -156,14 +152,19 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
         float angle = Main.GlobalTimeWrappedHourly % config.glow_InfinityTime/config.glow_InfinityTime; // 0>1
         float distance = (angle <= 0.5f ? angle : (1 - angle)) * 2; // 0>1>0
-        angle += item.type % 16 / 16;
-
         Color color = infinity.Color * config.glow_Intensity * distance;
-        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f*2 + angle) * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
-        color *= 0.67f;
-        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
-    }
+        
+        if(config.glow_ShowGlow == Configs.Glow.Simple) {
+            float scl = 1 + 8 * distance / frame.Width;
+            spriteBatch.Draw(texture, position, frame, color, 0, origin, scale*scl, 0, 0f);
+            return;
+        }
 
+        angle += item.type % 16 / 16;
+        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f*2 + angle) * Math.PI), frame, color, 0, origin, scale, 0, 0f);
+        color *= 0.67f;
+        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), frame, color, 0, origin, scale, 0, 0f);
+    }
 
     public static void IncrementCounters() {
         InfinityManager.DecreaseCacheLock();

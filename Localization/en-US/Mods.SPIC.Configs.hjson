@@ -133,8 +133,8 @@ InfinityDisplay: {
 		Label: Cache
 		Tooltip:
 			'''
-			Performances: Optimal performances, "Large" cache (~10kB)
-			Memory: Ok performances, Small cache (~3kB)
+			Performances: Optimal performances, Large cache (~10kB). Will not recompute any value
+			Smart: Great performances, Small cache (~3kB). May recompute some values
 			None: Horrendous perfomances, No cache
 			'''
 	}
@@ -312,8 +312,8 @@ CacheLevel: {
 CacheStyle: {
 	Tooltip: ""
 	None.Label: None (Just don't)
-	Memory.Label: Memory
-	Performances.Label: Performances (Recommanded)
+	Smart.Label: Smart (Recommanded)
+	Performances.Label: Performances
 }
 
 UsedInfinities: {
@@ -328,4 +328,11 @@ UsedInfinities: {
 		Label: Used
 		Tooltip: ""
 	}
+}
+
+Glow: {
+	Tooltip: ""
+	Off.Label: Off
+	Simple.Label: Simple
+	Fancy.Label: Fancy
 }

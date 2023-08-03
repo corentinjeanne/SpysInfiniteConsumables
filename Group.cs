@@ -97,16 +97,15 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
 
     public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
-        GroupInfinity Getter(TConsumable consumable) => InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable);
         TConsumable consumable = ToConsumable(item);
 
-        GroupInfinity consumableInfinity = Getter(consumable);
+        GroupInfinity consumableInfinity = InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable); ;
         bool forcedByCustom = consumableInfinity.UnusedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             TConsumable displayed = infinity.DisplayedValue(consumable);
             bool weapon = !consumable.Equals(displayed);
-            GroupInfinity displayedInfinity = weapon ? Getter(displayed) : consumableInfinity;
+            GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
             FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
 
             if (effective.Requirement.IsNone) continue;

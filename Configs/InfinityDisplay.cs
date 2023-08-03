@@ -22,7 +22,7 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(CountStyle.Name)] public CountStyle tooltip_RequirementStyle;
 
     [Header("Glow")]
-    [DefaultValue(true)] public bool glow_ShowGlow; // TODO add simplified glow
+    [DefaultValue(Glow.Fancy)] public Glow glow_ShowGlow;
     [DefaultValue(0.75f)] public float glow_Intensity;
     [DefaultValue(2), Range(1f, 5f), Increment(0.1f)] public float glow_InfinityTime;
 
@@ -47,7 +47,7 @@ public sealed class InfinityDisplay : ModConfig {
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
     [Header("Performances")]
-    [DefaultValue(CacheStyle.Performances)] public CacheStyle Cache { get; set; }
+    [DefaultValue(CacheStyle.Smart)] public CacheStyle Cache { get; set; }
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
@@ -58,4 +58,5 @@ public enum CountStyle { Sprite, Name }
 public enum Direction {Vertical, Horizontal}
 public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
 public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
-public enum CacheStyle {None, Memory, Performances }
+public enum CacheStyle {None, Smart, Performances }
+public enum Glow { Off, Simple, Fancy }
