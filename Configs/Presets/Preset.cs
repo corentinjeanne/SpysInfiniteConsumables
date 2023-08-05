@@ -19,4 +19,5 @@ public abstract class Preset : ModType, ILocalizedModType {
 
     public abstract bool MeetsCriterias(GroupConfig config);
     public abstract void ApplyCriterias(GroupConfig config);
+    public virtual bool AppliesToGroup(IGroup group) => true;
 }

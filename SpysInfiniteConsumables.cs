@@ -12,6 +12,7 @@ public sealed class SpysInfiniteConsumables : Mod {
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
+        Configs.Presets.PresetLoader.SetupPresets();
     }
 
     public override void Unload() {

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Reflection;
 using SPIC.Configs;
+using SPIC.Configs.Presets;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -15,18 +16,20 @@ public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
     void ClearInfinity(Item item);
 
+    internal void Add(Preset preset);
+
     string CountToString(Item item, IInfinity infinity, long owned, long value, CountStyle style);
 
     IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
-    IEnumerable<IInfinity> Infinities { get; }
+    IReadOnlyList<IInfinity> Infinities { get; }
     
     LocalizedText DisplayName { get; }
     GroupConfig Config { get; }
     GroupColors Colors { get; }
 
-    IDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
-
+    IReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
+    ReadOnlyCollection<Preset>? Presets { get; }
 
     internal void LoadConfig(GroupConfig config);
     internal void LoadConfig(GroupColors colors);
@@ -47,6 +50,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         infinity.Group = (TGroup)this;
         infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, infinity);
     }
+
+    void IGroup.Add(Preset preset) => Add(preset);
+    internal void Add(Preset preset) => _presets.Add(preset);
 
     public Wrapper<T> AddConfig<T>(IInfinity infinity) where T : new() {
         Wrapper<T> wrapper = new();
@@ -182,6 +188,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
                 else custom.Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3!.GenericTypeArguments[2]), custom.Individual[def].Value)!;
             }
         }
+        Preset? preset = null;
+        foreach (Preset p in PresetLoader.Presets) if (p.MeetsCriterias(config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
+        config.Preset = preset is not null ? new(preset.Mod.Name, preset.Name) : new();
+        config.Preset.Filter = this;
         Config = config;
     }
     void IGroup.LoadConfig(GroupColors colors) {
@@ -202,14 +212,16 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
     public ReadOnlyCollection<Infinity<TGroup, TConsumable>> Infinities => _infinities.AsReadOnly();
+    public ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
     public ReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs => new(_infinityConfigs);
-    
-    IEnumerable<IInfinity> IGroup.Infinities => _infinities;
-    IDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
+
+    IReadOnlyList<IInfinity> IGroup.Infinities => _infinities;
+    IReadOnlyDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
 
     private readonly List<Infinity<TGroup, TConsumable>> _infinities = new();
+    private readonly List<Preset> _presets = new();
     private readonly Dictionary<IInfinity, Wrapper> _infinityConfigs = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
     

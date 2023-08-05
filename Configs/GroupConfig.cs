@@ -30,19 +30,14 @@ public sealed class UsedInfinities : MultyChoice<int> {
 public sealed class GroupConfig {
     [Header("Infinities")]
     public PresetDefinition Preset {
-        get {
-            if (Infinities.Count == 0) return new();
-            Preset? preset = null;
-            foreach (Preset p in PresetLoader.Presets) {
-                if (p.MeetsCriterias(this) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
-            }
-            return preset is not null ? new(preset.Mod.Name, preset.Name) : new();
-        }
+        get => _preset;
         set {
-            if (Infinities.Count == 0) return;
-            PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
+            _preset = value;
+            if (Infinities.Count != 0) PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
         }
     }
+    private PresetDefinition _preset = new();
+
     [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
 
     public UsedInfinities UsedInfinities { get; set; } = 0; // ? Apply Infinity overrides when effective infinity is mixed
