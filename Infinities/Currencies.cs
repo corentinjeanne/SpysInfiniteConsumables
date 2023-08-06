@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using SPIC.Configs;
+using SPIC.Displays;
 using Terraria;
 
 namespace SPIC.Infinities;

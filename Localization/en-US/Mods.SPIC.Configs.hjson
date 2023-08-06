@@ -35,6 +35,11 @@ InfinitySettings: {
 InfinityDisplay: {
 	DisplayName: Infinities Display
 
+	Display: {
+		Label: Display
+		Tooltip: ""
+	}
+
 	Headers: {
 		General: General
 		Tooltip: Item Tooltip
@@ -42,6 +47,7 @@ InfinityDisplay: {
 		Dots: Colored Dots
 		Colors: Infinity colors
 		Performances: Performances
+		Configs: Configs Header
 	}
 
 	general_ShowInfinities: {
@@ -147,6 +153,36 @@ InfinityDisplay: {
 			Increase this value if the game lags when your inventory changes extremely quickly
 			May cause visual inconsitencies, especialy for large values (>15)
 			'''
+	}
+
+	ShowInfinities: {
+		Label: Show Infinities
+		Tooltip: ""
+	}
+
+	ShowRequirement: {
+		Label: Show Requirement
+		Tooltip: ""
+	}
+
+	ShowInfo: {
+		Label: Show Info
+		Tooltip: ""
+	}
+
+	ExclusiveDisplay: {
+		Label: Exclusive Display
+		Tooltip: ""
+	}
+
+	WelcomeMessage: {
+		Label: Welcome Message
+		Tooltip: ""
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
 	}
 }
 
@@ -336,3 +372,5 @@ Glow: {
 	Simple.Label: Simple
 	Fancy.Label: Fancy
 }
+
+DisplayDefinition.Tooltip: ""

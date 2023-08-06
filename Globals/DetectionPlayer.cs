@@ -53,23 +53,20 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void OnEnterWorld(){
         ExplosionProjectile.ClearExploded();
         string version = Configs.InfinityDisplay.Instance.general_lastLogs;
-        byte changes = 0;
-        if(version.Length == 0) version = SpysInfiniteConsumables.Versions[^2];
-        if (Mod.Version > new System.Version(version)) changes = 2;
+        bool updated = version.Length != 0 && Mod.Version > new System.Version(version);
 
-        if (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.WelcomMessageFrequency.Always
-                || (Configs.InfinityDisplay.Instance.general_welcomeMessage == Configs.WelcomMessageFrequency.OncePerUpdate && changes != 0)) {
+        if (Configs.InfinityDisplay.Instance.WelcomeMessage == Configs.WelcomMessageFrequency.Always
+                || (Configs.InfinityDisplay.Instance.WelcomeMessage == Configs.WelcomMessageFrequency.OncePerUpdate && updated)) {
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Welcome", Mod.Version.ToString()), Colors.RarityCyan);
             Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Message"), Colors.RarityCyan);
-            if (changes == 2) {
+            if (updated) {
                 Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Changelog", version), Colors.RarityCyan);
                 for (int i = System.Array.IndexOf(SpysInfiniteConsumables.Versions, version)+1; i < SpysInfiniteConsumables.Versions.Length; i++)
                     Main.NewText(Language.GetTextValue($"{Localization.Keys.Changelog}.{SpysInfiniteConsumables.Versions[i]}"), Colors.RarityCyan);
             }
-            version = Mod.Version.ToString();
         }
-        if (Configs.InfinityDisplay.Instance.general_lastLogs != version) {
-            Configs.InfinityDisplay.Instance.general_lastLogs = version;
+        if (updated) {
+            Configs.InfinityDisplay.Instance.general_lastLogs = Mod.Version.ToString();
             Configs.InfinityDisplay.Instance.SaveConfig();
         }
     }

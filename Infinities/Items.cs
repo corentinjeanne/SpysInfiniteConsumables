@@ -1,4 +1,4 @@
-using SPIC.Configs;
+using SPIC.Displays;
 using Terraria;
 using Terraria.Localization;
 

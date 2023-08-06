@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
+using SPIC.Displays;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -28,7 +29,6 @@ public interface IGroup : ILocalizedModType, ILoadable {
     GroupConfig Config { get; }
     GroupColors Colors { get; }
 
-    IReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
     ReadOnlyCollection<Preset>? Presets { get; }
 
     internal void LoadConfig(GroupConfig config);
@@ -56,7 +56,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
     public Wrapper<T> AddConfig<T>(IInfinity infinity) where T : new() {
         Wrapper<T> wrapper = new();
-        _infinityConfigs[infinity] = wrapper;
+        _configs[infinity] = wrapper;
         return wrapper;
     }
 
@@ -68,7 +68,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, null);
         }
         _infinities.Clear();
-        _infinityConfigs.Clear();
+        _configs.Clear();
         Instance = null!;
     }
     protected sealed override void Register() {
@@ -128,7 +128,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
                 if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
                 forcedByCustom = false;
             }
-            if (!InfinityDisplay.Instance.general_ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
+            if (!InfinityDisplay.Instance.ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
             if(visibility == InfinityVisibility.Hidden) continue;
             yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
             
@@ -175,7 +175,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             _infinities.Add(infinity);
         }
 
-        foreach ((IInfinity infinity, Wrapper wrapper) in _infinityConfigs) {
+        foreach ((IInfinity infinity, Wrapper wrapper) in _configs) {
             InfinityDefinition def = new(infinity);
             config.Configs[def] = config.Configs.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
             wrapper.Value = config.Configs[def].Value;
@@ -215,14 +215,12 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
-    public ReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs => new(_infinityConfigs);
 
     IReadOnlyList<IInfinity> IGroup.Infinities => _infinities;
-    IReadOnlyDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
 
     private readonly List<Infinity<TGroup, TConsumable>> _infinities = new();
+    private readonly Dictionary<IInfinity, Wrapper> _configs = new();
     private readonly List<Preset> _presets = new();
-    private readonly Dictionary<IInfinity, Wrapper> _infinityConfigs = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
     
     public static TGroup Instance { get; private set; } = null!;

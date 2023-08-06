@@ -50,3 +50,20 @@ public sealed class InfinityDefinition : Definition<InfinityDefinition> {
 
     public override InfinityDefinition[] GetValues() => (Filter?.Infinities ?? InfinityManager.Infinities).Select(intinity => new InfinityDefinition(intinity)).ToArray();
 }
+
+public sealed class DisplayDefinition : Definition<DisplayDefinition> {
+    public DisplayDefinition() : base() { }
+    public DisplayDefinition(string fullName) : base(fullName) { }
+    public DisplayDefinition(string mod, string name) : base(mod, name) { }
+
+    public override int Type => DisplayLoader.GetDisplay(Mod, Name) is null ? -1 : 1;
+
+    [JsonIgnore] public IGroup? Filter { get; set; }
+
+    public override string DisplayName { get {
+        IInfinity? infinity = InfinityManager.GetInfinity(Mod, Name);
+        return infinity is not null ? $"[i:{infinity.IconType}] {infinity.DisplayName}" : base.DisplayName;
+    } }
+
+    public override DisplayDefinition[] GetValues() => DisplayLoader.Displays.Select(display => new DisplayDefinition(display.Mod.Name, display.Name)).ToArray();
+}

@@ -10,10 +10,10 @@ namespace SPIC;
 public interface IInfinity : ILocalizedModType, ILoadable {
     IGroup Group { get; }
     bool Enabled { get; }
-    bool DefaultsToOn { get; }
-    
+    bool DefaultsToOn { get; } // TODO default value
+
     Color Color { get; }
-    Color DefaultColor { get; }
+    Color DefaultColor { get; } // TODO default value
     int IconType { get; }
     LocalizedText DisplayName { get; }
 
