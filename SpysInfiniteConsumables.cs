@@ -13,6 +13,10 @@ public sealed class SpysInfiniteConsumables : Mod {
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
         Configs.Presets.PresetLoader.SetupPresets();
+        if(Configs.InfinityDisplay.Instance.general_lastLogs.Length != 0) {
+            Configs.InfinityDisplay.Instance.PortConfig();
+            Configs.InfinitySettings.Instance.PortConfig();
+        }
     }
 
     public override void Unload() {

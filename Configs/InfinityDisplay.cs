@@ -8,16 +8,7 @@ using System;
 namespace SPIC.Configs;
 
 public sealed class InfinityDisplay : ModConfig {
-    [Header("General")]
-    [Obsolete("Use ShowInfinities instead", true), DefaultValue(true)] public bool general_ShowInfinities;
-    [Obsolete("Use ShowRequirement instead", true), DefaultValue(true)] public bool general_ShowRequirement;
-    [Obsolete("Use ShowInfo instead", true)] public bool general_ShowInfo;
-    [Obsolete("Use ExclusiveDisplay instead", true), DefaultValue(true)] public bool general_ExclusiveDisplay;
-
-    [DefaultValue(true)] public bool ShowInfinities;
-    [DefaultValue(true)] public bool ShowRequirement;
-    public bool ShowInfo;
-    [DefaultValue(true)] public bool ExclusiveDisplay;
+    [Header("Displays")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
     public Dictionary<DisplayDefinition, bool> Display {
         get => _displays;
@@ -29,9 +20,12 @@ public sealed class InfinityDisplay : ModConfig {
             _displays = value;
         }
     }
-    [Obsolete("Use WelcomeMessage instead", true)] public WelcomMessageFrequency general_welcomeMessage;    
-    [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
-    public WelcomMessageFrequency WelcomeMessage;    
+    [Header("General")]
+    [DefaultValue(true)] public bool ShowInfinities;
+    [DefaultValue(true)] public bool ShowRequirement;
+    public bool ShowInfo;
+    [DefaultValue(true)] public bool ExclusiveDisplay;
+    [DefaultValue(WelcomMessageFrequency.OncePerUpdate)] public WelcomMessageFrequency WelcomeMessage;    
     
     [Header("Configs")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
@@ -46,22 +40,6 @@ public sealed class InfinityDisplay : ModConfig {
             _configs = value;
         }
     }
-
-    [Header("Tooltip")]
-    [Obsolete($"Use SPIC.Displays.Tooltip.Instance.Enabled instead", true), DefaultValue(true)] public bool toopltip_ShowTooltip;
-    [Obsolete($"Use SPIC.Displays.Tooltip.Instance.Config.Value.AddMissingLines instead", true), DefaultValue(true)] public bool toopltip_AddMissingLines;
-    [Obsolete($"Use SPIC.Displays.Tooltip.Instance.Config.Value.RequirementStyle instead", true), DefaultValue(Displays.CountStyle.Name)] public Displays.CountStyle tooltip_RequirementStyle;
-
-    [Header("Glow")]
-    [Obsolete($"Use SPIC.Displays.Glow.Instance.Enabled instead", true), DefaultValue(Glow.Fancy)] public Glow glow_ShowGlow;
-    [Obsolete($"Use SPIC.Displays.Glow.Instance.Config.Value.Intensity instead", true), DefaultValue(0.75f)] public float glow_Intensity;
-    [Obsolete($"Use SPIC.Displays.Glow.Instance.Config.Value.AnimationLength instead", true), DefaultValue(2), Range(1f, 5f), Increment(0.1f)] public float glow_InfinityTime;
-
-    [Header("Dots")]
-    [Obsolete($"Use SPIC.Displays.Dots.Instance.Enabled instead", true), DefaultValue(true)] public bool dots_ShowDots;
-    [Obsolete($"Use SPIC.Displays.Dots.Instance.Config.Value.Start instead", true), DefaultValue(Corner.BottomRight)] public Corner dots_Start;
-    [Obsolete($"Use SPIC.Displays.Dots.Instance.Config.Value.Direction instead", true), DefaultValue(Direction.Horizontal)] public Direction dots_Direction;
-    [Obsolete($"Use SPIC.Displays.Dots.Instance.Config.Value.AnimationLength instead", true), DefaultValue(5), Range(1f, 10f),  Increment(0.1f)] public float dot_PageTime;
 
     [Header("Colors")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
@@ -80,13 +58,29 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(CacheStyle.Smart)] public CacheStyle Cache { get; set; }
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
-    [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";
+
+    [JsonProperty, DefaultValue("")] internal string version = "";
+
     private Dictionary<DisplayDefinition, bool> _displays = new();
     private Dictionary<DisplayDefinition, Wrapper> _configs = new();
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance = null!;
+
+    [JsonProperty, MovedTo("ShowInfinities"), DefaultValue(true)] private bool general_ShowInfinities;
+    [JsonProperty, MovedTo("ShowRequirement"), DefaultValue(true)] private bool general_ShowRequirement;
+    [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
+    [JsonProperty, MovedTo("ExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
+    [JsonProperty, MovedTo("WelcomeMessage")] private WelcomMessageFrequency general_welcomeMessage;
+    [JsonProperty, MovedTo(typeof(Displays.Tooltip), "Instance.Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
+    [JsonProperty, MovedTo(typeof(Displays.Tooltip), "Instance.Config.Value.RequirementStyle"), DefaultValue(Displays.CountStyle.Name)] private Displays.CountStyle tooltip_RequirementStyle;
+    [JsonProperty, MovedTo(typeof(Displays.Glow), "Instance.Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
+    [JsonProperty, MovedTo(typeof(Displays.Glow), "Instance.Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
+    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
+    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
+    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
+    [JsonProperty, MovedTo("version"), DefaultValue("")] internal string general_lastLogs = "";
 }
 
 public enum Direction {Vertical, Horizontal}

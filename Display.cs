@@ -1,9 +1,14 @@
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
-public abstract class Display : ModType {
+public abstract class Display : ModType, ILocalizedModType {
     public virtual bool Enabled { get; internal set; } = true; // TODO default value
+    public abstract int IconType { get; }
+
+    public string LocalizationCategory => "Displays";
+    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", new System.Func<string>(PrettyPrintName));
 
     protected sealed override void Register() {
         ModTypeLookup<Display>.Register(this);
@@ -13,7 +18,7 @@ public abstract class Display : ModType {
     public sealed override void SetupContent() => SetStaticDefaults();
 }
 
-public class DisplayStatic<TDisplay> : Display where TDisplay : DisplayStatic<TDisplay> {
+public abstract class DisplayStatic<TDisplay> : Display where TDisplay : DisplayStatic<TDisplay> {
     public override void SetStaticDefaults() => Instance = (TDisplay)this;
     public override void Unload() {
         Instance = null!;

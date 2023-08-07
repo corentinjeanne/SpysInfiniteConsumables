@@ -61,8 +61,8 @@ public sealed class DisplayDefinition : Definition<DisplayDefinition> {
     [JsonIgnore] public IGroup? Filter { get; set; }
 
     public override string DisplayName { get {
-        IInfinity? infinity = InfinityManager.GetInfinity(Mod, Name);
-        return infinity is not null ? $"[i:{infinity.IconType}] {infinity.DisplayName}" : base.DisplayName;
+        Display? display = DisplayLoader.GetDisplay(Mod, Name);
+        return display is not null ? $"[i:{display.IconType}] {display.DisplayName}" : base.DisplayName;
     } }
 
     public override DisplayDefinition[] GetValues() => DisplayLoader.Displays.Select(display => new DisplayDefinition(display.Mod.Name, display.Name)).ToArray();

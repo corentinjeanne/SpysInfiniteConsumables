@@ -150,7 +150,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
         Texture2D texture = TextureAssets.Item[item.type].Value;
 
-        float angle = Main.GlobalTimeWrappedHourly % Glow.Config.Value.AnimationTime/Glow.Config.Value.AnimationTime; // 0>1
+        float angle = Main.GlobalTimeWrappedHourly % Glow.Config.Value.AnimationLength/Glow.Config.Value.AnimationLength; // 0>1
         float distance = (angle <= 0.5f ? angle : (1 - angle)) * 2; // 0>1>0
         Color color = infinity.Color * Glow.Config.Value.Intensity * distance;
         
@@ -169,11 +169,11 @@ public sealed class InfinityDisplayItem : GlobalItem {
     public static void IncrementCounters() {
         InfinityManager.DecreaseCacheLock();
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
-            s_groupTimer = (s_groupTimer + Dots.Config.Value.AnimationTime) % 3600;
+            s_groupTimer = (s_groupTimer + Dots.Config.Value.AnimationLength) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
         }
         if(Main.GlobalTimeWrappedHourly >= s_infinityTimer){
-            s_infinityTimer = (int)(Main.GlobalTimeWrappedHourly/Glow.Config.Value.AnimationTime + 1) * Glow.Config.Value.AnimationTime % 3600;
+            s_infinityTimer = (int)(Main.GlobalTimeWrappedHourly/Glow.Config.Value.AnimationLength + 1) * Glow.Config.Value.AnimationLength % 3600;
             s_InfinityIndex = (s_InfinityIndex + 1) % InfinityManager.InfinitiesLCM;
         }
     }

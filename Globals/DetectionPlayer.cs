@@ -52,7 +52,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
     public override void OnEnterWorld(){
         ExplosionProjectile.ClearExploded();
-        string version = Configs.InfinityDisplay.Instance.general_lastLogs;
+        string version = Configs.InfinityDisplay.Instance.version;
         bool updated = version.Length != 0 && Mod.Version > new System.Version(version);
 
         if (Configs.InfinityDisplay.Instance.WelcomeMessage == Configs.WelcomMessageFrequency.Always
@@ -66,7 +66,7 @@ public sealed class DetectionPlayer : ModPlayer {
             }
         }
         if (updated) {
-            Configs.InfinityDisplay.Instance.general_lastLogs = Mod.Version.ToString();
+            Configs.InfinityDisplay.Instance.version = Mod.Version.ToString();
             Configs.InfinityDisplay.Instance.SaveConfig();
         }
     }

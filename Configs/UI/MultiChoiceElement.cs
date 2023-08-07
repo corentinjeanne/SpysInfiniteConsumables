@@ -10,7 +10,7 @@ using Terraria.Localization;
 
 namespace SPIC.Configs.UI;
 
-public sealed class MultyChoiceElement : ConfigElement<MultyChoice> {
+public sealed class MultiChoiceElement : ConfigElement<MultiChoice> {
 
     public override void OnBind() {
         base.OnBind();
@@ -20,7 +20,7 @@ public sealed class MultyChoiceElement : ConfigElement<MultyChoice> {
     public void SetupMember(){
         RemoveAllChildren();
 
-        MultyChoice value = Value ??= (MultyChoice)Activator.CreateInstance(MemberInfo.Type)!;
+        MultiChoice value = Value ??= (MultiChoice)Activator.CreateInstance(MemberInfo.Type)!;
         PropertyFieldWrapper selectedProp = value.Choices[value.ChoiceIndex];
 
         int top = 0;

@@ -2,7 +2,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public class Count : MultyChoice<int> {
+public class Count : MultiChoice<int> {
 
     public Count() : base() {}
     public Count(int value) : base(value) {}

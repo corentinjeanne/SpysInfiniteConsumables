@@ -13,10 +13,10 @@ namespace SPIC.Configs;
 [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field, Inherited = false)]
 public sealed class ChoiceAttribute : System.Attribute {} 
 
-public sealed class MultyChoiceConverter : JsonConverter<MultyChoice> {
-    public override MultyChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultyChoice existingValue, bool hasExistingValue, JsonSerializer serializer) {
-        existingValue ??= (MultyChoice)System.Activator.CreateInstance(objectType)!;
-        if(objectType.IsSubclassOfGeneric(typeof(MultyChoice<>), out System.Type? type)) {
+public sealed class MultiChoiceConverter : JsonConverter<MultiChoice> {
+    public override MultiChoice ReadJson(JsonReader reader, System.Type objectType, [AllowNull] MultiChoice existingValue, bool hasExistingValue, JsonSerializer serializer) {
+        existingValue ??= (MultiChoice)System.Activator.CreateInstance(objectType)!;
+        if(objectType.IsSubclassOfGeneric(typeof(MultiChoice<>), out System.Type? type)) {
             existingValue.Data = serializer.Deserialize(reader, type.GenericTypeArguments[0]);
         } else {
             JObject jObject = serializer.Deserialize<JObject>(reader)!;
@@ -27,9 +27,9 @@ public sealed class MultyChoiceConverter : JsonConverter<MultyChoice> {
         return existingValue;
     }
 
-    public override void WriteJson(JsonWriter writer, [AllowNull] MultyChoice value, JsonSerializer serializer) {
+    public override void WriteJson(JsonWriter writer, [AllowNull] MultiChoice value, JsonSerializer serializer) {
         if(value is null) return;
-        if (value.GetType().IsSubclassOfGeneric(typeof(MultyChoice<>), out _)) {
+        if (value.GetType().IsSubclassOfGeneric(typeof(MultiChoice<>), out _)) {
             serializer.Serialize(writer, value?.Data);
         } else {
             writer.WriteStartObject();
@@ -40,9 +40,9 @@ public sealed class MultyChoiceConverter : JsonConverter<MultyChoice> {
     }
 }
 
-[JsonConverter(typeof(MultyChoiceConverter))]
-[CustomModConfigItem(typeof(UI.MultyChoiceElement))]
-public abstract class MultyChoice {
+[JsonConverter(typeof(MultiChoiceConverter))]
+[CustomModConfigItem(typeof(UI.MultiChoiceElement))]
+public abstract class MultiChoice {
 
     [JsonIgnore] public ReadOnlyCollection<PropertyFieldWrapper> Choices { get; }
     [JsonIgnore] public int ChoiceIndex {
@@ -74,7 +74,7 @@ public abstract class MultyChoice {
         set => Choices[ChoiceIndex].SetValue(this, value);
     }
 
-    public MultyChoice(){
+    public MultiChoice(){
         List<PropertyFieldWrapper> choices = new();
         choices.AddRange(GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(prop => prop.GetCustomAttribute<ChoiceAttribute>() != null).Select(p => new PropertyFieldWrapper(p)));
         choices.AddRange(GetType().GetFields(BindingFlags.Instance | BindingFlags.Public).Where(field => field.GetCustomAttribute<ChoiceAttribute>() != null).Select(f => new PropertyFieldWrapper(f)));
@@ -84,11 +84,11 @@ public abstract class MultyChoice {
     private int _index;
 }
 
-public abstract class MultyChoice<T> : MultyChoice {
-    public MultyChoice() : base() {}
-    public MultyChoice(T value) : base() => Value = value;
+public abstract class MultiChoice<T> : MultiChoice {
+    public MultiChoice() : base() {}
+    public MultiChoice(T value) : base() => Value = value;
     internal override object? Data { get => Value; set => Value = (T?)value; }
     [JsonIgnore] public abstract T? Value { get; set; }
 
-    public static implicit operator T?(MultyChoice<T> value) => value.Value;
+    public static implicit operator T?(MultiChoice<T> value) => value.Value;
 }

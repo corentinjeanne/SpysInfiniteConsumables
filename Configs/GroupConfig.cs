@@ -7,7 +7,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
-public sealed class UsedInfinities : MultyChoice<int> {
+public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }
     public UsedInfinities(int value) : base(value) { }
 

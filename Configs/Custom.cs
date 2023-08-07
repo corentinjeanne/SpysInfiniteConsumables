@@ -5,7 +5,7 @@ namespace SPIC.Configs;
 
 
 
-public sealed class Custom : MultyChoice {
+public sealed class Custom : MultiChoice {
 
     [Choice]
     public Count Global { get; set; } = new();

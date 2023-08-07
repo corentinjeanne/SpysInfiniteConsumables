@@ -3,7 +3,7 @@ InfinitySettings: {
 
 	Headers: {
 		Features: Features
-		Configs: Configs
+		Configs: Group Configs
 	}
 
 	DetectMissingCategories: {
@@ -35,93 +35,46 @@ InfinitySettings: {
 InfinityDisplay: {
 	DisplayName: Infinities Display
 
+	Headers: {
+		Displays: Displays
+		General: General
+		Configs: Display Configs
+		Colors: Infinity colors
+		Performances: Performances
+	}
+
 	Display: {
 		Label: Display
 		Tooltip: ""
 	}
 
-	Headers: {
-		General: General
-		Tooltip: Item Tooltip
-		Glow: Item Glow
-		Dots: Colored Dots
-		Colors: Infinity colors
-		Performances: Performances
-		Configs: Configs Header
-	}
-
-	general_ShowInfinities: {
+	ShowInfinities: {
 		Label: "[i:3084] Show Infinities"
 		Tooltip: ""
 	}
 
-	general_ShowRequirement: {
+	ShowRequirement: {
 		Label: "[i:3102] Show Requirements"
 		Tooltip: ""
 	}
 
-	general_ShowInfo: {
+	ShowInfo: {
 		Label: "[i:393] Show Extra Info"
 		Tooltip: Displays more precise info about the item, such as its category
 	}
 
-	general_ExclusiveDisplay: {
+	ExclusiveDisplay: {
 		Label: "[i:5075] Exclusive Displays"
 		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
 	}
 
-	general_welcomeMessage: {
+	WelcomeMessage: {
 		Label: "[i:3617] Welcome message"
 		Tooltip: ""
 	}
 
-	toopltip_ShowTooltip: {
-		Label: "[i:171] Display infinity in item tooltip"
-		Tooltip: ""
-	}
-
-	toopltip_AddMissingLines: {
-		Label: "[i:3619] Add missing lines"
-		Tooltip: ""
-	}
-
-	tooltip_RequirementStyle: {
-		Label: "[i:3625] Requirement style"
-		Tooltip: ""
-	}
-
-	glow_ShowGlow: {
-		Label: "[i:75] Display infinity colored glow"
-		Tooltip: ""
-	}
-
-	glow_Intensity: {
-		Label: "[i:2274] Intensity"
-		Tooltip: ""
-	}
-
-	glow_InfinityTime: {
-		Label: "[i:583] Time per Infinity (seconds)"
-		Tooltip: ""
-	}
-
-	dots_ShowDots: {
-		Label: "[i:3603] Display infinity colored dots"
-		Tooltip: ""
-	}
-
-	dots_Start: {
-		Label: "[i:71] First dot position"
-		Tooltip: ""
-	}
-
-	dots_Direction: {
-		Label: "[i:4320] Direction"
-		Tooltip: ""
-	}
-
-	dot_PageTime: {
-		Label: "[i:583] Time per Group (seconds)"
+	Configs: {
+		Label: Configs
 		Tooltip: ""
 	}
 
@@ -153,36 +106,6 @@ InfinityDisplay: {
 			Increase this value if the game lags when your inventory changes extremely quickly
 			May cause visual inconsitencies, especialy for large values (>15)
 			'''
-	}
-
-	ShowInfinities: {
-		Label: Show Infinities
-		Tooltip: ""
-	}
-
-	ShowRequirement: {
-		Label: Show Requirement
-		Tooltip: ""
-	}
-
-	ShowInfo: {
-		Label: Show Info
-		Tooltip: ""
-	}
-
-	ExclusiveDisplay: {
-		Label: Exclusive Display
-		Tooltip: ""
-	}
-
-	WelcomeMessage: {
-		Label: Welcome Message
-		Tooltip: ""
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
 	}
 }
 
@@ -334,15 +257,6 @@ Direction: {
 	Tooltip: ""
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
-}
-
-CacheLevel: {
-	Tooltip: ""
-	Disabled.Label: Disabled
-	Minimal.Label: Minimal
-	All.Label: All
-	None.Label: None
-	Everything.Label: Everything
 }
 
 CacheStyle: {
