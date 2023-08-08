@@ -33,8 +33,8 @@ public sealed class CurrencyRequirements {
 public sealed class Currency : InfinityStatic<Currency, Currencies, int, CurrencyCategory> {
 
     public override int IconType => ItemID.LuckyCoin;
-    public override bool DefaultsToOn => false;
-    public override Color DefaultColor => Colors.CoinGold;
+    public override bool Enabled { get; set; } = false;
+    public override Color Color { get; set; } = Colors.CoinGold;
 
     public override void Load() {
         base.Load();

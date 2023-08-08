@@ -29,7 +29,7 @@ public sealed class GrabBagRequirements {
 public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
-    public override Color DefaultColor => Colors.RarityDarkPurple;
+    public override Color Color { get; set; } = Colors.RarityDarkPurple;
 
     public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip); // TODO detected items opened with left click
 

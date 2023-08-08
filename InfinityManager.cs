@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.Xna.Framework;
 using Terraria;
 
 namespace SPIC;
@@ -69,6 +70,8 @@ public static class InfinityManager {
         Group<TGroup, TConsumable>? group = (Group<TGroup, TConsumable>?)s_groups.Find(mg => mg is TGroup);
         group?.Add(infinity);
         s_infinities.Add(infinity);
+        s_defaultStates[infinity] = infinity.Enabled;
+        s_defaultColors[infinity] = infinity.Color;
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / Utility.GCD(InfinitiesLCM, s_infinities.Count);
     }
     internal static void Register<TGroup, TConsumable>(Group<TGroup, TConsumable> group) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
@@ -82,6 +85,9 @@ public static class InfinityManager {
 
     public static IGroup? GetGroup(string mod, string name) => s_groups.Find(mg => mg.Mod.Name == mod && mg.Name == name);
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
+
+    public static bool DefaultState(this IInfinity infinity) => s_defaultStates[infinity];
+    public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
 
     public static bool SaveDetectedCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum {
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
@@ -104,6 +110,7 @@ public static class InfinityManager {
     public static ReadOnlyCollection<IGroup> Groups => new(s_groups);
     public static ReadOnlyCollection<IInfinity> Infinities => new(s_infinities);
 
+
     public static int GroupsLCM { get; private set; } = 1;
     public static int InfinitiesLCM { get; private set; } = 1;
 
@@ -116,9 +123,11 @@ public static class InfinityManager {
 
     private static readonly List<IGroup> s_groups = new();
     private static readonly List<IInfinity> s_infinities = new();
+    private static readonly Dictionary<IInfinity, bool> s_defaultStates = new();
+    private static readonly Dictionary<IInfinity, Color> s_defaultColors = new();
+    
     private static int s_cacheRefresh = 0;
     private static bool s_delayed;
-
     private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), GetLocalItemDisplay) {
         ValueSizeEstimate = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
     };

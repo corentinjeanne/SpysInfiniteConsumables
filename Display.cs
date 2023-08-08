@@ -1,10 +1,14 @@
+using System.ComponentModel;
+using System.Reflection;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
 public abstract class Display : ModType, ILocalizedModType {
-    public virtual bool Enabled { get; internal set; } = true; // TODO default value
+
+    [DefaultValue(true)]
+    public virtual bool Enabled { get; internal set; } = true;
     public abstract int IconType { get; }
 
     public string LocalizationCategory => "Displays";

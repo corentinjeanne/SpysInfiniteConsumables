@@ -24,7 +24,7 @@ public sealed class AmmoRequirements {
 public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
 
     public override int IconType => ItemID.EndlessQuiver;
-    public override Color DefaultColor => Colors.RarityLime;
+    public override Color Color { get; set; } = Colors.RarityLime;
 
     public override void Load() {
         base.Load();

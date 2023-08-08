@@ -19,8 +19,8 @@ public sealed class JourneySacrificeSettings {
 public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, Item> {
 
     public override int IconType => ItemID.GoldBunny;
-    public override bool DefaultsToOn => false;
-    public override Color DefaultColor => Colors.JourneyMode;
+    public override bool Enabled { get; set; } = false;
+    public override Color Color { get; set; } = Colors.JourneyMode;
 
     public override void Load() {
         base.Load();

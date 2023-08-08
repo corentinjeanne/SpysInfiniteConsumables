@@ -47,7 +47,7 @@ public sealed class UsableRequirements {
 public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
 
     public override int IconType => ItemID.EndlessMusketPouch;
-    public override Color DefaultColor => Colors.RarityCyan;
+    public override Color Color { get; set; } = Colors.RarityCyan;
 
     public override void Load() {
         base.Load();

@@ -64,7 +64,7 @@ public sealed class PlaceableRequirements {
 public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> {
 
     public override int IconType => ItemID.ArchitectGizmoPack;
-    public override Color DefaultColor => Colors.RarityAmber;
+    public override Color Color { get; set; } = Colors.RarityAmber;
 
     public override void Load() {
         base.Load();

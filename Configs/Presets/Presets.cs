@@ -7,14 +7,14 @@ public sealed class Defaults : Preset {
 
     public override bool MeetsCriterias(GroupConfig config) {
         foreach ((InfinityDefinition def, bool enable) in config.Infinities.Items<InfinityDefinition, bool>()) {
-            if (!enable == InfinityManager.GetInfinity(def.Mod, def.Name)?.DefaultsToOn) return false;
+            if (!enable == InfinityManager.GetInfinity(def.Mod, def.Name)?.DefaultState()) return false;
         }
         return config.UsedInfinities == 0;
     }
     public override void ApplyCriterias(GroupConfig config) {
         for(int i = 0; i < config.Infinities.Count; i++) {
             InfinityDefinition def = (InfinityDefinition)config.Infinities.Keys.Index(i);
-            if(!def.IsUnloaded) config.Infinities[i] = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultsToOn;
+            if(!def.IsUnloaded) config.Infinities[i] = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultState();
         }
         config.UsedInfinities = 0;
     }
@@ -88,8 +88,8 @@ public sealed class Classic : Preset {
     }
     public override void ApplyCriterias(GroupConfig config) {
         config.Infinities = new();
-        foreach(IInfinity infinity in Order) config.Infinities.Add(new InfinityDefinition(infinity), infinity.DefaultsToOn);
-        foreach(IInfinity infinity in Items.Instance.Infinities) config.Infinities.TryAdd(new InfinityDefinition(infinity), infinity.DefaultsToOn);
+        foreach(IInfinity infinity in Order) config.Infinities.Add(new InfinityDefinition(infinity), infinity.DefaultState());
+        foreach(IInfinity infinity in Items.Instance.Infinities) config.Infinities.TryAdd(new InfinityDefinition(infinity), infinity.DefaultState());
         config.UsedInfinities = 1;
     }
 }

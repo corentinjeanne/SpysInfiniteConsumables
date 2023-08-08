@@ -143,7 +143,7 @@ public static class Utility {
             object? value = oldField.GetValue(config);
             (PropertyFieldWrapper wrapper, obj) = GetMember(host, obj, movedTo.Members);
             wrapper.SetValue(obj, value);
-            DefaultValueAttribute? defaultValue = CustomAttributeExtensions.GetCustomAttribute<DefaultValueAttribute>(oldField);
+            DefaultValueAttribute? defaultValue = oldField.GetCustomAttribute<DefaultValueAttribute>();
             oldField.SetValue(config, defaultValue?.Value ?? (wrapper.Type.IsValueType ? Activator.CreateInstance(wrapper.Type) : null));
         }
         config.SaveConfig();

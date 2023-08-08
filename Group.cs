@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
 using SPIC.Displays;
@@ -170,7 +171,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         }
         foreach (Infinity<TGroup, TConsumable> infinity in infinities) {
             InfinityDefinition def = new(infinity);
-            config.Infinities.TryAdd(def, infinity.DefaultsToOn);
+            config.Infinities.TryAdd(def, infinity.DefaultState());
             infinity.Enabled = (bool)config.Infinities[def]!;
             _infinities.Add(infinity);
         }
@@ -197,7 +198,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     void IGroup.LoadConfig(GroupColors colors) {
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             InfinityDefinition def = new(infinity);
-            infinity.Color = colors.Colors[def] = colors.Colors.GetValueOrDefault(def, infinity.DefaultColor);
+            infinity.Color = colors.Colors[def] = colors.Colors.GetValueOrDefault(def, infinity.DefaultColor());
         }
         Colors = colors;
     }

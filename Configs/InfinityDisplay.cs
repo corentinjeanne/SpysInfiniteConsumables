@@ -15,7 +15,7 @@ public sealed class InfinityDisplay : ModConfig {
         set {
             foreach (Display display in DisplayLoader.Displays) {
                 DisplayDefinition def = new(display.Mod.Name, display.Name);
-                display.Enabled = value[def] = value.GetValueOrDefault(def, display.Enabled);
+                display.Enabled = value[def] = value.GetValueOrDefault(def, display.DefaultState());
             }
             _displays = value;
         }

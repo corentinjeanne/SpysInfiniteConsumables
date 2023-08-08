@@ -38,8 +38,8 @@ public sealed class MaterialRequirements {
 public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
     
     public override int IconType => ItemID.TinkerersWorkshop;
-    public override bool DefaultsToOn => false;
-    public override Color DefaultColor => Colors.RarityPink;
+    public override bool Enabled { get; set; } = false;
+    public override Color Color { get; set; } = Colors.RarityPink;
 
     private static Dictionary<int, int> s_itemGroupCounts = null!;
 

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Localization;
@@ -10,10 +12,8 @@ namespace SPIC;
 public interface IInfinity : ILocalizedModType, ILoadable {
     IGroup Group { get; }
     bool Enabled { get; }
-    bool DefaultsToOn { get; } // TODO default value
 
     Color Color { get; }
-    Color DefaultColor { get; } // TODO default value
     int IconType { get; }
     LocalizedText DisplayName { get; }
 
@@ -39,12 +39,10 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable; // TODO rework into a secondary diplay allowing for both to be visible // TODO reduce calls by caching or other way
 
     public TGroup Group { get; internal set; } = null!;
-    public bool Enabled { get; internal set; }
-    public virtual bool DefaultsToOn => true;
+    public virtual bool Enabled { get; set; }
 
     public abstract int IconType { get; }
-    public Color Color { get; internal set; }
-    public abstract Color DefaultColor { get; }
+    public abstract Color Color { get; set; }
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
     
