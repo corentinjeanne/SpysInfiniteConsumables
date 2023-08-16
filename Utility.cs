@@ -149,41 +149,6 @@ public static class Utility {
         config.SaveConfig();
     }
 
-    internal static (PropertyFieldWrapper, object?) GetMember(Type host, object? obj, Span<string> members){
-        MemberInfo member = host.GetMember(members[0], BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)[0];
-        if(member is PropertyInfo property) {
-            if(members.Length == 1) return (new(property), obj);
-            obj = property.GetValue(obj);
-            host = property.PropertyType;
-        } else if (member is FieldInfo field) {
-            if(members.Length == 1) return (new(field), obj);
-            obj = field.GetValue(obj);
-            host = field.FieldType;
-        }
-        return GetMember(host, obj, members[1..]);
-    }
-
-
-    public static K[] Reverse<K, V>(this Dictionary<K, V> dictionary, V value) where K: notnull where V : notnull {
-        List<K> reverse = new();
-        foreach (KeyValuePair<K,V> kvp in dictionary) {
-            if (value.Equals(kvp.Value)) reverse.Add(kvp.Key);
-        }
-        return reverse.ToArray();
-    }
-    public static K? FindKey<K, V>(this Dictionary<K, V> dictionary, Predicate<KeyValuePair<K, V>> pred) where K: notnull {
-        foreach (KeyValuePair<K, V> kvp in dictionary) {
-            if (pred(kvp)) return kvp.Key;
-        }
-        return default;
-    }
-    public static V? FindValue<K, V>(this Dictionary<K, V> dictionary, Predicate<KeyValuePair<K, V>> pred) where K: notnull {
-        foreach (var kvp in dictionary) {
-            if (pred(kvp)) return kvp.Value;
-        }
-        return default;
-    }
-
     public static object Index(this ICollection collection, int index){
         int i = 0;
         foreach(object o in collection){
@@ -193,20 +158,12 @@ public static class Utility {
         throw new IndexOutOfRangeException("The index was outside the bounds of the array");
     }
 
-    public static T? Find<T>(this ReadOnlyCollection<T> list, Predicate<T> predicate) {
-        foreach(T value in list){
-            if(predicate(value)) return value;
-        }
-        return default;
-    }
-
     public static bool TryAdd(this IOrderedDictionary dict, object key, object value) {
         if (dict.Contains(key)) return false;
         dict.Add(key, value);
         return true;
     }
-    public static void Move(this IOrderedDictionary dict, int origIndex, int destIndex)
-        => dict.Move(dict.Keys.Index(origIndex), destIndex);
+    public static void Move(this IOrderedDictionary dict, int origIndex, int destIndex) => dict.Move(dict.Keys.Index(origIndex), destIndex);
     public static void Move(this IOrderedDictionary dict, object key, int destIndex){
         object? value = dict[key];
         dict.Remove(key);
@@ -238,6 +195,20 @@ public static class Utility {
 
 
     public static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
+
+    internal static (PropertyFieldWrapper, object?) GetMember(Type host, object? obj, Span<string> members) {
+        MemberInfo member = host.GetMember(members[0], BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)[0];
+        if (member is PropertyInfo property) {
+            if (members.Length == 1) return (new(property), obj);
+            obj = property.GetValue(obj);
+            host = property.PropertyType;
+        } else if (member is FieldInfo field) {
+            if (members.Length == 1) return (new(field), obj);
+            obj = field.GetValue(obj);
+            host = field.FieldType;
+        }
+        return GetMember(host, obj, members[1..]);
+    }
 
     private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;
     private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;

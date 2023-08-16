@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public enum JourneyCategory { NotConsumable, Consumable }
 

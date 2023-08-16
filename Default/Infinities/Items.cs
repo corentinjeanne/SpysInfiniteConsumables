@@ -1,10 +1,10 @@
-using SPIC.Displays;
+using SPIC.Default.Displays;
 using Terraria;
 using Terraria.Localization;
 
 // ? Add transformations Infinity
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public sealed class Items : Group<Items, Item> {
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);

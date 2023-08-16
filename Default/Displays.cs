@@ -1,9 +1,9 @@
 using System.ComponentModel;
-using SPIC.Configs;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
+using SPIC.Configs;
 
-namespace SPIC.Displays;
+namespace SPIC.Default.Displays;
 
 public enum CountStyle { Sprite, Name }
 

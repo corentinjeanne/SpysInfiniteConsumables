@@ -1,8 +1,8 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using SPIC.Infinities;
+using SPIC.Default.Infinities;
 
-namespace SPIC.Globals {
+namespace SPIC.Default.Globals {
 
 	public sealed class ExplosionProjectile : GlobalProjectile {
 

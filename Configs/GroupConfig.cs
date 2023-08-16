@@ -40,7 +40,7 @@ public sealed class GroupConfig {
 
     [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
 
-    public UsedInfinities UsedInfinities { get; set; } = 0; // ? Apply Infinity overrides when effective infinity is mixed
+    public UsedInfinities UsedInfinities { get; set; } = 0;
 
     [Header("Configs")]
     [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();

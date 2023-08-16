@@ -1,3 +1,4 @@
+using Terraria;
 using Terraria.ModLoader;
 
 namespace SPIC;
@@ -6,9 +7,7 @@ public sealed class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
-    public override void Load() {
-        Instance = this;
-    }
+    public override void Load() => Instance = this;
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();

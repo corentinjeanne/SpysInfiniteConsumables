@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -5,10 +6,9 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using System;
-using SPIC.Displays;
+using SPIC.Default.Displays;
 
-namespace SPIC.Globals;
+namespace SPIC.Default.Globals;
 
 public sealed class InfinityDisplayItem : GlobalItem {
 
@@ -167,7 +167,6 @@ public sealed class InfinityDisplayItem : GlobalItem {
     }
 
     public static void IncrementCounters() {
-        InfinityManager.DecreaseCacheLock();
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
             s_groupTimer = (s_groupTimer + Dots.Config.Value.AnimationLength) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
@@ -177,13 +176,14 @@ public sealed class InfinityDisplayItem : GlobalItem {
             s_InfinityIndex = (s_InfinityIndex + 1) % InfinityManager.InfinitiesLCM;
         }
     }
-    private static int s_groupIndex = 0, s_InfinityIndex = 0;
-    private static float s_groupTimer = 0, s_infinityTimer = 0;
-
+    
     public const int MaxDots = 8;
     public const int DotScale = 2;
     public static readonly Vector2 DotSize = new Vector2(4, 4) * DotScale;
     public static readonly Vector2 Borders = DotSize * 2f / 3f;
+
+    private static int s_groupIndex = 0, s_InfinityIndex = 0;
+    private static float s_groupTimer = 0, s_infinityTimer = 0;
 
     private static readonly Vector2[] s_innerPixels = new Vector2[]{ new(1,1),new(2,1),new(1,2),new(2,2) };
     private static readonly Vector2[] s_outerPixels = new Vector2[]{ new(1,0),new(0,1),new(0,2),new(1,3),new(2,3),new(3,2),new(3,1),new(2,0) };

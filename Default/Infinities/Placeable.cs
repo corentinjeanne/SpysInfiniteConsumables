@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public enum PlaceableCategory {
     None,

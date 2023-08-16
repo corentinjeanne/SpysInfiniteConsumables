@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
     None,
     Classic,

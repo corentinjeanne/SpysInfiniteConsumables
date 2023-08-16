@@ -1,14 +1,13 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
-
-using Terraria.ModLoader.Config;
-
-using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
+using SPIC.Configs;
 
-namespace SPIC.Infinities; 
+namespace SPIC.Default.Infinities; 
+
 public enum GrabBagCategory {
     None,
     Container,

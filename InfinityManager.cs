@@ -75,7 +75,7 @@ public static class InfinityManager {
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / Utility.GCD(InfinitiesLCM, s_infinities.Count);
     }
     internal static void Register<TGroup, TConsumable>(Group<TGroup, TConsumable> group) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
-        if(group is Infinities.Items) s_groups.Insert(0, group);
+        if(group is Default.Infinities.Items) s_groups.Insert(0, group);
         else s_groups.Add(group);
         GroupsLCM = s_groups.Count * GroupsLCM / Utility.GCD(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {

@@ -1,11 +1,10 @@
 ﻿// using System.Collections.Generic;
-
 // using Terraria;
 // using Terraria.ID;
 // using Terraria.ObjectData;
 // using Terraria.ModLoader;
 
-// namespace SPIC.Globals {
+// namespace SPIC.Default.Globals {
 
 //     public struct LargeObject {
 //         //public int type;

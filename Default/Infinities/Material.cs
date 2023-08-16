@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 public enum MaterialCategory {
     None,
     Basic,

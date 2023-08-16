@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using SPIC.Displays;
+using SPIC.Default.Displays;
 using Terraria;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 // ? Add quest fish Infinity
 

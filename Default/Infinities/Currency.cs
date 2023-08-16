@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Terraria.ModLoader;
 using Terraria.Localization;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public enum CurrencyCategory {
     None,

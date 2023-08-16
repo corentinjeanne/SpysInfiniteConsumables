@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
-using Newtonsoft.Json;
-using System;
+using SPIC.Default.Displays;
 
 namespace SPIC.Configs;
 
@@ -73,13 +74,13 @@ public sealed class InfinityDisplay : ModConfig {
     [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
     [JsonProperty, MovedTo("ExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
     [JsonProperty, MovedTo("WelcomeMessage")] private WelcomMessageFrequency general_welcomeMessage;
-    [JsonProperty, MovedTo(typeof(Displays.Tooltip), "Instance.Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
-    [JsonProperty, MovedTo(typeof(Displays.Tooltip), "Instance.Config.Value.RequirementStyle"), DefaultValue(Displays.CountStyle.Name)] private Displays.CountStyle tooltip_RequirementStyle;
-    [JsonProperty, MovedTo(typeof(Displays.Glow), "Instance.Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
-    [JsonProperty, MovedTo(typeof(Displays.Glow), "Instance.Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
-    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
-    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
-    [JsonProperty, MovedTo(typeof(Displays.Dots), "Instance.Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
+    [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
+    [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.RequirementStyle"), DefaultValue(CountStyle.Name)] private CountStyle tooltip_RequirementStyle;
+    [JsonProperty, MovedTo(typeof(Glow), "Instance.Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
+    [JsonProperty, MovedTo(typeof(Glow), "Instance.Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
+    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
+    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
+    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
     [JsonProperty, MovedTo("version"), DefaultValue("")] internal string general_lastLogs = "";
 }
 

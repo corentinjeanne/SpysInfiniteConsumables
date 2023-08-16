@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public enum UsableCategory {
     None,
@@ -20,10 +20,10 @@ public enum UsableCategory {
     // PlayerBooster,
     // WorldBooster,
 
-    Summoner,
+    Summoner, // TODO Fargo's summons
     Critter,
     // Explosive,
-    Tool, // TODO Fargo's summons
+    Tool,
 
     Unknown
 }
