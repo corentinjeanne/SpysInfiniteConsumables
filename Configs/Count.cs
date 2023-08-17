@@ -25,6 +25,7 @@ public class Count : MultiChoice<int> {
 
 public class Count<TCategory> : Count where TCategory : struct, System.Enum {
     public Count() : base() { }
+    public Count(int value) : base(value) { }
     public Count(TCategory category) : base(-System.Convert.ToInt32(category)) { }
 
     [Choice]

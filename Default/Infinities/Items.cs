@@ -14,10 +14,10 @@ public sealed class Items : Group<Items, Item> {
     public override Item ToItem(Item consumable) => consumable;
     public override int GetType(Item consumable) => consumable.type;
 
-    public override string CountToString(Item consumable, long count, CountStyle style, bool rawValue = false) {
+    public override string CountToString(int consumable, long count, CountStyle style, bool rawValue = false) {
         if (rawValue) return count.ToString();
         return style switch {
-            CountStyle.Sprite => $"{count}[i:{consumable.type}]",
+            CountStyle.Sprite => $"{count}[i:{consumable}]",
             _ or CountStyle.Name => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count),
         };
     }

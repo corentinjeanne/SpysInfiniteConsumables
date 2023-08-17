@@ -25,7 +25,8 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(true)] public bool ShowInfinities;
     [DefaultValue(true)] public bool ShowRequirement;
     public bool ShowInfo;
-    [DefaultValue(true)] public bool ExclusiveDisplay;
+    [DefaultValue(true)] public bool ShowExclusiveDisplay;
+    [DefaultValue(true)] public bool ShowAlternateDisplays;
     [DefaultValue(WelcomMessageFrequency.OncePerUpdate)] public WelcomMessageFrequency WelcomeMessage;    
     
     [Header("Configs")]
@@ -72,7 +73,7 @@ public sealed class InfinityDisplay : ModConfig {
     [JsonProperty, MovedTo("ShowInfinities"), DefaultValue(true)] private bool general_ShowInfinities;
     [JsonProperty, MovedTo("ShowRequirement"), DefaultValue(true)] private bool general_ShowRequirement;
     [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
-    [JsonProperty, MovedTo("ExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
+    [JsonProperty, MovedTo("ShowExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
     [JsonProperty, MovedTo("WelcomeMessage")] private WelcomMessageFrequency general_welcomeMessage;
     [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
     [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.RequirementStyle"), DefaultValue(CountStyle.Name)] private CountStyle tooltip_RequirementStyle;

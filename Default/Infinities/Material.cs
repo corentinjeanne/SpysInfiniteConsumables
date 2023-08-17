@@ -32,7 +32,6 @@ public sealed class MaterialRequirements {
     public Count NonStackable = 2;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
-
 }
 
 public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
@@ -89,7 +88,7 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
 
     public static Wrapper<MaterialRequirements> Config = null!;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
     public static void CraftingMaterial(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
@@ -104,11 +103,5 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         if (group == -1) return;
         count = s_itemGroupCounts[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
 
-    }
-
-    public static void CraftingMaterial(Item item, List<(IInfinity infinity, long consumed)> exclusiveGroups) {
-        if (Main.numAvailableRecipes == 0) return;
-        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item));
-        if (material is not null) exclusiveGroups.Add((Instance, material.stack));
     }
 }

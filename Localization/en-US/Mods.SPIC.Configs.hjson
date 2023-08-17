@@ -63,9 +63,14 @@ InfinityDisplay: {
 		Tooltip: Displays more precise info about the item, such as its category
 	}
 
-	ExclusiveDisplay: {
-		Label: "[i:5075] Exclusive Displays"
+	ShowExclusiveDisplay: {
+		Label: "[i:5075] Show Exclusive Displays"
 		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
+	}
+
+	ShowAlternateDisplays: {
+		Label: "[i:4953] Show Alternate Displays"
+		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
 	}
 
 	WelcomeMessage: {

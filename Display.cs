@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Reflection;
 using Terraria.Localization;
 using Terraria.ModLoader;
 

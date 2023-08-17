@@ -41,8 +41,8 @@ public static class InfinityManager {
 
         itemDisplay = new();
         foreach (IGroup group in Groups) {
-            foreach ((IInfinity infinity, FullInfinity display, InfinityVisibility visibility) in group.GetDisplayedInfinities(Main.LocalPlayer, item))
-                itemDisplay.Add(infinity, display, visibility);
+            foreach ((IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility) in group.GetDisplayedInfinities(Main.LocalPlayer, item))
+                itemDisplay.Add(infinity, displayed, display, visibility);
         }
         
         return itemDisplay;

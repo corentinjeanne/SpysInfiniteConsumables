@@ -53,7 +53,7 @@ public sealed class ItemDisplay {
 
     internal ItemDisplay() {}
 
-    internal void Add(IInfinity infinity, FullInfinity display, InfinityVisibility visibility) {
+    internal void Add(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility) {
         switch (visibility) {
         case InfinityVisibility.Normal:
             if (ExclusiveDisplay) return;
@@ -66,17 +66,17 @@ public sealed class ItemDisplay {
             break;
         }
         if(_infinities.Count == 0 || _infinities[^1].infinity.Group != infinity.Group) _groups.Add(_infinities.Count);
-        _infinities.Add((infinity, display));
+        _infinities.Add((infinity, displayed, display));
     }
 
-    public ReadOnlySpan<(IInfinity infinity, FullInfinity display)> DisplayedInfinities => CollectionsMarshal.AsSpan(_infinities);
-    public ReadOnlySpan<(IInfinity infinity, FullInfinity display)> InfinitiesByGroups(int index)
+    public ReadOnlySpan<(IInfinity infinity, int displayed, FullInfinity display)> DisplayedInfinities => CollectionsMarshal.AsSpan(_infinities);
+    public ReadOnlySpan<(IInfinity infinity, int displayed, FullInfinity display)> InfinitiesByGroups(int index)
         => index >= Groups-1 ? CollectionsMarshal.AsSpan(_infinities)[_groups[index]..] : CollectionsMarshal.AsSpan(_infinities)[_groups[index].._groups[index+1]];
 
     public int Groups => _groups.Count;
 
     public bool ExclusiveDisplay { get; private set; }
 
-    private readonly List<(IInfinity infinity, FullInfinity display)> _infinities = new();
+    private readonly List<(IInfinity infinity, int displayed, FullInfinity display)> _infinities = new();
     private readonly List<int> _groups = new();
 }

@@ -24,13 +24,18 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-// TODO lootbox and keys
+// TODO detected items opened with left click
 public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color Color { get; set; } = Colors.RarityDarkPurple;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip); // TODO detected items opened with left click
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
+
+    public override void Load() {
+        base.Load();
+        ExtraDisplays += consumable => consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null;
+    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();

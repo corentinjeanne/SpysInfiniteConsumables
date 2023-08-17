@@ -52,6 +52,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
     public override void Load() {
         base.Load();
         DisplayOverrides += AmmoSlots;
+        ExtraDisplays += consumable => consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
     }
 
     public override void SetStaticDefaults() {
@@ -115,13 +116,9 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
     public static Wrapper<UsableRequirements> Config = null!;
 
-    public override Item DisplayedValue(Item consumable) => consumable.fishingPole <= 0 ? consumable : Main.LocalPlayer.PickBait() ?? consumable;
-
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
-        Item ammo = DisplayedValue(item);
-        if (ammo == item) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
-        return (new(Mod, "PoleConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
-
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
+        return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
     public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {

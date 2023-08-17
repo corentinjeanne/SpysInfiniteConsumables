@@ -16,12 +16,12 @@ public sealed class InfinityDisplayItem : GlobalItem {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if (!Tooltip.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement || config.ShowInfo)) return;
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        foreach ((IInfinity infinity, FullInfinity display) in itemDisplay.DisplayedInfinities) {
-            (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item);
+        foreach ((IInfinity infinity, int displayed, FullInfinity display) in itemDisplay.DisplayedInfinities) {
+            (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item, displayed);
             bool added = false;
             TooltipLine? line = Tooltip.Config.Value.AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
-            DisplayOnLine(line, item, infinity, display);
+            DisplayOnLine(line, displayed, infinity, display);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
@@ -34,7 +34,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
         List<IInfinity> withDisplay = new();
-        foreach((IInfinity i, FullInfinity display) in itemDisplay.DisplayedInfinities) {
+        foreach((IInfinity i, int _, FullInfinity display) in itemDisplay.DisplayedInfinities) {
             if (display.Infinity > 0) withDisplay.Add(i);
         }
 
@@ -66,7 +66,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
         if(itemDisplay.DisplayedInfinities.Length == 0) return;
         
-        foreach ((IInfinity infinity, FullInfinity display) in itemDisplay.InfinitiesByGroups(s_groupIndex % itemDisplay.Groups)) {
+        foreach ((IInfinity infinity, _, FullInfinity display) in itemDisplay.InfinitiesByGroups(s_groupIndex % itemDisplay.Groups)) {
             if(display.Count == 0) continue;
             DisplayDot(spriteBatch, dotPosition, infinity, display);
             dotPosition += dotDelta;
@@ -74,7 +74,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     }
 
-    public static void DisplayOnLine(TooltipLine line, Item item, IInfinity infinity, FullInfinity display) {
+    public static void DisplayOnLine(TooltipLine line, int displayed, IInfinity infinity, FullInfinity display) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         IGroup group = infinity.Group;
 
@@ -91,11 +91,11 @@ public sealed class InfinityDisplayItem : GlobalItem {
             line.OverrideColor = infinity.Color;
             line.Text = display.Requirement.Multiplier >= 1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(item, infinity, 0, display.Infinity, Tooltip.Config.Value.RequirementStyle));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(displayed, infinity, 0, display.Infinity, Tooltip.Config.Value.RequirementStyle));
             AddExtra();
         }
         else if (config.ShowRequirement) {
-            line.Text += extra.Length == 0 ? $" ({group.CountToString(item, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)})" : $" ({group.CountToString(item, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)}, {extra})";
+            line.Text += extra.Length == 0 ? $" ({group.CountToString(displayed, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)})" : $" ({group.CountToString(displayed, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)}, {extra})";
         }
         else AddExtra();
 
@@ -109,12 +109,13 @@ public sealed class InfinityDisplayItem : GlobalItem {
         float ratio;
         if(config.ShowInfinities) {
             if (display.Infinity > 0) {
+                Color borderColor = Color.Black * maxAlpha;
                 for (int i = 0; i < s_outerPixels.Length; i++) {
                     spriteBatch.Draw(
                         TextureAssets.MagicPixel.Value,
                         position + s_outerPixels[i] * scale,
                         new Rectangle(0, 0, 1, 1),
-                        Color.Black * maxAlpha,
+                        borderColor,
                         0f,
                         Vector2.Zero,
                         scale,
@@ -147,6 +148,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         }
     }
     
+    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
         Texture2D texture = TextureAssets.Item[item.type].Value;
 

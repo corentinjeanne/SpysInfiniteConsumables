@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Localization;
@@ -17,7 +15,7 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     int IconType { get; }
     LocalizedText DisplayName { get; }
 
-    (TooltipLine, TooltipLineID?) GetTooltipLine(Item item);
+    (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed);
 }
 
 public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
@@ -30,13 +28,12 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public override void Unload() {
         DisplayOverrides = null;
         InfinityOverrides = null;
+        ExtraDisplays = null;
     }
 
     public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
     
-    public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, Name, DisplayName.Value), null);
-
-    public virtual TConsumable DisplayedValue(TConsumable consumable) => consumable; // TODO rework into a secondary diplay allowing for both to be visible // TODO reduce calls by caching or other way
+    public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, Name, DisplayName.Value), null);
 
     public TGroup Group { get; internal set; } = null!;
     public virtual bool Enabled { get; set; }
@@ -59,6 +56,17 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public event OverrideDisplayFn? DisplayOverrides;
     public void OverrideDisplay(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) => DisplayOverrides?.Invoke(player, item, consumable, ref requirement, ref count, extras, ref visibility);
     public delegate void OverrideDisplayFn(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility);
+    
+    public event Func<TConsumable, TConsumable?>? ExtraDisplays;
+    public IEnumerable<TConsumable> DisplayedValues(TConsumable consumable) {
+        yield return consumable;
+        if(ExtraDisplays is not null && Configs.InfinityDisplay.Instance.ShowAlternateDisplays) {
+            foreach (Func<TConsumable, TConsumable?> extra in ExtraDisplays.GetInvocationList()) {
+                TConsumable? displayed = extra(consumable);
+                if (displayed is not null) yield return displayed;
+            }
+        }
+    }
 }
 
 public abstract class Infinity<TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {

@@ -70,6 +70,12 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         base.Load();
         DisplayOverrides += AmmoSlots;
         InfinityOverrides += DuplicationInfinity;
+        ExtraDisplays += consumable => GetWandType(consumable) switch {
+            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
+            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            _ => null
+        };
     }
 
     public override void SetStaticDefaults() {
@@ -173,18 +179,8 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
 
     public static Wrapper<PlaceableRequirements> Config = null!;
 
-    public override Item DisplayedValue(Item consumable) {
-        return GetWandType(consumable) switch {
-            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
-            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            _ => null
-        } ?? consumable;
-    }
-
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
-        Item ammo = DisplayedValue(item);
-        if (ammo == item) {
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) {
             if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
             return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
         }
@@ -193,7 +189,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
             WandType.Tile or _ => ("WandConsumes", TooltipLineID.WandConsumes),
         };
-        return (new(Mod, name, Lang.tip[52].Value + ammo.Name), position);
+        return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
     }
 
     public enum WandType {

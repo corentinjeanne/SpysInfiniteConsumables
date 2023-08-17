@@ -30,6 +30,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
         base.Load();
         RequirementOverrides += MaxStack;
         DisplayOverrides += AmmoSlots;
+        ExtraDisplays += consumable => consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
     }
 
     public override void SetStaticDefaults() {
@@ -53,12 +54,9 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
 
     public static Wrapper<AmmoRequirements> Config = null!;
 
-    public override Item DisplayedValue(Item consumable) => consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) ?? consumable : consumable;
-
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
-        Item ammo = DisplayedValue(item);
-        if (ammo == item) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
-        return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + ammo.Name), TooltipLineID.WandConsumes);
+    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
+        return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
 

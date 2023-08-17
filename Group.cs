@@ -19,9 +19,9 @@ public interface IGroup : ILocalizedModType, ILoadable {
 
     internal void Add(Preset preset);
 
-    string CountToString(Item item, IInfinity infinity, long owned, long value, CountStyle style);
+    string CountToString(int displayed, IInfinity infinity, long owned, long value, CountStyle style);
 
-    IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
+    IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
     IReadOnlyList<IInfinity> Infinities { get; }
     
@@ -102,36 +102,36 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public long GetMixedInfinity(Player player, TConsumable consumable) => GetMixedFullInfinity(player, consumable).Infinity;
 
 
-    public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
+    public IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
         TConsumable consumable = ToConsumable(item);
 
         GroupInfinity consumableInfinity = InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable); ;
         bool forcedByCustom = consumableInfinity.UnusedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
-            TConsumable displayed = infinity.DisplayedValue(consumable);
-            bool weapon = !consumable.Equals(displayed);
-            GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
-            FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
+            foreach(TConsumable displayed in infinity.DisplayedValues(consumable)){
+                bool weapon = !consumable.Equals(displayed);
+                GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
+                FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
 
-            if (effective.Requirement.IsNone) continue;
-            List<object> extras = new(effective.Extras);
-            Requirement requirement = effective.Requirement;
-            long count = effective.Count;
-            InfinityVisibility visibility = displayedInfinity.UsedInfinities.ContainsKey(infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
-            infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
-            if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
-                if (weapon) visibility = InfinityVisibility.Hidden;
-                count = 0;
+                if (effective.Requirement.IsNone) continue;
+                List<object> extras = new(effective.Extras);
+                Requirement requirement = effective.Requirement;
+                long count = effective.Count;
+                InfinityVisibility visibility = displayedInfinity.UsedInfinities.ContainsKey(infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
+                infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
+                if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
+                    if (weapon) visibility = InfinityVisibility.Hidden;
+                    count = 0;
+                }
+                if (forcedByCustom) {
+                    if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
+                    forcedByCustom = false;
+                }
+                if (!InfinityDisplay.Instance.ShowExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
+                if (visibility == InfinityVisibility.Hidden) continue;
+                yield return (infinity, GetType(displayed), FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
             }
-            if (forcedByCustom) {
-                if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
-                forcedByCustom = false;
-            }
-            if (!InfinityDisplay.Instance.ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
-            if(visibility == InfinityVisibility.Hidden) continue;
-            yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
-            
         }
     }
 
@@ -144,10 +144,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public abstract long CountConsumables(Player player, TConsumable consumable);
     public virtual long MaxStack(TConsumable consumable) => 0;
 
-    public abstract string CountToString(TConsumable consumable, long count, CountStyle style, bool rawValue = false);
-    public virtual string CountToString(Item item, IInfinity infinity, long owned, long value, CountStyle style) {
-        TConsumable consumable = ((Infinity<TGroup, TConsumable>)infinity).DisplayedValue(ToConsumable(item));
-        return owned == 0 ? CountToString(consumable, value, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, value, style)}";
+    public abstract string CountToString(int consumable, long count, CountStyle style, bool rawValue = false);
+    public virtual string CountToString(int displayed, IInfinity infinity, long owned, long value, CountStyle style) {
+        return owned == 0 ? CountToString(displayed, value, style) : $"{CountToString(displayed, owned, style, true)}/{CountToString(displayed, value, style)}";
     }
 
 
