@@ -13,9 +13,11 @@ namespace SPIC;
 
 public enum InfinityVisibility { Hidden, Normal, Exclusive }
 
+// ? Add transformations Infinity
+// ? Add quest fish Infinity
+
 public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
-    void ClearInfinity(Item item);
 
     internal void Add(Preset preset);
 
@@ -142,8 +144,8 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public abstract TConsumable FromType(int type);
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
-    public virtual long MaxStack(TConsumable consumable) => 0;
 
+    // TODO Remove or turn into component like obj 
     public abstract string CountToString(int consumable, long count, CountStyle style, bool rawValue = false);
     public virtual string CountToString(int displayed, IInfinity infinity, long owned, long value, CountStyle style) {
         return owned == 0 ? CountToString(displayed, value, style) : $"{CountToString(displayed, owned, style, true)}/{CountToString(displayed, value, style)}";
@@ -151,7 +153,6 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
 
     public void ClearInfinities() => _cachedInfinities.Clear();
-    public void ClearInfinity(Item item) => _cachedInfinities.Clear(ToConsumable(item));
 
     void IGroup.LoadConfig(GroupConfig config) {
         OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();

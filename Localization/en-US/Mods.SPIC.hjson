@@ -45,17 +45,16 @@ Changelog: {
 }
 
 Chat: {
-	Welcome:
+	Download:
 		'''
-		          ***** Thank you for downloading SPIC v{0}! *****
-		If you found a bug, please repport it on the Steam workshop page or GitHub.
+		Thanks for doanloading SPIC!
+		If you found a bug, please report it on the Steam workshop page or GitHub.
 		'''
-	Message:
+	Update:
 		'''
-		As the 1.4.4 port turned out to be much bigger than I thought, I didn't have time to fix all of the performances issues I'm avare of.
-		The lag caused by customs fixed it self, but it can become laggy when your inventory changes constantly (e.g. when picking up hundreds of items with right click).
+		SPIC was updated to v{0}! To learn more about the update look at the changelog in the 'InfinityDisplay' Config.
+		If you found a bug, please report it on the Steam workshop page or GitHub.
 		'''
-	Changelog: "             --- New features and changes since v{0} ---"
 }
 
 CommonItemTooltips: {

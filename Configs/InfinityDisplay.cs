@@ -21,13 +21,13 @@ public sealed class InfinityDisplay : ModConfig {
             _displays = value;
         }
     }
+    
     [Header("General")]
     [DefaultValue(true)] public bool ShowInfinities;
     [DefaultValue(true)] public bool ShowRequirement;
     public bool ShowInfo;
     [DefaultValue(true)] public bool ShowExclusiveDisplay;
     [DefaultValue(true)] public bool ShowAlternateDisplays;
-    [DefaultValue(WelcomMessageFrequency.OncePerUpdate)] public WelcomMessageFrequency WelcomeMessage;    
     
     [Header("Configs")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
@@ -61,6 +61,8 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
 
+    [Header("Changelog")]
+    public Text? ChangeLog { get; set; }
     [JsonProperty, DefaultValue("")] internal string version = "";
 
     private Dictionary<DisplayDefinition, bool> _displays = new();

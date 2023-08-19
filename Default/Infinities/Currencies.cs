@@ -4,11 +4,14 @@ using Terraria;
 
 namespace SPIC.Default.Infinities;
 
-// ? Add quest fish Infinity
-
 public sealed class Currencies : Group<Currencies, int> {
+    public override int ToConsumable(Item item) => item.CurrencyType();
+    public override Item ToItem(int consumable) => new(CurrencyHelper.LowestValueType(consumable));
+    public override int GetType(int consumable) => consumable;
+    public override int FromType(int type) => type;
+    
     public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);
-
+    
     public override string CountToString(int consumable, long count, CountStyle style, bool rawValue = false) {
         if(rawValue && InfinityManager.GetCategory(consumable, Currency.Instance) == CurrencyCategory.SingleCoin) return count.ToString();
         switch (style) {
@@ -21,10 +24,4 @@ public sealed class Currencies : Group<Currencies, int> {
             return CurrencyHelper.PriceText(consumable, count);
         }
     }
-
-    public override int ToConsumable(Item item) => item.CurrencyType();
-    public override Item ToItem(int consumable) => new(CurrencyHelper.LowestValueType(consumable));
-    public override int GetType(int consumable) => consumable;
-
-    public override int FromType(int type) => type;
 }
