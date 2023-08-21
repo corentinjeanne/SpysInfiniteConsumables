@@ -299,7 +299,7 @@ UsedInfinities: {
 	}
 }
 
-Glow: {
+GlowStyle: {
 	Tooltip: ""
 	Off.Label: Off
 	Simple.Label: Simple

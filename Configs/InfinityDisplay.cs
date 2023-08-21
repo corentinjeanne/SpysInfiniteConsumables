@@ -76,14 +76,13 @@ public sealed class InfinityDisplay : ModConfig {
     [JsonProperty, MovedTo("ShowRequirement"), DefaultValue(true)] private bool general_ShowRequirement;
     [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
     [JsonProperty, MovedTo("ShowExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
-    [JsonProperty, MovedTo("WelcomeMessage")] private WelcomMessageFrequency general_welcomeMessage;
-    [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
-    [JsonProperty, MovedTo(typeof(Tooltip), "Instance.Config.Value.RequirementStyle"), DefaultValue(CountStyle.Name)] private CountStyle tooltip_RequirementStyle;
-    [JsonProperty, MovedTo(typeof(Glow), "Instance.Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
-    [JsonProperty, MovedTo(typeof(Glow), "Instance.Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
-    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
-    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
-    [JsonProperty, MovedTo(typeof(Dots), "Instance.Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
+    [JsonProperty, MovedTo(typeof(Tooltip), "Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
+    [JsonProperty, MovedTo(typeof(Tooltip), "Config.Value.RequirementStyle"), DefaultValue(CountStyle.Name)] private CountStyle tooltip_RequirementStyle;
+    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
+    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
     [JsonProperty, MovedTo("version"), DefaultValue("")] internal string general_lastLogs = "";
 }
 
@@ -91,4 +90,4 @@ public enum Direction {Vertical, Horizontal}
 public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
 public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
 public enum CacheStyle {None, Smart, Performances }
-public enum Glow { Off, Simple, Fancy }
+public enum GlowStyle { Off, Simple, Fancy }
