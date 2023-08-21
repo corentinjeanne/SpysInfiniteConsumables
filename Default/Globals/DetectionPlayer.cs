@@ -8,12 +8,10 @@ using SPIC.Default.Infinities;
 
 namespace SPIC.Default.Globals;
 
-// TODO review detection
-
 public sealed class DetectionPlayer : ModPlayer {
 
     public bool InItemCheck { get; private set; }
-    public static bool InRightClick { get; private set; }
+    public bool InRightClick { get; private set; }
 
 
     public override void Load() {
@@ -76,22 +74,17 @@ public sealed class DetectionPlayer : ModPlayer {
             InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
             if(!_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, GrabBagCategory.None, GrabBag.Instance);
         }
-        
-        void SaveBag(GrabBagCategory category) {
-            InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, GrabBag.Instance);
-            if (_detectingConsumable) InfinityManager.SaveDetectedCategory(DetectingCategoryOf, UsableCategory.None, Usable.Instance);
-        }
 
         DetectionDataScreenShot data = GetDetectionData();
 
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
-        else if (TryDetectGrabBag(data, out GrabBagCategory bag)) SaveBag(bag);
         else if (mustDetect && _detectingConsumable) SaveUsable(UsableCategory.Booster);
         else return false;
         DetectingCategoryOf = null;
 
         return true;
     }
+
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
 
         if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
@@ -106,11 +99,6 @@ public sealed class DetectionPlayer : ModPlayer {
 
         else category = UsableCategory.Unknown;
         return category != UsableCategory.Unknown;
-    }
-
-    private bool TryDetectGrabBag(DetectionDataScreenShot data, out GrabBagCategory category) {
-        category = data.ItemCount != _preUseData.ItemCount ? GrabBagCategory.Container : GrabBagCategory.None;
-        return category != GrabBagCategory.None;
     }
 
     public int FindPotentialExplosivesType(int proj) {
@@ -138,26 +126,12 @@ public sealed class DetectionPlayer : ModPlayer {
     public void Teleported() => _teleport = true;
 
 
-    private void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot){
-        InRightClick = true;
+    private static void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot){
+        DetectionPlayer detectionPlayer = Main.LocalPlayer.GetModPlayer<DetectionPlayer>();
+        detectionPlayer.InRightClick = true;
         orig(inv, context, slot);
-        InRightClick = false;
+        detectionPlayer.InRightClick = false;
     }
-
-    // private bool HookRightClick_Inner(Terraria.UI.On_ItemSlot.orig_RightClick_FindSpecialActions orig, Item[] inv, int context, int slot, Player player) {
-    //     DetectingCategoryOf = null;
-    //     if (!Main.mouseRight || !Main.mouseRightRelease) return orig(inv, context, slot, player);
-    //     InRightClick = true;
-    //     DetectionPlayer modPlayer = player.GetModPlayer<DetectionPlayer>();
-    //     if (InfinityManager.DetectMissing && inv[slot].type != ItemID.None && inv[slot].GetCategory(GrabBag.Instance) == GrabBagCategory.Unknown)
-    //         modPlayer.PrepareDetection(inv[slot], false);
-
-    //     bool res = orig(inv, context, slot, player);
-    //     if (modPlayer.DetectingCategoryOf is not null)
-    //         modPlayer.TryDetectCategory();
-    //     InRightClick = false;
-    //     return res;
-    // }
 
     private static void HookPutItemInInventory(On_Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
         if (selItem < 0){

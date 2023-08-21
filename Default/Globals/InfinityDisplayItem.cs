@@ -100,7 +100,8 @@ public sealed class InfinityDisplayItem : GlobalItem {
         else AddExtra();
 
     }
-
+    
+    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, IInfinity infinity, FullInfinity display) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         float scale = DotScale * Main.inventoryScale;

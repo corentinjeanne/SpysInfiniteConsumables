@@ -8,9 +8,7 @@ namespace SPIC.Default.Globals;
 public sealed class ConsumptionItem : GlobalItem {
 
     public override bool ConsumeItem(Item item, Player player) {
-
         DetectionPlayer detectionPlayer = player.GetModPlayer<DetectionPlayer>();
-
         
         if(Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
 
@@ -25,9 +23,9 @@ public sealed class ConsumptionItem : GlobalItem {
 
             int tileTarget = Main.tile[Player.tileTargetX, Player.tileTargetY].TileType;
             if(tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
-            return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance, GrabBag.Instance);
+            return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance);
 
-        } else if(DetectionPlayer.InRightClick)
+        } else if(detectionPlayer.InRightClick)
             return !player.HasInfinite(item, 1,
                 () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
                 GrabBag.Instance, Usable.Instance

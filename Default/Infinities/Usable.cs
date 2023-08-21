@@ -108,10 +108,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
         if (item.hairDye != -1) return UsableCategory.Booster;
 
-        // Most modded summoners, booster
-        if (ItemID.Sets.SortingPriorityBossSpawns[item.type] > 0) return UsableCategory.Unknown;
-
-        return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Tool; // TODO readd Unknown: Confetti, Recall like potion, shimmer boosters, boosters, modded summons
+        return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
     public static Wrapper<UsableRequirements> Config = null!;

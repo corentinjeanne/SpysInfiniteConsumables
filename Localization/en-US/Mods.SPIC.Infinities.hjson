@@ -82,5 +82,5 @@ Usable: {
 	Critter: Critter or Bait
 	// Explosive: Explosive
 	Tool: Tool
-	Unknown: Unknown
+	Unknown: Tool?
 }

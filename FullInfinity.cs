@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using SPIC.Configs;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.Localization;
-using System.Text.RegularExpressions;
+using System;
 
 namespace SPIC;
 
@@ -55,19 +53,27 @@ public class FullInfinity {
     }
 
     public string LocalizeExtras(IInfinity infinity) {
-        string GetValue(string s) => Language.GetOrRegister(s, () => Regex.Replace(s, "([A-Z])", " $1").Trim()).Value;
         List<string> parts = new();
         foreach(object extra in Extras) {
-            string value = extra switch {
-                System.Enum category => infinity.GetLocalization(category.ToString(), () => Regex.Replace(category.ToString(), "([A-Z])", " $1").Trim()).Value,
-                LocalizedText text => text.Value,
-                string s => GetValue(s),
-                _ => GetValue(extra.ToString()!),
-            };
-            parts.Add(value);
+            Type extraType = extra.GetType();
+            if(_extraLocs.TryGetValue(extraType, out Func<IInfinity, object, string>? func)) parts.Add(func(infinity, extra));
+            else {
+                foreach((Type type, Func<IInfinity, object, string> conveter) in _extraLocs) {
+                    if (!extraType.IsSubclassOf(type)) continue;
+                    parts.Add(conveter(infinity, extra));
+                    goto success;
+                }
+                parts.Add(extra.ToString()!);
+            success:;
+            }
         }
         return string.Join(", ", parts);
     }
 
-    internal static int EstimatedSize => sizeof(long) * 3 + sizeof(float) + System.IntPtr.Size * 3;
+    public static void RegisterExtraLocalization<TExtra>(Func<IInfinity, TExtra, string> localizer) => _extraLocs[typeof(TExtra)] = (inf, extra) => localizer(inf, (TExtra)extra);
+    internal static void ClearExtraLocs() => _extraLocs.Clear();
+
+    private static readonly Dictionary<Type, Func<IInfinity, object, string>> _extraLocs = new();
+
+    internal static int EstimatedSize => sizeof(long) * 3 + sizeof(float) + IntPtr.Size * 3;
 }
