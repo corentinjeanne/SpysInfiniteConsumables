@@ -14,8 +14,6 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     Color Color { get; }
     int IconType { get; }
     LocalizedText DisplayName { get; }
-
-    (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed);
 }
 
 public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
@@ -33,8 +31,6 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
 
     public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
     
-    public virtual (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, Name, DisplayName.Value), null);
-
     public TGroup Group { get; internal set; } = null!;
     public virtual bool Enabled { get; set; }
 

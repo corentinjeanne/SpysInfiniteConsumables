@@ -85,6 +85,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             if (i.tileWand != -1) RegisterWand(i);
         }
         Config = Group.AddConfig<PlaceableRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
 
@@ -177,7 +178,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
 
     public static Wrapper<PlaceableRequirements> Config = null!;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) {
             if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
             return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);

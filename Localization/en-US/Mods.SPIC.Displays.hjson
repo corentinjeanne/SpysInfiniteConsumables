@@ -5,11 +5,6 @@ Tooltip: {
 		Label: Add missing lines
 		Tooltip: ""
 	}
-
-	RequirementStyle: {
-		Label: Requirement style
-		Tooltip: ""
-	}
 }
 
 Glow: {

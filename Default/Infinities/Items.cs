@@ -1,10 +1,13 @@
-using SPIC.Default.Displays;
 using Terraria;
 using Terraria.Localization;
 
 namespace SPIC.Default.Infinities;
 
 public sealed class Items : Group<Items, Item> {
+    public override void SetStaticDefaults() {
+        Displays.Tooltip.Instance.RegisterCountStr(this, CountToString);
+    }
+
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);
 
     public override Item ToConsumable(Item item) => item;
@@ -12,13 +15,7 @@ public sealed class Items : Group<Items, Item> {
     public override int GetType(Item consumable) => consumable.type;
     public override Item FromType(int type) => new(type);
 
-    public override string CountToString(int consumable, long count, CountStyle style, bool rawValue = false) {
-        if (rawValue) return count.ToString();
-        return style switch {
-            CountStyle.Sprite => $"{count}[i:{consumable}]",
-            _ or CountStyle.Name => Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count),
-        };
-    }
-
-
+    public static string CountToString(int consumable, long count, long value) => count == 0 ?
+        Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", value) :
+        $"{count}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count)}";
 }

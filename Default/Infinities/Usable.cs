@@ -58,6 +58,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<UsableRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(UsableCategory category) {
@@ -113,7 +114,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
 
     public static Wrapper<UsableRequirements> Config = null!;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
         return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }

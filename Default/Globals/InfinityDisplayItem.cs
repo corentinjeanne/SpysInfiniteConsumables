@@ -17,7 +17,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (!Tooltip.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement || config.ShowInfo)) return;
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
         foreach ((IInfinity infinity, int displayed, FullInfinity display) in itemDisplay.DisplayedInfinities) {
-            (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item, displayed);
+            (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.Instance.GetTooltipLine(infinity, item, displayed);
             bool added = false;
             TooltipLine? line = Tooltip.Config.Value.AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
@@ -86,16 +86,15 @@ public sealed class InfinityDisplayItem : GlobalItem {
             if (extra.Length != 0) line.Text += $" ({extra})";
         }
 
-
         if (canDisplayInfinity && display.Infinity > 0) {
             line.OverrideColor = infinity.Color;
             line.Text = display.Requirement.Multiplier >= 1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(displayed, infinity, 0, display.Infinity, Tooltip.Config.Value.RequirementStyle));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, Tooltip.Instance.CountToString(group, displayed, 0, display.Infinity));
             AddExtra();
         }
         else if (config.ShowRequirement) {
-            line.Text += extra.Length == 0 ? $" ({group.CountToString(displayed, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)})" : $" ({group.CountToString(displayed, infinity, count, display.Requirement.Count, Tooltip.Config.Value.RequirementStyle)}, {extra})";
+            line.Text += extra.Length == 0 ? $" ({Tooltip.Instance.CountToString(group, displayed, count, display.Requirement.Count)})" : $" ({Tooltip.Instance.CountToString(group, displayed, count, display.Requirement.Count)}, {extra})";
         }
         else AddExtra();
 

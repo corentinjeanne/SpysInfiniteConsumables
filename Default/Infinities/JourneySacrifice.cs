@@ -30,13 +30,14 @@ public sealed class JourneySacrifice : InfinityStatic<JourneySacrifice, Items, I
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<JourneySacrificeSettings>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(Item item, List<object> extras) => new(item.ResearchUnlockCount);
 
     public static Wrapper<JourneySacrificeSettings> Config = null!;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("Tooltip")), TooltipLineID.JourneyResearch);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("Tooltip")), TooltipLineID.JourneyResearch);
     
     public static void JourneyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.LocalPlayer.difficulty != PlayerDifficultyID.Creative && Instance.Group.Config.UsedInfinities == 0) visibility = InfinityVisibility.Hidden;

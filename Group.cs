@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.Reflection;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
-using SPIC.Default.Displays;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -20,8 +19,6 @@ public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
 
     internal void Add(Preset preset);
-
-    string CountToString(int displayed, IInfinity infinity, long owned, long value, CountStyle style);
 
     IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
@@ -144,13 +141,6 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public abstract TConsumable FromType(int type);
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
-
-    // TODO Remove or turn into component like obj 
-    public abstract string CountToString(int consumable, long count, CountStyle style, bool rawValue = false);
-    public virtual string CountToString(int displayed, IInfinity infinity, long owned, long value, CountStyle style) {
-        return owned == 0 ? CountToString(displayed, value, style) : $"{CountToString(displayed, owned, style, true)}/{CountToString(displayed, value, style)}";
-    }
-
 
     public void ClearInfinities() => _cachedInfinities.Clear();
 

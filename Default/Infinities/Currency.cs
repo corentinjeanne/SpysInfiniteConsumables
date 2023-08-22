@@ -44,6 +44,7 @@ public sealed class Currency : InfinityStatic<Currency, Currencies, int, Currenc
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<CurrencyRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(CurrencyCategory category) => category switch {
@@ -58,7 +59,7 @@ public sealed class Currency : InfinityStatic<Currency, Currencies, int, Currenc
         return CurrencyHelper.CurrencySystems(currency).values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : base.GetTooltipLine(item, displayed);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
 
     public static Wrapper<CurrencyRequirements> Config = null!;
 

@@ -36,6 +36,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<AmmoRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
@@ -54,7 +55,7 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
 
     public static Wrapper<AmmoRequirements> Config = null!;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
