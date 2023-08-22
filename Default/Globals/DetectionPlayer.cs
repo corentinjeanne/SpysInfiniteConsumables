@@ -139,7 +139,7 @@ public sealed class DetectionPlayer : ModPlayer {
         Item item = self.inventory[selItem];
 
         Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
-        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Liquid, Placeable.Instance);
+        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Bucket, Placeable.Instance);
         
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

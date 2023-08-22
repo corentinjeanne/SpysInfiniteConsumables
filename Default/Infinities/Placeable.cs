@@ -29,7 +29,7 @@ public enum PlaceableCategory {
 
     Wiring,
     Mechanical,
-    Liquid,
+    Bucket,
     Seed,
     Paint
 }
@@ -53,8 +53,8 @@ public sealed class PlaceableRequirements {
     public Count Mechanical = 3;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Wiring")]
     public Count Wiring = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Liquid")]
-    public Count Liquid = 10;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Bucket")]
+    public Count Bucket = 10;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seed")]
     public Count Seed = 20;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paint")]
@@ -104,7 +104,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
             //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
             //     => new(Config.Value.Furniture),
-            PlaceableCategory.Liquid => new(Config.Value.Liquid),
+            PlaceableCategory.Bucket => new(Config.Value.Bucket),
             PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
             PlaceableCategory.Seed => new(Config.Value.Seed),
             PlaceableCategory.Paint => new(Config.Value.Paint),
@@ -123,9 +123,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         }
 
         if (item.PaintOrCoating) return PlaceableCategory.Paint;
-        if(ItemID.Sets.AlsoABuildingItem[item.type]) {
-            // TODO buckets
-        }
+        if(!item.consumable && ItemID.Sets.AlsoABuildingItem[item.type] && ItemID.Sets.IsLavaImmuneRegardlessOfRarity[item.type] && item.maxStack != 1) return PlaceableCategory.Bucket;
         if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
 
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;

@@ -64,7 +64,7 @@ Placeable: {
 	// MusicBox: MusicBox
 	Wiring: Wiring
 	Mechanical: Mechanical
-	Liquid: Liquid
+	Bucket: Bucket
 	Seed: Seed
 	Paint: Paint or Coating
 }
