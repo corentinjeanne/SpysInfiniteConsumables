@@ -90,14 +90,13 @@ public static class InfinityManager {
     public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
 
     public static bool SaveDetectedCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TGroup, TConsumable, TCategory> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum {
+        if(!Configs.InfinitySettings.Instance.DetectMissingCategories) return false;
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
-        if(infinity.Group.Config.Customs.ContainsKey(def)) return false;
-        Configs.Custom custom = new() {
-            Choice = nameof(Configs.Custom.Individual),
-            Individual = new()
-        };
-        custom.Individual.Add(new(infinity), new Configs.Count<TCategory>(category));
-        infinity.Group.Config.Customs[def] = custom;
+        if(!infinity.Group.Config.Customs.TryGetValue(def, out Configs.Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Configs.Custom.Individual), Individual = new() };
+        Configs.InfinityDefinition infDef = new(infinity);
+        if(custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
+        
+        custom.Individual[infDef] = new Configs.Count<TCategory>(category);
         ClearInfinities();
         return true;
     }
