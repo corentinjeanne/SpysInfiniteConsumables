@@ -61,8 +61,9 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
 
-    [Header("Changelog")]
-    public Text? ChangeLog { get; set; }
+    [Header("Version")]
+    public Text? Info { get; set; }
+    public Text? Changelog { get; set; }
     [JsonProperty, DefaultValue("")] internal string version = "";
 
     private Dictionary<DisplayDefinition, bool> _displays = new();

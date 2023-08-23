@@ -1,58 +1,12 @@
-Changelog: {
-	3.0:
-		'''
-		- Ported SPIC to 1.4.4
-		- Renamed 'Consumabled Groups' to 'Infinity' and grouped them into 'Groups' by their type of consumable (Items, Currencies...)
-		- Overhalled the configs (you will have to reconfigure them). Each Group has its own subconfig similar to the previous version's config and Merged the Category Detection into Customs
-		- Added Areas where only certain Infinities are displayed
-		- Fixed lag caused by cutoms
-		'''
-
-	2: {
-		2: {
-			1:
-				'''
-				- New a startup message (you can change its visibility in the InfinityDisplay config)
-				- Added back Custom Requirements for any consumables
-				'''
-
-			0: {
-				1: - Fixed a multiplayer crash
-				$parentVal:
-					'''
-					- Added 2 new consumable groups : Journey Sacrifices and Mixed Requirements
-					- Disabled tile duplication prevention as it is too buggy
-					- Overhalled the visual of the configs
-					- Replaced customs with a blacklist
-					- Renamed 'Consumables' to 'Usables' for clarity
-					'''
-			}
-		}
-
-		1.0:
-			'''
-			- Added 2 ways to display the current infinites of an item : in its tooltip or on its sprite !
-			- Now supports Magic storage !
-			- Fixed many bugs including one preventing SPIC to load with some other mods
-			'''
-		0.0:
-			'''
-			- Released on tModLoader 1.4
-			- Major code rewrites under the hood
-			- Tons of bug fixes
-			'''
-	}
-}
-
 Chat: {
 	Download:
 		'''
-		Thanks for doanloading SPIC!
+		Thanks for downloading SPIC!
 		If you found a bug, please report it on the Steam workshop page or GitHub.
 		'''
 	Update:
 		'''
-		SPIC was updated to v{0}! To learn more about the update look at the changelog in the 'InfinityDisplay' Config.
+		SPIC was updated to v{0}! To learn more about the update look at the 'Version' section in the 'InfinityDisplay' Config.
 		If you found a bug, please report it on the Steam workshop page or GitHub.
 		'''
 }
