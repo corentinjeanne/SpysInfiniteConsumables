@@ -17,5 +17,5 @@ public sealed class Items : Group<Items, Item> {
 
     public static string CountToString(int consumable, long count, long value) => count == 0 ?
         Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", value) :
-        $"{count}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", count)}";
+        $"{count}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", value)}";
 }

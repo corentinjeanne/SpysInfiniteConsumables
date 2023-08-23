@@ -25,8 +25,7 @@ public static class Utility {
         return total;
     }
     public static int CountItems(this Player player, int type, bool includeChest = false) {
-        int total = player.inventory.CountItems(type, 58) + new [] { Main.mouseItem }.CountItems(type);
-        total += new[] { Main.mouseItem }.CountItems(type) + new[] { Main.CreativeMenu.GetItemByIndex(0) }.CountItems(type);
+        int total = player.inventory.CountItems(type, 58) + new [] { Main.mouseItem }.CountItems(type) + new[] { Main.CreativeMenu.GetItemByIndex(0) }.CountItems(type);
         if (includeChest) {
             if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
             else if (player.InChest(out Item[]? chest)) total += chest.CountItems(type);

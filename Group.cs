@@ -105,7 +105,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         TConsumable consumable = ToConsumable(item);
 
         GroupInfinity consumableInfinity = InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable); ;
-        bool forcedByCustom = consumableInfinity.UnusedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
+        bool forcedByCustom = consumableInfinity.UsedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             foreach(TConsumable displayed in infinity.DisplayedValues(consumable)){

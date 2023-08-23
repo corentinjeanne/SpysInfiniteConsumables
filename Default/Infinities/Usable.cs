@@ -16,7 +16,7 @@ public enum UsableCategory {
     Potion,
     // Recovery,
     // Buff,
-    Booster, // TODO shimer boosters
+    Booster,
     // PlayerBooster,
     // WorldBooster,
 
