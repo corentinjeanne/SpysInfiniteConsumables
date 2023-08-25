@@ -128,6 +128,7 @@ InfinityDisplay: {
 			 - Added Cannon ammo detection
 			 - Added toggles for different shops (Tinkerer, Nurse, ...)
 			 - Fixed lag caused by quickly refeshed inventory
+			 - Fixed multiplayer silent exception
 			(You can see the full changelog in the GitHub)
 			'''
 	}
