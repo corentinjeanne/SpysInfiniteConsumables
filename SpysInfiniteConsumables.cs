@@ -20,6 +20,9 @@ public sealed class SpysInfiniteConsumables : Mod {
         if(Configs.InfinityDisplay.Instance.general_lastLogs.Length != 0) {
             Configs.InfinityDisplay.Instance.PortConfig();
             Configs.InfinitySettings.Instance.PortConfig();
+        } else {
+            Configs.InfinityDisplay.Instance.LoadConfig();
+            Configs.InfinitySettings.Instance.LoadConfig();
         }
     }
 
