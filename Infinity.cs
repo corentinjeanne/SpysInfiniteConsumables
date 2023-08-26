@@ -32,7 +32,7 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
     
     public TGroup Group { get; internal set; } = null!;
-    public virtual bool Enabled { get; set; }
+    public virtual bool Enabled { get; set; } = true;
 
     public abstract int IconType { get; }
     public abstract Color Color { get; set; }
