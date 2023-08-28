@@ -17,17 +17,17 @@ public enum CurrencyCategory {
 }
 
 public sealed class CurrencyRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier.Label"), LabelArgs($"${Localization.Keys.Infinities}.Currency.Coins")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Currency.Coins")]
     [DefaultValue(1/20f)] public float Coins = 1/20f;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier.Label"), LabelArgs($"${Localization.Keys.Infinities}.Currency.SingleCoin")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Currency.SingleCoin")]
     [DefaultValue(1/5f)] public float SingleCoin = 1/5f;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Shop.Label")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Shop")]
     [DefaultValue(true)] public bool Shop = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Nurse.Label")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Nurse")]
     [DefaultValue(true)] public bool Nurse = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Reforging.Label")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Reforging")]
     [DefaultValue(true)] public bool Reforging = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Others.Label")]
+    [LabelKey($"${Localization.Keys.Infinities}.Currency.Others")]
     [DefaultValue(true)] public bool Others = true;
 }
 

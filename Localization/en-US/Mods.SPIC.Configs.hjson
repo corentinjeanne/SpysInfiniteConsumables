@@ -39,9 +39,9 @@ InfinityDisplay: {
 		Displays: Displays
 		General: General
 		Configs: Display Configs
-		Colors: Infinity colors
+		Colors: Infinity Colors
 		Performances: Performances
-		Version: Version
+		Version: Performance Update - v3.1
 	}
 
 	Display: {
@@ -84,11 +84,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	CacheLevel: {
-		Label: Cache Level
-		Tooltip: ""
-	}
-
 	Cache: {
 		Label: Cache
 		Tooltip:
@@ -120,7 +115,7 @@ InfinityDisplay: {
 	}
 
 	Changelog: {
-		Label: "[i:509] New features and major changes"
+		Label: "[i:509] New Features and Major Changes"
 		Tooltip:
 			'''
 			 - Added Performance options in the Display config 
@@ -256,13 +251,6 @@ ModConsumableDefinition.Tooltip: ""
 InfinityDefinition.Tooltip: ""
 GroupDefinition.Tooltip: ""
 Text.Tooltip: ""
-
-WelcomMessageFrequency: {
-	Tooltip: ""
-	Never.Label: Never
-	OncePerUpdate.Label: Once Per Update
-	Always.Label: Always
-}
 
 CountStyle: {
 	Tooltip: ""

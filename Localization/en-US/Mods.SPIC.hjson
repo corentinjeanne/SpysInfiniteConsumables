@@ -6,12 +6,13 @@ Chat: {
 		'''
 	Update:
 		'''
-		SPIC was updated to v{0}! To learn more about the update look at the 'Version' section in the 'InfinityDisplay' Config.
+		SPIC was updated to v{0}! To learn more about the update, look at the 'Update' section in the 'InfinityDisplay' Config.
 		If you found a bug, please report it on the Steam workshop page or GitHub.
 		'''
 }
 
 CommonItemTooltips: {
+	Count: "{0} {^0:consumable:consumables}"
 	Items: "{0} {^0:item;items}"
 	Mixed: Mixed
 	Custom: Custom

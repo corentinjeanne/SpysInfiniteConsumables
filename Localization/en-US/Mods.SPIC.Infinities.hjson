@@ -10,7 +10,7 @@ Ammo: {
 
 Currency: {
 	DisplayName: Currency
-	Multiplier.Label: "{0} infinity Multiplier"
+	Multiplier: "{0} infinity Multiplier"
 	Coins: Coins
 	SingleCoin: Single Coin
 	Shop: NPC Shop
@@ -20,7 +20,7 @@ Currency: {
 }
 
 GrabBag: {
-	DisplayName: Grab bag
+	DisplayName: Grab Bag
 	Container: Container or Bag
 	Extractinator: Extractinator
 	TreasureBag: Treasure Bag
@@ -28,7 +28,7 @@ GrabBag: {
 
 JourneySacrifice: {
 	DisplayName: Journey Research
-	Sacrifices: Hide Infinity for Researched items
+	Sacrifices: Hide Infinity for Researched Items
 	Tooltip: Research
 }
 
@@ -71,14 +71,14 @@ Placeable: {
 
 Usable: {
 	DisplayName: Usable
-	Weapon: Thrown weapon
+	Weapon: Thrown Weapon
 	Potion: Buff or Potion
 	// Recovery: Recovery
 	// Buff: Buff
 	Booster: Permanent Booster
 	// PlayerBooster: Player Booster
 	// WorldBooster: World Booster
-	Summoner: Boss or Event summoner
+	Summoner: Boss or Event Summoner
 	Critter: Critter or Bait
 	// Explosive: Explosive
 	Tool: Tool
