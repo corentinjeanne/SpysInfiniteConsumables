@@ -7,9 +7,9 @@ There are a wide variety of Infinities for all sorts of consumables (usables, pl
 
         No item duplication
 
-***WORK IN PROGRESS***
-NPCs, Tiles, walls, etc dropping an item when destroyed, killed, etc won't drop if they were infinite when used.
-Include all placeable, critter, and other items.
+***WORK IN PROGRESS, WILL CHANGE IN THE NEAR FUTURE***
+Infinite NPCs will turn to smoke on pickup.
+Placeable items will consume items above their infinity.
 
 
         Hightly Customisable

@@ -1,0 +1,18 @@
+Tooltip: {
+	DisplayName: Item Tooltip
+	AddMissingLines: Add Missing Lines
+}
+
+Glow: {
+	DisplayName: Item Glow
+	FancyGlow: Fancy Glow
+	Intensity: Intensity
+	AnimationLength: Animation Length
+}
+
+Dots: {
+	DisplayName: Inventory Dots
+	Start: First Dot
+	Direction: Direction
+	AnimationLength: Animation Length
+}

@@ -3,7 +3,7 @@ InfinitySettings: {
 
 	Headers: {
 		Features: Features
-		Configs: Configs
+		Configs: Group Configs
 	}
 
 	DetectMissingCategories: {
@@ -20,7 +20,7 @@ InfinitySettings: {
 		Tooltip:
 			'''
 			/!\ WIP /!\
-			Tiles and walls won't drop their item when broken
+			Placeables above the requirement will be consumed
 			Critters will turn into smoke when caught
 			Buckets won't fill or empty on use
 			'''
@@ -36,91 +36,96 @@ InfinityDisplay: {
 	DisplayName: Infinities Display
 
 	Headers: {
+		Displays: Displays
 		General: General
-		Tooltip: Item Tooltip
-		Glow: Item Glow
-		Dots: Colored Dots
-		Colors: Infinity colors
+		Configs: Display Configs
+		Colors: Infinity Colors
+		Performances: Performances
+		Version: Performance Update - v3.1
 	}
 
-	general_ShowInfinities: {
+	Display: {
+		Label: Display
+		Tooltip: ""
+	}
+
+	ShowInfinities: {
 		Label: "[i:3084] Show Infinities"
 		Tooltip: ""
 	}
 
-	general_ShowRequirement: {
+	ShowRequirement: {
 		Label: "[i:3102] Show Requirements"
 		Tooltip: ""
 	}
 
-	general_ShowInfo: {
+	ShowInfo: {
 		Label: "[i:393] Show Extra Info"
 		Tooltip: Displays more precise info about the item, such as its category
 	}
 
-	general_ExclusiveDisplay: {
-		Label: "[i:5075] Exclusive Displays"
+	ShowExclusiveDisplay: {
+		Label: "[i:5075] Show Exclusive Displays"
 		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
 	}
 
-	general_welcomeMessage: {
-		Label: "[i:3617] Welcome message"
-		Tooltip: ""
+	ShowAlternateDisplays: {
+		Label: "[i:4953] Show Alternate Displays"
+		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
 	}
 
-	toopltip_ShowTooltip: {
-		Label: "[i:171] Display infinity in item tooltip"
-		Tooltip: ""
-	}
-
-	toopltip_AddMissingLines: {
-		Label: "[i:3619] Add missing lines"
-		Tooltip: ""
-	}
-
-	tooltip_RequirementStyle: {
-		Label: "[i:3625] Requirement style"
-		Tooltip: ""
-	}
-
-	glow_ShowGlow: {
-		Label: "[i:75] Display infinity colored glow"
-		Tooltip: ""
-	}
-
-	glow_Intensity: {
-		Label: "[i:2274] Intensity"
-		Tooltip: ""
-	}
-
-	glow_InfinityTime: {
-		Label: "[i:583] Time per Infinity (seconds)"
-		Tooltip: ""
-	}
-
-	dots_ShowDots: {
-		Label: "[i:3603] Display infinity colored dots"
-		Tooltip: ""
-	}
-
-	dots_Start: {
-		Label: "[i:71] First dot position"
-		Tooltip: ""
-	}
-
-	dots_Direction: {
-		Label: "[i:4320] Direction"
-		Tooltip: ""
-	}
-
-	dot_PageTime: {
-		Label: "[i:583] Time per Group (seconds)"
+	Configs: {
+		Label: Configs
 		Tooltip: ""
 	}
 
 	Colors: {
 		Label: Colors
 		Tooltip: ""
+	}
+
+	Cache: {
+		Label: Cache
+		Tooltip:
+			'''
+			Performances: Optimal performances, Large cache (~10kB). Will not recompute any value
+			Smart: Great performances, Small cache (~3kB). May recompute some values
+			None: Horrendous perfomances, No caches
+			Type /spiccache ingame to see the cached values
+			'''
+	}
+
+	CacheRefreshDelay: {
+		Label: Cache Refresh Delay
+		Tooltip:
+			'''
+			Forces a minimum delay (in frames) between each cache refresh
+			Increase this value if the game lags when your inventory changes extremely quickly
+			May cause visual inconsitencies, especialy for large values (>15)
+			'''
+	}
+
+	Info: {
+		Label: "[i:4344] Update Info"
+		Tooltip:
+			'''
+			I finally have fixed all performance issues I am aware of !
+			If the mod lags, Have a look at the Performance section above to reduce it.
+			'''
+	}
+
+	Changelog: {
+		Label: "[i:509] New Features and Major Changes"
+		Tooltip:
+			'''
+			 - Added Performance options in the Display config 
+			 - Automatic Config porting when they are modified
+			 - Added Cannon ammo detection
+			 - Added toggles for different shops (Tinkerer, Nurse, ...)
+			 - Fixed lag caused by quickly refeshed inventory
+			 - Fixed multiplayer silent exception
+			(You can see the full changelog in the GitHub)
+			'''
 	}
 }
 
@@ -147,7 +152,6 @@ GroupConfig: {
 			'''
 			The maximum number of Infinities taken into account directly, uses the order above from top to bottom.
 			Infinities that are not used take the minimum used infinity as their value.
-			Set to 0 to use all Infinities.
 			'''
 	}
 
@@ -179,7 +183,6 @@ UI: {
 	Change: Change to {0}
 	Up: Move Up
 	Down: Move Down
-	Unloaded: Unloaded
 }
 
 Custom: {
@@ -249,13 +252,6 @@ InfinityDefinition.Tooltip: ""
 GroupDefinition.Tooltip: ""
 Text.Tooltip: ""
 
-WelcomMessageFrequency: {
-	Tooltip: ""
-	Never.Label: Never
-	OncePerUpdate.Label: Once Per Update
-	Always.Label: Always
-}
-
 CountStyle: {
 	Tooltip: ""
 	Sprite.Label: Sprite (12/30 [i:289])
@@ -275,3 +271,33 @@ Direction: {
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
 }
+
+CacheStyle: {
+	Tooltip: ""
+	None.Label: None (Just don't)
+	Smart.Label: Smart (Recommanded)
+	Performances.Label: Performances
+}
+
+UsedInfinities: {
+	Tooltip: ""
+
+	All: {
+		Label: All
+		Tooltip: ""
+	}
+
+	Used: {
+		Label: Used
+		Tooltip: ""
+	}
+}
+
+GlowStyle: {
+	Tooltip: ""
+	Off.Label: Off
+	Simple.Label: Simple
+	Fancy.Label: Fancy
+}
+
+DisplayDefinition.Tooltip: ""

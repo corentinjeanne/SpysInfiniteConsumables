@@ -1,11 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ModLoader.Config;
-using System.Reflection;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
+using Terraria.ModLoader.Config.UI;
 
 namespace SPIC;
 
@@ -16,14 +19,13 @@ public static class Utility {
     public static int CountItems(this Item[] container, int type, params int[] ignoreSots) {
         int total = 0;
         for (int i = 0; i < container.Length; i++) {
-            if (System.Array.IndexOf(ignoreSots, i) == -1 && container[i].type == type)
+            if (Array.IndexOf(ignoreSots, i) == -1 && container[i].type == type)
                 total += container[i].stack;
         }
         return total;
     }
     public static int CountItems(this Player player, int type, bool includeChest = false) {
-        int total = player.inventory.CountItems(type, 58) + new [] { Main.mouseItem }.CountItems(type);
-        total += new[] { Main.mouseItem }.CountItems(type) + new[] { Main.CreativeMenu.GetItemByIndex(0) }.CountItems(type);
+        int total = player.inventory.CountItems(type, 58) + new [] { Main.mouseItem }.CountItems(type) + new[] { Main.CreativeMenu.GetItemByIndex(0) }.CountItems(type);
         if (includeChest) {
             if (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.InMagicStorage) total += CrossMod.MagicStorageIntegration.CountItems(type);
             else if (player.InChest(out Item[]? chest)) total += chest.CountItems(type);
@@ -97,8 +99,8 @@ public static class Utility {
     public static bool IsFromVisibleInventory(this Player player, Item item, bool loose = true) {
         
         if (Main.mouseItem.IsSimilar(item, loose)
-                || System.Array.Find(player.inventory, i => i.IsSimilar(item, loose)) is not null
-                || (player.InChest(out var chest) && System.Array.Find(chest, i => i.IsSimilar(item, loose)) is not null)
+                || Array.Find(player.inventory, i => i.IsSimilar(item, loose)) is not null
+                || (player.InChest(out var chest) && Array.Find(chest, i => i.IsSimilar(item, loose)) is not null)
                 || (CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Countains(item)))
             return true;
         return false;
@@ -125,24 +127,25 @@ public static class Utility {
     public static void SaveConfig(this ModConfig config) => s_saveConfigMethod.Invoke(null, new object[]{config});
     internal static void LoadConfig(this ModConfig config) => s_loadConfigMethod.Invoke(null, new object[]{config});
 
-    public static K[] Reverse<K, V>(this Dictionary<K, V> dictionary, V value) where K: notnull where V : notnull {
-        List<K> reverse = new();
-        foreach (KeyValuePair<K,V> kvp in dictionary) {
-            if (value.Equals(kvp.Value)) reverse.Add(kvp.Key);
+    internal static void PortConfig(this ModConfig config) {
+        config.LoadConfig();
+        foreach(FieldInfo oldField in config.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+            Configs.MovedTo? movedTo = CustomAttributeExtensions.GetCustomAttribute<Configs.MovedTo>(oldField);
+            if (movedTo is null) continue;
+            
+            Type? host = movedTo.Host;
+            object? obj = null;
+            if (host is null) {
+                host = config.GetType();
+                obj = config;
+            }
+            object? value = oldField.GetValue(config);
+            (PropertyFieldWrapper wrapper, obj) = GetMember(host, obj, movedTo.Members);
+            wrapper.SetValue(obj, value);
+            DefaultValueAttribute? defaultValue = oldField.GetCustomAttribute<DefaultValueAttribute>();
+            oldField.SetValue(config, defaultValue?.Value ?? (wrapper.Type.IsValueType ? Activator.CreateInstance(wrapper.Type) : null));
         }
-        return reverse.ToArray();
-    }
-    public static K? FindKey<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) where K: notnull {
-        foreach (KeyValuePair<K, V> kvp in dictionary) {
-            if (pred(kvp)) return kvp.Key;
-        }
-        return default;
-    }
-    public static V? FindValue<K, V>(this Dictionary<K, V> dictionary, System.Predicate<KeyValuePair<K, V>> pred) where K: notnull {
-        foreach (var kvp in dictionary) {
-            if (pred(kvp)) return kvp.Value;
-        }
-        return default;
+        config.SaveConfig();
     }
 
     public static object Index(this ICollection collection, int index){
@@ -151,14 +154,7 @@ public static class Utility {
             if(i == index) return o;
             i++;
         }
-        throw new System.IndexOutOfRangeException("The index was outside the bounds of the array");
-    }
-
-    public static T? Find<T>(this ReadOnlyCollection<T> list, System.Predicate<T> predicate) {
-        foreach(T value in list){
-            if(predicate(value)) return value;
-        }
-        return default;
+        throw new IndexOutOfRangeException("The index was outside the bounds of the array");
     }
 
     public static bool TryAdd(this IOrderedDictionary dict, object key, object value) {
@@ -166,8 +162,7 @@ public static class Utility {
         dict.Add(key, value);
         return true;
     }
-    public static void Move(this IOrderedDictionary dict, int origIndex, int destIndex)
-        => dict.Move(dict.Keys.Index(origIndex), destIndex);
+    public static void Move(this IOrderedDictionary dict, int origIndex, int destIndex) => dict.Move(dict.Keys.Index(origIndex), destIndex);
     public static void Move(this IOrderedDictionary dict, object key, int destIndex){
         object? value = dict[key];
         dict.Remove(key);
@@ -182,11 +177,11 @@ public static class Utility {
     }
 
 
-    public static bool ImplementsInterface(this System.Type type, System.Type iType, [NotNullWhen(true)] out System.Type? impl)
-        => (impl = System.Array.Find(type.GetInterfaces(), i => iType.IsGenericType ? i.IsGenericType && i.GetGenericTypeDefinition() == iType : iType == i)) != null;
-    public static bool IsSubclassOfGeneric(this System.Type? type, System.Type generic, [NotNullWhen(true)] out System.Type? impl) {
+    public static bool ImplementsInterface(this Type type, Type iType, [NotNullWhen(true)] out Type? impl)
+        => (impl = Array.Find(type.GetInterfaces(), i => iType.IsGenericType ? i.IsGenericType && i.GetGenericTypeDefinition() == iType : iType == i)) != null;
+    public static bool IsSubclassOfGeneric(this Type? type, Type generic, [NotNullWhen(true)] out Type? impl) {
         while (type != null && type != typeof(object)) {
-            System.Type cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+            Type cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
             if (generic == cur) {
                 impl = type;
                 return true;
@@ -199,6 +194,20 @@ public static class Utility {
 
 
     public static int GCD(int x, int y) => x == 0 ? y : GCD(y % x, x);
+
+    internal static (PropertyFieldWrapper, object?) GetMember(Type host, object? obj, Span<string> members) {
+        MemberInfo member = host.GetMember(members[0], BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)[0];
+        if (member is PropertyInfo property) {
+            if (members.Length == 1) return (new(property), obj);
+            obj = property.GetValue(obj);
+            host = property.PropertyType;
+        } else if (member is FieldInfo field) {
+            if (members.Length == 1) return (new(field), obj);
+            obj = field.GetValue(obj);
+            host = field.FieldType;
+        }
+        return GetMember(host, obj, members[1..]);
+    }
 
     private readonly static MethodInfo s_saveConfigMethod = typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;
     private readonly static MethodInfo s_loadConfigMethod = typeof(ConfigManager).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic, new[] { typeof(ModConfig) })!;

@@ -1,14 +1,13 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
-
-using Terraria.ModLoader.Config;
-
-using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
+using SPIC.Configs;
 
-namespace SPIC.Infinities; 
+namespace SPIC.Default.Infinities; 
+
 public enum GrabBagCategory {
     None,
     Container,
@@ -25,17 +24,22 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-// TODO lootbox and keys
 public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
 
     public override int IconType => ItemID.FairyQueenBossBag;
-    public override Color DefaultColor => Colors.RarityDarkPurple;
+    public override Color Color { get; set; } = Colors.RarityDarkPurple;
 
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) => (new(Mod, "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip); // TODO detected items opened with left click
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
+
+    public override void Load() {
+        base.Load();
+        ExtraDisplays += consumable => consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null;
+    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         Config = Group.AddConfig<GrabBagRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
@@ -59,5 +63,5 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
-    public Wrapper<GrabBagRequirements> Config = null!;
+    public static Wrapper<GrabBagRequirements> Config = null!;
 }

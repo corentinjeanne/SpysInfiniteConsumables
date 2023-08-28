@@ -3,33 +3,47 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SPIC.Configs.Presets;
-using SPIC.Configs.UI;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
+public sealed class UsedInfinities : MultiChoice<int> {
+    public UsedInfinities() : base() { }
+    public UsedInfinities(int value) : base(value) { }
+
+    [Choice] public UI.Text All { get; set; } = new();
+    [Choice, Range(1, 9999)] public int Used { get; set; } = 1;
+
+    public override int Value {
+        get => Choice == nameof(All) ? 0 : Used;
+        set {
+            if (value != 0) {
+                Choice = nameof(Used);
+                Used = value;
+            } else Choice = nameof(All);
+        }
+    }
+
+    public static implicit operator UsedInfinities(int used) => new(used);
+}
+
 public sealed class GroupConfig {
     [Header("Infinities")]
     public PresetDefinition Preset {
-        get {
-            if (Infinities.Count == 0) return new();
-            Preset? preset = null;
-            foreach (Preset p in PresetLoader.Presets) {
-                if (p.MeetsCriterias(this) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
-            }
-            return preset is not null ? new(preset.Mod.Name, preset.Name) : new();
-        }
+        get => _preset;
         set {
-            if (Infinities.Count == 0) return;
-            PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
+            _preset = value;
+            if (Infinities.Count != 0) PresetLoader.GetPreset(value.Mod, value.Name)?.ApplyCriterias(this);
         }
     }
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
+    private PresetDefinition _preset = new();
 
-    public int UsedInfinities { get; set; } // ? Apply Infinity overrides when effective infinity is mixed
+    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
+
+    public UsedInfinities UsedInfinities { get; set; } = 0;
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
+    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
 
     [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
@@ -52,56 +66,8 @@ public sealed class GroupConfig {
         count = default;
         return false;
     }
-
-    internal GroupConfig() { }
-    internal GroupConfig(IGroup group) => SetGroup(group);
-    internal void SetGroup(IGroup group) {
-        OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();
-        foreach((string key, bool enabled) in Infinities.Items<string, bool>()) infinitiesBool[new InfinityDefinition(key)] = enabled;
-        Infinities = infinitiesBool;
-        
-        List<IInfinity> infinities = new(group.Infinities);
-        IEnumerable<IInfinity> InfinitiesByOrder() {
-            foreach((InfinityDefinition def, bool enabled) in Infinities.Items<InfinityDefinition, bool>()) {
-                int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
-                if(i == -1) continue;
-                yield return infinities[i];
-                infinities[i].Enabled = (bool)Infinities[def]!;
-                infinities.RemoveAt(i);
-            }
-            foreach (IInfinity infinity in infinities) {
-                InfinityDefinition def = new(infinity);
-                Infinities.TryAdd(def, infinity.DefaultsToOn);
-                infinity.Enabled = (bool)Infinities[def]!;
-                yield return infinity;
-            }
-        }
-        group.SetInfinities(InfinitiesByOrder());
-
-        foreach ((IInfinity infinity, Wrapper wrapper) in group.InfinityConfigs) {
-            InfinityDefinition def = new(infinity);
-            Configs[def] = Configs.TryGetValue(def, out var config) ? config.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
-            wrapper.Value = Configs[def].Value;
-        }
-
-        foreach (Custom custom in Customs.Values) custom.SetGroup(group);
-        group.Config = this;
-    }
-
 }
 
 public sealed class GroupColors {
-
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
-
-    internal GroupColors() { }
-    internal GroupColors(IGroup group) => SetGroup(group);
-    internal void SetGroup(IGroup group) {
-        foreach (IInfinity infinity in group.Infinities) {
-            InfinityDefinition def = new(infinity);
-            infinity.Color = Colors[def] = Colors.GetValueOrDefault(def, infinity.DefaultColor);
-        }
-        group.Colors = this;
-    }
-
+    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 }

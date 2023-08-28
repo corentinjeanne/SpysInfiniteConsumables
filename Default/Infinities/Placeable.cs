@@ -8,64 +8,74 @@ using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 
-namespace SPIC.Infinities;
+namespace SPIC.Default.Infinities;
 
 public enum PlaceableCategory {
     None,
 
-    Block,
-    Wall,
-    Wiring,
+    Tile,
+    // Block,
+    // Wall,
     Torch,
     Ore,
 
-    LightSource,
-    Container,
-    Functional,
-    CraftingStation,
-    Decoration,
-    MusicBox,
+    Furniture,
+    // LightSource,
+    // Container,
+    // Functional,
+    // CraftingStation,
+    // Decoration,
+    // MusicBox,
 
+    Wiring,
     Mechanical,
-    Liquid,
+    Bucket,
     Seed,
     Paint
 }
 
 public static class PlaceableExtension {
-    public static bool IsCommonTile(this PlaceableCategory category) => category != PlaceableCategory.None && category < PlaceableCategory.LightSource;
+    public static bool IsCommonTile(this PlaceableCategory category) => category != PlaceableCategory.None && category < PlaceableCategory.Furniture;
     public static bool IsFurniture(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && category < PlaceableCategory.Mechanical;
     public static bool IsMisc(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && !category.IsFurniture();
 }
 
 public sealed class PlaceableRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Tiles")]
-    public Count Tiles = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ores")]
-    public Count Ores = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Torches")]
-    public Count Torches = 99;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furnitures")]
-    public Count Furnitures = 3;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Tile")]
+    public Count Tile = 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
+    public Count Ore = 499;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Torch")]
+    public Count Torch = 99;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
+    public Count Furniture = 3;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Mechanical")]
     public Count Mechanical = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Liquids")]
-    public Count Liquids = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seeds")]
-    public Count Seeds = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paints")]
-    public Count Paints = 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Wiring")]
+    public Count Wiring = 999;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Bucket")]
+    public Count Bucket = 10;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seed")]
+    public Count Seed = 20;
+    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paint")]
+    public Count Paint = 999;
 }
 
 public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> {
 
     public override int IconType => ItemID.ArchitectGizmoPack;
-    public override Color DefaultColor => Colors.RarityAmber;
+    public override Color Color { get; set; } = Colors.RarityAmber;
 
     public override void Load() {
         base.Load();
         DisplayOverrides += AmmoSlots;
         InfinityOverrides += DuplicationInfinity;
+        ExtraDisplays += consumable => GetWandType(consumable) switch {
+            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
+            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            _ => null
+        };
     }
 
     public override void SetStaticDefaults() {
@@ -75,6 +85,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             if (i.tileWand != -1) RegisterWand(i);
         }
         Config = Group.AddConfig<PlaceableRequirements>(this);
+        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
 
@@ -85,17 +96,19 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
 
     public override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Value.Tiles),
-            PlaceableCategory.Torch => new(Config.Value.Torches),
-            PlaceableCategory.Ore => new(Config.Value.Ores),
-
-            PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
-                    or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-                => new(Config.Value.Furnitures),
-            PlaceableCategory.Liquid => new(Config.Value.Liquids),
+            PlaceableCategory.Tile => new(Config.Value.Tile),
+            PlaceableCategory.Wiring => new(Config.Value.Wiring),
+            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Value.Tile),
+            PlaceableCategory.Torch => new(Config.Value.Torch),
+            PlaceableCategory.Ore => new(Config.Value.Ore),
+            PlaceableCategory.Furniture => new(Config.Value.Furniture),
+            // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
+            //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
+            //     => new(Config.Value.Furniture),
+            PlaceableCategory.Bucket => new(Config.Value.Bucket),
             PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
-            PlaceableCategory.Seed => new(Config.Value.Seeds),
-            PlaceableCategory.Paint => new(Config.Value.Paints),
+            PlaceableCategory.Seed => new(Config.Value.Seed),
+            PlaceableCategory.Paint => new(Config.Value.Paint),
             _ => new(),
         };
     }
@@ -110,50 +123,52 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         case ItemID.Hellstone or ItemID.DemoniteOre or ItemID.CrimtaneOre: return PlaceableCategory.Ore; // Main.tileSpelunker[tileType] == false
         }
 
-        if (item.paint != 0) return PlaceableCategory.Paint;
-        if(ItemID.Sets.AlsoABuildingItem[item.type]) {
-            // TODO buckets
-        }
+        if (item.PaintOrCoating) return PlaceableCategory.Paint;
+        if(!item.consumable && ItemID.Sets.AlsoABuildingItem[item.type] && ItemID.Sets.IsLavaImmuneRegardlessOfRarity[item.type] && item.maxStack != 1) return PlaceableCategory.Bucket;
         if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
 
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
-       
-        if(item.XMasDeco()) return PlaceableCategory.Decoration;
+
+        if (item.XMasDeco()) return PlaceableCategory.Furniture;
 
         if (item.createTile != -1) {
-
             int tileType = item.createTile;
-            if (item.accessory) return PlaceableCategory.MusicBox;
-            if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
-
+            if (item.accessory) return PlaceableCategory.Furniture;
+            if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Tile;
             if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || ItemID.Sets.GrassSeeds[item.type]) return PlaceableCategory.Seed;
-            if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
-
+            if (Main.tileContainer[tileType]) return PlaceableCategory.Furniture;
             if (item.mech) return PlaceableCategory.Mechanical;
-
-            if (Main.tileFrameImportant[tileType]) {
-                bool GoodTile(int t) => t == tileType;
-
-                if (TileID.Sets.Torch[tileType]) return PlaceableCategory.Torch;
-                if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return PlaceableCategory.LightSource;
-
-                if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
-                    return PlaceableCategory.Functional;
-
-                if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return PlaceableCategory.CraftingStation;
-
-                if (TileID.Sets.HasOutlines[tileType]) return PlaceableCategory.Functional;
-
-                return PlaceableCategory.Decoration;
-            }
-
+            if (Main.tileFrameImportant[tileType]) return PlaceableCategory.Furniture;
             if (Main.tileSpelunker[tileType] || ItemID.Sets.ExtractinatorMode[item.type] != -1) return PlaceableCategory.Ore;
-
-            return PlaceableCategory.Block;
+            return PlaceableCategory.Tile;
         }
-        if (item.createWall != -1) return PlaceableCategory.Wall;
+        if (item.createWall != -1) return PlaceableCategory.Tile;
 
         return PlaceableCategory.None;
+
+        // if(item.XMasDeco()) return PlaceableCategory.Decoration;
+        // if (item.createTile != -1) {
+        //     int tileType = item.createTile;
+        //     if (item.accessory) return PlaceableCategory.MusicBox;
+        //     if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
+        //     if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || ItemID.Sets.GrassSeeds[item.type]) return PlaceableCategory.Seed;
+        //     if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
+        //     if (item.mech) return PlaceableCategory.Mechanical;
+        //     if (Main.tileFrameImportant[tileType]) {
+        //         bool GoodTile(int t) => t == tileType;
+        //         if (TileID.Sets.Torch[tileType]) return PlaceableCategory.Torch;
+        //         if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return PlaceableCategory.LightSource;
+        //         if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
+        //             return PlaceableCategory.Functional;
+        //         if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return PlaceableCategory.CraftingStation;
+        //         if (TileID.Sets.HasOutlines[tileType]) return PlaceableCategory.Functional;
+        //         return PlaceableCategory.Decoration;
+        //     }
+        //     if (Main.tileSpelunker[tileType] || ItemID.Sets.ExtractinatorMode[item.type] != -1) return PlaceableCategory.Ore;
+        //     return PlaceableCategory.Block;
+        // }
+        // if (item.createWall != -1) return PlaceableCategory.Wall;
+        // return PlaceableCategory.None;
     }
 
     private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
@@ -161,20 +176,10 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
     public static void RegisterWand(Item wand) => _wandAmmos.TryAdd(wand.tileWand, wand.type);
     public static bool IsWandAmmo(int type, out int wandType) => _wandAmmos.TryGetValue(type, out wandType);
 
-    public Wrapper<PlaceableRequirements> Config = null!;
+    public static Wrapper<PlaceableRequirements> Config = null!;
 
-    public override Item DisplayedValue(Item consumable) {
-        return GetWandType(consumable) switch {
-            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
-            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            _ => null
-        } ?? consumable;
-    }
-
-    public override (TooltipLine, TooltipLineID?) GetTooltipLine(Item item) {
-        Item ammo = DisplayedValue(item);
-        if (ammo == item) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) {
             if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
             return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
         }
@@ -183,7 +188,7 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
             WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
             WandType.Tile or _ => ("WandConsumes", TooltipLineID.WandConsumes),
         };
-        return (new(Mod, name, Lang.tip[52].Value + ammo.Name), position);
+        return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
     }
 
     public enum WandType {

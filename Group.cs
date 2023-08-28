@@ -1,40 +1,47 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Reflection;
 using SPIC.Configs;
+using SPIC.Configs.Presets;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
-public enum InfinityVisibility { None, Hidden, Normal, Exclusive }
+public enum InfinityVisibility { Hidden, Normal, Exclusive }
+
+// ? Add transformations Infinity
+// ? Add quest fish Infinity
 
 public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();
-    void ClearInfinity(Item item);
 
-    string CountToString(Item item, IInfinity infinity, long owned, long value, InfinityDisplay.CountStyle style);
+    internal void Add(Preset preset);
 
-    IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
+    IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item);
 
-    IEnumerable<IInfinity> Infinities { get; }
+    IReadOnlyList<IInfinity> Infinities { get; }
     
     LocalizedText DisplayName { get; }
-    GroupConfig Config { get; internal set; }
-    GroupColors Colors { get; internal set; }
+    GroupConfig Config { get; }
+    GroupColors Colors { get; }
 
-    IDictionary<IInfinity, Wrapper> InfinityConfigs { get; }
+    ReadOnlyCollection<Preset>? Presets { get; }
 
+    internal void LoadConfig(GroupConfig config);
+    internal void LoadConfig(GroupColors colors);
 
-    internal void SetInfinities(IEnumerable<IInfinity> infinities);
-    internal void LogCacheStats();
+    internal string CacheStats();
 }
 
 public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
 
     public Group() {
-        _cachedInfinities = new(GetType, consumable => GetGroupInfinity(Main.LocalPlayer, consumable));
+        _cachedInfinities = new(GetType, consumable => ComputeGroupInfinity(Main.LocalPlayer, consumable)) {
+            ValueSizeEstimate = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
+        };
     }
 
     internal void Add(Infinity<TGroup, TConsumable> infinity) {
@@ -43,9 +50,12 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, infinity);
     }
 
+    void IGroup.Add(Preset preset) => Add(preset);
+    internal void Add(Preset preset) => _presets.Add(preset);
+
     public Wrapper<T> AddConfig<T>(IInfinity infinity) where T : new() {
         Wrapper<T> wrapper = new();
-        _infinityConfigs[infinity] = wrapper;
+        _configs[infinity] = wrapper;
         return wrapper;
     }
 
@@ -57,7 +67,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
             infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, null);
         }
         _infinities.Clear();
-        _infinityConfigs.Clear();
+        _configs.Clear();
         Instance = null!;
     }
     protected sealed override void Register() {
@@ -68,72 +78,61 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         SetStaticDefaults();
     }
 
-    public Requirement GetRequirement(TConsumable consumable, Infinity<TGroup, TConsumable> infinity) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity].Requirement : FullInfinity.WithRequirement(consumable, infinity).Requirement;
-    public long GetInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity) => GetFullInfinity(player, consumable, infinity).Infinity;
-    public FullInfinity GetFullInfinity(Player player, int consumable, Infinity<TGroup, TConsumable> infinity) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : GetFullInfinity(player, FromType(consumable), infinity);
-    public FullInfinity GetFullInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity)
-        => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity[infinity] : FullInfinity.WithInfinity(player, consumable, infinity);
-
-    public Requirement GetMixedRequirement(TConsumable consumable) => _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ?
-        groupInfinity.Mixed.Requirement : GetMixedFullInfinity(Main.LocalPlayer, consumable).Requirement;
-    public long GetMixedInfinity(Player player, TConsumable consumable)
-        => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.Mixed.Infinity : GetMixedFullInfinity(player, consumable).Infinity;
-    public FullInfinity GetMixedFullInfinity(Player player, TConsumable consumable)
-        => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.Mixed : GetGroupInfinity(player, consumable).Mixed;
-    
     public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
-    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) {
-        if (player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity)) return groupInfinity;
-        groupInfinity = new();
+    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : ComputeGroupInfinity(player, consumable);
+    private GroupInfinity ComputeGroupInfinity(Player player, TConsumable consumable) {
+        GroupInfinity groupInfinity = new();
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
-            FullInfinity fullInfinity = GetFullInfinity(player, consumable, infinity);
-            bool used = infinity.Enabled && !fullInfinity.Requirement.IsNone && (Config.UsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.UsedInfinities);
+            FullInfinity fullInfinity = FullInfinity.WithInfinity(player, consumable, infinity);
+            if(!infinity.Enabled || fullInfinity.Requirement.IsNone) continue;
+            bool used = Config.UsedInfinities == 0 || groupInfinity.UsedInfinities.Count < Config.UsedInfinities;
             groupInfinity.Add(infinity, fullInfinity, used);
         }
-        groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom!) : null);
+        groupInfinity.AddMixed(Config.HasCustomGlobal(consumable, this, out Count? custom) ? new(custom) : null);
         return groupInfinity;
     }
 
-    public bool IsUsed(TConsumable consumable, IInfinity infinity) => (_cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity.UsedInfinities : GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities).Contains(infinity);
+    public bool IsUsed(TConsumable consumable, IInfinity infinity) => GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities.ContainsKey(infinity);
     public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
     public FullInfinity GetEffectiveInfinity(Player player, int consumable, Infinity<TGroup, TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
 
+    public FullInfinity GetMixedFullInfinity(Player player, TConsumable consumable) => GetGroupInfinity(player, consumable).Mixed;
+    public Requirement GetMixedRequirement(TConsumable consumable) => GetMixedFullInfinity(Main.LocalPlayer, consumable).Requirement;
+    public long GetMixedInfinity(Player player, TConsumable consumable) => GetMixedFullInfinity(player, consumable).Infinity;
 
-    public IEnumerable<(IInfinity infinity, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
+
+    public IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
         TConsumable consumable = ToConsumable(item);
 
-        bool forcedByCustom = Config.HasCustomGlobal(consumable, this, out _);
+        GroupInfinity consumableInfinity = InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, consumable) : ComputeGroupInfinity(player, consumable); ;
+        bool forcedByCustom = consumableInfinity.UsedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
-            TConsumable displayed = infinity.DisplayedValue(consumable);
-            FullInfinity display = GetEffectiveInfinity(player, displayed, infinity);
-
-            List<object> extras = new(display.Extras);
-            Requirement requirement = display.Requirement;
-            long count = display.Count;
-            InfinityVisibility visibility;
-
-            if(requirement.IsNone) visibility = InfinityVisibility.None;
-            else {
+            foreach(TConsumable displayed in infinity.DisplayedValues(consumable)){
                 bool weapon = !consumable.Equals(displayed);
-                visibility = IsUsed(displayed, infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
+                GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
+                FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
+
+                if (effective.Requirement.IsNone) continue;
+                List<object> extras = new(effective.Extras);
+                Requirement requirement = effective.Requirement;
+                long count = effective.Count;
+                InfinityVisibility visibility = displayedInfinity.UsedInfinities.ContainsKey(infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
                 infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
+                if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
+                    if (weapon) visibility = InfinityVisibility.Hidden;
+                    count = 0;
+                }
                 if (forcedByCustom) {
                     if (visibility == InfinityVisibility.Hidden) visibility = InfinityVisibility.Normal;
                     forcedByCustom = false;
                 }
-                if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
-                    count = 0;
-                    if(weapon) visibility = InfinityVisibility.Hidden;
-                }
+                if (!InfinityDisplay.Instance.ShowExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
+                if (visibility == InfinityVisibility.Hidden) continue;
+                yield return (infinity, GetType(displayed), FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
             }
-            if(!InfinityDisplay.Instance.general_ExclusiveDisplay && visibility == InfinityVisibility.Exclusive) visibility = InfinityVisibility.Normal;
-            yield return (infinity, FullInfinity.With(requirement, count, requirement.Infinity(count), extras.ToArray()), visibility);
         }
     }
-
-    public void ClearInfinities() => _cachedInfinities.Clear();
-    public void ClearInfinity(Item item) => _cachedInfinities.Clear(ToConsumable(item));
 
     public abstract TConsumable ToConsumable(Item item);
     public abstract Item ToItem(TConsumable consumable);
@@ -142,39 +141,76 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public abstract TConsumable FromType(int type);
 
     public abstract long CountConsumables(Player player, TConsumable consumable);
-    public virtual long MaxStack(TConsumable consumable) => 0;
 
-    public abstract string CountToString(TConsumable consumable, long count, InfinityDisplay.CountStyle style, bool rawValue = false);
-    public virtual string CountToString(Item item, IInfinity infinity, long owned, long value, InfinityDisplay.CountStyle style) {
-        TConsumable consumable = ((Infinity<TGroup, TConsumable>)infinity).DisplayedValue(ToConsumable(item));
-        return owned == 0 ? CountToString(consumable, value, style) : $"{CountToString(consumable, owned, style, true)}/{CountToString(consumable, value, style)}";
-    }
+    public void ClearInfinities() => _cachedInfinities.Clear();
 
-    void IGroup.SetInfinities(IEnumerable<IInfinity> infinities) {
+    void IGroup.LoadConfig(GroupConfig config) {
+        OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();
+        foreach ((string key, bool enabled) in config.Infinities.Items<string, bool>()) infinitiesBool[new InfinityDefinition(key)] = enabled;
+        config.Infinities = infinitiesBool;
+
+        List<Infinity<TGroup, TConsumable>> infinities = new(_infinities);
         _infinities.Clear();
-        foreach(IInfinity infinity in infinities) _infinities.Add((Infinity<TGroup, TConsumable>)infinity);
+        foreach ((InfinityDefinition def, bool enabled) in config.Infinities.Items<InfinityDefinition, bool>()) {
+            int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
+            if (i == -1) continue;
+            infinities[i].Enabled = (bool)config.Infinities[def]!;
+            _infinities.Add(infinities[i]);
+            infinities.RemoveAt(i);
+        }
+        foreach (Infinity<TGroup, TConsumable> infinity in infinities) {
+            InfinityDefinition def = new(infinity);
+            config.Infinities.TryAdd(def, infinity.DefaultState());
+            infinity.Enabled = (bool)config.Infinities[def]!;
+            _infinities.Add(infinity);
+        }
+
+        foreach ((IInfinity infinity, Wrapper wrapper) in _configs) {
+            InfinityDefinition def = new(infinity);
+            config.Configs[def] = config.Configs.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
+            wrapper.Value = config.Configs[def].Value;
+        }
+
+        foreach (Custom custom in config.Customs.Values) {
+            foreach (InfinityDefinition def in custom.Individual.Keys) {
+                def.Filter = this;
+                if ((InfinityManager.GetInfinity(def.Mod, def.Name)?.GetType().IsSubclassOfGeneric(typeof(Infinity<,,>), out System.Type? infinity3)) != true) custom.Individual[def] = new Count(custom.Individual[def].Value);
+                else custom.Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3!.GenericTypeArguments[2]), custom.Individual[def].Value)!;
+            }
+        }
+        Preset? preset = null;
+        foreach (Preset p in PresetLoader.Presets) if (p.MeetsCriterias(config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
+        config.Preset = preset is not null ? new(preset.Mod.Name, preset.Name) : new();
+        config.Preset.Filter = this;
+        Config = config;
+    }
+    void IGroup.LoadConfig(GroupColors colors) {
+        foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
+            InfinityDefinition def = new(infinity);
+            infinity.Color = colors.Colors[def] = colors.Colors.GetValueOrDefault(def, infinity.DefaultColor());
+        }
+        Colors = colors;
     }
 
-    void IGroup.LogCacheStats(){
-        Mod.Logger.Debug($"{Name}:{_cachedInfinities}");
-        _cachedInfinities.ResetStats();
+    string IGroup.CacheStats() {
+        string s = $"{Name}: {_cachedInfinities.Stats()}";
+        _cachedInfinities.ClearStats();
+        return s;
     }
 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
 
     public ReadOnlyCollection<Infinity<TGroup, TConsumable>> Infinities => _infinities.AsReadOnly();
+    public ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
     public GroupConfig Config { get; private set; } = null!;
     public GroupColors Colors { get; private set; } = null!;
-    public ReadOnlyDictionary<IInfinity, Wrapper> InfinityConfigs => new(_infinityConfigs);
-    
-    IEnumerable<IInfinity> IGroup.Infinities => _infinities;
-    IDictionary<IInfinity, Wrapper> IGroup.InfinityConfigs => InfinityConfigs;
-    GroupConfig IGroup.Config { get => Config; set => Config = value; }
-    GroupColors IGroup.Colors { get => Colors; set => Colors = value; }
+
+    IReadOnlyList<IInfinity> IGroup.Infinities => _infinities;
 
     private readonly List<Infinity<TGroup, TConsumable>> _infinities = new();
-    private readonly Dictionary<IInfinity, Wrapper> _infinityConfigs = new();
+    private readonly Dictionary<IInfinity, Wrapper> _configs = new();
+    private readonly List<Preset> _presets = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
     
     public static TGroup Instance { get; private set; } = null!;

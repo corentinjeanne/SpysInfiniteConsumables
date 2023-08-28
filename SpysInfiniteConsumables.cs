@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
@@ -6,16 +8,27 @@ public sealed class SpysInfiniteConsumables : Mod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
-    public override void Load() {
-        Instance = this;
-    }
+    public override void Load() => Instance = this;
 
     public override void PostSetupContent() {
         CurrencyHelper.GetCurrencies();
+        FullInfinity.RegisterExtraLocalization<System.Enum>((infinity, category) => infinity.GetLocalization(category.ToString(), () => Regex.Replace(category.ToString(), "([A-Z])", " $1").Trim()).Value);
+        FullInfinity.RegisterExtraLocalization<LocalizedText>((infinity, text) => text.Value);
+        FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => Regex.Replace(str, "([A-Z])", " $1").Trim()).Value);
+        
+        Configs.Presets.PresetLoader.SetupPresets();
+        if(Configs.InfinityDisplay.Instance.general_lastLogs.Length != 0) {
+            Configs.InfinityDisplay.Instance.PortConfig();
+            Configs.InfinitySettings.Instance.PortConfig();
+        } else {
+            Configs.InfinityDisplay.Instance.LoadConfig();
+            Configs.InfinitySettings.Instance.LoadConfig();
+        }
     }
 
     public override void Unload() {
         CurrencyHelper.ClearCurrencies();
+        FullInfinity.ClearExtraLocs();
         
         InfinityManager.Unload();
         Configs.Presets.PresetLoader.Unload();
@@ -41,7 +54,5 @@ public sealed class SpysInfiniteConsumables : Mod {
         }
         return base.Call();
     }
-
-    public readonly static string[] Versions = new[] { "2.0.0", "2.1.0", "2.2.0", "2.2.0.1", "2.2.1", "3.0" };
 }
 

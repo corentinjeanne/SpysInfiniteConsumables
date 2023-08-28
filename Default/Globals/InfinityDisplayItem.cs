@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -5,26 +6,22 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using System;
+using SPIC.Default.Displays;
 
-namespace SPIC.Globals;
-
-// TODO test lag magic storage 1k+ items
+namespace SPIC.Default.Globals;
 
 public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        Configs.InfinityDisplay display = Configs.InfinityDisplay.Instance;
-        if (!display.toopltip_ShowTooltip || !(display.general_ShowInfinities || display.general_ShowRequirement || display.general_ShowInfo)) return;
-
+        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
+        if (!Tooltip.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement || config.ShowInfo)) return;
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        foreach (IInfinity infinity in itemDisplay.DisplayedInfinities) {
-            (TooltipLine lineToFind, TooltipLineID? position) = infinity.GetTooltipLine(item);
+        foreach ((IInfinity infinity, int displayed, FullInfinity display) in itemDisplay.DisplayedInfinities) {
+            (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.Instance.GetTooltipLine(infinity, item, displayed);
             bool added = false;
-            TooltipLine? line = display.toopltip_AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
-            
+            TooltipLine? line = Tooltip.Config.Value.AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
-            DisplayOnLine(line, item, infinity, itemDisplay[infinity]);
+            DisplayOnLine(line, displayed, infinity, display);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
         }
     }
@@ -32,13 +29,13 @@ public sealed class InfinityDisplayItem : GlobalItem {
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
 
-        if (Main.gameMenu || !config.glow_ShowGlow || !config.general_ShowInfinities) return true;
+        if (Main.gameMenu || !Glow.Instance.Enabled || !config.ShowInfinities) return true;
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
         List<IInfinity> withDisplay = new();
-        foreach(IInfinity g in itemDisplay.DisplayedInfinities) {
-            if (itemDisplay[g].Infinity > 0) withDisplay.Add(g);
+        foreach((IInfinity i, int _, FullInfinity display) in itemDisplay.DisplayedInfinities) {
+            if (display.Infinity > 0) withDisplay.Add(i);
         }
 
         if (withDisplay.Count == 0) return true;
@@ -51,26 +48,25 @@ public sealed class InfinityDisplayItem : GlobalItem {
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
 
-        if (Main.gameMenu || !config.dots_ShowDots || !(config.general_ShowInfinities || config.general_ShowRequirement)) return;
+        if (Main.gameMenu || !Dots.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement)) return;
 
-        Vector2 cornerDirection = config.dots_Start switch {
-            Configs.InfinityDisplay.Corner.TopLeft => new(-1, -1),
-            Configs.InfinityDisplay.Corner.TopRight => new(1, -1),
-            Configs.InfinityDisplay.Corner.BottomLeft => new(-1, 1),
-            Configs.InfinityDisplay.Corner.BottomRight => new(1, 1),
+        Vector2 cornerDirection = Dots.Config.Value.Start switch {
+            Configs.Corner.TopLeft => new(-1, -1),
+            Configs.Corner.TopRight => new(1, -1),
+            Configs.Corner.BottomLeft => new(-1, 1),
+            Configs.Corner.BottomRight => new(1, 1),
             _ => new(0, 0)
         };
 
         Vector2 slotCenter = position;
         Vector2 dotPosition = slotCenter + (TextureAssets.InventoryBack.Value.Size() / 2f * Main.inventoryScale - Borders) * cornerDirection - DotSize / 2f * Main.inventoryScale;
-        Vector2 dotDelta = DotSize * (config.dots_Direction == Configs.InfinityDisplay.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
+        Vector2 dotDelta = DotSize * (Dots.Config.Value.Direction == Configs.Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0)) * Main.inventoryScale;
 
 
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-        if(itemDisplay.DisplayedInfinities.Count == 0) return;
+        if(itemDisplay.DisplayedInfinities.Length == 0) return;
         
-        foreach (IInfinity infinity in itemDisplay.InfinitiesByGroup[s_groupIndex % itemDisplay.InfinitiesByGroup.Count]) {
-            FullInfinity display = itemDisplay[infinity];
+        foreach ((IInfinity infinity, _, FullInfinity display) in itemDisplay.InfinitiesByGroups(s_groupIndex % itemDisplay.Groups)) {
             if(display.Count == 0) continue;
             DisplayDot(spriteBatch, dotPosition, infinity, display);
             dotPosition += dotDelta;
@@ -78,47 +74,48 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     }
 
-    public static void DisplayOnLine(TooltipLine line, Item item, IInfinity infinity, FullInfinity display) {
+    public static void DisplayOnLine(TooltipLine line, int displayed, IInfinity infinity, FullInfinity display) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         IGroup group = infinity.Group;
 
-        bool canDisplayInfinity = config.general_ShowInfinities;
+        bool canDisplayInfinity = config.ShowInfinities;
         long count = canDisplayInfinity ? display.Count : 0;
-        string extra = config.general_ShowInfo ? display.LocalizeExtras(infinity) : string.Empty;
+        string extra = config.ShowInfo ? display.LocalizeExtras(infinity) : string.Empty;
         
         void AddExtra() {
             if (extra.Length != 0) line.Text += $" ({extra})";
         }
 
-
         if (canDisplayInfinity && display.Infinity > 0) {
             line.OverrideColor = infinity.Color;
             line.Text = display.Requirement.Multiplier >= 1 ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, group.CountToString(item, infinity, 0, display.Infinity, config.tooltip_RequirementStyle));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartialyInfinite", line.Text, Tooltip.Instance.CountToString(group, displayed, 0, display.Infinity));
             AddExtra();
         }
-        else if (config.general_ShowRequirement) {
-            line.Text += extra.Length == 0 ? $" ({group.CountToString(item, infinity, count, display.Requirement.Count, config.tooltip_RequirementStyle)})" : $" ({group.CountToString(item, infinity, count, display.Requirement.Count, config.tooltip_RequirementStyle)}, {extra})";
+        else if (config.ShowRequirement) {
+            line.Text += extra.Length == 0 ? $" ({Tooltip.Instance.CountToString(group, displayed, count, display.Requirement.Count)})" : $" ({Tooltip.Instance.CountToString(group, displayed, count, display.Requirement.Count)}, {extra})";
         }
         else AddExtra();
 
     }
-
+    
+    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, IInfinity infinity, FullInfinity display) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         float scale = DotScale * Main.inventoryScale;
         
         float maxAlpha = Main.mouseTextColor / 255f;
         float ratio;
-        if(config.general_ShowInfinities) {
+        if(config.ShowInfinities) {
             if (display.Infinity > 0) {
+                Color borderColor = Color.Black * maxAlpha;
                 for (int i = 0; i < s_outerPixels.Length; i++) {
                     spriteBatch.Draw(
                         TextureAssets.MagicPixel.Value,
                         position + s_outerPixels[i] * scale,
                         new Rectangle(0, 0, 1, 1),
-                        Color.Black * maxAlpha,
+                        borderColor,
                         0f,
                         Vector2.Zero,
                         scale,
@@ -127,7 +124,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
                     );
                 }
                 ratio = 1f;
-            } else if(!config.general_ShowRequirement) return;
+            } else if(!config.ShowRequirement) return;
             else {
                 maxAlpha *= 0.9f;
                 ratio = (float)display.Count / display.Requirement.Count;
@@ -151,40 +148,44 @@ public sealed class InfinityDisplayItem : GlobalItem {
         }
     }
     
+    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
-        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         Texture2D texture = TextureAssets.Item[item.type].Value;
 
-        float angle = Main.GlobalTimeWrappedHourly % config.glow_InfinityTime/config.glow_InfinityTime; // 0>1
+        float angle = Main.GlobalTimeWrappedHourly % Glow.Config.Value.AnimationLength/Glow.Config.Value.AnimationLength; // 0>1
         float distance = (angle <= 0.5f ? angle : (1 - angle)) * 2; // 0>1>0
-        angle += item.type % 16 / 16;
+        Color color = infinity.Color * Glow.Config.Value.Intensity * distance;
+        
+        if(!Glow.Config.Value.FancyGlow) {
+            float scl = 1 + 8 * distance / frame.Width;
+            spriteBatch.Draw(texture, position, frame, color, 0, origin, scale*scl, 0, 0f);
+            return;
+        }
 
-        Color color = infinity.Color * config.glow_Intensity * distance;
-        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f*2 + angle) * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
+        angle += item.type % 16 / 16;
+        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f*2 + angle) * Math.PI), frame, color, 0, origin, scale, 0, 0f);
         color *= 0.67f;
-        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), new Rectangle?(frame), color, 0, origin, scale, 0, 0f);
+        for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), frame, color, 0, origin, scale, 0, 0f);
     }
 
-
     public static void IncrementCounters() {
-        // InfinityManager.CacheTimer();
-        Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
-            s_groupTimer = (s_groupTimer + config.dot_PageTime) % 3600;
+            s_groupTimer = (s_groupTimer + Dots.Config.Value.AnimationLength) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
         }
         if(Main.GlobalTimeWrappedHourly >= s_infinityTimer){
-            s_infinityTimer = (int)(Main.GlobalTimeWrappedHourly/config.glow_InfinityTime + 1) * config.glow_InfinityTime % 3600;
+            s_infinityTimer = (int)(Main.GlobalTimeWrappedHourly/Glow.Config.Value.AnimationLength + 1) * Glow.Config.Value.AnimationLength % 3600;
             s_InfinityIndex = (s_InfinityIndex + 1) % InfinityManager.InfinitiesLCM;
         }
     }
-    private static int s_groupIndex = 0, s_InfinityIndex = 0;
-    private static float s_groupTimer = 0, s_infinityTimer = 0;
-
+    
     public const int MaxDots = 8;
     public const int DotScale = 2;
     public static readonly Vector2 DotSize = new Vector2(4, 4) * DotScale;
     public static readonly Vector2 Borders = DotSize * 2f / 3f;
+
+    private static int s_groupIndex = 0, s_InfinityIndex = 0;
+    private static float s_groupTimer = 0, s_infinityTimer = 0;
 
     private static readonly Vector2[] s_innerPixels = new Vector2[]{ new(1,1),new(2,1),new(1,2),new(2,2) };
     private static readonly Vector2[] s_outerPixels = new Vector2[]{ new(1,0),new(0,1),new(0,2),new(1,3),new(2,3),new(3,2),new(3,1),new(2,0) };

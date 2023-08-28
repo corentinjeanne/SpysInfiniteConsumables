@@ -1,36 +1,47 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
-using Newtonsoft.Json;
+using SPIC.Default.Displays;
 
 namespace SPIC.Configs;
 
 public sealed class InfinityDisplay : ModConfig {
+    [Header("Displays")]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
+    public Dictionary<DisplayDefinition, bool> Display {
+        get => _displays;
+        set {
+            foreach (Display display in DisplayLoader.Displays) {
+                DisplayDefinition def = new(display.Mod.Name, display.Name);
+                display.Enabled = value[def] = value.GetValueOrDefault(def, display.DefaultState());
+            }
+            _displays = value;
+        }
+    }
+    
     [Header("General")]
-    [DefaultValue(true)] public bool general_ShowInfinities;
-    [DefaultValue(true)] public bool general_ShowRequirement;
-    public bool general_ShowInfo;
-    [DefaultValue(true)] public bool general_ExclusiveDisplay;
-    [DefaultValue(WelcomMessageFrequency.OncePerUpdate)]
-    public WelcomMessageFrequency general_welcomeMessage;
-    [JsonProperty, DefaultValue("")] internal string general_lastLogs = "";
-
-    [Header("Tooltip")]
-    [DefaultValue(true)] public bool toopltip_ShowTooltip;
-    [DefaultValue(true)] public bool toopltip_AddMissingLines;
-    [DefaultValue(CountStyle.Name)] public CountStyle tooltip_RequirementStyle;
-
-    [Header("Glow")]
-    [DefaultValue(true)] public bool glow_ShowGlow;
-    [DefaultValue(0.75f)] public float glow_Intensity;
-    [DefaultValue(2), Range(1f, 5f), Increment(0.1f)] public float glow_InfinityTime;
-
-    [Header("Dots")]
-    [DefaultValue(true)] public bool dots_ShowDots;
-    [DefaultValue(Corner.BottomRight)] public Corner dots_Start;
-    [DefaultValue(Direction.Horizontal)] public Direction dots_Direction;
-    [DefaultValue(5), Range(1f, 10f),  Increment(0.1f)] public float dot_PageTime;
+    [DefaultValue(true)] public bool ShowInfinities;
+    [DefaultValue(true)] public bool ShowRequirement;
+    public bool ShowInfo;
+    [DefaultValue(true)] public bool ShowExclusiveDisplay;
+    [DefaultValue(true)] public bool ShowAlternateDisplays;
+    
+    [Header("Configs")]
+    [CustomModConfigItem(typeof(CustomDictionaryElement))]
+    public Dictionary<DisplayDefinition, Wrapper> Configs {
+        get => _configs;
+        set {
+            foreach ((Display display, Wrapper wrapper) in DisplayLoader.Configs) {
+                DisplayDefinition def = new(display.Mod.Name, display.Name);
+                value[def] = value.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
+                wrapper.Value = value[def].Value;
+            }
+            _configs = value;
+        }
+    }
 
     [Header("Colors")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
@@ -38,20 +49,45 @@ public sealed class InfinityDisplay : ModConfig {
         set {
             foreach (IGroup group in InfinityManager.Groups) {
                 GroupDefinition def = new(group);
-                if (value.TryGetValue(def, out GroupColors? colors)) colors.SetGroup(group);
-                else value[def] = colors = new(group);
-                group.Colors = colors;
+                value[def] = value.GetValueOrDefault(def, new());
+                group.LoadConfig(value[def]);
             }
             _colors = value;
         }
     }
-    private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
-    public enum CountStyle { Sprite, Name }
-    public enum Direction {Vertical, Horizontal}
-    public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
-    public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
+    [Header("Performances")]
+    [DefaultValue(CacheStyle.Smart)] public CacheStyle Cache { get; set; }
+    [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
+
+
+    [Header("Version")]
+    public Text? Info { get; set; }
+    public Text? Changelog { get; set; }
+    [JsonProperty, DefaultValue("")] internal string version = "";
+
+    private Dictionary<DisplayDefinition, bool> _displays = new();
+    private Dictionary<DisplayDefinition, Wrapper> _configs = new();
+    private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance = null!;
+
+    [JsonProperty, MovedTo("ShowInfinities"), DefaultValue(true)] private bool general_ShowInfinities;
+    [JsonProperty, MovedTo("ShowRequirement"), DefaultValue(true)] private bool general_ShowRequirement;
+    [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
+    [JsonProperty, MovedTo("ShowExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
+    [JsonProperty, MovedTo(typeof(Tooltip), "Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
+    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
+    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
+    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
+    [JsonProperty, MovedTo("version"), DefaultValue("")] internal string general_lastLogs = "";
 }
+
+public enum Direction {Vertical, Horizontal}
+public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
+public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
+public enum CacheStyle {None, Smart, Performances }
+public enum GlowStyle { Off, Simple, Fancy }

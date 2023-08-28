@@ -5,7 +5,7 @@ namespace SPIC.Configs;
 
 
 
-public sealed class Custom : MultyChoice {
+public sealed class Custom : MultiChoice {
 
     [Choice]
     public Count Global { get; set; } = new();
@@ -19,12 +19,4 @@ public sealed class Custom : MultyChoice {
         return false;
     }
     public bool TryGetGlobal([MaybeNullWhen(false)] out Count count) => TryGet(nameof(Global), out count);
-
-    internal void SetGroup(IGroup group) {
-        foreach (InfinityDefinition def in Individual.Keys) {
-            def.Filter = group;
-            if (def.IsUnloaded || !InfinityManager.GetInfinity(def.Mod, def.Name)!.GetType().IsSubclassOfGeneric(typeof(Infinity<,,>), out System.Type? infinity3)) Individual[def] = new Count(Individual[def].Value);
-            else Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity3.GenericTypeArguments[2]), Individual[def].Value)!;
-        }
-    }
 }
