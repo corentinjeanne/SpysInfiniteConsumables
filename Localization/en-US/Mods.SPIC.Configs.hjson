@@ -20,7 +20,7 @@ InfinitySettings: {
 		Tooltip:
 			'''
 			/!\ WIP /!\
-			Tiles and walls won't drop their item when broken
+			Placeables above the requirement will be consumed
 			Critters will turn into smoke when caught
 			Buckets won't fill or empty on use
 			'''
