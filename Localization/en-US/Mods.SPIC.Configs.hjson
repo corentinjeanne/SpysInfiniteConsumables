@@ -41,7 +41,7 @@ InfinityDisplay: {
 		Configs: Display Configs
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: Performance Update - v3.1
+		Version: v3.1.0.1
 	}
 
 	Display: {
@@ -107,24 +107,15 @@ InfinityDisplay: {
 
 	Info: {
 		Label: "[i:4344] Update Info"
-		Tooltip:
-			'''
-			I finally have fixed all performance issues I am aware of !
-			If the mod lags, Have a look at the Performance section above to reduce it.
-			'''
+		Tooltip: Just a tiny patch
 	}
 
 	Changelog: {
 		Label: "[i:509] New Features and Major Changes"
 		Tooltip:
 			'''
-			 - Added Performance options in the Display config 
-			 - Automatic Config porting when they are modified
-			 - Added Cannon ammo detection
-			 - Added toggles for different shops (Tinkerer, Nurse, ...)
-			 - Fixed lag caused by quickly refeshed inventory
-			 - Fixed multiplayer silent exception
-			(You can see the full changelog in the GitHub)
+			 - Fixed a Dots display bug for recipe materials.
+			(You can see the full changelog on the homepage)
 			'''
 	}
 }

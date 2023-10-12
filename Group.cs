@@ -14,6 +14,7 @@ public enum InfinityVisibility { Hidden, Normal, Exclusive }
 
 // ? Add transformations Infinity
 // ? Add quest fish Infinity
+// ? Add HP/Mana Infinity
 
 public interface IGroup : ILocalizedModType, ILoadable {
     void ClearInfinities();

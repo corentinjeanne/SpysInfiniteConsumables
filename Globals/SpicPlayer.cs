@@ -16,6 +16,7 @@ public sealed class SpicPlayer : ModPlayer {
         else if(Mod.Version > new System.Version(version)) Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Update", Mod.Version.ToString()), Colors.RarityCyan);
         else return;
 
+        Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Bug"), Colors.RarityCyan);
         Configs.InfinityDisplay.Instance.version = Mod.Version.ToString();
         Configs.InfinityDisplay.Instance.SaveConfig();
     }
