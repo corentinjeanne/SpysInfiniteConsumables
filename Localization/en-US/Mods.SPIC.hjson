@@ -1,14 +1,7 @@
 Chat: {
-	Download:
-		'''
-		Thanks for downloading SPIC!
-		If you found a bug, please report it on the Steam workshop page or GitHub.
-		'''
-	Update:
-		'''
-		SPIC was updated to v{0}! To learn more about the update, look at the 'Update' section in the 'InfinityDisplay' Config.
-		If you found a bug, please report it on the Steam workshop page or GitHub.
-		'''
+	Download: Thanks for downloading SPIC!
+	Update: SPIC was updated to v{0}! To learn more about the update, look at the 'Update' section in the 'InfinityDisplay' Config.
+	Bug: If you found a bug, please report it on the Steam workshop page or GitHub and add the client.log file or part of it (located at "<tMLSteamDirectory>/tModLoader-Logs")
 }
 
 CommonItemTooltips: {

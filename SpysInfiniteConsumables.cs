@@ -17,7 +17,7 @@ public sealed class SpysInfiniteConsumables : Mod {
         FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => Regex.Replace(str, "([A-Z])", " $1").Trim()).Value);
         
         Configs.Presets.PresetLoader.SetupPresets();
-        if(Configs.InfinityDisplay.Instance.general_lastLogs.Length != 0) {
+        if(Configs.InfinityDisplay.Instance.version.Length != 0) {
             Configs.InfinityDisplay.Instance.PortConfig();
             Configs.InfinitySettings.Instance.PortConfig();
         } else {

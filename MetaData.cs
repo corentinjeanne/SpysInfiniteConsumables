@@ -61,6 +61,7 @@ public sealed class ItemDisplay {
         case InfinityVisibility.Exclusive:
             if (!ExclusiveDisplay) {
                 _infinities.Clear();
+                _groups.Clear();
                 ExclusiveDisplay = true;
             }
             break;

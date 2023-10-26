@@ -72,18 +72,6 @@ public sealed class InfinityDisplay : ModConfig {
 
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance = null!;
-
-    [JsonProperty, MovedTo("ShowInfinities"), DefaultValue(true)] private bool general_ShowInfinities;
-    [JsonProperty, MovedTo("ShowRequirement"), DefaultValue(true)] private bool general_ShowRequirement;
-    [JsonProperty, MovedTo("ShowInfo")] private bool general_ShowInfo;
-    [JsonProperty, MovedTo("ShowExclusiveDisplay"), DefaultValue(true)] private bool general_ExclusiveDisplay;
-    [JsonProperty, MovedTo(typeof(Tooltip), "Config.Value.AddMissingLines"), DefaultValue(true)] private bool toopltip_AddMissingLines;
-    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.Intensity"), DefaultValue(0.75f)] private float glow_Intensity;
-    [JsonProperty, MovedTo(typeof(Glow), "Config.Value.AnimationLength"), DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float glow_InfinityTime;
-    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Start"), DefaultValue(Corner.BottomRight)] private Corner dots_Start;
-    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.Direction"), DefaultValue(Direction.Horizontal)] private Direction dots_Direction;
-    [JsonProperty, MovedTo(typeof(Dots), "Config.Value.AnimationLength"), DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float dot_PageTime;
-    [JsonProperty, MovedTo("version"), DefaultValue("")] internal string general_lastLogs = "";
 }
 
 public enum Direction {Vertical, Horizontal}
