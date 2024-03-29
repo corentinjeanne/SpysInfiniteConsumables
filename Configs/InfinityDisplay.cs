@@ -4,7 +4,7 @@ using System.ComponentModel;
 using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
-using SPIC.Default.Displays;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Configs;
 

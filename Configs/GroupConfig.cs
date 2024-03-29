@@ -3,6 +3,8 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SPIC.Configs.Presets;
+using SPIC.Configs.UI;
+using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -11,7 +13,7 @@ public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }
     public UsedInfinities(int value) : base(value) { }
 
-    [Choice] public UI.Text All { get; set; } = new();
+    [Choice] public Text All { get; set; } = new();
     [Choice, Range(1, 9999)] public int Used { get; set; } = 1;
 
     public override int Value {

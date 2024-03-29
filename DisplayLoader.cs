@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SPIC.Configs;
+using SpikysLib.Configs.UI;
 
 namespace SPIC;
 

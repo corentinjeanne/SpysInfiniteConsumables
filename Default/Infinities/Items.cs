@@ -1,6 +1,6 @@
 using Terraria;
 using Terraria.Localization;
-
+using SpikysLib.Extensions;
 namespace SPIC.Default.Infinities;
 
 public sealed class Items : Group<Items, Item> {

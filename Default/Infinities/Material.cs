@@ -8,6 +8,8 @@ using Terraria.ModLoader;
 using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
+using SpikysLib;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Default.Infinities;
 public enum MaterialCategory {

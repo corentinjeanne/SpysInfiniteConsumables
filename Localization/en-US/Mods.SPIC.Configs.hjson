@@ -171,7 +171,6 @@ GroupColors: {
 UI: {
 	InfinityMultiplier: Infinity is {0} of the requirement
 	None: None
-	Change: Change to {0}
 	Up: Move Up
 	Down: Move Down
 }
@@ -198,15 +197,6 @@ Count: {
 
 	Amount: {
 		Label: Amount
-		Tooltip: ""
-	}
-
-	Tooltip: ""
-}
-
-Wrapper: {
-	SaveBeforeEdit: {
-		Label: Save the config to edit this value
 		Tooltip: ""
 	}
 

@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 using System.ComponentModel;
+using SpikysLib.Configs.UI;
+using SpikysLib;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {

@@ -5,6 +5,9 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using SPIC.Configs;
+using SpikysLib;
+using SpikysLib.Extensions;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Default.Infinities; 
 

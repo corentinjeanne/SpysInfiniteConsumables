@@ -1,3 +1,4 @@
+using SpikysLib.Extensions;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -18,7 +19,7 @@ public sealed class SpicPlayer : ModPlayer {
 
         Main.NewText(Language.GetTextValue($"{Localization.Keys.Chat}.Bug"), Colors.RarityCyan);
         Configs.InfinityDisplay.Instance.version = Mod.Version.ToString();
-        Configs.InfinityDisplay.Instance.SaveConfig();
+        Configs.InfinityDisplay.Instance.Save();
     }
 
     private static void HookRecipe_FindRecipes(On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {

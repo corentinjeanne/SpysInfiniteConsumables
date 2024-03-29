@@ -1,3 +1,4 @@
+using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -7,7 +8,7 @@ public class Count : MultiChoice<int> {
     public Count() : base() {}
     public Count(int value) : base(value) {}
 
-    [Choice] public UI.Text Disabled => new();
+    [Choice] public Text Disabled => new();
     [Choice, Range(1, 9999)] public int Amount { get; set; } = 999;
 
     public override int Value {

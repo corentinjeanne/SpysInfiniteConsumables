@@ -3,7 +3,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
 
-namespace SPIC.Configs;
+namespace SPIC.Configs.UI;
 
 public sealed class PresetDefinition : Definition<PresetDefinition> {
     public PresetDefinition() : base() { }

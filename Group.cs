@@ -4,9 +4,13 @@ using System.Collections.Specialized;
 using System.Reflection;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
+using SpikysLib.Extensions;
+using SpikysLib.Configs.UI;
+using SpikysLib.DataStructures;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using SPIC.Configs.UI;
 
 namespace SPIC;
 
@@ -41,7 +45,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
 
     public Group() {
         _cachedInfinities = new(GetType, consumable => ComputeGroupInfinity(Main.LocalPlayer, consumable)) {
-            ValueSizeEstimate = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
+            EstimateValueSize = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
         };
     }
 
@@ -75,12 +79,10 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         ModTypeLookup<Group<TGroup, TConsumable>>.Register(this);
         InfinityManager.Register(this);
     }
-    public sealed override void SetupContent() {
-        SetStaticDefaults();
-    }
+    public sealed override void SetupContent() => SetStaticDefaults();
 
-    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGet(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
-    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetOrCache(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : ComputeGroupInfinity(player, consumable);
+    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetValue(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
+    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer ? _cachedInfinities.GetOrAdd(consumable) : ComputeGroupInfinity(player, consumable);
     private GroupInfinity ComputeGroupInfinity(Player player, TConsumable consumable) {
         GroupInfinity groupInfinity = new();
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {

@@ -6,6 +6,8 @@ using Terraria.ModLoader;
 using Terraria;
 using System.Collections.Generic;
 using Terraria.Localization;
+using SpikysLib.Configs.UI;
+using SpikysLib;
 
 namespace SPIC.Default.Displays;
 

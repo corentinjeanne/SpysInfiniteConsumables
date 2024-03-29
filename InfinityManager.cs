@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
+using SPIC.Configs.UI;
+using SpikysLib;
+using SpikysLib.DataStructures;
 using Terraria;
 
 namespace SPIC;
@@ -36,15 +39,13 @@ public static class InfinityManager {
     public static bool HasInfinite<TGroup, TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TGroup, TConsumable>[] infinities) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
 
 
-    public static ItemDisplay GetLocalItemDisplay(this Item item) {
-        if (s_displays.TryGetOrCache(item, out ItemDisplay? itemDisplay)) return itemDisplay;
-
-        itemDisplay = new();
+    public static ItemDisplay GetLocalItemDisplay(this Item item) => s_displays.GetOrAdd(item);
+    private static ItemDisplay ComputeLocalItemDisplay(this Item item) {
+        ItemDisplay itemDisplay = new();
         foreach (IGroup group in Groups) {
             foreach ((IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility) in group.GetDisplayedInfinities(Main.LocalPlayer, item))
                 itemDisplay.Add(infinity, displayed, display, visibility);
         }
-        
         return itemDisplay;
     }
 
@@ -72,12 +73,12 @@ public static class InfinityManager {
         s_infinities.Add(infinity);
         s_defaultStates[infinity] = infinity.Enabled;
         s_defaultColors[infinity] = infinity.Color;
-        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / Utility.GCD(InfinitiesLCM, s_infinities.Count);
+        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / MathX.GCD(InfinitiesLCM, s_infinities.Count);
     }
     internal static void Register<TGroup, TConsumable>(Group<TGroup, TConsumable> group) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
         if(group is Default.Infinities.Items) s_groups.Insert(0, group);
         else s_groups.Add(group);
-        GroupsLCM = s_groups.Count * GroupsLCM / Utility.GCD(GroupsLCM, s_groups.Count);
+        GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
             if (infinity is Infinity<TGroup, TConsumable> inf) group.Add(inf);
         }
@@ -93,7 +94,7 @@ public static class InfinityManager {
         if(!Configs.InfinitySettings.Instance.DetectMissingCategories) return false;
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
         if(!infinity.Group.Config.Customs.TryGetValue(def, out Configs.Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Configs.Custom.Individual), Individual = new() };
-        Configs.InfinityDefinition infDef = new(infinity);
+        InfinityDefinition infDef = new(infinity);
         if(custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
         
         custom.Individual[infDef] = new Configs.Count<TCategory>(category);
@@ -127,7 +128,7 @@ public static class InfinityManager {
     
     private static int s_cacheRefresh = 0;
     private static bool s_delayed;
-    private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), GetLocalItemDisplay) {
-        ValueSizeEstimate = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
+    private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), ComputeLocalItemDisplay) {
+        EstimateValueSize = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
     };
 }
