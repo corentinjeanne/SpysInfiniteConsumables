@@ -23,9 +23,9 @@ public class FullInfinity {
         Extras = new(extras)
     };
 
-    internal static FullInfinity WithRequirement<TGroup, TConsumable>(TConsumable consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    internal static FullInfinity WithRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) where TConsumable : notnull {
         FullInfinity fullInfinity = new();
-        Group<TGroup, TConsumable> group = infinity.Group;
+        Group<TConsumable> group = infinity.Group;
 
         List<object> extras = new();
         Requirement requirement = infinity.GetRequirement(consumable, extras);
@@ -43,7 +43,7 @@ public class FullInfinity {
         return fullInfinity;
     }
 
-    internal static FullInfinity WithInfinity<TGroup, TConsumable>(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    internal static FullInfinity WithInfinity<TConsumable>(Player player, TConsumable consumable, Infinity<TConsumable> infinity) where TConsumable : notnull {
         FullInfinity fullInfinity = WithRequirement(consumable, infinity);
         fullInfinity.Count = infinity.Group.CountConsumables(player, consumable);
         long infinityValue = fullInfinity.Requirement.Infinity(fullInfinity.Count);

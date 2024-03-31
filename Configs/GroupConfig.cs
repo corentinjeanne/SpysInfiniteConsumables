@@ -50,7 +50,7 @@ public sealed class GroupConfig {
     [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 
-    public bool HasCustomCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, Infinity<TGroup, TConsumable, TCategory> infinity, [MaybeNullWhen(false)] out TCategory category) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum {
+    public bool HasCustomCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity, [MaybeNullWhen(false)] out TCategory category) where TConsumable : notnull where TCategory : struct, System.Enum {
         if (Customs.TryGetValue(new(infinity.Group.ToItem(consumable).type), out Custom? custom) && custom.TryGetIndividial(infinity, out Count? count) && count.Value < 0) {
             category = ((Count<TCategory>)count).Category;
             return true;
@@ -58,12 +58,12 @@ public sealed class GroupConfig {
         category = default;
         return false;
     }
-    public bool HasCustomCount<TGroup, TConsumable>(TConsumable consumable, Infinity<TGroup, TConsumable> infinity, [MaybeNullWhen(false)] out Count count) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    public bool HasCustomCount<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity, [MaybeNullWhen(false)] out Count count) where TConsumable : notnull {
         if (Customs.TryGetValue(new(infinity.Group.ToItem(consumable).type), out Custom? custom) && custom.TryGetIndividial(infinity, out count) && count.Value >= 0) return true;
         count = default;
         return false;
     }
-    public bool HasCustomGlobal<TGroup, TConsumable>(TConsumable consumable, Group<TGroup, TConsumable> group, [MaybeNullWhen(false)] out Count count) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    public bool HasCustomGlobal<TConsumable>(TConsumable consumable, Group<TConsumable> group, [MaybeNullWhen(false)] out Count count) where TConsumable : notnull {
         if (Customs.TryGetValue(new(group.ToItem(consumable).type), out Custom? custom) && custom.TryGetGlobal(out count)) return true;
         count = default;
         return false;

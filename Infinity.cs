@@ -16,16 +16,16 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     LocalizedText DisplayName { get; }
 }
 
-public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+public abstract class Infinity<TConsumable> : ModType, IInfinity where TConsumable : notnull {
     protected sealed override void Register() {
-        ModTypeLookup<Infinity<TGroup, TConsumable>>.Register(this);
+        ModTypeLookup<Infinity<TConsumable>>.Register(this);
         InfinityManager.Register(this);
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 
     public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
     
-    public TGroup Group { get; internal set; } = null!;
+    public abstract Group<TConsumable> Group { get; }
     public virtual bool Enabled { get; set; } = true;
 
     public abstract int IconType { get; }
@@ -44,7 +44,7 @@ public abstract class Infinity<TGroup, TConsumable> : ModType, IInfinity where T
     public virtual void ModifyDisplayedConsumables(TConsumable consumable, List<TConsumable> displayed) {}
 }
 
-public abstract class Infinity<TGroup, TConsumable, TCategory> : Infinity<TGroup, TConsumable> where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
+public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
 
     public override Requirement GetRequirement(TConsumable consumable, List<object> extras) {
         TCategory category = GetCategory(consumable);

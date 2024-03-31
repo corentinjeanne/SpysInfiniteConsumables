@@ -48,10 +48,12 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Items, Item, UsableCategory>, ITooltipLineDisplay {
+public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static Usable Instance = null!;
     public static Wrapper<UsableRequirements> Config = null!;
+
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color Color { get; set; } = Colors.RarityCyan;

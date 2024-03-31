@@ -29,8 +29,9 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Items, Item, GrabBagCategory>, ITooltipLineDisplay {
+public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static GrabBag Instance = null!;
     public static Wrapper<GrabBagRequirements> Config = null!;
 

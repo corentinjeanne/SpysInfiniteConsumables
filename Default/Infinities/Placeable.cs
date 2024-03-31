@@ -65,8 +65,9 @@ public sealed class PlaceableRequirements {
     public Count Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Items, Item, PlaceableCategory>, ITooltipLineDisplay {
+public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static Placeable Instance = null!;
     public static Wrapper<PlaceableRequirements> Config = null!;
 

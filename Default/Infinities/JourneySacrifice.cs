@@ -18,8 +18,9 @@ public sealed class JourneySacrificeSettings {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Items, Item>, ITooltipLineDisplay {
+public sealed class JourneySacrifice : Infinity<Item>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static JourneySacrifice Instance = null!;
     public static Wrapper<JourneySacrificeSettings> Config = null!;
 

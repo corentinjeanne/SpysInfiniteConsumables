@@ -4,7 +4,9 @@ using Terraria;
 
 namespace SPIC.Default.Infinities;
 
-public sealed class Currencies : Group<Currencies, int>, ICountToStringGroup {
+public sealed class Currencies : Group<int>, ICountToStringGroup {
+
+    public static Currencies Instance = null!;
 
     public override int ToConsumable(Item item) => item.CurrencyType();
     public override Item ToItem(int consumable) => new(SpikysLib.Currencies.LowestValueType(consumable));

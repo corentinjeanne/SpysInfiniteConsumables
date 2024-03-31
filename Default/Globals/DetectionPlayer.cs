@@ -116,7 +116,7 @@ public sealed class DetectionPlayer : ModPlayer {
                 /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
             Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
 
-        static bool ShouldRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
     private void HookShootFromCannon(On_Player.orig_ShootFromCannon orig, Player self, int x, int y) {

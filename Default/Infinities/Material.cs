@@ -37,8 +37,9 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Items, Item, MaterialCategory>, ITooltipLineDisplay {
+public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static Material Instance = null!;
     public static Wrapper<MaterialRequirements> Config = null!;
 

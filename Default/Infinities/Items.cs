@@ -4,7 +4,9 @@ using SpikysLib.Extensions;
 using SPIC.Default.Displays;
 namespace SPIC.Default.Infinities;
 
-public sealed class Items : Group<Items, Item>, ICountToStringGroup {
+public sealed class Items : Group<Item>, ICountToStringGroup {
+
+    public static Items Instance = null!;
 
     public override Item ToConsumable(Item item) => item;
     public override Item ToItem(Item consumable) => consumable;

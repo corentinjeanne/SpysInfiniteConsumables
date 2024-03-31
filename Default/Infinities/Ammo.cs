@@ -25,8 +25,9 @@ public sealed class AmmoRequirements {
     public Count Special = 999;
 }
 
-public sealed class Ammo : Infinity<Items, Item, AmmoCategory>, ITooltipLineDisplay {
+public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
 
+    public override Group<Item> Group => Items.Instance;
     public static Ammo Instance = null!;
     public static Wrapper<AmmoRequirements> Config = null!;
 

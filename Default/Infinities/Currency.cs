@@ -34,8 +34,9 @@ public sealed class CurrencyRequirements {
     [DefaultValue(true)] public bool Others = true;
 }
 
-public sealed class Currency : Infinity<Currencies, int, CurrencyCategory>, ITooltipLineDisplay {
+public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisplay {
 
+    public override Group<int> Group => Currencies.Instance;
     public static Currency Instance = null!;
     public static Wrapper<CurrencyRequirements> Config = null!;
 
