@@ -90,7 +90,7 @@ InfinityDisplay: {
 			'''
 			Performances: Optimal performances, Large cache (~10kB). Will not recompute any value
 			Smart: Great performances, Small cache (~3kB). May recompute some values
-			None: Horrendous perfomances, No caches
+			None: Horrendous perfomances, No cache
 			Type /spiccache ingame to see the cached values
 			'''
 	}
@@ -107,7 +107,7 @@ InfinityDisplay: {
 
 	Info: {
 		Label: "[i:4344] Update Info"
-		Tooltip: Added Spiky's Lib mod dependency
+		Tooltip: Small changes under the hood
 	}
 
 	Changelog: {
@@ -115,6 +115,7 @@ InfinityDisplay: {
 		Tooltip:
 			'''
 			- Added Spiky's Lib mod dependency
+			- Simplified Infinity overrides
 			(You can see the full changelog on the homepage)
 			'''
 	}
@@ -227,10 +228,45 @@ Presets: {
 
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
-PresetDefinition.Tooltip: ""
+
+PresetDefinition: {
+	Tooltip: {
+		$parentVal: ""
+		Label: Tooltip
+		Tooltip: ""
+	}
+
+	AllowNull: {
+		Label: Allow Null
+		Tooltip: ""
+	}
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
 ModConsumableDefinition.Tooltip: ""
-InfinityDefinition.Tooltip: ""
-GroupDefinition.Tooltip: ""
+
+InfinityDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
+GroupDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
 Text.Tooltip: ""
 
 CountStyle: {
@@ -281,4 +317,23 @@ GlowStyle: {
 	Fancy.Label: Fancy
 }
 
-DisplayDefinition.Tooltip: ""
+DisplayDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
+Definition`1: {
+	Tooltip: {
+		Label: Tooltip
+		Tooltip: ""
+	}
+
+	AllowNull: {
+		Label: Allow Null
+		Tooltip: ""
+	}
+}

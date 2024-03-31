@@ -8,6 +8,7 @@ using SPIC.Configs;
 using SpikysLib;
 using SpikysLib.Extensions;
 using SpikysLib.Configs.UI;
+using System.Collections.Generic;
 
 namespace SPIC.Default.Infinities; 
 
@@ -27,17 +28,16 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCategory> {
+public sealed class GrabBag : Infinity<Items, Item, GrabBagCategory> {
+
+    public static GrabBag Instance = null!;
+    public static Wrapper<GrabBagRequirements> Config = null!;
+
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color Color { get; set; } = Colors.RarityDarkPurple;
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
-
-    public override void Load() {
-        base.Load();
-        ExtraDisplays += consumable => consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null;
-    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
@@ -66,5 +66,8 @@ public sealed class GrabBag : InfinityStatic<GrabBag, Items, Item, GrabBagCatego
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
-    public static Wrapper<GrabBagRequirements> Config = null!;
+    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+        Item? key = consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
+        if (key is not null) displayed.Add(key);
+    }
 }

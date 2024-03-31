@@ -163,6 +163,7 @@ Contains various ways to display the infinities of items and their  config.
 ### v3.1.0.1
 
 - Fixed dot display for recipe materials
+- Simplified Infinity overrides
 
 ### v3.1
 

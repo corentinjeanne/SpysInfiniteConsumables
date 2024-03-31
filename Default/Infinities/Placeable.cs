@@ -64,22 +64,14 @@ public sealed class PlaceableRequirements {
     public Count Paint = 999;
 }
 
-public sealed class Placeable : InfinityStatic<Placeable, Items, Item, PlaceableCategory> {
+public sealed class Placeable : Infinity<Items, Item, PlaceableCategory> {
+
+    public static Placeable Instance = null!;
+    public static Wrapper<PlaceableRequirements> Config = null!;
+
 
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override Color Color { get; set; } = Colors.RarityAmber;
-
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += AmmoSlots;
-        InfinityOverrides += DuplicationInfinity;
-        ExtraDisplays += consumable => GetWandType(consumable) switch {
-            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
-            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            _ => null
-        };
-    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
@@ -174,12 +166,10 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         // return PlaceableCategory.None;
     }
 
-    private static readonly Dictionary<int, int> _wandAmmos = new(); // ammoType, wandType
-    internal static void ClearWandAmmos() => _wandAmmos.Clear();
-    public static void RegisterWand(Item wand) => _wandAmmos.TryAdd(wand.tileWand, wand.type);
-    public static bool IsWandAmmo(int type, out int wandType) => _wandAmmos.TryGetValue(type, out wandType);
-
-    public static Wrapper<PlaceableRequirements> Config = null!;
+    private static readonly Dictionary<int, int> s_wandAmmos = new(); // ammoType, wandType
+    internal static void ClearWandAmmos() => s_wandAmmos.Clear();
+    public static void RegisterWand(Item wand) => s_wandAmmos.TryAdd(wand.tileWand, wand.type);
+    public static bool IsWandAmmo(int type, out int wandType) => s_wandAmmos.TryGetValue(type, out wandType);
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) {
@@ -210,7 +200,15 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         _ => WandType.None
     };
 
-    public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyInfinity(Player player, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
+        if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
+        if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
+            extras.Add(this.GetLocalizationKey("TileDuplication"));
+            infinity = 0;
+        }
+    }
+
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index < 50 || 58 <= index) return;
 
@@ -218,12 +216,14 @@ public sealed class Placeable : InfinityStatic<Placeable, Items, Item, Placeable
         if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
     }
 
-    public void DuplicationInfinity(Player _, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
-        if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
-        if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
-            extras.Add(this.GetLocalizationKey("TileDuplication"));
-            infinity = 0;
-        }
+    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+        Item? item = GetWandType(consumable) switch {
+            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
+            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            _ => null
+        };
+        if (item is not null) displayed.Add(item);
     }
 
     // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));

@@ -52,7 +52,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     internal void Add(Infinity<TGroup, TConsumable> infinity) {
         _infinities.Add(infinity);
         infinity.Group = (TGroup)this;
-        infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, infinity);
+        ModConfigExtensions.SetInstance(infinity.GetType());
     }
 
     void IGroup.Add(Preset preset) => Add(preset);
@@ -69,7 +69,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
     public override void Unload() {
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
             infinity.Group = null!;
-            infinity.GetType().GetField("Instance", BindingFlags.Static | BindingFlags.Public)?.SetValue(null, null);
+            ModConfigExtensions.SetInstance(infinity.GetType(), true);
         }
         _infinities.Clear();
         _configs.Clear();
@@ -111,7 +111,9 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
         bool forcedByCustom = consumableInfinity.UsedInfinities.Count == 0 && !consumableInfinity.Mixed.Requirement.IsNone;
 
         foreach (Infinity<TGroup, TConsumable> infinity in _infinities) {
-            foreach(TConsumable displayed in infinity.DisplayedValues(consumable)){
+            List<TConsumable> displayedConsumables = new() { consumable };
+            infinity.ModifyDisplayedConsumables(consumable, displayedConsumables);
+            foreach(TConsumable displayed in displayedConsumables){
                 bool weapon = !consumable.Equals(displayed);
                 GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
                 FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
@@ -121,7 +123,7 @@ public abstract class Group<TGroup, TConsumable> : ModType, IGroup where TGroup 
                 Requirement requirement = effective.Requirement;
                 long count = effective.Count;
                 InfinityVisibility visibility = displayedInfinity.UsedInfinities.ContainsKey(infinity) || weapon ? InfinityVisibility.Normal : InfinityVisibility.Hidden;
-                infinity.OverrideDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
+                infinity.ModifyDisplay(player, item, displayed, ref requirement, ref count, extras, ref visibility);
                 if (visibility == InfinityVisibility.Normal && !Main.LocalPlayer.IsFromVisibleInventory(item)) {
                     if (weapon) visibility = InfinityVisibility.Hidden;
                     count = 0;

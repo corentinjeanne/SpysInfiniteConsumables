@@ -36,19 +36,18 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
-    
+public sealed class Material : Infinity<Items, Item, MaterialCategory> {
+
+    public static Material Instance = null!;
+    public static Wrapper<MaterialRequirements> Config = null!;
+
+
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.RarityPink;
 
     private static Dictionary<int, int> s_itemGroupCounts = null!;
 
-
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += CraftingMaterial;
-    }
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
         s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
@@ -89,11 +88,9 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         return MaterialCategory.Miscellaneous;
     }
 
-    public static Wrapper<MaterialRequirements> Config = null!;
-
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
-    public static void CraftingMaterial(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
         Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
@@ -105,6 +102,5 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
         if (group == -1) return;
         count = s_itemGroupCounts[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-
     }
 }

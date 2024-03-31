@@ -40,12 +40,12 @@ public sealed class GroupConfig {
     }
     private PresetDefinition _preset = new();
 
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
 
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
 
     [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();

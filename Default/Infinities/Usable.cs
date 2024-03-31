@@ -47,16 +47,13 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
+public sealed class Usable : Infinity<Items, Item, UsableCategory> {
+
+    public static Usable Instance = null!;
+    public static Wrapper<UsableRequirements> Config = null!;
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color Color { get; set; } = Colors.RarityCyan;
-
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += AmmoSlots;
-        ExtraDisplays += consumable => consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
-    }
 
     public override void SetStaticDefaults() {
         base.SetStaticDefaults();
@@ -107,7 +104,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Potion;
         if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Potion;
 
-        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Tool;
+        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
         if (item.hairDye != -1) return UsableCategory.Booster;
@@ -115,15 +112,18 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
-    public static Wrapper<UsableRequirements> Config = null!;
-
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
         return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
+    }
+
+    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+        Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
+        if (item is not null) displayed.Add(item);
     }
 }

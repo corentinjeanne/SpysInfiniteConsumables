@@ -40,7 +40,7 @@ public interface IDefinition {
 }
 
 [CustomModConfigItem(typeof(DefinitionElement))]
-[TypeConverter("SPIC.Configs.DefinitionConverter")]
+[TypeConverter("SPIC.Configs.UI.DefinitionConverter")]
 public abstract class Definition<TDefinition> : EntityDefinition, IDefinition where TDefinition : Definition<TDefinition> {
     public Definition() : base() { }
     public Definition(string key) : base(key) { }

@@ -30,7 +30,7 @@ public class FullInfinity {
         List<object> extras = new();
         Requirement requirement = infinity.GetRequirement(consumable, extras);
 
-        infinity.OverrideRequirement(consumable, ref requirement, extras);
+        infinity.ModifyRequirement(consumable, ref requirement, extras);
         
         if (group.Config.HasCustomCount(consumable, infinity, out Count? custom)) {
             extras.Clear();
@@ -47,7 +47,7 @@ public class FullInfinity {
         FullInfinity fullInfinity = WithRequirement(consumable, infinity);
         fullInfinity.Count = infinity.Group.CountConsumables(player, consumable);
         long infinityValue = fullInfinity.Requirement.Infinity(fullInfinity.Count);
-        infinity.OverrideInfinity(player, consumable, fullInfinity.Requirement, fullInfinity.Count, ref infinityValue, fullInfinity.Extras);
+        infinity.ModifyInfinity(player, consumable, fullInfinity.Requirement, fullInfinity.Count, ref infinityValue, fullInfinity.Extras);
         fullInfinity.Infinity = infinityValue;
         return fullInfinity;
     }
