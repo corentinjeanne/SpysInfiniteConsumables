@@ -17,7 +17,7 @@ namespace SPIC.Configs.UI;
 
 public sealed class DefinitionConverter : TypeConverter {
     public DefinitionConverter(Type type) {
-        if (!type.IsSubclassOfGeneric(typeof(Definition<>), out Type? gen)) throw new ArgumentException($"The type {type} does not derive from the type {typeof(DefinitionConverter)}.");
+        if (!type.IsSubclassOfGeneric(typeof(Definition<>), out Type? gen)) throw new ArgumentException($"The type {type} does not derive from the type {typeof(Definition<>)}.");
         GenericType = gen;
         MethodInfo? fromString = GenericType.GetMethod("FromString", BindingFlags.Static | BindingFlags.Public, new[] { typeof(string) });
         if (fromString is null || fromString.ReturnType != GenericType.GenericTypeArguments[0]) throw new ArgumentException($"The type {GenericType} does not have a public static FromString(string) method that returns a {GenericType.GenericTypeArguments[0]}");

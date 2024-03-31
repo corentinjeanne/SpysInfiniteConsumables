@@ -156,6 +156,10 @@ Contains various ways to display the infinities of items and their  config.
 
 # Changelog
 
+### v3.1.1
+
+- Added Spiky's Lib mod dependency
+
 ### v3.1.0.1
 
 - Fixed dot display for recipe materials

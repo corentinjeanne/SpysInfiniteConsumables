@@ -41,7 +41,7 @@ InfinityDisplay: {
 		Configs: Display Configs
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: v3.1.0.1
+		Version: v3.1.1
 	}
 
 	Display: {
@@ -107,14 +107,14 @@ InfinityDisplay: {
 
 	Info: {
 		Label: "[i:4344] Update Info"
-		Tooltip: Just a tiny patch
+		Tooltip: Added Spiky's Lib mod dependency
 	}
 
 	Changelog: {
 		Label: "[i:509] New Features and Major Changes"
 		Tooltip:
 			'''
-			 - Fixed a Dots display bug for recipe materials.
+			- Added Spiky's Lib mod dependency
 			(You can see the full changelog on the homepage)
 			'''
 	}
