@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using SpikysLib;
 using SpikysLib.Configs.UI;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -17,7 +18,7 @@ public sealed class JourneySacrificeSettings {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Items, Item> {
+public sealed class JourneySacrifice : Infinity<Items, Item>, ITooltipLineDisplay {
 
     public static JourneySacrifice Instance = null!;
     public static Wrapper<JourneySacrificeSettings> Config = null!;
@@ -28,9 +29,7 @@ public sealed class JourneySacrifice : Infinity<Items, Item> {
     public override Color Color { get; set; } = Colors.JourneyMode;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         Config = Group.AddConfig<JourneySacrificeSettings>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(Item item, List<object> extras) => new(item.ResearchUnlockCount);

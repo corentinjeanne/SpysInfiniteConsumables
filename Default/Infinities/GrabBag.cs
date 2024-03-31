@@ -9,6 +9,7 @@ using SpikysLib;
 using SpikysLib.Extensions;
 using SpikysLib.Configs.UI;
 using System.Collections.Generic;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities; 
 
@@ -28,7 +29,7 @@ public sealed class GrabBagRequirements {
     public Count TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Items, Item, GrabBagCategory> {
+public sealed class GrabBag : Infinity<Items, Item, GrabBagCategory>, ITooltipLineDisplay {
 
     public static GrabBag Instance = null!;
     public static Wrapper<GrabBagRequirements> Config = null!;
@@ -40,9 +41,7 @@ public sealed class GrabBag : Infinity<Items, Item, GrabBagCategory> {
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         Config = Group.AddConfig<GrabBagRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {

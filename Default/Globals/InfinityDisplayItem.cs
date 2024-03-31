@@ -19,7 +19,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (!Tooltip.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement || config.ShowInfo)) return;
         ItemDisplay itemDisplay = item.GetLocalItemDisplay();
         foreach ((IInfinity infinity, int displayed, FullInfinity display) in itemDisplay.DisplayedInfinities) {
-            (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.Instance.GetTooltipLine(infinity, item, displayed);
+            (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.GetTooltipLine(infinity, item, displayed);
             bool added = false;
             TooltipLine? line = Tooltip.Config.Value.AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;

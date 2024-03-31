@@ -164,6 +164,8 @@ Contains various ways to display the infinities of items and their  config.
 
 - Fixed dot display for recipe materials
 - Simplified Infinity overrides
+- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
+- Removed "static" variants of classes
 
 ### v3.1
 

@@ -116,7 +116,8 @@ InfinityDisplay: {
 			'''
 			- Added Spiky's Lib mod dependency
 			- Simplified Infinity overrides
-			(You can see the full changelog on the homepage)
+			- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
+			- Removed "static" variants of classes
 			'''
 	}
 }

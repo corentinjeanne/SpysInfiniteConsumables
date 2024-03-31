@@ -20,13 +20,3 @@ public abstract class Display : ModType, ILocalizedModType {
 
     public sealed override void SetupContent() => SetStaticDefaults();
 }
-
-public abstract class DisplayStatic<TDisplay> : Display where TDisplay : DisplayStatic<TDisplay> {
-    public override void SetStaticDefaults() => Instance = (TDisplay)this;
-    public override void Unload() {
-        Instance = null!;
-        base.Unload();
-    }
-
-    public static TDisplay Instance { get; private set; } = null!;
-}

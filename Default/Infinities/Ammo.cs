@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using SpikysLib.Configs.UI;
 using SpikysLib;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -24,7 +25,7 @@ public sealed class AmmoRequirements {
     public Count Special = 999;
 }
 
-public sealed class Ammo : Infinity<Items, Item, AmmoCategory> {
+public sealed class Ammo : Infinity<Items, Item, AmmoCategory>, ITooltipLineDisplay {
 
     public static Ammo Instance = null!;
     public static Wrapper<AmmoRequirements> Config = null!;
@@ -34,9 +35,7 @@ public sealed class Ammo : Infinity<Items, Item, AmmoCategory> {
     public override Color Color { get; set; } = Colors.RarityLime;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         Config = Group.AddConfig<AmmoRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {

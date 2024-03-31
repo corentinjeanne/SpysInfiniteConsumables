@@ -9,6 +9,7 @@ using Terraria.Localization;
 using System.ComponentModel;
 using SpikysLib;
 using SpikysLib.Configs.UI;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -33,7 +34,7 @@ public sealed class CurrencyRequirements {
     [DefaultValue(true)] public bool Others = true;
 }
 
-public sealed class Currency : Infinity<Currencies, int, CurrencyCategory> {
+public sealed class Currency : Infinity<Currencies, int, CurrencyCategory>, ITooltipLineDisplay {
 
     public static Currency Instance = null!;
     public static Wrapper<CurrencyRequirements> Config = null!;
@@ -43,9 +44,7 @@ public sealed class Currency : Infinity<Currencies, int, CurrencyCategory> {
     public override Color Color { get; set; } = Colors.CoinGold;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         Config = Group.AddConfig<CurrencyRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(CurrencyCategory category) => category switch {

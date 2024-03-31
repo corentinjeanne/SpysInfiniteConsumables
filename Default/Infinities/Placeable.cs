@@ -10,6 +10,7 @@ using Terraria.Localization;
 using SpikysLib;
 using SpikysLib.Extensions;
 using SpikysLib.Configs.UI;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -64,7 +65,7 @@ public sealed class PlaceableRequirements {
     public Count Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Items, Item, PlaceableCategory> {
+public sealed class Placeable : Infinity<Items, Item, PlaceableCategory>, ITooltipLineDisplay {
 
     public static Placeable Instance = null!;
     public static Wrapper<PlaceableRequirements> Config = null!;
@@ -74,13 +75,11 @@ public sealed class Placeable : Infinity<Items, Item, PlaceableCategory> {
     public override Color Color { get; set; } = Colors.RarityAmber;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
         }
         Config = Group.AddConfig<PlaceableRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
 

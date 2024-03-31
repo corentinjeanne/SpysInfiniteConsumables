@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using SpikysLib;
 using SpikysLib.Extensions;
 using SpikysLib.Configs.UI;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -47,7 +48,7 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Items, Item, UsableCategory> {
+public sealed class Usable : Infinity<Items, Item, UsableCategory>, ITooltipLineDisplay {
 
     public static Usable Instance = null!;
     public static Wrapper<UsableRequirements> Config = null!;
@@ -56,9 +57,7 @@ public sealed class Usable : Infinity<Items, Item, UsableCategory> {
     public override Color Color { get; set; } = Colors.RarityCyan;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         Config = Group.AddConfig<UsableRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(UsableCategory category) {

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.ComponentModel;
 using SpikysLib;
 using SpikysLib.Configs.UI;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 public enum MaterialCategory {
@@ -36,7 +37,7 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Items, Item, MaterialCategory> {
+public sealed class Material : Infinity<Items, Item, MaterialCategory>, ITooltipLineDisplay {
 
     public static Material Instance = null!;
     public static Wrapper<MaterialRequirements> Config = null!;
@@ -49,10 +50,8 @@ public sealed class Material : Infinity<Items, Item, MaterialCategory> {
     private static Dictionary<int, int> s_itemGroupCounts = null!;
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
         Config = Group.AddConfig<MaterialRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
     }
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {

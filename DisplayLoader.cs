@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SpikysLib.Configs.UI;
+using SpikysLib.Extensions;
 
 namespace SPIC;
 
 public static class DisplayLoader {
     internal static void Register(Display display) {
+        ModConfigExtensions.SetInstance(display);
         s_displays.Add(display);
         s_defaultStates[display] = display.Enabled;
     }
@@ -16,6 +18,7 @@ public static class DisplayLoader {
         return wrapper;
     }
     internal static void Unload(){
+        foreach(Display d in s_displays) ModConfigExtensions.SetInstance(d, true);
         s_displays.Clear();
         s_configs.Clear();
     }
