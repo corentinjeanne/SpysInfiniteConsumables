@@ -118,6 +118,7 @@ InfinityDisplay: {
 			- Simplified Infinity overrides
 			- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
 			- Removed "static" variants of classes
+			- Replaced AddConfig calls with a static field check
 			'''
 	}
 }

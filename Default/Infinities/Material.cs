@@ -41,7 +41,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
     public override Group<Item> Group => Items.Instance;
     public static Material Instance = null!;
-    public static Wrapper<MaterialRequirements> Config = null!;
+    public static MaterialRequirements Config = null!;
 
 
     public override int IconType => ItemID.TinkerersWorkshop;
@@ -50,17 +50,12 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
     private static Dictionary<int, int> s_itemGroupCounts = null!;
 
-    public override void SetStaticDefaults() {
-        s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-        Config = Group.AddConfig<MaterialRequirements>(this);
-    }
-
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Value.Basic, Config.Value.Multiplier),
-        MaterialCategory.Ore => new(Config.Value.Ore, Config.Value.Multiplier),
-        MaterialCategory.Furniture => new(Config.Value.Furniture, Config.Value.Multiplier),
-        MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, Config.Value.Multiplier),
-        MaterialCategory.NonStackable => new(Config.Value.NonStackable, Config.Value.Multiplier),
+        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
+        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
+        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
+        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
+        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
         _ => new(),
     };
 

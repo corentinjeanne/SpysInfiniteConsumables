@@ -27,10 +27,10 @@ public sealed class DetectionPlayer : ModPlayer {
 
     private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
         bool enabled;
-        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Value.Nurse;
-        else if (Main.InReforgeMenu) enabled = Currency.Config.Value.Reforging;
-        else if (Main.npcShop != 0) enabled = Currency.Config.Value.Shop;
-        else enabled = Currency.Config.Value.Others;
+        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Nurse;
+        else if (Main.InReforgeMenu) enabled = Currency.Config.Reforging;
+        else if (Main.npcShop != 0) enabled = Currency.Config.Shop;
+        else enabled = Currency.Config.Others;
         return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
     }
 

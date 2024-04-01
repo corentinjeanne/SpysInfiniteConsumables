@@ -33,7 +33,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
 
     public override Group<Item> Group => Items.Instance;
     public static GrabBag Instance = null!;
-    public static Wrapper<GrabBagRequirements> Config = null!;
+    public static GrabBagRequirements Config = null!;
 
 
     public override int IconType => ItemID.FairyQueenBossBag;
@@ -41,14 +41,10 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
-    public override void SetStaticDefaults() {
-        Config = Group.AddConfig<GrabBagRequirements>(this);
-    }
-
     public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Value.Container),
-        GrabBagCategory.TreasureBag => new(Config.Value.TreasureBag),
-        GrabBagCategory.Extractinator => new(Config.Value.Extractinator),
+        GrabBagCategory.Container => new(Config.Container),
+        GrabBagCategory.TreasureBag => new(Config.TreasureBag),
+        GrabBagCategory.Extractinator => new(Config.Extractinator),
         _ => new(),
     };
 

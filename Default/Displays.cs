@@ -4,9 +4,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Terraria.ModLoader;
 using Terraria;
-using System.Collections.Generic;
 using Terraria.Localization;
-using SpikysLib.Configs.UI;
 using SpikysLib;
 
 namespace SPIC.Default.Displays;
@@ -21,30 +19,22 @@ public sealed class TooltipConfig {
 public interface ITooltipLineDisplay {
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed);
 }
-public interface ICountToStringGroup {
+public interface ICountToString {
     public string CountToString(int consumable, long count, long value);
 }
 
 public sealed class Tooltip : Display {
 
     public static Tooltip Instance = null!;
-
-    public override void SetStaticDefaults() {
-        Config = DisplayLoader.AddConfig<TooltipConfig>(this);
-    }
+    public static TooltipConfig Config = null!;
 
     public static (TooltipLine, TooltipLineID?) GetTooltipLine(IInfinity infinity, Item item, int displayed) => infinity is ITooltipLineDisplay td ? td.GetTooltipLine(item, displayed) : DefaultTooltipLine(infinity);
-    public string CountToString(IGroup group, int consumable, long owned, long value) => group is ICountToStringGroup cs ? cs.CountToString(consumable, owned, value) : DefaultCount(owned, value);
+    public static string CountToString(IGroup group, int consumable, long owned, long value) => group is ICountToString cs ? cs.CountToString(consumable, owned, value) : DefaultCount(owned, value);
 
     public static (TooltipLine, TooltipLineID?) DefaultTooltipLine(IInfinity infinity) => (new (infinity.Mod, infinity.Name, infinity.DisplayName.Value), null);
     public static string DefaultCount(long owned, long value) => owned == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value) : $"{owned}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value)}";
 
     public override int IconType => ItemID.Sign;
-
-    public static Wrapper<TooltipConfig> Config = null!;
-
-    public delegate (TooltipLine, TooltipLineID?) TooltipLineGetter(Item item, int displayed);
-    public delegate string CountToStringFn(int consumable, long owned, long value);
 } 
 
 public sealed class GlowConfig {
@@ -59,14 +49,9 @@ public sealed class GlowConfig {
 public sealed class Glow : Display {
 
     public static Glow Instance = null!;
-
-    public override void SetStaticDefaults() {
-        Config = DisplayLoader.AddConfig<GlowConfig>(this);
-    }
+    public static GlowConfig Config = null!;
 
     public override int IconType => ItemID.FallenStar;
-
-    public static Wrapper<GlowConfig> Config = null!;
 } 
 public sealed class DotsConfig {
     [LabelKey($"${Localization.Keys.Displays}.Dots.Start")]
@@ -80,12 +65,7 @@ public sealed class DotsConfig {
 public sealed class Dots : Display {
 
     public static Dots Instance = null!;
-
-    public override void SetStaticDefaults() {
-        Config = DisplayLoader.AddConfig<DotsConfig>(this);
-    }
-
-    public static Wrapper<DotsConfig> Config = null!;
+    public static DotsConfig Config = null!;
 
     public override int IconType => ItemID.WireBulb;
 } 

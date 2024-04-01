@@ -159,13 +159,14 @@ Contains various ways to display the infinities of items and their  config.
 ### v3.1.1
 
 - Added Spiky's Lib mod dependency
+- Simplified Infinity overrides
+- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
+- Removed "static" variants of classes
+- Replaced AddConfig calls with a static field check
 
 ### v3.1.0.1
 
 - Fixed dot display for recipe materials
-- Simplified Infinity overrides
-- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
-- Removed "static" variants of classes
 
 ### v3.1
 

@@ -22,16 +22,12 @@ public sealed class JourneySacrifice : Infinity<Item>, ITooltipLineDisplay {
 
     public override Group<Item> Group => Items.Instance;
     public static JourneySacrifice Instance = null!;
-    public static Wrapper<JourneySacrificeSettings> Config = null!;
+    public static JourneySacrificeSettings Config = null!;
 
 
     public override int IconType => ItemID.GoldBunny;
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.JourneyMode;
-
-    public override void SetStaticDefaults() {
-        Config = Group.AddConfig<JourneySacrificeSettings>(this);
-    }
 
     public override Requirement GetRequirement(Item item, List<object> extras) => new(item.ResearchUnlockCount);
 
@@ -40,6 +36,6 @@ public sealed class JourneySacrifice : Infinity<Item>, ITooltipLineDisplay {
     public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.LocalPlayer.difficulty != PlayerDifficultyID.Creative && Instance.Group.Config.UsedInfinities == 0) visibility = InfinityVisibility.Hidden;
         if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
-        else if(Config.Value.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
+        else if(Config.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
     }
 }

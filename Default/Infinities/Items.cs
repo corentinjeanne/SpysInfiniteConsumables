@@ -4,7 +4,7 @@ using SpikysLib.Extensions;
 using SPIC.Default.Displays;
 namespace SPIC.Default.Infinities;
 
-public sealed class Items : Group<Item>, ICountToStringGroup {
+public sealed class Items : Group<Item>, ICountToString {
 
     public static Items Instance = null!;
 

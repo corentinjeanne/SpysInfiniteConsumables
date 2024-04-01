@@ -73,7 +73,7 @@ public static class InfinityManager {
         Group<TConsumable>? group = (Group<TConsumable>?)s_groups.Find(mg => mg == infinity.Group);
         group?.Add(infinity);
         s_infinities.Add(infinity);
-        s_defaultStates[infinity] = infinity.Enabled;
+        s_defaultEnabled[infinity] = infinity.Enabled;
         s_defaultColors[infinity] = infinity.Color;
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / MathX.GCD(InfinitiesLCM, s_infinities.Count);
     }
@@ -92,7 +92,7 @@ public static class InfinityManager {
     public static IGroup? GetGroup(string mod, string name) => s_groups.Find(mg => mg.Mod.Name == mod && mg.Name == name);
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
 
-    public static bool DefaultState(this IInfinity infinity) => s_defaultStates[infinity];
+    public static bool DefaultEnabled(this IInfinity infinity) => s_defaultEnabled[infinity];
     public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
 
     public static bool SaveDetectedCategory<TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum {
@@ -130,7 +130,7 @@ public static class InfinityManager {
 
     private static readonly List<IGroup> s_groups = new();
     private static readonly List<IInfinity> s_infinities = new();
-    private static readonly Dictionary<IInfinity, bool> s_defaultStates = new();
+    private static readonly Dictionary<IInfinity, bool> s_defaultEnabled = new();
     private static readonly Dictionary<IInfinity, Color> s_defaultColors = new();
     
     private static int s_cacheRefresh = 0;

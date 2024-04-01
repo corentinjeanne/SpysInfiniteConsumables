@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
 using SpikysLib.Configs.UI;
+using System.Reflection;
 
 namespace SPIC.Configs;
 
@@ -16,7 +17,7 @@ public sealed class InfinityDisplay : ModConfig {
         set {
             foreach (Display display in DisplayLoader.Displays) {
                 DisplayDefinition def = new(display.Mod.Name, display.Name);
-                display.Enabled = value[def] = value.GetValueOrDefault(def, display.DefaultState());
+                display.Enabled = value[def] = value.GetValueOrDefault(def, display.DefaultEnabled());
             }
             _displays = value;
         }
@@ -34,10 +35,12 @@ public sealed class InfinityDisplay : ModConfig {
     public Dictionary<DisplayDefinition, Wrapper> Configs {
         get => _configs;
         set {
-            foreach ((Display display, Wrapper wrapper) in DisplayLoader.Configs) {
+            foreach (Display display in DisplayLoader.Displays) {
+                FieldInfo? configField = display.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+                if (configField is null) continue;
                 DisplayDefinition def = new(display.Mod.Name, display.Name);
-                value[def] = value.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
-                wrapper.Value = value[def].Value;
+                value[def] = value.TryGetValue(def, out var c) ? c.ChangeType(configField.FieldType) : Wrapper.From(configField.FieldType);
+                configField.SetValue(display, value[def].Value);
             }
             _configs = value;
         }

@@ -29,19 +29,15 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
 
     public override Group<Item> Group => Items.Instance;
     public static Ammo Instance = null!;
-    public static Wrapper<AmmoRequirements> Config = null!;
+    public static AmmoRequirements Config = null!;
 
 
     public override int IconType => ItemID.EndlessQuiver;
     public override Color Color { get; set; } = Colors.RarityLime;
 
-    public override void SetStaticDefaults() {
-        Config = Group.AddConfig<AmmoRequirements>(this);
-    }
-
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(Config.Value.Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Value.Special),
+        AmmoCategory.Classic => new(Config.Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
         _ => new(),
     };
 

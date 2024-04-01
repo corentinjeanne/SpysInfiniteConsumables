@@ -52,28 +52,24 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
 
     public override Group<Item> Group => Items.Instance;
     public static Usable Instance = null!;
-    public static Wrapper<UsableRequirements> Config = null!;
+    public static UsableRequirements Config = null!;
 
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color Color { get; set; } = Colors.RarityCyan;
 
-    public override void SetStaticDefaults() {
-        Config = Group.AddConfig<UsableRequirements>(this);
-    }
-
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Config.Value.Weapon),
-            UsableCategory.Potion => new(Config.Value.Potion),
-            // UsableCategory.Recovery => new(Config.Value.Potion),
-            // UsableCategory.Buff => new(Config.Value.Potion),
-            UsableCategory.Booster => new(Config.Value.Booster),
-            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Booster),
-            UsableCategory.Summoner => new(Config.Value.Summoner),
-            UsableCategory.Critter => new(Config.Value.Critter),
-            // UsableCategory.Explosive => new(Config.Value.Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tool),
+            UsableCategory.Weapon => new(Config.Weapon),
+            UsableCategory.Potion => new(Config.Potion),
+            // UsableCategory.Recovery => new(Config.Potion),
+            // UsableCategory.Buff => new(Config.Potion),
+            UsableCategory.Booster => new(Config.Booster),
+            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Booster),
+            UsableCategory.Summoner => new(Config.Summoner),
+            UsableCategory.Critter => new(Config.Critter),
+            // UsableCategory.Explosive => new(Config.Tool),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
             _ => new(),
         };
     }

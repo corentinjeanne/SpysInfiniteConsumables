@@ -69,7 +69,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
 
     public override Group<Item> Group => Items.Instance;
     public static Placeable Instance = null!;
-    public static Wrapper<PlaceableRequirements> Config = null!;
+    public static PlaceableRequirements Config = null!;
 
 
     public override int IconType => ItemID.ArchitectGizmoPack;
@@ -80,7 +80,6 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
         }
-        Config = Group.AddConfig<PlaceableRequirements>(this);
     }
 
 
@@ -91,19 +90,19 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
 
     public override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Tile => new(Config.Value.Tile),
-            PlaceableCategory.Wiring => new(Config.Value.Wiring),
-            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Value.Tile),
-            PlaceableCategory.Torch => new(Config.Value.Torch),
-            PlaceableCategory.Ore => new(Config.Value.Ore),
-            PlaceableCategory.Furniture => new(Config.Value.Furniture),
+            PlaceableCategory.Tile => new(Config.Tile),
+            PlaceableCategory.Wiring => new(Config.Wiring),
+            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Tile),
+            PlaceableCategory.Torch => new(Config.Torch),
+            PlaceableCategory.Ore => new(Config.Ore),
+            PlaceableCategory.Furniture => new(Config.Furniture),
             // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
             //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-            //     => new(Config.Value.Furniture),
-            PlaceableCategory.Bucket => new(Config.Value.Bucket),
-            PlaceableCategory.Mechanical => new(Config.Value.Mechanical),
-            PlaceableCategory.Seed => new(Config.Value.Seed),
-            PlaceableCategory.Paint => new(Config.Value.Paint),
+            //     => new(Config.Furniture),
+            PlaceableCategory.Bucket => new(Config.Bucket),
+            PlaceableCategory.Mechanical => new(Config.Mechanical),
+            PlaceableCategory.Seed => new(Config.Seed),
+            PlaceableCategory.Paint => new(Config.Paint),
             _ => new(),
         };
     }

@@ -38,19 +38,15 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisp
 
     public override Group<int> Group => Currencies.Instance;
     public static Currency Instance = null!;
-    public static Wrapper<CurrencyRequirements> Config = null!;
+    public static CurrencyRequirements Config = null!;
 
     public override int IconType => ItemID.LuckyCoin;
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.CoinGold;
 
-    public override void SetStaticDefaults() {
-        Config = Group.AddConfig<CurrencyRequirements>(this);
-    }
-
     public override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Config.Value.Coins),
-        CurrencyCategory.SingleCoin => new(20, Config.Value.SingleCoin),
+        CurrencyCategory.Coins => new(10000, Config.Coins),
+        CurrencyCategory.SingleCoin => new(20, Config.SingleCoin),
         _ => new()
     };
 

@@ -10,6 +10,7 @@ using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using SPIC.Configs.UI;
+using System.Reflection;
 
 namespace SPIC;
 
@@ -53,16 +54,11 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     void IGroup.Add(Preset preset) => Add(preset);
     internal void Add(Preset preset) => _presets.Add(preset);
 
-    public Wrapper<T> AddConfig<T>(IInfinity infinity) where T : new() {
-        Wrapper<T> wrapper = new();
-        _configs[infinity] = wrapper;
-        return wrapper;
+    public override void Unload() {
+        foreach (IInfinity infinity in _infinities) Utility.SetConfig(infinity, null);
+        _infinities.Clear();
     }
 
-    public override void Unload() {
-        _infinities.Clear();
-        _configs.Clear();
-    }
     protected sealed override void Register() {
         ModTypeLookup<Group<TConsumable>>.Register(this);
         InfinityManager.Register(this);
@@ -153,15 +149,17 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
         }
         foreach (Infinity<TConsumable> infinity in infinities) {
             InfinityDefinition def = new(infinity);
-            config.Infinities.TryAdd(def, infinity.DefaultState());
+            config.Infinities.TryAdd(def, infinity.DefaultEnabled());
             infinity.Enabled = (bool)config.Infinities[def]!;
             _infinities.Add(infinity);
         }
 
-        foreach ((IInfinity infinity, Wrapper wrapper) in _configs) {
+        foreach (IInfinity infinity in _infinities) {
+            FieldInfo? configField = infinity.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+            if (configField is null) continue;
             InfinityDefinition def = new(infinity);
-            config.Configs[def] = config.Configs.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
-            wrapper.Value = config.Configs[def].Value;
+            config.Configs[def] = config.Configs.TryGetValue(def, out var c) ? c.ChangeType(configField.FieldType) : Wrapper.From(configField.FieldType);
+            configField.SetValue(infinity, config.Configs[def].Value);
         }
 
         foreach (Custom custom in config.Customs.Values) {
@@ -202,7 +200,6 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     IReadOnlyList<IInfinity> IGroup.Infinities => _infinities;
 
     private readonly List<Infinity<TConsumable>> _infinities = new();
-    private readonly Dictionary<IInfinity, Wrapper> _configs = new();
     private readonly List<Preset> _presets = new();
     private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
 }

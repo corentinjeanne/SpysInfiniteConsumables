@@ -4,7 +4,7 @@ using Terraria;
 
 namespace SPIC.Default.Infinities;
 
-public sealed class Currencies : Group<int>, ICountToStringGroup {
+public sealed class Currencies : Group<int>, ICountToString {
 
     public static Currencies Instance = null!;
 

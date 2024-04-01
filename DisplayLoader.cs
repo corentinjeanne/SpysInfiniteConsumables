@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SpikysLib.Configs.UI;
 using SpikysLib.Extensions;
 
 namespace SPIC;
@@ -9,29 +8,23 @@ public static class DisplayLoader {
     internal static void Register(Display display) {
         ModConfigExtensions.SetInstance(display);
         s_displays.Add(display);
-        s_defaultStates[display] = display.Enabled;
+        s_defaultEnabled[display] = display.Enabled;
     }
 
-    public static Wrapper<T> AddConfig<T>(Display display) where T : new() {
-        Wrapper<T> wrapper = new();
-        s_configs[display] = wrapper;
-        return wrapper;
-    }
     internal static void Unload(){
-        foreach(Display d in s_displays) ModConfigExtensions.SetInstance(d, true);
+        foreach (Display d in s_displays) {
+            ModConfigExtensions.SetInstance(d, true);
+            Utility.SetConfig(d, null);
+        }
         s_displays.Clear();
-        s_configs.Clear();
     }
 
     public static Display? GetDisplay(string mod, string name) => s_displays.Find(p => p.Mod.Name == mod && p.Name == name);
 
-    public static bool DefaultState(this Display display) => s_defaultStates[display];
+    public static bool DefaultEnabled(this Display display) => s_defaultEnabled[display];
 
     public static ReadOnlyCollection<Display> Displays => s_displays.AsReadOnly();
-    public static ReadOnlyDictionary<Display, Wrapper> Configs => new(s_configs);
 
     private readonly static List<Display> s_displays = new();
-    private static readonly Dictionary<Display, bool> s_defaultStates = new();
-
-    private readonly static Dictionary<Display, Wrapper> s_configs = new();
+    private static readonly Dictionary<Display, bool> s_defaultEnabled = new();
 }

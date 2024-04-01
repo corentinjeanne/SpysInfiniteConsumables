@@ -74,4 +74,6 @@ public static class Utility {
         }
         config.Save();
     }
+
+    public static void SetConfig(object instance, object? config) => instance.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public)?.SetValue(null, config);
 }
