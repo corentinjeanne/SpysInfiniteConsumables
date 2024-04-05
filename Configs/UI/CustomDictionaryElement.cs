@@ -13,6 +13,8 @@ using Terraria.Localization;
 using SpikysLib.Configs.UI;
 using SpikysLib.Extensions;
 using SpikysLib.UI;
+using SpikysLib.Configs;
+using Terraria.ID;
 
 namespace SPIC.Configs.UI;
 
@@ -123,7 +125,7 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
 
         }
         if(unloaded > 0){
-            _dummy = new(new StringLine($"{unloaded} unloaded items"));
+            _dummy = new(new LocalizedLine(Language.GetText($"{Localization.Keys.UI}.Unloaded"), Colors.RarityTrash, unloaded));
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);
         }
         MaxHeight.Pixels = int.MaxValue;

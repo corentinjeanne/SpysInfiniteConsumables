@@ -339,3 +339,22 @@ Definition`1: {
 		Tooltip: ""
 	}
 }
+
+InfinityDictionary: {
+	Tooltip: ""
+
+	Order: {
+		Label: Order
+		Tooltip: ""
+	}
+
+	Enabled: {
+		Label: Enabled
+		Tooltip: ""
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
+	}
+}

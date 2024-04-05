@@ -6,9 +6,7 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using SpikysLib;
 using SpikysLib.Extensions;
-using SpikysLib.Configs.UI;
 using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;

@@ -1,5 +1,4 @@
 using Terraria.ModLoader.Config;
-using SPIC.Configs;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -7,9 +6,8 @@ using System.Collections.Generic;
 using Terraria.ModLoader;
 using Terraria.Localization;
 using System.ComponentModel;
-using SpikysLib;
-using SpikysLib.Configs.UI;
 using SPIC.Default.Displays;
+using SpikysLib.Extensions;
 
 namespace SPIC.Default.Infinities;
 
@@ -56,7 +54,7 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisp
         return SpikysLib.Currencies.CurrencySystems(currency).Values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);
 
     public override void ModifyDisplay(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));

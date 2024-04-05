@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
-using SpikysLib.Configs.UI;
+using SpikysLib.Configs;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -30,7 +30,6 @@ public sealed class UsedInfinities : MultiChoice<int> {
 }
 
 public sealed class GroupConfig {
-    [Header("Infinities")]
     public PresetDefinition Preset {
         get => _preset;
         set {
@@ -40,14 +39,10 @@ public sealed class GroupConfig {
     }
     private PresetDefinition _preset = new();
 
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
-
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
-    [Header("Configs")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
 
-    [Header("Customs")]
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 
     public bool HasCustomCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity, [MaybeNullWhen(false)] out TCategory category) where TConsumable : notnull where TCategory : struct, System.Enum {
@@ -71,5 +66,5 @@ public sealed class GroupConfig {
 }
 
 public sealed class GroupColors {
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 }

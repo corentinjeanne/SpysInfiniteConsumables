@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
 using SpikysLib.Extensions;
-using SpikysLib.Configs.UI;
+using SpikysLib.Configs;
 using SpikysLib.DataStructures;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using SPIC.Configs.UI;
 using System.Reflection;
+using System.Collections.Specialized;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace SPIC;
 
@@ -134,32 +136,34 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     public void ClearInfinities() => _cachedInfinities.Clear();
 
     void IGroup.LoadConfig(GroupConfig config) {
-        OrderedDictionary /* <InfinityDefinition, bool> */ infinitiesBool = new();
-        foreach ((string key, bool enabled) in config.Infinities.Items<string, bool>()) infinitiesBool[new InfinityDefinition(key)] = enabled;
-        config.Infinities = infinitiesBool;
-
+        (OrderedDictionary oldInfs, config.Infinities) = (config.Infinities, new());
         List<Infinity<TConsumable>> infinities = new(_infinities);
         _infinities.Clear();
-        foreach ((InfinityDefinition def, bool enabled) in config.Infinities.Items<InfinityDefinition, bool>()) {
-            int i = infinities.FindIndex(i => i.Mod.Name == def.Mod && i.Name == def.Name);
-            if (i == -1) continue;
-            infinities[i].Enabled = (bool)config.Infinities[def]!;
-            _infinities.Add(infinities[i]);
-            infinities.RemoveAt(i);
+        foreach((string k, object v) in oldInfs.Items<string, object>()) {
+            InfinityDefinition def = new(k);
+            Infinity<TConsumable>? infinity = infinities.Find(i => i.Mod.Name == def.Mod && i.Name == def.Name);
+            if (infinity is null || v is not JToken token) continue;
+
+            _infinities.Add(infinity); 
+            infinities.Remove(infinity);
+
+            FieldInfo? configField = infinity.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+            INestedValue value = (INestedValue)token.ToObject(typeof(Toggle<>).MakeGenericType(configField is null ? typeof(Empty) : configField.FieldType))!;
+
+            config.Infinities.Add(def, value);
+            infinity.Enabled = (bool)value.Parent;
+            configField?.SetValue(infinity, value.Value);
         }
         foreach (Infinity<TConsumable> infinity in infinities) {
             InfinityDefinition def = new(infinity);
-            config.Infinities.TryAdd(def, infinity.DefaultEnabled());
-            infinity.Enabled = (bool)config.Infinities[def]!;
             _infinities.Add(infinity);
-        }
 
-        foreach (IInfinity infinity in _infinities) {
             FieldInfo? configField = infinity.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
-            if (configField is null) continue;
-            InfinityDefinition def = new(infinity);
-            config.Configs[def] = config.Configs.TryGetValue(def, out var c) ? c.ChangeType(configField.FieldType) : Wrapper.From(configField.FieldType);
-            configField.SetValue(infinity, config.Configs[def].Value);
+            INestedValue value = (INestedValue)Activator.CreateInstance(typeof(Toggle<>).MakeGenericType(configField is null ? typeof(Empty) : configField.FieldType), infinity.DefaultEnabled(), null)!;
+
+            config.Infinities.Add(def, value);
+            infinity.Enabled = (bool)value.Parent;
+            configField?.SetValue(infinity, value.Value);
         }
 
         foreach (Custom custom in config.Customs.Values) {
@@ -169,6 +173,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
                 else custom.Individual[def] = (Count)System.Activator.CreateInstance(typeof(Count<>).MakeGenericType(infinity2!.GenericTypeArguments[1]), custom.Individual[def].Value)!;
             }
         }
+        
         Preset? preset = null;
         foreach (Preset p in PresetLoader.Presets) if (p.MeetsCriterias(config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
         config.Preset = preset is not null ? new(preset.Mod.Name, preset.Name) : new();

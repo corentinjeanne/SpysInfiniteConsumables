@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using SpikysLib.Configs.UI;
+using SpikysLib.Configs;
 using SpikysLib.Extensions;
 using SpikysLib.UI;
 using Terraria.GameContent.UI.Elements;

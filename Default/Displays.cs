@@ -5,7 +5,7 @@ using SPIC.Configs;
 using Terraria.ModLoader;
 using Terraria;
 using Terraria.Localization;
-using SpikysLib;
+using SpikysLib.Extensions;
 
 namespace SPIC.Default.Displays;
 

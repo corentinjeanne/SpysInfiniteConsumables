@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using SPIC.Configs.UI;
-using SpikysLib.Configs.UI;
+using SpikysLib.Configs;
 
 namespace SPIC.Configs;
 

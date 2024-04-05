@@ -83,9 +83,7 @@ public static class InfinityManager {
         else s_groups.Add(group);
         GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
-            if (infinity.Group != group) continue;
-            group.Add((Infinity<TConsumable>)infinity);
-            break;
+            if (infinity.Group == group) group.Add((Infinity<TConsumable>)infinity);
         }
     }
 
