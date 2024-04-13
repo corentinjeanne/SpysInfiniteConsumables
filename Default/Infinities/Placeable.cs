@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Terraria.Localization;
 using SpikysLib.Extensions;
 using SPIC.Default.Displays;
+using MonoMod.Cil;
 
 namespace SPIC.Default.Infinities;
 
@@ -72,6 +73,10 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
     public override int IconType => ItemID.ArchitectGizmoPack;
     public override Color Color { get; set; } = Colors.RarityAmber;
 
+    public override void Load() {
+        IL_Player.PlaceThing_Tiles_PlaceIt_ConsumeFlexibleWandMaterial += IL_FixConsumeFlexibleWand;
+    }
+
     public override void SetStaticDefaults() {
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
@@ -79,6 +84,19 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         }
     }
 
+    private static void IL_FixConsumeFlexibleWand(ILContext il) {
+        ILCursor cursor = new(il);
+        if (cursor.TryGotoNext(i => i.SaferMatchCall(Reflection.ItemLoader.ConsumeItem))) return; // Allready there
+
+        ILLabel? br = null;
+        if (!cursor.TryGotoNext(i => i.MatchLdfld(Reflection.Item.stack)) || !cursor.TryGotoPrev(MoveType.After, i => i.MatchBrfalse(out br))) {
+            SpysInfiniteConsumables.Instance.Logger.Error($"{nameof(IL_FixConsumeFlexibleWand)} failled to apply. Rubblemaker will not be infinite");
+            return;
+        }
+        cursor.EmitLdloc1().EmitLdarg0();
+        cursor.EmitCall(Reflection.ItemLoader.ConsumeItem);
+        cursor.EmitBrfalse(br!);
+    }
 
     public override void Unload() {
         base.Unload();
@@ -175,7 +193,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         (string name, TooltipLineID position) = GetWandType(item) switch {
             WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
             WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
-            WandType.Tile or _ => ("WandConsumes", TooltipLineID.WandConsumes),
+            WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
         };
         return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
     }
@@ -183,6 +201,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
     public enum WandType {
         None,
         Tile,
+        Flexible,
         Wire,
         PaintBrush,
         PaintRoller
@@ -193,7 +212,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
         { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush,
         { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
-        _ => WandType.None
+        _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
     public override void ModifyInfinity(Player player, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
@@ -217,6 +236,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
             WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
             WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
             WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            WandType.Flexible => consumable.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
             _ => null
         };
         if (item is not null) displayed.Add(item);

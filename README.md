@@ -157,6 +157,7 @@ Contains various ways to display the infinities of items and their  config.
 # Changelog
 
 ### v3.1.1
+- Fixed Rubblemaker 
 - Allows requirement copy each other
 - Merged Enabled and Settings fields in configs
 - Added Spiky's Lib mod dependency
