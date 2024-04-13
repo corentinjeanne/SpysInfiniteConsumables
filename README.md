@@ -164,6 +164,7 @@ Contains various ways to display the infinities of items and their  config.
 - Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
 - Removed "static" variants of classes
 - Replaced AddConfig calls with a static field check
+- Fixed default values been saved in json
 
 ### v3.1.0.1
 

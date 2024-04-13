@@ -1,8 +1,13 @@
+using System;
+using System.ComponentModel;
 using SpikysLib.Configs;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
 
+public class ToFromStringConverterFix<T> : ToFromStringConverter<T> {}
+
+[TypeConverter(typeof(ToFromStringConverterFix<Count>))]
 public class Count : MultiChoice<int> {
 
     public Count() : base() {}
@@ -22,6 +27,13 @@ public class Count : MultiChoice<int> {
     }
 
     public static implicit operator Count(int count) => new(count);
+    public static Count FromString(string s) => new(int.Parse(s));
+
+    public override bool Equals(object? obj) => obj is Count c && this == c;
+    public override int GetHashCode() => Value.GetHashCode();
+
+    public static bool operator ==(Count a, Count b) => a.Value == b.Value;
+    public static bool operator !=(Count a, Count b) => !(a == b);
 }
 
 public class Count<TCategory> : Count where TCategory : struct, System.Enum {

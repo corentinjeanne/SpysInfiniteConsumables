@@ -19,7 +19,7 @@ public enum AmmoCategory {
 }
 public sealed class AmmoRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Classic")]
-    [DefaultValue(4*999)] public Count Classic = 4 * 999;
+    public Count Classic = 4 * 999;
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Special")]
     public Count Special = 999;
 }
