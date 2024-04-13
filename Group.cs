@@ -145,8 +145,8 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
             if (infinity is null) continue;
             
             JToken token;
-            if (v is JToken t) token = t;
-            else if (v is bool oldEn && config.Configs.TryGetValue(def, out Wrapper? oldVal)) token = JObject.FromObject(JObject.FromObject(new Toggle<JObject>(oldEn, ((JObject)oldVal.Value!) ?? new()))); // Compatibility version < v3.1.1
+            if (v is bool oldEn) token = JObject.FromObject(config.Configs.TryGetValue(def, out Wrapper? oldVal) ? new Toggle<JObject>(oldEn, ((JObject)oldVal.Value!) ?? new()) : new Empty()); // Compatibility version < v3.1.1
+            else if (v is JToken t) token = t;
             else continue;
 
             _infinities.Add(infinity); 

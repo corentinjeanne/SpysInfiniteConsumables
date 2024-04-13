@@ -21,11 +21,13 @@ public sealed class InfinityDisplay : ModConfig {
     public Dictionary<DisplayDefinition, object> Displays {
         get => _displays;
         set {
-            DisplayLoader.LoadConfig(value);
             _displays = value;
+            DisplayLoader.LoadConfig(this);
         }
     }
-    
+
+    [JsonProperty] internal Dictionary<DisplayDefinition, bool> Display = new(); // Compatibility version < v3.1.1
+    [JsonProperty] internal Dictionary<DisplayDefinition, Wrapper> Configs = new(); // Compatibility version < v3.1.1
 
     [Header("Colors")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
