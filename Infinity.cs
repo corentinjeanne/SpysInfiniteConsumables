@@ -49,7 +49,14 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
     public override Requirement GetRequirement(TConsumable consumable, List<object> extras) {
         TCategory category = GetCategory(consumable);
         extras.Add(category);
-        return GetRequirement(category);
+        HashSet<TCategory> categories = new();
+        Requirement req = GetRequirement(category);
+        while (req.Count < 0 && categories.Add(category)) {
+            category = Enum.Parse<TCategory>((-req.Count).ToString());
+            extras.Add(category);
+            req = GetRequirement(category);
+        }
+        return req;
     }
 
     public override void ModifyRequirement(TConsumable consumable, ref Requirement requirement, List<object> extras) {

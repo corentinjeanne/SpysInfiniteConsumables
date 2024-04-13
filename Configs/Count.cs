@@ -41,8 +41,7 @@ public class Count<TCategory> : Count where TCategory : struct, System.Enum {
     public Count(int value) : base(value) { }
     public Count(TCategory category) : base(-System.Convert.ToInt32(category)) { }
 
-    [Choice]
-    public TCategory Category { get; set; } = default;
+    [Choice] public TCategory Category { get; set; } = default;
 
     public override int Value {
         get => Choice == nameof(Category) ? -System.Convert.ToInt32(Category) : base.Value;
@@ -53,4 +52,7 @@ public class Count<TCategory> : Count where TCategory : struct, System.Enum {
             } else base.Value = value;
         }
     }
+
+    public static implicit operator Count<TCategory>(int count) => new(count);
+    public new static Count<TCategory> FromString(string s) => new(int.Parse(s));
 }

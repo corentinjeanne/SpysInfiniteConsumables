@@ -22,15 +22,15 @@ public enum MaterialCategory {
 
 public sealed class MaterialRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Material.Basic")]
-    public Count Basic = 999;
+    public Count<MaterialCategory> Basic = 999;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
-    public Count Ore = 499;
+    public Count<MaterialCategory> Ore = 499;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
-    public Count Furniture = 20;
+    public Count<MaterialCategory> Furniture = 20;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous")]
-    public Count Miscellaneous = 50;
+    public Count<MaterialCategory> Miscellaneous = 50;
     [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
-    public Count NonStackable = 2;
+    public Count<MaterialCategory> NonStackable = 2;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }

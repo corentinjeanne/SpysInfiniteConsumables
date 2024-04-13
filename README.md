@@ -157,7 +157,7 @@ Contains various ways to display the infinities of items and their  config.
 # Changelog
 
 ### v3.1.1
-
+- Allows requirement copy each other
 - Merged Enabled and Settings fields in configs
 - Added Spiky's Lib mod dependency
 - Simplified Infinity overrides
@@ -167,11 +167,9 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed default values been saved in json
 
 ### v3.1.0.1
-
 - Fixed dot display for recipe materials
 
 ### v3.1
-
 - Automatic ModConfig port.
 - Magic storage v0.6 support.
 - Added group specific presets.
@@ -189,7 +187,6 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed configs not loading properly in Multiplayer
 
 ### v3.0
-
 - 1.4.4 port.
 - Added Extractinator GrabBag category.
 - Corrected incorrect tooltine names and values.
@@ -211,7 +208,6 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed Customs causing lag.
 
 ### v2.2.1
-
 - Added Welcome message.
 - Added custom requirements.
 - Added logs on group or preset register.
@@ -225,13 +221,11 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed Disabled categories always been infinite.
 
 ### v2.2.0.1
-
 - Renamed RequirementSetings to GroupSettings.
 - Fixed a bug causing any non detectable category to never be used.
 - Fixed a multiplayer crash caused by the config not properly loading.
 
 ### v2.2
-
 - Added Journey Scrificices group.
 - Added Mixed group for enabled but unused groups.
 - Disabled tile duplication as it is full of bugs.
@@ -251,7 +245,6 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed many bugs
 
 ### v2.1
-
 - Ported to next tml stable.
 - Magic storage integration.
 - Infinities are now displayed in item sprite, glow and tooltip.
@@ -267,7 +260,6 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed other bugs.
 
 ### v2.0
-
 - rewrote and cleaned the entire codebase.
 - new category and infinity system.
 - added currencies and grabbags categories.
@@ -288,26 +280,21 @@ Contains various ways to display the infinities of items and their  config.
 - fixed a ton of bug.
 
 ### v1.3.1
-
 - Finaly released on the Mod Browser.
 - 'Liquid' buckets can now be infinite.
 - Works with wires and actuators.
 
 ### v1.3
-
 - Can now works with mods increasing max stacks and added related config items.
 - Furniture will now have the right category.
 
 ### v1.2
-
 - Prevents item dupliation for infinite usables.
 - Added new categories.
 
 ### v1.1
-
 - Custom categories and values introduced.
 - Added 'set', 'category' and 'values' commands.
 
 ### v1.0
-
 - Consumables can now be infinite.

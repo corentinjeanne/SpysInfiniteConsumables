@@ -20,11 +20,11 @@ public enum GrabBagCategory {
 
 public sealed class GrabBagRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Container")]
-    public Count Container = 10;
+    public Count<GrabBagCategory> Container = 10;
     [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Extractinator")]
-    public Count Extractinator = 499;
+    public Count<GrabBagCategory> Extractinator = 499;
     [LabelKey($"${Localization.Keys.Infinities}.GrabBag.TreasureBag")]
-    public Count TreasureBag = 3;
+    public Count<GrabBagCategory> TreasureBag = 3;
 }
 
 public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDisplay {

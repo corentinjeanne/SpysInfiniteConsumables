@@ -5,7 +5,6 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using System.ComponentModel;
 using SPIC.Default.Displays;
 using SpikysLib.Extensions;
 
@@ -19,9 +18,9 @@ public enum AmmoCategory {
 }
 public sealed class AmmoRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Classic")]
-    public Count Classic = 4 * 999;
+    public Count<AmmoCategory> Classic = 4 * 999;
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Special")]
-    public Count Special = 999;
+    public Count<AmmoCategory> Special = 999;
 }
 
 public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {

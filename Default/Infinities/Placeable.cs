@@ -43,23 +43,23 @@ public static class PlaceableExtension {
 
 public sealed class PlaceableRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Tile")]
-    public Count Tile = 999;
+    public Count<PlaceableCategory> Tile = 999;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
-    public Count Ore = 499;
+    public Count<PlaceableCategory> Ore = 499;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Torch")]
-    public Count Torch = 99;
+    public Count<PlaceableCategory> Torch = 99;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
-    public Count Furniture = 3;
+    public Count<PlaceableCategory> Furniture = 3;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Mechanical")]
-    public Count Mechanical = 3;
+    public Count<PlaceableCategory> Mechanical = 3;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Wiring")]
-    public Count Wiring = 999;
+    public Count<PlaceableCategory> Wiring = 999;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Bucket")]
-    public Count Bucket = 10;
+    public Count<PlaceableCategory> Bucket = 10;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seed")]
-    public Count Seed = 20;
+    public Count<PlaceableCategory> Seed = 20;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paint")]
-    public Count Paint = 999;
+    public Count<PlaceableCategory> Paint = 999;
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineDisplay {
