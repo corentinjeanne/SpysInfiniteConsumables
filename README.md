@@ -158,6 +158,7 @@ Contains various ways to display the infinities of items and their  config.
 
 ### v3.1.1
 
+- Merged Enabled and Settings fields in configs
 - Added Spiky's Lib mod dependency
 - Simplified Infinity overrides
 - Replaced RegisterTooltipLine and RegisterCountToStr with interfaces

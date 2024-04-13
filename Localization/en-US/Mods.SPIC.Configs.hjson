@@ -36,16 +36,15 @@ InfinityDisplay: {
 	DisplayName: Infinities Display
 
 	Headers: {
-		Displays: Displays
 		General: General
-		Configs: Display Configs
+		Displays: Displays
 		Colors: Infinity Colors
 		Performances: Performances
 		Version: v3.1.1
 	}
 
-	Display: {
-		Label: Display
+	Displays: {
+		Label: Displays
 		Tooltip: ""
 	}
 
@@ -88,9 +87,9 @@ InfinityDisplay: {
 		Label: Cache
 		Tooltip:
 			'''
-			Performances: Optimal performances, Large cache (~10kB). Will not recompute any value
-			Smart: Great performances, Small cache (~3kB). May recompute some values
-			None: Horrendous perfomances, No cache
+			Performances: Optimal performances, large cache (~10kB). Will not recompute any value
+			Smart: Great performances, small cache (~3kB). May recompute some values
+			None: Horrendous perfomances, no cache. Just don't
 			Type /spiccache ingame to see the cached values
 			'''
 	}
@@ -114,6 +113,7 @@ InfinityDisplay: {
 		Label: "[i:509] New Features and Major Changes"
 		Tooltip:
 			'''
+			- Merged Enabled and Settings fields in configs
 			- Added Spiky's Lib mod dependency
 			- Simplified Infinity overrides
 			- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
@@ -293,7 +293,7 @@ Direction: {
 
 CacheStyle: {
 	Tooltip: ""
-	None.Label: None (Just don't)
+	None.Label: None
 	Smart.Label: Smart (Recommanded)
 	Performances.Label: Performances
 }

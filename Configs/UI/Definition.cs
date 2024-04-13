@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using SpikysLib.Configs;
 using SpikysLib.Extensions;
 using SpikysLib.UI;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
+using SPIC.Configs;
 using SPIC.Configs.UI;
 using SpikysLib;
 using SpikysLib.DataStructures;
@@ -40,7 +41,7 @@ public static class InfinityManager {
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
 
 
-    public static ItemDisplay GetLocalItemDisplay(this Item item) => s_displays.GetOrAdd(item);
+    public static ItemDisplay GetLocalItemDisplay(this Item item) => InfinityDisplay.Instance.Cache != CacheStyle.None ? s_displays.GetOrAdd(item) : ComputeLocalItemDisplay(item);
     private static ItemDisplay ComputeLocalItemDisplay(this Item item) {
         ItemDisplay itemDisplay = new();
         foreach (IGroup group in Groups) {
@@ -55,7 +56,7 @@ public static class InfinityManager {
         if (s_cacheRefresh != 0) s_delayed = true;
         else {
             s_displays.Clear();
-            s_cacheRefresh = Configs.InfinityDisplay.Instance.CacheRefreshDelay;
+            s_cacheRefresh = InfinityDisplay.Instance.CacheRefreshDelay;
         }
     }
 
@@ -94,13 +95,13 @@ public static class InfinityManager {
     public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
 
     public static bool SaveDetectedCategory<TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum {
-        if(!Configs.InfinitySettings.Instance.DetectMissingCategories) return false;
+        if(!InfinitySettings.Instance.DetectMissingCategories) return false;
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
-        if(!infinity.Group.Config.Customs.TryGetValue(def, out Configs.Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Configs.Custom.Individual), Individual = new() };
+        if(!infinity.Group.Config.Customs.TryGetValue(def, out Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Custom.Individual), Individual = new() };
         InfinityDefinition infDef = new(infinity);
         if(custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
         
-        custom.Individual[infDef] = new Configs.Count<TCategory>(category);
+        custom.Individual[infDef] = new Count<TCategory>(category);
         ClearInfinities();
         return true;
     }

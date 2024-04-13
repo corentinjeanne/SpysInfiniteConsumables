@@ -1,5 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
+using SPIC.Configs.UI;
+using SpikysLib.Configs;
 using SpikysLib.Extensions;
 
 namespace SPIC;
@@ -17,6 +22,24 @@ public static class DisplayLoader {
             Utility.SetConfig(d, null);
         }
         s_displays.Clear();
+    }
+
+    public static void LoadConfig(Dictionary<DisplayDefinition, object> config) {
+        foreach (Display display in Displays) {
+            DisplayDefinition def = new(display.Mod.Name, display.Name);
+            
+            FieldInfo? configField = display.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+            Type type = typeof(Toggle<>).MakeGenericType(configField?.FieldType ?? typeof(Empty));
+            bool contained = config.TryGetValue(def, out object? val);
+            INestedValue value;
+            if (!contained) value = (INestedValue)Activator.CreateInstance(type, display.DefaultEnabled(), null)!;
+            else if (val is JToken token) value = (INestedValue)token.ToObject(type)!;
+            else continue;
+
+            config[def] = value;
+            display.Enabled = (bool)value.Parent;
+            configField?.SetValue(display, value.Value);
+        }
     }
 
     public static Display? GetDisplay(string mod, string name) => s_displays.Find(p => p.Mod.Name == mod && p.Name == name);

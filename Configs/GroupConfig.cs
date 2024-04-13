@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using SpikysLib.Configs;
@@ -42,6 +43,9 @@ public sealed class GroupConfig {
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
+
+    [JsonProperty] internal Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new(); // Compatibility version < v3.1.1
+
 
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 

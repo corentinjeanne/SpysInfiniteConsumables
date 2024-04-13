@@ -68,7 +68,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     public sealed override void SetupContent() => SetStaticDefaults();
 
     public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetValue(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
-    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer ? _cachedInfinities.GetOrAdd(consumable) : ComputeGroupInfinity(player, consumable);
+    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer && InfinityDisplay.Instance.Cache != CacheStyle.None ? _cachedInfinities.GetOrAdd(consumable) : ComputeGroupInfinity(player, consumable);
     private GroupInfinity ComputeGroupInfinity(Player player, TConsumable consumable) {
         GroupInfinity groupInfinity = new();
         foreach (Infinity<TConsumable> infinity in _infinities) {
@@ -142,7 +142,12 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
         foreach((string k, object v) in oldInfs.Items<string, object>()) {
             InfinityDefinition def = new(k);
             Infinity<TConsumable>? infinity = infinities.Find(i => i.Mod.Name == def.Mod && i.Name == def.Name);
-            if (infinity is null || v is not JToken token) continue;
+            if (infinity is null) continue;
+            
+            JToken token;
+            if (v is JToken t) token = t;
+            else if (v is bool oldEn && config.Configs.TryGetValue(def, out Wrapper? oldVal)) token = JObject.FromObject(JObject.FromObject(new Toggle<JObject>(oldEn, ((JObject)oldVal.Value!) ?? new()))); // Compatibility version < v3.1.1
+            else continue;
 
             _infinities.Add(infinity); 
             infinities.Remove(infinity);
@@ -154,9 +159,10 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
             infinity.Enabled = (bool)value.Parent;
             configField?.SetValue(infinity, value.Value);
         }
+        config.Configs.Clear(); // Compatibility version < v3.1.1
         foreach (Infinity<TConsumable> infinity in infinities) {
-            InfinityDefinition def = new(infinity);
             _infinities.Add(infinity);
+            InfinityDefinition def = new(infinity);
 
             FieldInfo? configField = infinity.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
             INestedValue value = (INestedValue)Activator.CreateInstance(typeof(Toggle<>).MakeGenericType(configField is null ? typeof(Empty) : configField.FieldType), infinity.DefaultEnabled(), null)!;
