@@ -1,3 +1,23 @@
-Download: Thanks for downloading SPIC!
-Update: SPIC was updated to v{0}! To learn more about the update, look at the 'Update' section in the 'InfinityDisplay' Config.
-Bug: If you found a bug, please report it on the Steam workshop page or GitHub and add the client.log file or part of it (located at "<tMLSteamDirectory>/tModLoader-Logs")
+Download: Thank you for downloading {$Mods.SPIC.Chat.ModName}! Make sure to view and adjust the configs before playing
+Update: "{$Mods.SPIC.Chat.ModNameShort} was updated to v{$Mods.SPIC.Chat.Version}! View the Update section in the [c/05c8ff:{$Mods.SPIC.Configs.InfinityDisplay.DisplayName}] config to learn more about the update"
+Bug: If you found a bug, please report it on the [c/05c8ff:{$Mods.SPIC.Chat.Workshop}] or the [c/05c8ff:{$Mods.SPIC.Chat.Homepage}]
+ModName: Spy's Infinite Consumables
+ModNameShort: SPIC
+Homepage: homepage
+Workshop: Steam Workshop page
+Version: 3.1.1
+Info: Small configs and API changes
+Important: ""
+Changelog:
+	'''
+	- Fixed Rubblemaker
+	- Allowed requirements to copy each other
+	- Merged Enabled and Settings fields in configs
+	- Added Spiky's Lib mod dependency
+	- Simplified Infinity overrides
+	- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
+	- Removed "static" variants of classes
+	- Replaced AddConfig calls with a static field check
+	   - Remade the update notification
+	- Fixed default values been saved in json
+	'''

@@ -40,7 +40,7 @@ InfinityDisplay: {
 		Displays: Displays
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: v3.1.1
+		Version: v{$Mods.BetterInventory.Chat.Version}
 	}
 
 	Displays: {
@@ -106,23 +106,12 @@ InfinityDisplay: {
 
 	Info: {
 		Label: "[i:4344] Update Info"
-		Tooltip: Small changes under the hood
+		Tooltip: "{$Mods.SPIC.Chat.Info}"
 	}
 
 	Changelog: {
-		Label: "[i:509] New Features and Major Changes"
-		Tooltip:
-			'''
-			- Fixed Rubblemaker
-			- Allows requirement copy each other
-			- Merged Enabled and Settings fields in configs
-			- Added Spiky's Lib mod dependency
-			- Simplified Infinity overrides
-			- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
-			- Removed "static" variants of classes
-			- Replaced AddConfig calls with a static field check
-			- Fixed default values been saved in json
-			'''
+		Label: "[i:509] Changelog"
+		Tooltip: "{$Mods.SPIC.Chat.Changelog}"
 	}
 }
 

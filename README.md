@@ -158,13 +158,14 @@ Contains various ways to display the infinities of items and their  config.
 
 ### v3.1.1
 - Fixed Rubblemaker 
-- Allows requirement copy each other
+- Allowed requirements to copy each other
 - Merged Enabled and Settings fields in configs
 - Added Spiky's Lib mod dependency
 - Simplified Infinity overrides
 - Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
 - Removed "static" variants of classes
 - Replaced AddConfig calls with a static field check
+- Remade the update notification
 - Fixed default values been saved in json
 
 ### v3.1.0.1
