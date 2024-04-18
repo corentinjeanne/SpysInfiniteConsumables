@@ -1,35 +1,27 @@
-        Make every consumable item infinite
-
+[h2]Make every consumable item infinite[/h2]
 Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of Infinities for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
+There are a wide variety of [Infinities](#infinities) for all sorts of consumables (usable, peaceable, materials and more) each with their own sub-categories.
 
+[h2]Highly Customizable[/h2]
+Edit the [Infinity Settings](#infinity-settings) config to modify the behavior of the mod!
+Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
-        No item duplication
-
-***WORK IN PROGRESS, WILL CHANGE IN THE NEAR FUTURE***
+[h2]No item duplication[/h2]
+[/b][i]WORK IN PROGRESS, WILL CHANGE IN THE FUTURE[/i][/b]
 Infinite NPCs will turn to smoke on pickup.
 Placeable items will consume items above their infinity.
 
+[h2]Easily see the Infinities of an item[/h2]
+The Infinities of every item can be displayed in various ways:
+- With colored tooltip lines. This can also be used to display extra information about the item such as its requirement or category.
+- With a glow around the item. Note that it can sometimes be hard to see.
+- With colored dot in the inventory slot.
+Edit the Infinities Display config to change which one is active, display additional information or change the color of the Infinities.
 
-        Hightly Customisable
-
-Edit the 'Infinity Settings' config to modify the behaviour of the mod!
-Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
-
-
-        Easely see the Infinities of an item
-
-The Infinities of every item can be displayed in various ways: 
- - With colored tooltip lines. This can also be used to display extra information about the item such as its requirement or category.
- - With a glow around the item. Note that it can sometimes be hard to see.
- - With colored dot in the inventory slot.
-
-Edit the 'Infinities Display' config to change which one is active, display additional informations or change the color of the Infinities.
-
-
-        Automaticaly detect the category of almost every item
-
+[h2]Automatically detect the category of almost every item[/h2]
 If an item's category cannot be determined with the items's stats, it will be determined when the item is used!
 This should work for almost every summoner, player booster and more.
 If this fails, you can always set it via a custom requirement.
+
+Visit the [url=https://github.com/Spiky-73/SpysInfiniteConsumables/tree/1.4]homepage[/url] for more info.

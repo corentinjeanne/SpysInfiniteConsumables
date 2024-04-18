@@ -1,24 +1,25 @@
-![Spy's Infinite Consumables)](icon_workshop.png)
+# Spy's Infinite Consumables
+![Spy's Infinite Consumables](icon_workshop.png)
 
-# Make every consumable item infinite
+## Make every consumable item infinite
 
 Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of [Infinities](#infinities) for all sorts of consumables (usables, placeables, materials and more) each with their own sub-categories.
+There are a wide variety of [Infinities](#infinities) for all sorts of consumables (usable, placeable, materials and more) each with their own sub-categories.
+
+## Highly Customizable
+
+Edit the [Infinity Settings](#infinity-settings) config to modify the behavior of the mod!
+Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
 ## No item duplication
 
-***WORK IN PROGRESS, WILL CHANGE IN THE NEAR FUTURE***
+***WORK IN PROGRESS, WILL CHANGE IN THE FUTURE***
 
 Infinite NPCs will turn to smoke on pickup.
 Placeable items will consume items above their infinity.
 
-## Hightly Customisable
-
-Edit the [Infinity Settings](#infinity-settings) config to modify the behaviour of the mod!
-Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
-
-## Easely see the Infinities of an item
+## Easel see the Infinities of an item
 
 The Infinities of every item can be displayed in various ways:
 
@@ -26,9 +27,9 @@ The Infinities of every item can be displayed in various ways:
 - With a glow around the item. Note that it can sometimes be hard to see.
 - With colored dot in the inventory slot.
 
-Edit the [Infinities Display](#infinity-display) config to change which one is active, display aditional informations or change the color of the Infinities.
+Edit the [Infinities Display](#infinity-display) config to change which one is active, display additional information or change the color of the Infinities.
 
-## Automaticaly detect the category of almost every item
+## Automatically detect the category of almost every item
 
 If an item's category cannot be determined with the items's stats, it will be determined when the item is used!
 This should work for almost every summoner, player booster and more.
@@ -43,12 +44,12 @@ Note than a consumable can be in includes in multiple Groups and Infinities.
 
 ## Item Infinities
 
-### Usables
+### Usable
 
-Items consumed uppon use.
+Items consumed upon use.
 
 - `Weapon`: Deals damage.
-- `Potion`: Heals life, mana or rovides a buff (swiftness, archery...).
+- `Potion`: Heals life, mana or provides a buff (swiftness, archery...).
 - `Booster`: Permanently change to the player (live, mana...) or the world
 
 <!-- - `Recovery`: Heals life or mana.
@@ -57,14 +58,14 @@ Items consumed uppon use.
  - `World Booster`: Permanently modifies the world. -->
 
 - `Summoner`: Summons a boss or an event.
-- `Critter`: Summong a critter or is a bait.
+- `Critter`: Summons a critter or is a bait.
 
 <!-- - `Explosive`: Destroys tiles -->
 
 - `Tool`: Has a miscellaneous use (move the player, light an area, ...).
 - `Tool?`: Is one of the above but not yet determined.
 
-### Ammunitions
+### Ammunition
 
 Items used as ammunition and consumed by a weapon.
 
@@ -72,9 +73,9 @@ Items used as ammunition and consumed by a weapon.
 
 <!-- - `Explosive`: Explodes on impact. -->
 
-- `Special`: All other ammunitions.
+- `Special`: All other ammunition.
 
-### Placeables
+### Placeable
 
 Items placing a tile.
 
@@ -100,11 +101,11 @@ Items placing a tile.
 - `Seed`: Grows into a plant.
 - `Paint`: Color walls and tiles.
 
-### Grab bags
+### Grab bag
 
-Items giving various items when openned.
+Items giving various items when opened.
 
-- `Container`: Can be openned.
+- `Container`: Can be opened.
 - `Extractinator`: Can be extractinated
 - `Treasure Bag`: Dropped form a boss in expert mode or above.
 
@@ -138,21 +139,19 @@ Currencies used to buy from NPCs.
 This is the main config of the mod (server side).
 
 - `Features` Controls specific aspects of the mod
-- `Configs`: Controls key about each Infinity grouped by their Group. Each Group has an indepent subconfig controlling the behaviour of its Infinities.
-  - `Enabled Infinites`: Deternimes what group is enabled or used.
-  - `Configs`: List a the configs of this groups's Infinities.
+- `Configs`: Controls key about each Infinity grouped by their Group. Each Group has an indecent subsonic controlling the behavior of its Infinities.
+  - `Infinities`: Determines what group is enabled or used and their individual settings.
   - `Customs`: Custom requirement for any consumable.
 
 ## Infinity Display
 
 Contains various ways to display the infinities of items and their  config.
 
-- `Displays`: Toggle infinity displays.
-- `General`: Select what is displayed.
-- `Configs`: Controls key about each display.
+- `General`: Determines what is displayed.
+- `Displays`: Controls enabled infinity displays and their individual config.
 - `Colors`: The displayed color of each Infinity
 - `Performances`: Options to improve the performance of the mod
-- `Version`: Info about the last update
+- `Version`: Contains information about the last update
 
 # Changelog
 
@@ -179,27 +178,27 @@ Contains various ways to display the infinities of items and their  config.
 - Added a Simple glow option.
 - Added Cannon ammo detection
 - Added display ModType.
-- Reduced cache size and added 'spiccacache' command to display it.
+- Reduced cache size and added 'spiccache' command to display it.
 - Made CountToString and GetTooltipLine optional and modular
 - Removed the need for Bucket detection
 - Renamed 'Shop' to 'Currency' and added toggles for various shops.
 - Renamed 'Liquid' to 'Bucket'
-- Moved ingame changelog into the config and made welcome message less intrusive.
+- Moved in-game changelog into the config and made welcome message less intrusive.
 - Improved Extra localization
 - Fixed configs not loading properly in Multiplayer
 
 ### v3.0
 - 1.4.4 port.
 - Added Extractinator GrabBag category.
-- Corrected incorrect tooltine names and values.
+- Corrected incorrect TooltipLine names and values.
 - Added Ammo slots, Coin slots, Journey research and Recipe Material exclusive areas.
-- Simplified Category detection for Explosived and Containers.
+- Simplified Category detection for Explosives and Containers.
 - Colors Infinities configs.
-- Reworked configs UI to include a subconfig per Group.
+- Reworked configs UI to include a sub-config per Group.
 - Change Glow infinity display to look like Treasure Bags glow.
 - Merged Category detection and Customs.
 - Localized all the mod.
-- Added Exclusive diplay to only display Infinities in a specific context.
+- Added Exclusive display to only display Infinities in a specific context.
 - Generalized Categories into Extras.
 - Renamed Consumable Groups to Infinity.
 - Added new ModType Groups to group Infinities by their consumable type.
@@ -223,12 +222,12 @@ Contains various ways to display the infinities of items and their  config.
 - Fixed Disabled categories always been infinite.
 
 ### v2.2.0.1
-- Renamed RequirementSetings to GroupSettings.
+- Renamed RequirementSettings to GroupSettings.
 - Fixed a bug causing any non detectable category to never be used.
 - Fixed a multiplayer crash caused by the config not properly loading.
 
 ### v2.2
-- Added Journey Scrificices group.
+- Added Journey Sacrifices group.
 - Added Mixed group for enabled but unused groups.
 - Disabled tile duplication as it is full of bugs.
 - Reworked and abstracted Consumable Group API to be easier to use.
@@ -236,13 +235,13 @@ Contains various ways to display the infinities of items and their  config.
 - Lots of API changes and reworks
 - Added new optional interfaces for groups.
 - Created many ConfigElements.
-- Overhalled the visual of the configs.
+- Overhauled the visual of the configs.
 - Added new configs items and presets.
 - Replaced customs with a blacklist
 - Configs will now adapt to the registered groups.
 - Renamed 'Consumables' to 'Usables' for clarity.
-- Remaned and corrected typos.
-- Performances imporovement (I think ?).
+- Renamed and corrected typos.
+- Performances improvement (I think ?).
 - Fixed a lot of incorrect category detection
 - Fixed many bugs
 
@@ -251,12 +250,12 @@ Contains various ways to display the infinities of items and their  config.
 - Magic storage integration.
 - Infinities are now displayed in item sprite, glow and tooltip.
 - Added Infinity display config.
-- Imporved the way infinites are stored.
-- Improved locatization.
+- Improved the way infinites are stored.
+- Improved localization.
 - Fixed colored tooltip not been correctly displayed.
 - Fixed mouseItem not been counted or been counted twice.
-- Fixed grbbags and openned by leftclick not been detected.
-- Fixed potions used by right clik not been detected.
+- Fixed grab bags and opened by leftclick not been detected.
+- Fixed potions used by right click not been detected.
 - Fixed detected categories been applied one tick
 - Fixed a bug in stack detection causing the mod to crash on load.
 - Fixed other bugs.
@@ -264,17 +263,17 @@ Contains various ways to display the infinities of items and their  config.
 ### v2.0
 - rewrote and cleaned the entire codebase.
 - new category and infinity system.
-- added currencies and grabbags categories.
+- added currencies and grab bags categories.
 - merged placeable and wand ammo.
-- added informations to the item tooltip.
+- added information to the item tooltip.
 - added sub categories for most categories.
-- reworked infite materials.
+- reworked infinite materials.
 - can now detect usable and explosive items.
-- Reworked tile duplication to use a chunk system and be induded in .twld file.
+- Reworked tile duplication to use a chunk system and be included in .twld file.
 - more flexible configs.
 - added many new config items.
 - removed commands.
-- reworked stack detection mecanism to be automatic.
+- reworked stack detection mechanism to be automatic.
 - performance improvement.
 - updated desc and README
 - en-US localization
@@ -282,7 +281,7 @@ Contains various ways to display the infinities of items and their  config.
 - fixed a ton of bug.
 
 ### v1.3.1
-- Finaly released on the Mod Browser.
+- Finally released on the Mod Browser.
 - 'Liquid' buckets can now be infinite.
 - Works with wires and actuators.
 
@@ -291,7 +290,7 @@ Contains various ways to display the infinities of items and their  config.
 - Furniture will now have the right category.
 
 ### v1.2
-- Prevents item dupliation for infinite usables.
+- Prevents item duplication for infinite usables.
 - Added new categories.
 
 ### v1.1
