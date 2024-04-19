@@ -18,6 +18,6 @@ Changelog:
 	- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
 	- Removed "static" variants of classes
 	- Replaced AddConfig calls with a static field check
-	   - Remade the update notification
+	- Remade the update notification
 	- Fixed default values been saved in json
 	'''
