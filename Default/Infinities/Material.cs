@@ -46,8 +46,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.RarityPink;
 
-    private static Dictionary<int, int> s_itemGroupCounts = null!;
-
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
         MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
@@ -94,6 +92,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
         if (group == -1) return;
-        count = s_itemGroupCounts[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+        count = PlayerExtensions.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
     }
 }
