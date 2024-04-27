@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using SpikysLib.Extensions;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
@@ -11,7 +12,6 @@ public sealed class SpysInfiniteConsumables : Mod {
     public override void Load() => Instance = this;
 
     public override void PostSetupContent() {
-        CurrencyHelper.GetCurrencies();
         FullInfinity.RegisterExtraLocalization<System.Enum>((infinity, category) => infinity.GetLocalization(category.ToString(), () => Regex.Replace(category.ToString(), "([A-Z])", " $1").Trim()).Value);
         FullInfinity.RegisterExtraLocalization<LocalizedText>((infinity, text) => text.Value);
         FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => Regex.Replace(str, "([A-Z])", " $1").Trim()).Value);
@@ -21,13 +21,12 @@ public sealed class SpysInfiniteConsumables : Mod {
             Configs.InfinityDisplay.Instance.PortConfig();
             Configs.InfinitySettings.Instance.PortConfig();
         } else {
-            Configs.InfinityDisplay.Instance.LoadConfig();
-            Configs.InfinitySettings.Instance.LoadConfig();
+            Configs.InfinityDisplay.Instance.Load();
+            Configs.InfinitySettings.Instance.Load();
         }
     }
 
     public override void Unload() {
-        CurrencyHelper.ClearCurrencies();
         FullInfinity.ClearExtraLocs();
         
         InfinityManager.Unload();

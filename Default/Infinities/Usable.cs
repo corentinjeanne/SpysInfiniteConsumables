@@ -6,6 +6,8 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
+using SpikysLib.Extensions;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -30,49 +32,42 @@ public enum UsableCategory {
 
 public sealed class UsableRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapon")]
-    public Count Weapon = 2 * 999;
+    public Count<UsableCategory> Weapon = 2 * 999;
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Potion")]
-    public Count Potion = 30;
+    public Count<UsableCategory> Potion = 30;
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Booster")]
-    public Count Booster = 5;
+    public Count<UsableCategory> Booster = 5;
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoner")]
-    public Count Summoner = 3;
+    public Count<UsableCategory> Summoner = 3;
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Critter")]
-    public Count Critter = 10;
+    public Count<UsableCategory> Critter = 10;
     [LabelKey($"${Localization.Keys.Infinities}.Usable.Tool")]
-    public Count Tool = 99;
+    public Count<UsableCategory> Tool = 99;
 }
 
 
-public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory> {
+public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay {
+
+    public override Group<Item> Group => Items.Instance;
+    public static Usable Instance = null!;
+    public static UsableRequirements Config = null!;
+
 
     public override int IconType => ItemID.EndlessMusketPouch;
     public override Color Color { get; set; } = Colors.RarityCyan;
 
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += AmmoSlots;
-        ExtraDisplays += consumable => consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
-    }
-
-    public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
-        Config = Group.AddConfig<UsableRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
-    }
-
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Config.Value.Weapon),
-            UsableCategory.Potion => new(Config.Value.Potion),
-            // UsableCategory.Recovery => new(Config.Value.Potion),
-            // UsableCategory.Buff => new(Config.Value.Potion),
-            UsableCategory.Booster => new(Config.Value.Booster),
-            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Value.Booster),
-            UsableCategory.Summoner => new(Config.Value.Summoner),
-            UsableCategory.Critter => new(Config.Value.Critter),
-            // UsableCategory.Explosive => new(Config.Value.Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Value.Tool),
+            UsableCategory.Weapon => new(Config.Weapon),
+            UsableCategory.Potion => new(Config.Potion),
+            // UsableCategory.Recovery => new(Config.Potion),
+            // UsableCategory.Buff => new(Config.Potion),
+            UsableCategory.Booster => new(Config.Booster),
+            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Booster),
+            UsableCategory.Summoner => new(Config.Summoner),
+            UsableCategory.Critter => new(Config.Critter),
+            // UsableCategory.Explosive => new(Config.Tool),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
             _ => new(),
         };
     }
@@ -104,7 +99,7 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Potion;
         if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Potion;
 
-        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Tool;
+        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
         if (item.hairDye != -1) return UsableCategory.Booster;
@@ -112,15 +107,18 @@ public sealed class Usable : InfinityStatic<Usable, Items, Item, UsableCategory>
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
-    public static Wrapper<UsableRequirements> Config = null!;
-
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
         return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    public void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
+    }
+
+    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+        Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
+        if (item is not null) displayed.Add(item);
     }
 }

@@ -1,6 +1,5 @@
 displayName = Spy's Infinite Consumables
 author = Spiky
-version = 3.1.0.1
+version = 3.1.1
 homepage = https://github.com/Spiky-73/SpysInfiniteConsumables/blob/1.4/README.md
-
-weakReferences = MagicStorage@0.6.0.1
+modReferences = SpikysLib

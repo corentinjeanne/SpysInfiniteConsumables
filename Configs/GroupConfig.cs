@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using SPIC.Configs.Presets;
+using SPIC.Configs.UI;
+using SpikysLib.Configs;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -11,7 +14,7 @@ public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }
     public UsedInfinities(int value) : base(value) { }
 
-    [Choice] public UI.Text All { get; set; } = new();
+    [Choice] public Text All { get; set; } = new();
     [Choice, Range(1, 9999)] public int Used { get; set; } = 1;
 
     public override int Value {
@@ -28,7 +31,6 @@ public sealed class UsedInfinities : MultiChoice<int> {
 }
 
 public sealed class GroupConfig {
-    [Header("Infinities")]
     public PresetDefinition Preset {
         get => _preset;
         set {
@@ -38,17 +40,16 @@ public sealed class GroupConfig {
     }
     private PresetDefinition _preset = new();
 
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public OrderedDictionary /*<InfinityDefinition, bool>*/ Infinities { get; set; } = new();
-
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
-    [Header("Configs")]
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
 
-    [Header("Customs")]
+    [JsonProperty] internal Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new(); // Compatibility version < v3.1.1
+
+
     public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 
-    public bool HasCustomCategory<TGroup, TConsumable, TCategory>(TConsumable consumable, Infinity<TGroup, TConsumable, TCategory> infinity, [MaybeNullWhen(false)] out TCategory category) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull where TCategory : struct, System.Enum {
+    public bool HasCustomCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity, [MaybeNullWhen(false)] out TCategory category) where TConsumable : notnull where TCategory : struct, System.Enum {
         if (Customs.TryGetValue(new(infinity.Group.ToItem(consumable).type), out Custom? custom) && custom.TryGetIndividial(infinity, out Count? count) && count.Value < 0) {
             category = ((Count<TCategory>)count).Category;
             return true;
@@ -56,12 +57,12 @@ public sealed class GroupConfig {
         category = default;
         return false;
     }
-    public bool HasCustomCount<TGroup, TConsumable>(TConsumable consumable, Infinity<TGroup, TConsumable> infinity, [MaybeNullWhen(false)] out Count count) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    public bool HasCustomCount<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity, [MaybeNullWhen(false)] out Count count) where TConsumable : notnull {
         if (Customs.TryGetValue(new(infinity.Group.ToItem(consumable).type), out Custom? custom) && custom.TryGetIndividial(infinity, out count) && count.Value >= 0) return true;
         count = default;
         return false;
     }
-    public bool HasCustomGlobal<TGroup, TConsumable>(TConsumable consumable, Group<TGroup, TConsumable> group, [MaybeNullWhen(false)] out Count count) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    public bool HasCustomGlobal<TConsumable>(TConsumable consumable, Group<TConsumable> group, [MaybeNullWhen(false)] out Count count) where TConsumable : notnull {
         if (Customs.TryGetValue(new(group.ToItem(consumable).type), out Custom? custom) && custom.TryGetGlobal(out count)) return true;
         count = default;
         return false;
@@ -69,5 +70,5 @@ public sealed class GroupConfig {
 }
 
 public sealed class GroupColors {
-    [CustomModConfigItem(typeof(UI.CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
+    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 }

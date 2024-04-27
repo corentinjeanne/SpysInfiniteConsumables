@@ -6,8 +6,9 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using System.Reflection;
 using System.ComponentModel;
+using SpikysLib.Extensions;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 public enum MaterialCategory {
@@ -21,45 +22,36 @@ public enum MaterialCategory {
 
 public sealed class MaterialRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Material.Basic")]
-    public Count Basic = 999;
+    public Count<MaterialCategory> Basic = 999;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
-    public Count Ore = 499;
+    public Count<MaterialCategory> Ore = 499;
     [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
-    public Count Furniture = 20;
+    public Count<MaterialCategory> Furniture = 20;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous")]
-    public Count Miscellaneous = 50;
+    public Count<MaterialCategory> Miscellaneous = 50;
     [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
-    public Count NonStackable = 2;
+    public Count<MaterialCategory> NonStackable = 2;
     [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCategory> {
-    
+public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDisplay {
+
+    public override Group<Item> Group => Items.Instance;
+    public static Material Instance = null!;
+    public static MaterialRequirements Config = null!;
+
+
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.RarityPink;
 
-    private static Dictionary<int, int> s_itemGroupCounts = null!;
-
-
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += CraftingMaterial;
-    }
-    public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
-        s_itemGroupCounts = (Dictionary<int, int>)typeof(Recipe).GetField("_ownedItems", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-        Config = Group.AddConfig<MaterialRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
-    }
-
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Value.Basic, Config.Value.Multiplier),
-        MaterialCategory.Ore => new(Config.Value.Ore, Config.Value.Multiplier),
-        MaterialCategory.Furniture => new(Config.Value.Furniture, Config.Value.Multiplier),
-        MaterialCategory.Miscellaneous => new(Config.Value.Miscellaneous, Config.Value.Multiplier),
-        MaterialCategory.NonStackable => new(Config.Value.NonStackable, Config.Value.Multiplier),
+        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
+        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
+        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
+        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
+        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
         _ => new(),
     };
 
@@ -87,11 +79,9 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
         return MaterialCategory.Miscellaneous;
     }
 
-    public static Wrapper<MaterialRequirements> Config = null!;
-
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
-    public static void CraftingMaterial(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
         Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
@@ -102,7 +92,6 @@ public sealed class Material : InfinityStatic<Material, Items, Item, MaterialCat
 
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
         if (group == -1) return;
-        count = s_itemGroupCounts[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-
+        count = PlayerExtensions.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
     }
 }

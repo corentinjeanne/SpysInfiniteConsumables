@@ -1,5 +1,4 @@
 using Terraria.ModLoader.Config;
-using SPIC.Configs;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -7,6 +6,8 @@ using System.Collections.Generic;
 using Terraria.ModLoader;
 using Terraria.Localization;
 using System.ComponentModel;
+using SPIC.Default.Displays;
+using SpikysLib.Extensions;
 
 namespace SPIC.Default.Infinities;
 
@@ -31,40 +32,31 @@ public sealed class CurrencyRequirements {
     [DefaultValue(true)] public bool Others = true;
 }
 
-public sealed class Currency : InfinityStatic<Currency, Currencies, int, CurrencyCategory> {
+public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisplay {
+
+    public override Group<int> Group => Currencies.Instance;
+    public static Currency Instance = null!;
+    public static CurrencyRequirements Config = null!;
 
     public override int IconType => ItemID.LuckyCoin;
     public override bool Enabled { get; set; } = false;
     public override Color Color { get; set; } = Colors.CoinGold;
 
-    public override void Load() {
-        base.Load();
-        DisplayOverrides += CoinSlots;
-    }
-
-    public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
-        Config = Group.AddConfig<CurrencyRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
-    }
-
     public override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Config.Value.Coins),
-        CurrencyCategory.SingleCoin => new(20, Config.Value.SingleCoin),
+        CurrencyCategory.Coins => new(10000, Config.Coins),
+        CurrencyCategory.SingleCoin => new(20, Config.SingleCoin),
         _ => new()
     };
 
     public override CurrencyCategory GetCategory(int currency) {
-        if (currency == CurrencyHelper.Coins) return CurrencyCategory.Coins;
-        if (!CurrencyHelper.Currencies.Contains(currency)) return CurrencyCategory.None;
-        return CurrencyHelper.CurrencySystems(currency).values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
+        if (currency == SpikysLib.Currencies.Coins) return CurrencyCategory.Coins;
+        if (!SpikysLib.Currencies.CustomCurrencies.Contains(currency)) return CurrencyCategory.None;
+        return SpikysLib.Currencies.CurrencySystems(currency).Values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);
 
-    public static Wrapper<CurrencyRequirements> Config = null!;
-
-    public static void CoinSlots(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    public override void ModifyDisplay(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
     }

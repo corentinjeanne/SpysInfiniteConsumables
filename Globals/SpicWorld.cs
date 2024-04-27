@@ -1,4 +1,5 @@
-﻿using Terraria.ModLoader;
+﻿using SpikysLib.Extensions;
+using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
 
@@ -104,7 +105,7 @@ public class SpicWorld : ModSystem {
     }
 
     public override void SaveWorldData(TagCompound tag) {
-        Configs.InfinitySettings.Instance.SaveConfig();
+        Configs.InfinitySettings.Instance.Save();
 
         // if (_chunks.Count != 0) {
         //     tag.Add(TAG_SIZE, _chunkSize);

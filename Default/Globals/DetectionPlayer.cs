@@ -5,6 +5,7 @@ using Terraria.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
+using SpikysLib.Extensions;
 
 namespace SPIC.Default.Globals;
 
@@ -26,10 +27,10 @@ public sealed class DetectionPlayer : ModPlayer {
 
     private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
         bool enabled;
-        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Value.Nurse;
-        else if (Main.InReforgeMenu) enabled = Currency.Config.Value.Reforging;
-        else if (Main.npcShop != 0) enabled = Currency.Config.Value.Shop;
-        else enabled = Currency.Config.Value.Others;
+        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Nurse;
+        else if (Main.InReforgeMenu) enabled = Currency.Config.Reforging;
+        else if (Main.npcShop != 0) enabled = Currency.Config.Shop;
+        else enabled = Currency.Config.Others;
         return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
     }
 
@@ -115,7 +116,7 @@ public sealed class DetectionPlayer : ModPlayer {
                 /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
             Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
 
-        static bool ShouldRefill(int refill, int owned, int used, Infinity<Items, Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
     private void HookShootFromCannon(On_Player.orig_ShootFromCannon orig, Player self, int x, int y) {

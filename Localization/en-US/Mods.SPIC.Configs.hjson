@@ -36,16 +36,15 @@ InfinityDisplay: {
 	DisplayName: Infinities Display
 
 	Headers: {
-		Displays: Displays
 		General: General
-		Configs: Display Configs
+		Displays: Displays
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: v3.1.0.1
+		Version: v{$Mods.BetterInventory.Chat.Version}
 	}
 
-	Display: {
-		Label: Display
+	Displays: {
+		Label: Displays
 		Tooltip: ""
 	}
 
@@ -88,9 +87,9 @@ InfinityDisplay: {
 		Label: Cache
 		Tooltip:
 			'''
-			Performances: Optimal performances, Large cache (~10kB). Will not recompute any value
-			Smart: Great performances, Small cache (~3kB). May recompute some values
-			None: Horrendous perfomances, No caches
+			Performances: Optimal performances, large cache (~10kB). Will not recompute any value
+			Smart: Great performances, small cache (~3kB). May recompute some values
+			None: Horrendous perfomances, no cache. Just don't
 			Type /spiccache ingame to see the cached values
 			'''
 	}
@@ -107,16 +106,12 @@ InfinityDisplay: {
 
 	Info: {
 		Label: "[i:4344] Update Info"
-		Tooltip: Just a tiny patch
+		Tooltip: "{$Mods.SPIC.Chat.Info}"
 	}
 
 	Changelog: {
-		Label: "[i:509] New Features and Major Changes"
-		Tooltip:
-			'''
-			 - Fixed a Dots display bug for recipe materials.
-			(You can see the full changelog on the homepage)
-			'''
+		Label: "[i:509] Changelog"
+		Tooltip: "{$Mods.SPIC.Chat.Changelog}"
 	}
 }
 
@@ -171,7 +166,6 @@ GroupColors: {
 UI: {
 	InfinityMultiplier: Infinity is {0} of the requirement
 	None: None
-	Change: Change to {0}
 	Up: Move Up
 	Down: Move Down
 }
@@ -204,15 +198,6 @@ Count: {
 	Tooltip: ""
 }
 
-Wrapper: {
-	SaveBeforeEdit: {
-		Label: Save the config to edit this value
-		Tooltip: ""
-	}
-
-	Tooltip: ""
-}
-
 Presets: {
 	Defaults: {
 		DisplayName: Defaults
@@ -237,10 +222,45 @@ Presets: {
 
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
-PresetDefinition.Tooltip: ""
+
+PresetDefinition: {
+	Tooltip: {
+		$parentVal: ""
+		Label: Tooltip
+		Tooltip: ""
+	}
+
+	AllowNull: {
+		Label: Allow Null
+		Tooltip: ""
+	}
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
 ModConsumableDefinition.Tooltip: ""
-InfinityDefinition.Tooltip: ""
-GroupDefinition.Tooltip: ""
+
+InfinityDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
+GroupDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
 Text.Tooltip: ""
 
 CountStyle: {
@@ -265,7 +285,7 @@ Direction: {
 
 CacheStyle: {
 	Tooltip: ""
-	None.Label: None (Just don't)
+	None.Label: None
 	Smart.Label: Smart (Recommanded)
 	Performances.Label: Performances
 }
@@ -291,4 +311,42 @@ GlowStyle: {
 	Fancy.Label: Fancy
 }
 
-DisplayDefinition.Tooltip: ""
+DisplayDefinition: {
+	Tooltip: ""
+
+	DisplayName: {
+		Label: Display Name
+		Tooltip: ""
+	}
+}
+
+Definition`1: {
+	Tooltip: {
+		Label: Tooltip
+		Tooltip: ""
+	}
+
+	AllowNull: {
+		Label: Allow Null
+		Tooltip: ""
+	}
+}
+
+InfinityDictionary: {
+	Tooltip: ""
+
+	Order: {
+		Label: Order
+		Tooltip: ""
+	}
+
+	Enabled: {
+		Label: Enabled
+		Tooltip: ""
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
+	}
+}

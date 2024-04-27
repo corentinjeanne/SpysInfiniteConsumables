@@ -23,14 +23,14 @@ public class FullInfinity {
         Extras = new(extras)
     };
 
-    internal static FullInfinity WithRequirement<TGroup, TConsumable>(TConsumable consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    internal static FullInfinity WithRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) where TConsumable : notnull {
         FullInfinity fullInfinity = new();
-        Group<TGroup, TConsumable> group = infinity.Group;
+        Group<TConsumable> group = infinity.Group;
 
         List<object> extras = new();
         Requirement requirement = infinity.GetRequirement(consumable, extras);
 
-        infinity.OverrideRequirement(consumable, ref requirement, extras);
+        infinity.ModifyRequirement(consumable, ref requirement, extras);
         
         if (group.Config.HasCustomCount(consumable, infinity, out Count? custom)) {
             extras.Clear();
@@ -43,11 +43,11 @@ public class FullInfinity {
         return fullInfinity;
     }
 
-    internal static FullInfinity WithInfinity<TGroup, TConsumable>(Player player, TConsumable consumable, Infinity<TGroup, TConsumable> infinity) where TGroup : Group<TGroup, TConsumable> where TConsumable : notnull {
+    internal static FullInfinity WithInfinity<TConsumable>(Player player, TConsumable consumable, Infinity<TConsumable> infinity) where TConsumable : notnull {
         FullInfinity fullInfinity = WithRequirement(consumable, infinity);
         fullInfinity.Count = infinity.Group.CountConsumables(player, consumable);
         long infinityValue = fullInfinity.Requirement.Infinity(fullInfinity.Count);
-        infinity.OverrideInfinity(player, consumable, fullInfinity.Requirement, fullInfinity.Count, ref infinityValue, fullInfinity.Extras);
+        infinity.ModifyInfinity(player, consumable, fullInfinity.Requirement, fullInfinity.Count, ref infinityValue, fullInfinity.Extras);
         fullInfinity.Infinity = infinityValue;
         return fullInfinity;
     }

@@ -10,6 +10,11 @@ using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using System.Reflection;
 using Terraria.Localization;
+using SpikysLib.Configs.UI;
+using SpikysLib.Extensions;
+using SpikysLib.UI;
+using SpikysLib.Configs;
+using Terraria.ID;
 
 namespace SPIC.Configs.UI;
 
@@ -90,7 +95,8 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
             }
             IDictionaryEntryWrapper wrapper = (IDictionaryEntryWrapper)Activator.CreateInstance(typeof(DictionaryEntryWrapper<,>).MakeGenericType(key.GetType(), value.GetType()), dict, key)!;
             _dictWrappers.Add(wrapper);
-            (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, i);
+            (UIElement container, UIElement e) = ConfigManager.WrapIt(_dataList, ref top, wrapper.Member, wrapper, i);
+            ConfigElement element = (ConfigElement)e;
         
             if(dict is IOrderedDictionary){
                 element.Width.Pixels -= 25;
@@ -109,17 +115,17 @@ public sealed class CustomDictionaryElement : ConfigElement<IDictionary> {
                 container.Append(moveButton);
             }
 
-            string? name = key switch {
+            string name = key switch {
                 IDefinition preset => preset.DisplayName,
                 ItemDefinition item => $"[i:{item.Type}] {item.Name}",
-                _ => key.ToString()
+                _ => key.ToString()!
             };
-            ReflectionHelper.ConfigElement_TextDisplayFunction.SetValue(element, () => name);
-            if(key is InfinityDefinition inf) ReflectionHelper.ConfigElement_backgroundColor.SetValue(element, InfinityManager.GetInfinity(inf.Mod, inf.Name)!.Color);
+            SpikysLib.Reflection.ConfigElement.TextDisplayFunction.SetValue(element, () => name);
+            if(key is InfinityDefinition inf) SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, InfinityManager.GetInfinity(inf.Mod, inf.Name)!.Color);
 
         }
         if(unloaded > 0){
-            _dummy = new($"{unloaded} unloaded items");
+            _dummy = new(new LocalizedLine(Language.GetText($"{Localization.Keys.UI}.Unloaded"), Colors.RarityTrash, unloaded));
             (UIElement container, UIElement element) = ConfigManager.WrapIt(_dataList, ref top, new(s_dummyField), this, i);
         }
         MaxHeight.Pixels = int.MaxValue;

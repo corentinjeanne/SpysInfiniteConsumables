@@ -2,6 +2,7 @@
 using Terraria;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
+using SpikysLib.CrossMod;
 
 namespace SPIC.Default.Globals;
 
@@ -22,7 +23,7 @@ public class InfiniteRecipe : ModSystem {
     }
 
     public static void OnItemConsume(Recipe recipe, int type, ref int amount) {
-        if(CrossMod.MagicStorageIntegration.Enabled && CrossMod.MagicStorageIntegration.Version.CompareTo(new(0,5,7,9)) <= 0 && CrossMod.MagicStorageIntegration.InMagicStorage) return;
+        if(MagicStorageIntegration.Enabled && MagicStorageIntegration.Version.CompareTo(new(0,5,7,9)) <= 0 && MagicStorageIntegration.InMagicStorage) return;
         if (Main.LocalPlayer.HasInfinite(type, amount, Material.Instance)) {
             amount = 0;
             return;

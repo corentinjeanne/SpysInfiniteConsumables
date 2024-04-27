@@ -4,44 +4,30 @@ using System.ComponentModel;
 using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
-using SPIC.Default.Displays;
+using SpikysLib.Configs;
 
 namespace SPIC.Configs;
 
 public sealed class InfinityDisplay : ModConfig {
-    [Header("Displays")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<DisplayDefinition, bool> Display {
-        get => _displays;
-        set {
-            foreach (Display display in DisplayLoader.Displays) {
-                DisplayDefinition def = new(display.Mod.Name, display.Name);
-                display.Enabled = value[def] = value.GetValueOrDefault(def, display.DefaultState());
-            }
-            _displays = value;
-        }
-    }
-    
     [Header("General")]
     [DefaultValue(true)] public bool ShowInfinities;
     [DefaultValue(true)] public bool ShowRequirement;
     public bool ShowInfo;
     [DefaultValue(true)] public bool ShowExclusiveDisplay;
     [DefaultValue(true)] public bool ShowAlternateDisplays;
-    
-    [Header("Configs")]
+
+    [Header("Displays")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))]
-    public Dictionary<DisplayDefinition, Wrapper> Configs {
-        get => _configs;
+    public Dictionary<DisplayDefinition, object> Displays {
+        get => _displays;
         set {
-            foreach ((Display display, Wrapper wrapper) in DisplayLoader.Configs) {
-                DisplayDefinition def = new(display.Mod.Name, display.Name);
-                value[def] = value.TryGetValue(def, out var c) ? c.ChangeType(wrapper.Member.Type) : Wrapper.From(wrapper.Member.Type);
-                wrapper.Value = value[def].Value;
-            }
-            _configs = value;
+            _displays = value;
+            DisplayLoader.LoadConfig(this);
         }
     }
+
+    [JsonProperty] internal Dictionary<DisplayDefinition, bool> Display = new(); // Compatibility version < v3.1.1
+    [JsonProperty] internal Dictionary<DisplayDefinition, Wrapper> Configs = new(); // Compatibility version < v3.1.1
 
     [Header("Colors")]
     [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
@@ -60,14 +46,12 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(CacheStyle.Smart)] public CacheStyle Cache { get; set; }
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
-
     [Header("Version")]
     public Text? Info { get; set; }
     public Text? Changelog { get; set; }
     [JsonProperty, DefaultValue("")] internal string version = "";
 
-    private Dictionary<DisplayDefinition, bool> _displays = new();
-    private Dictionary<DisplayDefinition, Wrapper> _configs = new();
+    private Dictionary<DisplayDefinition, object> _displays = new();
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
     public override ConfigScope Mode => ConfigScope.ClientSide;

@@ -1,16 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\tModLoader.targets" />
   <PropertyGroup>
     <AssemblyName>SPIC</AssemblyName>
-    <TargetFramework>net6.0</TargetFramework>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <LangVersion>latest</LangVersion>
     <RootNamespace>SPIC</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
-    <Reference Include="../ModAssemblies/MagicStorage_v0.6.0.1.dll"/>
+    <ProjectReference Include="../SpikysLib/SpikysLib.csproj" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,8 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using System.ComponentModel;
+using SPIC.Default.Displays;
+using SpikysLib.Extensions;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -17,32 +18,24 @@ public enum AmmoCategory {
 }
 public sealed class AmmoRequirements {
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Classic")]
-    [DefaultValue(4*999)] public Count Classic = 4 * 999;
+    public Count<AmmoCategory> Classic = 4 * 999;
     [LabelKey($"${Localization.Keys.Infinities}.Ammo.Special")]
-    public Count Special = 999;
+    public Count<AmmoCategory> Special = 999;
 }
 
-public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
+public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
+
+    public override Group<Item> Group => Items.Instance;
+    public static Ammo Instance = null!;
+    public static AmmoRequirements Config = null!;
+
 
     public override int IconType => ItemID.EndlessQuiver;
     public override Color Color { get; set; } = Colors.RarityLime;
 
-    public override void Load() {
-        base.Load();
-        RequirementOverrides += MaxStack;
-        DisplayOverrides += AmmoSlots;
-        ExtraDisplays += consumable => consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
-    }
-
-    public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
-        Config = Group.AddConfig<AmmoRequirements>(this);
-        Displays.Tooltip.Instance.RegisterTooltipLine(this, GetTooltipLine);
-    }
-
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(Config.Value.Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Value.Special),
+        AmmoCategory.Classic => new(Config.Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
         _ => new(),
     };
 
@@ -54,21 +47,22 @@ public sealed class Ammo : InfinityStatic<Ammo, Items, Item, AmmoCategory> {
         return AmmoCategory.Special;
     }
 
-    public static Wrapper<AmmoRequirements> Config = null!;
-
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-
-    public static void MaxStack(Item consumable, ref Requirement requirement, List<object> extras) {
-        if(requirement.Count > consumable.maxStack){
-            requirement = new(requirement.Count, requirement.Multiplier);
-        }
+    public override void ModifyRequirement(Item consumable, ref Requirement requirement, List<object> extras) {
+        base.ModifyRequirement(consumable, ref requirement, extras);
+        if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
     }
-    
-    public static void AmmoSlots(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+
+    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+        Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
+        if (ammo is not null) displayed.Add(ammo);
+    }
+
+    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;
     }
