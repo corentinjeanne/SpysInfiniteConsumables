@@ -31,7 +31,7 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
 
 
     public override int IconType => ItemID.EndlessQuiver;
-    public override Color Color { get; set; } = Colors.RarityLime;
+    public override Color Color { get; set; } = new Color(34, 221, 151, 255); // Vortex
 
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
         AmmoCategory.Classic => new(Config.Classic),
