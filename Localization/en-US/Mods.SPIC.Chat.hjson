@@ -5,19 +5,10 @@ ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: 3.1.1
-Info: Small configs and API changes
+Version: 3.1.1.1
+Info: Fixed loading error with MagicStorage
 Important: ""
 Changelog:
 	'''
-	- Fixed Rubblemaker
-	- Allowed requirements to copy each other
-	- Merged Enabled and Settings fields in configs
-	- Added Spiky's Lib mod dependency
-	- Simplified Infinity overrides
-	- Replaced RegisterTooltipLine and RegisterCountToStr with interfaces
-	- Removed "static" variants of classes
-	- Replaced AddConfig calls with a static field check
-	- Remade the update notification
-	- Fixed default values been saved in json
+	- Fixed loading error with MagicStorage
 	'''

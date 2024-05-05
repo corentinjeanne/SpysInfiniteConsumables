@@ -101,7 +101,6 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     }
     
-    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayDot(SpriteBatch spriteBatch, Vector2 position, IInfinity infinity, FullInfinity display) {
         Configs.InfinityDisplay config = Configs.InfinityDisplay.Instance;
         float scale = DotScale * Main.inventoryScale;
@@ -149,7 +148,6 @@ public sealed class InfinityDisplayItem : GlobalItem {
         }
     }
     
-    // TODO handle multiple consecutive same infinity displays (e.g. lootbox + key)
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
         Texture2D texture = TextureAssets.Item[item.type].Value;
 

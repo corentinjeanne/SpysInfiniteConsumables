@@ -155,6 +155,9 @@ Contains various ways to display the infinities of items and their  config.
 
 # Changelog
 
+### v3.1.1.1
+- Fixed loading error with MagicStorage
+
 ### v3.1.1
 - Fixed Rubblemaker 
 - Allowed requirements to copy each other
