@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\tModLoader.targets" />
+  <PropertyGroup>
+    <AssemblyName>SPIC</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>SPIC</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SpikysLib/SpikysLib.csproj" />
+  </ItemGroup>
+</Project>

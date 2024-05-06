@@ -54,7 +54,7 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
 
 
     public override int IconType => ItemID.EndlessMusketPouch;
-    public override Color Color { get; set; } = Colors.RarityCyan;
+    public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
 
     public override Requirement GetRequirement(UsableCategory category) {
         return category switch {

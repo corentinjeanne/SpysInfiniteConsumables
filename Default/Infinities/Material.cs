@@ -44,7 +44,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
     public override int IconType => ItemID.TinkerersWorkshop;
     public override bool Enabled { get; set; } = false;
-    public override Color Color { get; set; } = Colors.RarityPink;
+    public override Color Color { get; set; } = new Color(254, 126, 229, 255); // Nebula
 
     public override Requirement GetRequirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
