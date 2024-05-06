@@ -7,8 +7,9 @@ Homepage: homepage
 Workshop: Steam Workshop page
 Version: 3.1.1.1
 Info: Fixed loading error with MagicStorage
-Important: ""
+Important: Fixed the loading bug with MagicStorage
 Changelog:
-	'''
-	- Fixed loading error with MagicStorage
-	'''
+    '''
+    - Adjusted default colors
+    - Fixed loading error with MagicStorage
+    '''

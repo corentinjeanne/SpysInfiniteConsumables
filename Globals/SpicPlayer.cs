@@ -20,10 +20,12 @@ public sealed class SpicPlayer : ModPlayer {
         else if (Mod.Version > new System.Version(Configs.InfinityDisplay.Instance.version)) download = false;
         else return;
 
-        List<ITextLine> lines = new();
-        if (download) lines.Add(new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Download")));
-        else lines.Add(new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Update")));
-        lines.Add(new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Bug")));
+        List<ITextLine> lines = [
+            download ? new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Download")) : new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Update")),
+            new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Bug")),
+        ];
+        LocalizedLine important = new(Language.GetText($"{Localization.Keys.Chat}.Important"), Colors.RarityAmber);
+        if( important.Value.Length != 0) lines.Add(important);
         InGameNotificationsTracker.AddNotification(new InGameNotification(ModContent.Request<Texture2D>($"SPIC/icon"), lines.ToArray()) { timeLeft = 15 * 60 });
 
         Configs.InfinityDisplay.Instance.version = Mod.Version.ToString();
