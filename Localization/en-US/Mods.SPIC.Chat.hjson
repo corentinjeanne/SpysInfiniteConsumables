@@ -5,11 +5,7 @@ ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: 3.1.1.1
+Version: 3.1.1.2
 Info: Fixed loading error with MagicStorage
 Important: Fixed the loading bug with MagicStorage
-Changelog:
-    '''
-    - Adjusted default colors
-    - Fixed loading error with MagicStorage
-    '''
+Changelog: - Fixed SikysLib reference to use the publish build and not the dev build
