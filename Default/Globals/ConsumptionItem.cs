@@ -14,11 +14,11 @@ public sealed class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             if (item != player.HeldItem) { // Wands
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance): InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Tile, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Tile, Placeable.Instance),
                     Placeable.Instance, Ammo.Instance
                 );
             }
-            if(detectionPlayer.UsedCannon) { // Cannons
+            if (detectionPlayer.usedCannon) { // Cannons
                 return !player.HasInfinite(item, 1,
                     () => {
                         if (!InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance)) return false;
@@ -31,16 +31,16 @@ public sealed class ConsumptionItem : GlobalItem {
             }
             if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
             int tileTarget = Main.tile[Player.tileTargetX, Player.tileTargetY].TileType;
-            if(tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
+            if (tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
             return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance);
 
-        } else if(detectionPlayer.InRightClick) {
+        } else if (detectionPlayer.InRightClick) {
             if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
                 () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
                 GrabBag.Instance, Usable.Instance
             );
-        }else { // Hotkey or special right click action
+        } else { // Hotkey or special right click action
             if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
                 () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance)
@@ -63,6 +63,6 @@ public sealed class ConsumptionItem : GlobalItem {
         int consumed = System.Math.Min(Utils.Clamp(researchCost - s_preResearchSacrifices, 0, researchCost), item.stack);
         if (Main.LocalPlayer.HasInfinite(item, 1, JourneySacrifice.Instance)) item.stack += consumed;
     }
-    
+
     private static int s_preResearchSacrifices;
 }

@@ -155,8 +155,11 @@ Contains various ways to display the infinities of items and their  config.
 
 # Changelog
 
+### v3.2
+- Projectile duplication
+
 ### v3.1.1.2
-- Fixed SikysLib reference to use the publish build and not the dev build
+- Fixed SpikysLib reference to use the published build and not the dev build
 
 ### v3.1.1.1
 - Adjusted default colors
