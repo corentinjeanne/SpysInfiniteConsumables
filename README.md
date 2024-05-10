@@ -157,6 +157,7 @@ Contains various ways to display the infinities of items and their  config.
 
 ### v3.2
 - Projectile duplication
+- Moved Definition and CustomDictionaryElement to SpikysLib
 
 ### v3.1.1.2
 - Fixed SpikysLib reference to use the published build and not the dev build

@@ -4,6 +4,7 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
 using Terraria;
 using Terraria.ID;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Configs;
 
@@ -14,7 +15,7 @@ public sealed class InfinitySettings : ModConfig {
     [DefaultValue(true)] public bool PreventItemDuplication { get; set; }
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupConfig> Configs {
+    [CustomModConfigItem(typeof(DictionaryValuesElement))] public Dictionary<GroupDefinition, GroupConfig> Configs {
         get => _configs;
         set {
             foreach (IGroup group in InfinityManager.Groups) {

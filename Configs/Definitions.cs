@@ -2,10 +2,11 @@ using SPIC.Configs.Presets;
 using System.Linq;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Configs.UI;
 
-public sealed class PresetDefinition : Definition<PresetDefinition> {
+public sealed class PresetDefinition : EntityDefinition<PresetDefinition> {
     public PresetDefinition() : base() { }
     public PresetDefinition(string key) : base(key) { }
     public PresetDefinition(string mod, string name) : base(mod, name) { }
@@ -21,7 +22,7 @@ public sealed class PresetDefinition : Definition<PresetDefinition> {
     public override PresetDefinition[] GetValues() => (Filter?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
 }
 
-public sealed class GroupDefinition : Definition<GroupDefinition> {
+public sealed class GroupDefinition : EntityDefinition<GroupDefinition> {
     public GroupDefinition() : base(){}
     public GroupDefinition(string fullName) : base(fullName) {}
     public GroupDefinition(IGroup group) : base(group.Mod.Name, group.Name) {}
@@ -33,7 +34,7 @@ public sealed class GroupDefinition : Definition<GroupDefinition> {
     public override GroupDefinition[] GetValues() => InfinityManager.Groups.Select(consumable => new GroupDefinition(consumable)).ToArray();
 }
 
-public sealed class InfinityDefinition : Definition<InfinityDefinition> {
+public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition> {
     public InfinityDefinition() : base() { }
     public InfinityDefinition(string fullName) : base(fullName) { }
     public InfinityDefinition(string mod, string name) : base(mod, name) { }
@@ -51,7 +52,7 @@ public sealed class InfinityDefinition : Definition<InfinityDefinition> {
     public override InfinityDefinition[] GetValues() => (Filter?.Infinities ?? InfinityManager.Infinities).Select(intinity => new InfinityDefinition(intinity)).ToArray();
 }
 
-public sealed class DisplayDefinition : Definition<DisplayDefinition> {
+public sealed class DisplayDefinition : EntityDefinition<DisplayDefinition> {
     public DisplayDefinition() : base() { }
     public DisplayDefinition(string fullName) : base(fullName) { }
     public DisplayDefinition(string mod, string name) : base(mod, name) { }

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Terraria.ModLoader.Config;
 using SPIC.Configs.UI;
 using SpikysLib.Configs;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Configs;
 
@@ -17,7 +18,7 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(true)] public bool ShowAlternateDisplays;
 
     [Header("Displays")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))]
+    [CustomModConfigItem(typeof(DictionaryValuesElement))]
     public Dictionary<DisplayDefinition, object> Displays {
         get => _displays;
         set {
@@ -30,7 +31,7 @@ public sealed class InfinityDisplay : ModConfig {
     [JsonProperty] internal Dictionary<DisplayDefinition, Wrapper> Configs = new(); // Compatibility version < v3.1.1
 
     [Header("Colors")]
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
+    [CustomModConfigItem(typeof(DictionaryValuesElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
         get => _colors;
         set {
             foreach (IGroup group in InfinityManager.Groups) {

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using SpikysLib.Configs;
+using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -42,7 +43,7 @@ public sealed class GroupConfig {
 
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
+    [CustomModConfigItem(typeof(DictionaryValuesElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
 
     [JsonProperty] internal Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new(); // Compatibility version < v3.1.1
 
@@ -70,5 +71,5 @@ public sealed class GroupConfig {
 }
 
 public sealed class GroupColors {
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
+    [CustomModConfigItem(typeof(DictionaryValuesElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 }
