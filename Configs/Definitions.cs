@@ -3,9 +3,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using Terraria.ModLoader;
 using SpikysLib.Configs.UI;
+using System.ComponentModel;
 
 namespace SPIC.Configs.UI;
 
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public sealed class PresetDefinition : EntityDefinition<PresetDefinition> {
     public PresetDefinition() : base() { }
     public PresetDefinition(string key) : base(key) { }
@@ -22,6 +24,7 @@ public sealed class PresetDefinition : EntityDefinition<PresetDefinition> {
     public override PresetDefinition[] GetValues() => (Filter?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
 }
 
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public sealed class GroupDefinition : EntityDefinition<GroupDefinition> {
     public GroupDefinition() : base(){}
     public GroupDefinition(string fullName) : base(fullName) {}
@@ -34,6 +37,7 @@ public sealed class GroupDefinition : EntityDefinition<GroupDefinition> {
     public override GroupDefinition[] GetValues() => InfinityManager.Groups.Select(consumable => new GroupDefinition(consumable)).ToArray();
 }
 
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition> {
     public InfinityDefinition() : base() { }
     public InfinityDefinition(string fullName) : base(fullName) { }
@@ -52,6 +56,7 @@ public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition> {
     public override InfinityDefinition[] GetValues() => (Filter?.Infinities ?? InfinityManager.Infinities).Select(intinity => new InfinityDefinition(intinity)).ToArray();
 }
 
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public sealed class DisplayDefinition : EntityDefinition<DisplayDefinition> {
     public DisplayDefinition() : base() { }
     public DisplayDefinition(string fullName) : base(fullName) { }
