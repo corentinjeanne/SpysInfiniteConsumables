@@ -60,7 +60,7 @@ public static class InfinityManager {
         }
     }
 
-    public static void DecreaseCacheLock(){
+    public static void DecreaseCacheLock() {
         if (s_cacheRefresh > 0) s_cacheRefresh--;
         else {
             if (!s_delayed) return;
@@ -80,7 +80,7 @@ public static class InfinityManager {
     }
     internal static void Register<TConsumable>(Group<TConsumable> group) where TConsumable : notnull {
         ModConfigExtensions.SetInstance(group);
-        if(group is Default.Infinities.Items) s_groups.Insert(0, group);
+        if (group is Default.Infinities.Items) s_groups.Insert(0, group);
         else s_groups.Add(group);
         GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD<int>(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
@@ -95,12 +95,12 @@ public static class InfinityManager {
     public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
 
     public static bool SaveDetectedCategory<TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum {
-        if(!InfinitySettings.Instance.DetectMissingCategories) return false;
+        if (!InfinitySettings.Instance.DetectMissingCategories) return false;
         Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
-        if(!infinity.Group.Config.Customs.TryGetValue(def, out Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Custom.Individual), Individual = new() };
+        if (!infinity.Group.Config.Customs.TryGetValue(def, out Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Custom.Individual), Individual = new() };
         InfinityDefinition infDef = new(infinity);
-        if(custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
-        
+        if (custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
+
         custom.Individual[infDef] = new Count<TCategory>(category);
         ClearInfinities();
         return true;
@@ -121,7 +121,7 @@ public static class InfinityManager {
     public static int InfinitiesLCM { get; private set; } = 1;
 
     internal static string CacheStats() {
-        List<string> parts = new(){ $"Diplay: {s_displays.Stats()}" };
+        List<string> parts = new() { $"Diplay: {s_displays.Stats()}" };
         foreach (IGroup group in Groups) parts.Add(group.CacheStats());
         s_displays.ClearStats();
         return string.Join('\n', parts);
@@ -131,7 +131,7 @@ public static class InfinityManager {
     private static readonly List<IInfinity> s_infinities = new();
     private static readonly Dictionary<IInfinity, bool> s_defaultEnabled = new();
     private static readonly Dictionary<IInfinity, Color> s_defaultColors = new();
-    
+
     private static int s_cacheRefresh = 0;
     private static bool s_delayed;
     private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), ComputeLocalItemDisplay) {

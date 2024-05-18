@@ -7,7 +7,7 @@ namespace SPIC.Configs;
 
 public class ToFromStringConverterFix<T> : ToFromStringConverter<T> {}
 
-[TypeConverter(typeof(ToFromStringConverterFix<Count>))]
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public class Count : MultiChoice<int> {
 
     public Count() : base() {}

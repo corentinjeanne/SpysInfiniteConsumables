@@ -6,9 +6,17 @@ using Newtonsoft.Json;
 using SPIC.Configs.Presets;
 using SPIC.Configs.UI;
 using SpikysLib.Configs;
+using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
+using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
+
+public class InfinityValueWrapper<TValue> : ValueWrapper<InfinityDefinition, TValue> {
+    [ColorNoAlpha, ColorHSLSlider]
+    new public TValue Value { get => base.Value; set => base.Value = value; }
+    public override void OnBind(ConfigElement element) => SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, InfinityManager.GetInfinity(Key.Mod, Key.Name)!.Color);
+}
 
 public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }
@@ -42,7 +50,7 @@ public sealed class GroupConfig {
 
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), ValueWrapper(typeof(InfinityValueWrapper<>))] public OrderedDictionary/*<InfinityDefinition, Toggle<T>>*/ Infinities { get; set; } = new();
 
     [JsonProperty] internal Dictionary<InfinityDefinition, Wrapper> Configs { get; set; } = new(); // Compatibility version < v3.1.1
 
@@ -70,5 +78,5 @@ public sealed class GroupConfig {
 }
 
 public sealed class GroupColors {
-    [CustomModConfigItem(typeof(CustomDictionaryElement))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), ValueWrapper(typeof(InfinityValueWrapper<>))] public Dictionary<InfinityDefinition, Color> Colors { get; set; } = new();
 }

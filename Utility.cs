@@ -6,6 +6,7 @@ using System.ComponentModel;
 using Terraria.ModLoader.Config.UI;
 using SpikysLib.Extensions;
 using SpikysLib.CrossMod;
+using Terraria.ID;
 
 namespace SPIC;
 
@@ -37,7 +38,7 @@ public static class Utility {
     }
 
 
-    public static bool XMasDeco(this Item item) => Terraria.ID.ItemID.StarTopper1 <= item.type && item.type <= Terraria.ID.ItemID.BlueAndYellowLights;
+    public static bool XMasDeco(this Item item) => ItemID.StarTopper1 <= item.type && item.type <= ItemID.BlueAndYellowLights;
     public static bool Placeable(this Item item) => item.XMasDeco() || item.createTile != -1 || item.createWall != -1;
 
 
@@ -56,10 +57,10 @@ public static class Utility {
 
     public static void PortConfig(this ModConfig config) {
         config.Load();
-        foreach(FieldInfo oldField in config.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+        foreach (FieldInfo oldField in config.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
             Configs.MovedTo? movedTo = CustomAttributeExtensions.GetCustomAttribute<Configs.MovedTo>(oldField);
             if (movedTo is null) continue;
-            
+
             Type? host = movedTo.Host;
             object? obj = null;
             if (host is null) {
@@ -67,7 +68,7 @@ public static class Utility {
                 obj = config;
             }
             object? value = oldField.GetValue(config);
-            (PropertyFieldWrapper wrapper, obj) = host.GetMember(obj, movedTo.Members);
+            (PropertyFieldWrapper wrapper, obj) = host.GetPropertyFieldValue(obj, movedTo.Members);
             wrapper.SetValue(obj, value);
             DefaultValueAttribute? defaultValue = oldField.GetCustomAttribute<DefaultValueAttribute>();
             oldField.SetValue(config, defaultValue?.Value ?? (wrapper.Type.IsValueType ? Activator.CreateInstance(wrapper.Type) : null));

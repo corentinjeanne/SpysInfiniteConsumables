@@ -218,6 +218,16 @@ Presets: {
 		DisplayName: All Disabled
 		Tooltip: ""
 	}
+
+	Classic: {
+		DisplayName: Classic
+		Tooltip: ""
+	}
+
+	JourneyRequirements: {
+		DisplayName: Journey Requirements
+		Tooltip: ""
+	}
 }
 
 ModGroupDefinition.Tooltip: ""
