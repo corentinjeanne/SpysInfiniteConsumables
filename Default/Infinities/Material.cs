@@ -52,7 +52,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
         MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
         MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
         MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
-        _ => new(),
+        _ => Requirement.None,
     };
 
     public override MaterialCategory GetCategory(Item item) {

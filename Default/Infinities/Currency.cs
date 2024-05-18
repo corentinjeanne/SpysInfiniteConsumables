@@ -45,7 +45,7 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisp
     public override Requirement GetRequirement(CurrencyCategory category) => category switch {
         CurrencyCategory.Coins => new(10000, Config.Coins),
         CurrencyCategory.SingleCoin => new(20, Config.SingleCoin),
-        _ => new()
+        _ => Requirement.None
     };
 
     public override CurrencyCategory GetCategory(int currency) {

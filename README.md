@@ -159,6 +159,9 @@ Contains various ways to display the infinities of items and their  config.
 - Projectile duplication
 - Moved Definition and CustomDictionaryElement to SpikysLib
 
+### v3.1.1.3
+- Fixed material groups consuming when infinite
+
 ### v3.1.1.2
 - Fixed SpikysLib reference to use the published build and not the dev build
 

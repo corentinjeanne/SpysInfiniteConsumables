@@ -101,7 +101,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
             infinity.ModifyDisplayedConsumables(consumable, displayedConsumables);
             foreach(TConsumable displayed in displayedConsumables){
                 bool weapon = !consumable.Equals(displayed);
-                GroupInfinity displayedInfinity = weapon ? GetGroupInfinity(player, displayed) : consumableInfinity;
+                GroupInfinity displayedInfinity = weapon ? (InfinityDisplay.Instance.Cache == CacheStyle.Performances ? GetGroupInfinity(player, displayed) : ComputeGroupInfinity(player, displayed)) : consumableInfinity;
                 FullInfinity effective = displayedInfinity.EffectiveInfinity(infinity);
 
                 if (effective.Requirement.IsNone) continue;
