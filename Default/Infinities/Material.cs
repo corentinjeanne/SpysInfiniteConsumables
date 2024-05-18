@@ -90,7 +90,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
         visibility = InfinityVisibility.Exclusive;
         requirement = requirement.ForInfinity(material.stack, 1);
 
-        // TODO bug
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
         if (group == -1) return;
         count = PlayerExtensions.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
