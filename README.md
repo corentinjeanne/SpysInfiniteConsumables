@@ -155,6 +155,9 @@ Contains various ways to display the infinities of items and their  config.
 
 # Changelog
 
+### v3.1.1.3
+- Fixed material groups consuming when infinite
+
 ### v3.1.1.2
 - Fixed SikysLib reference to use the publish build and not the dev build
 

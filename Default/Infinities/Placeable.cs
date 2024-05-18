@@ -118,7 +118,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
             PlaceableCategory.Mechanical => new(Config.Mechanical),
             PlaceableCategory.Seed => new(Config.Seed),
             PlaceableCategory.Paint => new(Config.Paint),
-            _ => new(),
+            _ => Requirement.None,
         };
     }
 

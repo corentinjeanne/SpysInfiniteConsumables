@@ -43,7 +43,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
         GrabBagCategory.Container => new(Config.Container),
         GrabBagCategory.TreasureBag => new(Config.TreasureBag),
         GrabBagCategory.Extractinator => new(Config.Extractinator),
-        _ => new(),
+        _ => Requirement.None,
     };
 
     public override GrabBagCategory GetCategory(Item item) {
