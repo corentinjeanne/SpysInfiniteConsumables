@@ -36,7 +36,7 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
     public override Requirement GetRequirement(AmmoCategory category) => category switch {
         AmmoCategory.Classic => new(Config.Classic),
         AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
-        _ => new(),
+        _ => Requirement.None,
     };
 
     public override AmmoCategory GetCategory(Item ammo) {

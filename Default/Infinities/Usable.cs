@@ -68,7 +68,7 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
             UsableCategory.Critter => new(Config.Critter),
             // UsableCategory.Explosive => new(Config.Tool),
             UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
-            _ => new(),
+            _ => Requirement.None,
         };
     }
 
