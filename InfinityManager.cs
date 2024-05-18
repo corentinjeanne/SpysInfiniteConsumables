@@ -76,13 +76,13 @@ public static class InfinityManager {
         s_infinities.Add(infinity);
         s_defaultEnabled[infinity] = infinity.Enabled;
         s_defaultColors[infinity] = infinity.Color;
-        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / MathX.GCD(InfinitiesLCM, s_infinities.Count);
+        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / MathX.GCD<int>(InfinitiesLCM, s_infinities.Count);
     }
     internal static void Register<TConsumable>(Group<TConsumable> group) where TConsumable : notnull {
         ModConfigExtensions.SetInstance(group);
         if(group is Default.Infinities.Items) s_groups.Insert(0, group);
         else s_groups.Add(group);
-        GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD(GroupsLCM, s_groups.Count);
+        GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD<int>(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
             if (infinity.Group == group) group.Add((Infinity<TConsumable>)infinity);
         }

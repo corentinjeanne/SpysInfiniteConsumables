@@ -40,7 +40,7 @@ InfinityDisplay: {
 		Displays: Displays
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: v{$Mods.BetterInventory.Chat.Version}
+		Version: v{$Mods.SPIC.Chat.Version}
 	}
 
 	Displays: {
