@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using SPIC.Configs;
-using SPIC.Configs.UI;
 using SpikysLib;
 using SpikysLib.DataStructures;
 using SpikysLib.Extensions;

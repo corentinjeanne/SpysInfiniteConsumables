@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using SPIC.Configs;
-using SPIC.Configs.UI;
 using SpikysLib.Configs;
 using SpikysLib.Extensions;
 
@@ -41,7 +40,7 @@ public static class DisplayLoader {
             else continue;
 
             config.Displays[def] = value;
-            display.Enabled = (bool)value.Parent;
+            display.Enabled = (bool)value.Key;
             configField?.SetValue(display, value.Value);
         }
         config.Display.Clear(); config.Configs.Clear(); // Compatibility version < v3.1.1

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
-using SPIC.Configs.UI;
 using Terraria;
 using Terraria.ID;
 using SpikysLib.Configs.UI;

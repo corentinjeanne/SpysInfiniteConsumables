@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using SPIC.Configs.Presets;
-using SPIC.Configs.UI;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
@@ -14,7 +13,7 @@ namespace SPIC.Configs;
 
 public class InfinityValueWrapper<TValue> : ValueWrapper<InfinityDefinition, TValue> {
     [ColorNoAlpha, ColorHSLSlider]
-    new public TValue Value { get => base.Value; set => base.Value = value; }
+    public override TValue Value { get; set; } = default!;
     public override void OnBind(ConfigElement element) => SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, InfinityManager.GetInfinity(Key.Mod, Key.Name)!.Color);
 }
 

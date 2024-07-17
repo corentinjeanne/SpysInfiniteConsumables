@@ -8,7 +8,6 @@ using SpikysLib.DataStructures;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using SPIC.Configs.UI;
 using System.Reflection;
 using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
@@ -84,10 +83,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     public bool IsUsed(TConsumable consumable, IInfinity infinity) => GetGroupInfinity(Main.LocalPlayer, consumable).UsedInfinities.ContainsKey(infinity);
     public FullInfinity GetEffectiveInfinity(Player player, TConsumable consumable, Infinity<TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
     public FullInfinity GetEffectiveInfinity(Player player, int consumable, Infinity<TConsumable> group) => GetGroupInfinity(player, consumable).EffectiveInfinity(group);
-
-    public FullInfinity GetMixedFullInfinity(Player player, TConsumable consumable) => GetGroupInfinity(player, consumable).Mixed;
-    public Requirement GetMixedRequirement(TConsumable consumable) => GetMixedFullInfinity(Main.LocalPlayer, consumable).Requirement;
-    public long GetMixedInfinity(Player player, TConsumable consumable) => GetMixedFullInfinity(player, consumable).Infinity;
+    public FullInfinity GetMixedInfinity(Player player, TConsumable consumable) => GetGroupInfinity(player, consumable).Mixed;
 
 
     public IEnumerable<(IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility)> GetDisplayedInfinities(Player player, Item item) {
@@ -156,7 +152,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
             INestedValue value = (INestedValue)token.ToObject(typeof(Toggle<>).MakeGenericType(configField is null ? typeof(Empty) : configField.FieldType))!;
 
             config.Infinities.Add(def, value);
-            infinity.Enabled = (bool)value.Parent;
+            infinity.Enabled = (bool)value.Key;
             configField?.SetValue(infinity, value.Value);
         }
         config.Configs.Clear(); // Compatibility version < v3.1.1
@@ -168,7 +164,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
             INestedValue value = (INestedValue)Activator.CreateInstance(typeof(Toggle<>).MakeGenericType(configField is null ? typeof(Empty) : configField.FieldType), infinity.DefaultEnabled(), null)!;
 
             config.Infinities.Add(def, value);
-            infinity.Enabled = (bool)value.Parent;
+            infinity.Enabled = (bool)value.Key;
             configField?.SetValue(infinity, value.Value);
         }
 
