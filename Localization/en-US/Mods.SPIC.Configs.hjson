@@ -136,7 +136,7 @@ GroupConfig: {
 		Label: "[i:486] Used Infinities"
 		Tooltip:
 			'''
-			The maximum number of Infinities taken into account directly, uses the order above from top to bottom.
+			The maximum number of Infinities taken into account directly, uses the order bellow from top to bottom.
 			Infinities that are not used take the minimum used infinity as their value.
 			'''
 	}

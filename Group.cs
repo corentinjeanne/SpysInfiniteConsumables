@@ -43,13 +43,6 @@ public interface IGroup : ILocalizedModType, ILoadable {
 }
 
 public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : notnull {
-
-    public Group() {
-        _cachedInfinities = new(GetType, consumable => ComputeGroupInfinity(Main.LocalPlayer, consumable)) {
-            EstimateValueSize = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
-        };
-    }
-
     internal void Add(Infinity<TConsumable> infinity) => _infinities.Add(infinity);
 
     void IGroup.Add(Preset preset) => Add(preset);
@@ -66,8 +59,8 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 
-    public GroupInfinity GetGroupInfinity(Player player, int consumable) => player == Main.LocalPlayer && _cachedInfinities.TryGetValue(consumable, out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
-    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => player == Main.LocalPlayer && InfinityDisplay.Instance.Cache != CacheStyle.None ? _cachedInfinities.GetOrAdd(consumable) : ComputeGroupInfinity(player, consumable);
+    public GroupInfinity GetGroupInfinity(Player player, int consumable) => _cachedInfinities.TryGetValue((player.whoAmI, consumable), out GroupInfinity? groupInfinity) ? groupInfinity : GetGroupInfinity(player, FromType(consumable));
+    public GroupInfinity GetGroupInfinity(Player player, TConsumable consumable) => InfinityDisplay.Instance.Cache != CacheStyle.None ? _cachedInfinities.GetOrAdd((player.whoAmI, GetType(consumable)), () => ComputeGroupInfinity(player, consumable)) : ComputeGroupInfinity(player, consumable);
     private GroupInfinity ComputeGroupInfinity(Player player, TConsumable consumable) {
         GroupInfinity groupInfinity = new();
         foreach (Infinity<TConsumable> infinity in _infinities) {
@@ -208,5 +201,7 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
 
     private readonly List<Infinity<TConsumable>> _infinities = new();
     private readonly List<Preset> _presets = new();
-    private readonly Cache<TConsumable, int, GroupInfinity> _cachedInfinities;
+    private readonly DictionaryWithStats<(int player, int consumable), GroupInfinity> _cachedInfinities = new() {
+        EstimateValueSize = (GroupInfinity value) => (value._infinities.Count + 1) * FullInfinity.EstimatedSize
+    };
 }

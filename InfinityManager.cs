@@ -40,7 +40,7 @@ public static class InfinityManager {
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
 
 
-    public static ItemDisplay GetLocalItemDisplay(this Item item) => InfinityDisplay.Instance.Cache != CacheStyle.None ? s_displays.GetOrAdd(item) : ComputeLocalItemDisplay(item);
+    public static ItemDisplay GetLocalItemDisplay(this Item item) => InfinityDisplay.Instance.Cache != CacheStyle.None ? s_displays.GetOrAdd((item.type, item.stack, item.prefix), () => ComputeLocalItemDisplay(item)) : ComputeLocalItemDisplay(item);
     private static ItemDisplay ComputeLocalItemDisplay(this Item item) {
         ItemDisplay itemDisplay = new();
         foreach (IGroup group in Groups) {
@@ -133,7 +133,7 @@ public static class InfinityManager {
 
     private static int s_cacheRefresh = 0;
     private static bool s_delayed;
-    private static readonly Cache<Item, (int type, int stack, int prefix), ItemDisplay> s_displays = new(item => (item.type, item.stack, item.prefix), ComputeLocalItemDisplay) {
+    private static readonly DictionaryWithStats<(int type, int stack, int prefix), ItemDisplay> s_displays = new() {
         EstimateValueSize = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
     };
 }
