@@ -70,16 +70,16 @@ public sealed class AllDisabled : Preset {
 
 public sealed class Classic : Preset {
 
-    public static Infinity<Item>[] Order => new Infinity<Item>[] { Infinities.Usable.Instance, Infinities.Ammo.Instance, Infinities.GrabBag.Instance, Infinities.Placeable.Instance };
+    public static Infinity<Item>[] Order => [Infinities.Usable.Instance, Infinities.Ammo.Instance, Infinities.Placeable.Instance];
     public override int CriteriasCount => 3;
 
     public override bool AppliesToGroup(IGroup group) => group is Infinities.Items;
 
     public override bool MeetsCriterias(GroupConfig config) {
         int i = 0;
-        foreach((InfinityDefinition def, INestedValue value) in config.Infinities.Items<InfinityDefinition, INestedValue>()){
-            if(def != new InfinityDefinition(Order[i]) || (bool)value.Key != Order[i].DefaultEnabled()) return false;
-            if(++i == Order.Length) break;
+        foreach ((InfinityDefinition def, INestedValue value) in config.Infinities.Items<InfinityDefinition, INestedValue>()){
+            if (i < Order.Length ? (!def.Equals(new InfinityDefinition(Order[i])) || !(bool)value.Key) : (bool)value.Key) return false;
+            i++;
         }
         return config.UsedInfinities == 1;
     }
@@ -87,11 +87,14 @@ public sealed class Classic : Preset {
         (OrderedDictionary oldInfs, config.Infinities) = (config.Infinities, new());
         for (int i = 0; i < Order.Length; i++) {
             InfinityDefinition def = new(Order[i]);
+            ((INestedValue)oldInfs[def]!).Key = true;
             config.Infinities.Add(def, oldInfs[def]);
-            ((INestedValue)config.Infinities[i]!).Key = Order[i].DefaultEnabled();
             oldInfs.Remove(def);
         }
-        foreach ((InfinityDefinition def, INestedValue value) in oldInfs.Items<InfinityDefinition, INestedValue>()) config.Infinities.Add(def, value);
+        foreach ((InfinityDefinition def, INestedValue value) in oldInfs.Items<InfinityDefinition, INestedValue>()) {
+            ((INestedValue)oldInfs[def]!).Key = false;
+            config.Infinities.Add(def, value);
+        }
         config.UsedInfinities = 1;
     }
 }

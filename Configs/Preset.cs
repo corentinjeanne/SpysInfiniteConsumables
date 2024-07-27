@@ -13,6 +13,8 @@ public abstract class Preset : ModType, ILocalizedModType {
     protected sealed override void Register() {
         ModTypeLookup<Preset>.Register(this);
         PresetLoader.Register(this);
+        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
 
     public abstract int CriteriasCount { get; }

@@ -156,14 +156,17 @@ Contains various ways to display the infinities of items and their  config.
 # Changelog
 
 ### v3.2
-- Projectile duplication
-- Moved Definition and CustomDictionaryElement to SpikysLib
+- Added Projectile duplication
+- Changed Grab Bags to be disabled by default
+- Added automatic localization generation
+- Moved Definition and CustomDictionaryElement to Spiky's Lib
+- Fixed Classic preset
 
 ### v3.1.1.3
 - Fixed material groups consuming when infinite
 
 ### v3.1.1.2
-- Fixed SpikysLib reference to use the published build and not the dev build
+- Fixed Spiky's Lib reference to use the published build and not the dev build
 
 ### v3.1.1.1
 - Adjusted default colors

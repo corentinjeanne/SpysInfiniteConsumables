@@ -7,7 +7,6 @@ using SpikysLib.Extensions;
 
 namespace SPIC.Default.Globals;
 
-// TODO remove recipes crafting a fully infinite item
 public class InfiniteRecipe : ModSystem {
 
     public static readonly HashSet<int> CraftingStations = new();

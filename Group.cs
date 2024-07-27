@@ -56,6 +56,8 @@ public abstract class Group<TConsumable> : ModType, IGroup where TConsumable : n
     protected sealed override void Register() {
         ModTypeLookup<Group<TConsumable>>.Register(this);
         InfinityManager.Register(this);
+        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 

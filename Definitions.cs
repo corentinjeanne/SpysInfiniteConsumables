@@ -1,7 +1,6 @@
 using SPIC.Configs.Presets;
 using System.Linq;
 using Newtonsoft.Json;
-using Terraria.ModLoader;
 using System.ComponentModel;
 using SpikysLib;
 

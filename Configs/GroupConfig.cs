@@ -14,7 +14,11 @@ namespace SPIC.Configs;
 public class InfinityValueWrapper<TValue> : ValueWrapper<InfinityDefinition, TValue> {
     [ColorNoAlpha, ColorHSLSlider]
     public override TValue Value { get; set; } = default!;
-    public override void OnBind(ConfigElement element) => SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, InfinityManager.GetInfinity(Key.Mod, Key.Name)!.Color);
+    public override void OnBind(ConfigElement element) {
+        if (Key.IsUnloaded) return;
+        SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, Key.Entity!.Color);
+        SpikysLib.Reflection.ConfigElement.TooltipFunction.SetValue(element, () => Key.Tooltip!);
+    }
 }
 
 public sealed class UsedInfinities : MultiChoice<int> {

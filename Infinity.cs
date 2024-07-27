@@ -20,6 +20,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity where TConsumab
     protected sealed override void Register() {
         ModTypeLookup<Infinity<TConsumable>>.Register(this);
         InfinityManager.Register(this);
+        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 

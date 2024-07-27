@@ -16,6 +16,8 @@ public abstract class Display : ModType, ILocalizedModType {
     protected sealed override void Register() {
         ModTypeLookup<Display>.Register(this);
         DisplayLoader.Register(this);
+        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
 
     public sealed override void SetupContent() => SetStaticDefaults();

@@ -9,7 +9,7 @@ using SpikysLib.Extensions;
 using System.Collections.Generic;
 using SPIC.Default.Displays;
 
-namespace SPIC.Default.Infinities; 
+namespace SPIC.Default.Infinities;
 
 public enum GrabBagCategory {
     None,
@@ -33,6 +33,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
     public static GrabBag Instance = null!;
     public static GrabBagRequirements Config = null!;
 
+    public override bool Enabled { get; set; } = false;
 
     public override int IconType => ItemID.FairyQueenBossBag;
     public override Color Color { get; set; } = Colors.RarityDarkPurple;
