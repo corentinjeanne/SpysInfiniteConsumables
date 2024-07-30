@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Reflection;
+using SpikysLib.Localization;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
@@ -18,6 +20,8 @@ public abstract class Display : ModType, ILocalizedModType {
         DisplayLoader.Register(this);
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
+        FieldInfo? configField = GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+        if (configField is not null) LanguageHelper.RegisterLocalizationKeysForMembers(configField.FieldType);
     }
 
     public sealed override void SetupContent() => SetStaticDefaults();

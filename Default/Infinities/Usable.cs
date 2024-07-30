@@ -1,12 +1,10 @@
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader.Config;
-
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using SpikysLib.Extensions;
+using SpikysLib;
 using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
@@ -31,17 +29,11 @@ public enum UsableCategory {
 }
 
 public sealed class UsableRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapon")]
     public Count<UsableCategory> Weapon = 2 * 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Potion")]
     public Count<UsableCategory> Potion = 30;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Booster")]
     public Count<UsableCategory> Booster = 5;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoner")]
     public Count<UsableCategory> Summoner = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Critter")]
     public Count<UsableCategory> Critter = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Tool")]
     public Count<UsableCategory> Tool = 99;
 }
 

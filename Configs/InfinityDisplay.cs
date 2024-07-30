@@ -26,11 +26,9 @@ public sealed class InfinityDisplay : ModConfig {
         }
     }
 
-    [JsonProperty] internal Dictionary<DisplayDefinition, bool> Display = new(); // Compatibility version < v3.1.1
-    [JsonProperty] internal Dictionary<DisplayDefinition, Wrapper> Configs = new(); // Compatibility version < v3.1.1
-
     [Header("Colors")]
-    [CustomModConfigItem(typeof(DictionaryValuesElement))] public Dictionary<GroupDefinition, GroupColors> Colors {
+    [CustomModConfigItem(typeof(DictionaryValuesElement))]
+    public Dictionary<GroupDefinition, GroupColors> Colors {
         get => _colors;
         set {
             foreach (IGroup group in InfinityManager.Groups) {
@@ -54,12 +52,16 @@ public sealed class InfinityDisplay : ModConfig {
     private Dictionary<DisplayDefinition, object> _displays = new();
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 
+    // Compatibility version < v3.1.1
+    [JsonProperty] internal Dictionary<DisplayDefinition, bool> Display = new();
+    [JsonProperty] internal Dictionary<DisplayDefinition, Wrapper> Configs = new();
+
     public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplay Instance = null!;
 }
 
-public enum Direction {Vertical, Horizontal}
-public enum Corner {TopLeft, TopRight, BottomLeft, BottomRight}
-public enum WelcomMessageFrequency {Never, OncePerUpdate, Always}
-public enum CacheStyle {None, Smart, Performances }
+public enum Direction { Vertical, Horizontal }
+public enum Corner { TopLeft, TopRight, BottomLeft, BottomRight }
+public enum WelcomMessageFrequency { Never, OncePerUpdate, Always }
+public enum CacheStyle { None, Smart, Performances }
 public enum GlowStyle { Off, Simple, Fancy }

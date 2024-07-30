@@ -5,14 +5,12 @@ using SPIC.Configs;
 using Terraria.ModLoader;
 using Terraria;
 using Terraria.Localization;
-using SpikysLib.Extensions;
+using SpikysLib;
+using SpikysLib.Configs;
 
 namespace SPIC.Default.Displays;
 
-public enum CountStyle { Sprite, Name }
-
 public sealed class TooltipConfig {
-    [LabelKey($"${Localization.Keys.Displays}.Tooltip.AddMissingLines")]
     [DefaultValue(true)] public bool AddMissingLines = true;
 }
 
@@ -38,11 +36,8 @@ public sealed class Tooltip : Display {
 } 
 
 public sealed class GlowConfig {
-    [LabelKey($"${Localization.Keys.Displays}.Glow.FancyGlow")]
     [DefaultValue(true)] public bool FancyGlow = true;
-    [LabelKey($"${Localization.Keys.Displays}.Glow.Intensity")]
     [DefaultValue(0.75f)] public float Intensity = 0.75f;
-    [LabelKey($"${Localization.Keys.Displays}.Glow.AnimationLength")]
     [DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] public float AnimationLength = 2f;
 }
 
@@ -54,12 +49,12 @@ public sealed class Glow : Display {
     public override int IconType => ItemID.FallenStar;
 } 
 public sealed class DotsConfig {
-    [LabelKey($"${Localization.Keys.Displays}.Dots.Start")]
     [DefaultValue(Corner.BottomRight)] public Corner Start = Corner.BottomRight;
-    [LabelKey($"${Localization.Keys.Displays}.Dots.Direction")]
     [DefaultValue(Direction.Horizontal)] public Direction Direction = Direction.Horizontal;
-    [LabelKey($"${Localization.Keys.Displays}.Dots.AnimationLength")]
-    [DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] public float AnimationLength = 5f;
+    [DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] public float GroupTime = 5f;
+
+    // Compatibility version < v3.2
+    [DefaultValue(5f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 5f, c => GroupTime = value); }
 }
 
 public sealed class Dots : Display {

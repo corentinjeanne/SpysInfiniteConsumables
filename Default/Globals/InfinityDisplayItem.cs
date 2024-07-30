@@ -7,7 +7,7 @@ using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using SPIC.Default.Displays;
-using SpikysLib.Extensions;
+using SpikysLib;
 
 namespace SPIC.Default.Globals;
 
@@ -20,7 +20,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
         foreach ((IInfinity infinity, int displayed, FullInfinity display) in itemDisplay.DisplayedInfinities) {
             (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.GetTooltipLine(infinity, item, displayed);
             bool added = false;
-            TooltipLine? line = Tooltip.Config.AddMissingLines ? tooltips.FindorAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
+            TooltipLine? line = Tooltip.Config.AddMissingLines ? tooltips.FindOrAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
             if (line is null) continue;
             DisplayOnLine(line, displayed, infinity, display);
             if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
@@ -169,7 +169,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     public static void IncrementCounters() {
         if(Main.GlobalTimeWrappedHourly >= s_groupTimer){
-            s_groupTimer = (s_groupTimer + Dots.Config.AnimationLength) % 3600;
+            s_groupTimer = (s_groupTimer + Dots.Config.GroupTime) % 3600;
             s_groupIndex = (s_groupIndex + 1) % InfinityManager.GroupsLCM;
         }
         if(Main.GlobalTimeWrappedHourly >= s_infinityTimer){

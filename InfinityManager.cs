@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using SPIC.Configs;
-using SpikysLib;
+using SpikysLib.Collections;
+using SpikysLib.Configs;
 using SpikysLib.DataStructures;
-using SpikysLib.Extensions;
 using Terraria;
 
 namespace SPIC;
@@ -69,19 +69,19 @@ public static class InfinityManager {
     }
 
     internal static void Register<TConsumable>(Infinity<TConsumable> infinity) where TConsumable : notnull {
-        ModConfigExtensions.SetInstance(infinity);
+        ConfigHelper.SetInstance(infinity);
         Group<TConsumable>? group = (Group<TConsumable>?)s_groups.Find(mg => mg == infinity.Group);
         group?.Add(infinity);
         s_infinities.Add(infinity);
         s_defaultEnabled[infinity] = infinity.Enabled;
         s_defaultColors[infinity] = infinity.Color;
-        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / MathX.GCD<int>(InfinitiesLCM, s_infinities.Count);
+        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
     internal static void Register<TConsumable>(Group<TConsumable> group) where TConsumable : notnull {
-        ModConfigExtensions.SetInstance(group);
+        ConfigHelper.SetInstance(group);
         if (group is Default.Infinities.Items) s_groups.Insert(0, group);
         else s_groups.Add(group);
-        GroupsLCM = s_groups.Count * GroupsLCM / MathX.GCD<int>(GroupsLCM, s_groups.Count);
+        GroupsLCM = s_groups.Count * GroupsLCM / SpikysLib.MathHelper.GCD(GroupsLCM, s_groups.Count);
         foreach (IInfinity infinity in s_infinities) {
             if (infinity.Group == group) group.Add((Infinity<TConsumable>)infinity);
         }
@@ -106,9 +106,9 @@ public static class InfinityManager {
     }
 
     public static void Unload() {
-        foreach (var g in s_groups) ModConfigExtensions.SetInstance(g, true);
+        foreach (var g in s_groups) ConfigHelper.SetInstance(g, true);
         s_groups.Clear();
-        foreach (var i in s_infinities) ModConfigExtensions.SetInstance(i, true);
+        foreach (var i in s_infinities) ConfigHelper.SetInstance(i, true);
         s_infinities.Clear();
     }
 

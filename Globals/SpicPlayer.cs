@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using SpikysLib.Extensions;
+using SpikysLib.Configs;
 using SpikysLib.UI;
 using Terraria;
 using Terraria.ID;

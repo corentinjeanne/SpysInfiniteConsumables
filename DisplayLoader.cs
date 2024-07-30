@@ -5,20 +5,19 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using SPIC.Configs;
 using SpikysLib.Configs;
-using SpikysLib.Extensions;
 
 namespace SPIC;
 
 public static class DisplayLoader {
     internal static void Register(Display display) {
-        ModConfigExtensions.SetInstance(display);
+        ConfigHelper.SetInstance(display);
         s_displays.Add(display);
         s_defaultEnabled[display] = display.Enabled;
     }
 
     internal static void Unload(){
         foreach (Display d in s_displays) {
-            ModConfigExtensions.SetInstance(d, true);
+            ConfigHelper.SetInstance(d, true);
             Utility.SetConfig(d, null);
         }
         s_displays.Clear();

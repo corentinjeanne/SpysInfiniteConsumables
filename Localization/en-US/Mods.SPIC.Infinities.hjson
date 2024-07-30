@@ -1,86 +1,229 @@
-Items.DisplayName: Items
-Currencies.DisplayName: Currencies
+Items: {
+	DisplayName: Items
+	Tooltip: Allows consumable items to be infinite
+}
+
+Currencies: {
+	DisplayName: Currencies
+	Tooltip: Allows currency items to be infinite
+}
 
 Ammo: {
 	DisplayName: Ammunition
-	Classic: Classic Ammo
-	// Explosive: Explosive
-	Special: Special Ammo
+	Tooltip: Items fired by a weapon
+	None.Label: None
+
+	Classic: {
+		Label: Classic Ammo
+		Tooltip: Arrows, Bullets, Rockets or Darts
+	}
+
+	Special: {
+		Label: Special Ammo
+		Tooltip: Other ammo types
+	}
 }
 
 Currency: {
 	DisplayName: Currency
-	Multiplier: "{0} infinity Multiplier"
-	Coins: Coins
-	SingleCoin: Single Coin
-	Shop: NPC Shop
-	Nurse: Nurse Healing
-	Reforging: Item Reforging
-	Others: Others
+	Tooltip: Items used in NPC shops
+	None.Label: None
+	Coins.Label: Coins
+	SingleCoin.Label: Single Coin
+
+	CoinsMultiplier: {
+		Label: Coins infinity Multiplier
+		Tooltip: Currency with more than one item
+	}
+
+	SingleCoinMultiplier: {
+		Label: Single Coin infinity Multiplier
+		Tooltip: Currency composed of a single item
+	}
+
+	Shop: {
+		Label: NPC Shop
+		Tooltip: ""
+	}
+
+	Nurse: {
+		Label: Nurse Healing
+		Tooltip: ""
+	}
+
+	Reforging: {
+		Label: Item Reforging
+		Tooltip: ""
+	}
+
+	Others: {
+		Label: Others
+		Tooltip: ""
+	}
 }
 
 GrabBag: {
 	DisplayName: Grab Bag
-	Container: Container or Bag
-	Extractinator: Extractinator
-	TreasureBag: Treasure Bag
+	Tooltip: Item dropping other items when opened
+	None.Label: None
+
+	Container: {
+		Label: Container or Bag
+		Tooltip: ""
+	}
+
+	Extractinator: {
+		Label: Extractinator
+		Tooltip: Items used at an extractinator
+	}
+
+	TreasureBag: {
+		Label: Treasure Bag
+		Tooltip: ""
+	}
 }
 
 JourneySacrifice: {
-	DisplayName: Journey Research
-	Sacrifices: Hide Infinity for Researched Items
-	Tooltip: Research
+	DisplayName: Journey Sacrifice
+	Tooltip:
+		'''
+		Journey mode research
+		The requirement can be used outside of Journey mode there are unused infinities
+		'''
+	TooltipLine: Research
+
+	hideWhenResearched: {
+		Label: Hide Infinity for Researched Items
+		Tooltip: ""
+	}
 }
 
 Material: {
 	DisplayName: Material
+	Tooltip: Items used in crafting
+	None.Label: None
+
+	Basic: {
+		Label: Basic
+		Tooltip: Block, Coin, Ammo base (Wooden arrow, Empty bullet, ...) or Potion base
+	}
+
+	Ore: {
+		Label: Ore
+		Tooltip: ""
+	}
+
+	Furniture: {
+		Label: Furniture
+		Tooltip: ""
+	}
+
+	Miscellaneous: {
+		Label: Miscellaneous
+		Tooltip: ""
+	}
+
+	NonStackable: {
+		Label: Non Stackable
+		Tooltip: ""
+	}
 
 	Multiplier: {
 		Label: Infinity Multiplier
 		Tooltip: Applies to all material requirements
 	}
-
-	Basic: Basic
-	Ore: Ore
-	Furniture: Furniture
-	Miscellaneous: Miscellaneous
-	NonStackable: Non Stackable
 }
 
 Placeable: {
-	TileDuplication: Exact Infinity
 	DisplayName: Placeable
-	Tile: Tile
-	// Block: Block
-	// Wall: Wall
-	Torch: Torch
-	Ore: Ore
-	Furniture: Furniture
-	// LightSource: LightSource
-	// Container: Container
-	// Functional: Functional
-	// CraftingStation: CraftingStation
-	// Decoration: Decoration
-	// MusicBox: MusicBox
-	Wiring: Wiring
-	Mechanical: Mechanical
-	Bucket: Bucket
-	Seed: Seed
-	Paint: Paint or Coating
+	Tooltip: Items placed in the world
+	TileDuplication: Exact Infinity
+	None.Label: None
+
+	Tile: {
+		Label: Tile
+		Tooltip: Blocks and Walls
+	}
+
+	Torch: {
+		Label: Torch
+		Tooltip: ""
+	}
+
+	Ore: {
+		Label: Ore
+		Tooltip: ""
+	}
+
+	Furniture: {
+		Label: Furniture
+		Tooltip: ""
+	}
+
+	Wiring: {
+		Label: Wiring
+		Tooltip: Items placed on the wiring layer
+	}
+
+	Mechanical: {
+		Label: Mechanical
+		Tooltip: Items having an interaction with logic
+	}
+
+	Bucket: {
+		Label: Bucket
+		Tooltip: ""
+	}
+
+	Seed: {
+		Label: Seed
+		Tooltip: ""
+	}
+
+	Paint: {
+		Label: Paint or Coating
+		Tooltip: ""
+	}
 }
 
 Usable: {
 	DisplayName: Usable
-	Weapon: Thrown Weapon
-	Potion: Buff or Potion
-	// Recovery: Recovery
-	// Buff: Buff
-	Booster: Permanent Booster
-	// PlayerBooster: Player Booster
-	// WorldBooster: World Booster
-	Summoner: Boss or Event Summoner
-	Critter: Critter or Bait
-	// Explosive: Explosive
-	Tool: Tool
-	Unknown: Tool?
+	Tooltip: Items vanishing upon use
+	None.Label: None
+
+	Weapon: {
+		Label: Thrown Weapon
+		Tooltip: ""
+	}
+
+	Potion: {
+		Label: Buff or Potion
+		Tooltip: ""
+	}
+
+	Booster: {
+		Label: Permanent Booster
+		Tooltip: Items giving a permanent bonus on use
+	}
+
+	Summoner: {
+		Label: Boss or Event Summoner
+		Tooltip: ""
+	}
+
+	Critter: {
+		Label: Critter or Bait
+		Tooltip: ""
+	}
+
+	Tool: {
+		Label: Tool
+		Tooltip:
+			'''
+			Items creating a projectile on use
+			Items with an unknown category ('Tool?') will use this requirement
+			'''
+	}
+
+	Unknown.Label: Tool?
 }

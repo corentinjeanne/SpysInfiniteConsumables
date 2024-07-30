@@ -2,7 +2,7 @@ using System.Collections.Specialized;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
 using SpikysLib.Configs;
-using SpikysLib.Extensions;
+using SpikysLib.Collections;
 using Terraria;
 
 namespace SPIC.Default.Presets;

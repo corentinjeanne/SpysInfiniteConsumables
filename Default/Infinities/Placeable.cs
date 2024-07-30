@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
-using SpikysLib.Extensions;
+using SpikysLib;
+using SpikysLib.IL;
 using SPIC.Default.Displays;
 using MonoMod.Cil;
 
@@ -35,31 +35,22 @@ public enum PlaceableCategory {
     Seed,
     Paint
 }
-
 public static class PlaceableExtension {
     public static bool IsCommonTile(this PlaceableCategory category) => category != PlaceableCategory.None && category < PlaceableCategory.Furniture;
     public static bool IsFurniture(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && category < PlaceableCategory.Mechanical;
     public static bool IsMisc(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && !category.IsFurniture();
 }
 
+// TODO PreventItemDuplication
 public sealed class PlaceableRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Tile")]
     public Count<PlaceableCategory> Tile = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
     public Count<PlaceableCategory> Ore = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Torch")]
     public Count<PlaceableCategory> Torch = 99;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
     public Count<PlaceableCategory> Furniture = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Mechanical")]
     public Count<PlaceableCategory> Mechanical = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Wiring")]
     public Count<PlaceableCategory> Wiring = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Bucket")]
     public Count<PlaceableCategory> Bucket = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Seed")]
     public Count<PlaceableCategory> Seed = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Paint")]
     public Count<PlaceableCategory> Paint = 999;
 }
 

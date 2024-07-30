@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
+using SPIC.Configs;
+using SpikysLib;
+using SpikysLib.Localization;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -22,6 +27,11 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity where TConsumab
         InfinityManager.Register(this);
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
+
+        if (GetType().IsSubclassOfGeneric(typeof(Infinity<,>), out Type? impl)) LanguageHelper.RegisterLocalizationKeysForMembers(typeof(Count<>).MakeGenericType(impl.GenericTypeArguments[1]));
+        
+        FieldInfo? configField = GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
+        if (configField is not null) LanguageHelper.RegisterLocalizationKeysForMembers(configField.FieldType);
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 

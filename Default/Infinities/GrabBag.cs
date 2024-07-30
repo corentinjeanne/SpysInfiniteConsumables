@@ -3,9 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 using SPIC.Configs;
-using SpikysLib.Extensions;
+using SpikysLib;
 using System.Collections.Generic;
 using SPIC.Default.Displays;
 
@@ -19,11 +18,8 @@ public enum GrabBagCategory {
 }
 
 public sealed class GrabBagRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Container")]
     public Count<GrabBagCategory> Container = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Extractinator")]
     public Count<GrabBagCategory> Extractinator = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.TreasureBag")]
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 

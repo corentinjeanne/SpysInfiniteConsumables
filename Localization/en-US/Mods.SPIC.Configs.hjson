@@ -11,7 +11,7 @@ InfinitySettings: {
 		Tooltip:
 			'''
 			Detect the categories of items if they are unknown.
-			You can see the detected catgories in the Customs below.
+			You can see the detected catagories in the Customs below.
 			'''
 	}
 
@@ -19,10 +19,11 @@ InfinitySettings: {
 		Label: "[i:3988] Prevent item duplication"
 		Tooltip:
 			'''
-			/!\ WIP /!\
-			Placeables above the requirement will be consumed
-			Critters will turn into smoke when caught
-			Buckets won't fill or empty on use
+			Prevent infinite entities to drop items, be picked up or any action that would result a real item been created 
+			For example:
+			Infinite Tiles won't drop items
+			Infinite Critters will turn into smoke when caught
+			Infinite Buckets won't fill or empty on use
 			'''
 	}
 
@@ -87,10 +88,10 @@ InfinityDisplay: {
 		Label: Cache
 		Tooltip:
 			'''
+			Type /spiccache in-game to see the cached values
 			Performances: Optimal performances, large cache (~10kB). Will not recompute any value
 			Smart: Great performances, small cache (~3kB). May recompute some values
-			None: Horrendous perfomances, no cache. Just don't
-			Type /spiccache ingame to see the cached values
+			None: Horrendous performances, no cache. Just don't
 			'''
 	}
 
@@ -100,7 +101,7 @@ InfinityDisplay: {
 			'''
 			Forces a minimum delay (in frames) between each cache refresh
 			Increase this value if the game lags when your inventory changes extremely quickly
-			May cause visual inconsitencies, especialy for large values (>15)
+			May cause visual inconsistencies, especially for large values (>15)
 			'''
 	}
 
@@ -148,7 +149,7 @@ GroupConfig: {
 
 	Customs: {
 		Label: "[i:1913] Customs"
-		Tooltip: ""
+		Tooltip: Replace the requirements of items by a global requirement or individual ones per infinity
 	}
 
 	Tooltip: ""
@@ -161,13 +162,6 @@ GroupColors: {
 	}
 
 	Tooltip: ""
-}
-
-UI: {
-	InfinityMultiplier: Infinity is {0} of the requirement
-	None: None
-	Up: Move Up
-	Down: Move Down
 }
 
 Custom: {
@@ -198,44 +192,11 @@ Count: {
 	Tooltip: ""
 }
 
-Presets: {
-	Defaults: {
-		DisplayName: Defaults
-		Tooltip: ""
-	}
-
-	OneForMany: {
-		DisplayName: One For Many
-		Tooltip: ""
-	}
-
-	AllEnabled: {
-		DisplayName: All Enabled
-		Tooltip: ""
-	}
-
-	AllDisabled: {
-		DisplayName: All Disabled
-		Tooltip: ""
-	}
-
-	Classic: {
-		DisplayName: Classic
-		Tooltip: ""
-	}
-
-	JourneyRequirements: {
-		DisplayName: Journey Requirements
-		Tooltip: ""
-	}
-}
-
 ModGroupDefinition.Tooltip: ""
 MetaGroupDefinition.Tooltip: ""
 
 PresetDefinition: {
 	Tooltip: {
-		$parentVal: ""
 		Label: Tooltip
 		Tooltip: ""
 	}
@@ -273,12 +234,6 @@ GroupDefinition: {
 
 Text.Tooltip: ""
 
-CountStyle: {
-	Tooltip: ""
-	Sprite.Label: Sprite (12/30 [i:289])
-	Name.Label: Name (12/30 items)
-}
-
 Corner: {
 	Tooltip: ""
 	TopLeft.Label: Top Left
@@ -296,7 +251,7 @@ Direction: {
 CacheStyle: {
 	Tooltip: ""
 	None.Label: None
-	Smart.Label: Smart (Recommanded)
+	Smart.Label: Smart (Recommended)
 	Performances.Label: Performances
 }
 
@@ -357,6 +312,15 @@ InfinityDictionary: {
 
 	Configs: {
 		Label: Configs
+		Tooltip: ""
+	}
+}
+
+Count`1: {
+	Tooltip: ""
+
+	Category: {
+		Label: Category
 		Tooltip: ""
 	}
 }

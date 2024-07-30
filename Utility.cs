@@ -1,12 +1,9 @@
 using System;
 using System.Reflection;
 using Terraria;
-using Terraria.ModLoader.Config;
-using System.ComponentModel;
-using Terraria.ModLoader.Config.UI;
-using SpikysLib.Extensions;
-using SpikysLib.CrossMod;
 using Terraria.ID;
+using SpikysLib;
+using SpikysLib.CrossMod;
 
 namespace SPIC;
 
@@ -53,27 +50,6 @@ public static class Utility {
         }
         NPCStats a = new(total, boss);
         return a;
-    }
-
-    public static void PortConfig(this ModConfig config) {
-        config.Load();
-        foreach (FieldInfo oldField in config.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
-            Configs.MovedTo? movedTo = CustomAttributeExtensions.GetCustomAttribute<Configs.MovedTo>(oldField);
-            if (movedTo is null) continue;
-
-            Type? host = movedTo.Host;
-            object? obj = null;
-            if (host is null) {
-                host = config.GetType();
-                obj = config;
-            }
-            object? value = oldField.GetValue(config);
-            (PropertyFieldWrapper wrapper, obj) = host.GetPropertyFieldValue(obj, movedTo.Members);
-            wrapper.SetValue(obj, value);
-            DefaultValueAttribute? defaultValue = oldField.GetCustomAttribute<DefaultValueAttribute>();
-            oldField.SetValue(config, defaultValue?.Value ?? (wrapper.Type.IsValueType ? Activator.CreateInstance(wrapper.Type) : null));
-        }
-        config.Save();
     }
 
     public static void SetConfig(object instance, object? config) => instance.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public)?.SetValue(null, config);

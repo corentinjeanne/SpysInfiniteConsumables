@@ -4,8 +4,18 @@ using Terraria.ModLoader.Config;
 using Terraria;
 using Terraria.ID;
 using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
+
+
+public class GroupValueWrapper<TValue> : ValueWrapper<GroupDefinition, TValue> {
+    public override TValue Value { get; set; } = default!;
+    public override void OnBind(ConfigElement element) {
+        if (Key.IsUnloaded) return;
+        SpikysLib.Reflection.ConfigElement.TooltipFunction.SetValue(element, () => Key.Tooltip!);
+    }
+}
 
 public sealed class InfinitySettings : ModConfig {
 
@@ -14,7 +24,7 @@ public sealed class InfinitySettings : ModConfig {
     [DefaultValue(true)] public bool PreventItemDuplication { get; set; }
 
     [Header("Configs")]
-    [CustomModConfigItem(typeof(DictionaryValuesElement))] public Dictionary<GroupDefinition, GroupConfig> Configs {
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), ValueWrapper(typeof(GroupValueWrapper<>))] public Dictionary<GroupDefinition, GroupConfig> Configs {
         get => _configs;
         set {
             foreach (IGroup group in InfinityManager.Groups) {

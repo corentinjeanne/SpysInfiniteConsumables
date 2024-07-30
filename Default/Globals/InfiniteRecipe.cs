@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using SpikysLib.CrossMod;
-using SpikysLib.Extensions;
+using SpikysLib;
 
 namespace SPIC.Default.Globals;
 
@@ -27,7 +27,7 @@ public class InfiniteRecipe : ModSystem {
         }
         int g = recipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == type);
         if(g == -1) return;
-        long total = PlayerExtensions.OwnedItems.GetValueOrDefault(RecipeGroup.recipeGroups[recipe.acceptedGroups[g]].GetGroupFakeItemId(), 0);
+        long total = PlayerHelper.OwnedItems.GetValueOrDefault(RecipeGroup.recipeGroups[recipe.acceptedGroups[g]].GetGroupFakeItemId(), 0);
         if (InfinityManager.GetInfinity(type, total, Material.Instance) >= amount) amount = 0;
     }
 }

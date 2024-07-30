@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using System.Collections.Generic;
 using System.ComponentModel;
-using SpikysLib.Extensions;
+using SpikysLib;
 using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
@@ -20,18 +20,13 @@ public enum MaterialCategory {
     NonStackable
 }
 
+// TODO PreventItemDuplication
 public sealed class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Basic")]
     public Count<MaterialCategory> Basic = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
     public Count<MaterialCategory> Ore = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
     public Count<MaterialCategory> Furniture = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous")]
     public Count<MaterialCategory> Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
     public Count<MaterialCategory> NonStackable = 2;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
@@ -92,6 +87,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
         if (group == -1) return;
-        count = PlayerExtensions.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+        count = PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
     }
 }

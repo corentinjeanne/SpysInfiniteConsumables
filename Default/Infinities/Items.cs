@@ -1,6 +1,6 @@
 using Terraria;
 using Terraria.Localization;
-using SpikysLib.Extensions;
+using SpikysLib;
 using SPIC.Default.Displays;
 namespace SPIC.Default.Infinities;
 

@@ -1,4 +1,4 @@
-﻿using SpikysLib.Extensions;
+﻿using SpikysLib.Configs;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SPIC.Configs;
 using SPIC.Configs.Presets;
-using SpikysLib.Extensions;
+using SpikysLib;
 using SpikysLib.Configs;
 using SpikysLib.DataStructures;
 using Terraria;
@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
 using System;
+using SpikysLib.Collections;
 
 namespace SPIC;
 
