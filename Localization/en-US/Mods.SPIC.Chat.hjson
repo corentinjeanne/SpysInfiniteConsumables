@@ -5,17 +5,17 @@ ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: 3.2
+Version: "3.2"
 Info: Finished Prevent Item Duplication and added loads of tooltip to the configs
 Important: ""
 Changelog:
-    '''
-    - Added Projectile duplication
-    - Changed Grab Bags to be disabled by default
-    - Added automatic localization generation
-    - Moved Definition and CustomDictionaryElement to Spiky's Lib
-    - Auto generate localization
-    - Added loads of tooltips
-    - Updated to Spiky's lib v1.2
-    - Fixed Classic preset
-    '''
+	'''
+	- Added Projectile duplication
+	- Changed Grab Bags to be disabled by default
+	- Added automatic localization generation
+	- Moved Definition and CustomDictionaryElement to Spiky's Lib
+	- Auto generate localization
+	- Added loads of tooltips
+	- Updated to Spiky's lib v1.2
+	- Fixed Classic preset
+	'''

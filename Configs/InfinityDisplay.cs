@@ -27,7 +27,7 @@ public sealed class InfinityDisplay : ModConfig {
     }
 
     [Header("Colors")]
-    [CustomModConfigItem(typeof(DictionaryValuesElement))]
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), ValueWrapper(typeof(GroupValueWrapper<>))]
     public Dictionary<GroupDefinition, GroupColors> Colors {
         get => _colors;
         set {
