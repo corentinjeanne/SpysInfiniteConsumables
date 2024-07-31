@@ -162,6 +162,8 @@ Contains various ways to display the infinities of items and their  config.
 - Moved Definition and CustomDictionaryElement to Spiky's Lib
 - Auto generate localization
 - Added loads of tooltips
+- Simplified notification
+- Added Version config
 - Updated to Spiky's lib v1.2
 - Fixed Classic preset
 

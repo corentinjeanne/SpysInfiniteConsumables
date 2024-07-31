@@ -44,11 +44,6 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(CacheStyle.Smart)] public CacheStyle Cache { get; set; }
     [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
 
-    [Header("Version")]
-    public Text? Info { get; set; }
-    public Text? Changelog { get; set; }
-    [JsonProperty, DefaultValue("")] internal string version = "";
-
     private Dictionary<DisplayDefinition, object> _displays = new();
     private Dictionary<GroupDefinition, GroupColors> _colors = new();
 

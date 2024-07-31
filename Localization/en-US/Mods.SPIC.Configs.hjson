@@ -41,7 +41,6 @@ InfinityDisplay: {
 		Displays: Displays
 		Colors: Infinity Colors
 		Performances: Performances
-		Version: v{$Mods.SPIC.Chat.Version}
 	}
 
 	Displays: {
@@ -162,6 +161,35 @@ GroupColors: {
 	}
 
 	Tooltip: ""
+}
+
+Version: {
+	DisplayName: Version {$Mods.SPIC.Chat.Version}
+
+	Headers: {
+		Info: Update Info
+		Changelog: Changelog
+	}
+
+	Summary: {
+		Label: "{$Mods.SPIC.Chat.Summary}"
+		Tooltip: ""
+	}
+
+	Details: {
+		Label: "{$Mods.SPIC.Chat.Details}"
+		Tooltip: ""
+	}
+
+	Bug: {
+		Label: "{$Mods.SPIC.Chat.Bug}"
+		Tooltip: ""
+	}
+
+	Changelog: {
+		Label: "{$Mods.SPIC.Chat.Changelog}"
+		Tooltip: ""
+	}
 }
 
 Custom: {
