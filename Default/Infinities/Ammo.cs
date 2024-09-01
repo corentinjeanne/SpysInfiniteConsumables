@@ -1,11 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
-using System.Collections.Generic;
-using SPIC.Default.Displays;
-using SpikysLib;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -20,23 +15,22 @@ public sealed class AmmoRequirements {
     public Count<AmmoCategory> Special = 999;
 }
 
-public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
-
-    public override Group<Item> Group => Items.Instance;
+public sealed class Ammo : Infinity<Item, AmmoCategory> {
     public static Ammo Instance = null!;
-    public static AmmoRequirements Config = null!;
+    public override GroupInfinity<Item>? Group => Consumable.Instance;
+
+    public static AmmoRequirements Config = new();
 
 
-    public override int IconType => ItemID.EndlessQuiver;
-    public override Color Color { get; set; } = new Color(34, 221, 151, 255); // Vortex
+    // public override Color Color { get; set; } = new Color(34, 221, 151, 255); // Vortex
 
-    public override Requirement GetRequirement(AmmoCategory category) => category switch {
+    protected override Requirement GetRequirement(AmmoCategory category) => category switch {
         AmmoCategory.Classic => new(Config.Classic),
         AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
         _ => Requirement.None,
     };
 
-    public override AmmoCategory GetCategory(Item ammo) {
+    protected override AmmoCategory GetCategory(Item ammo) {
         if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
@@ -44,23 +38,18 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, ITooltipLineDisplay {
         return AmmoCategory.Special;
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-        if (displayed == item.type) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
-        return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
-    }
+    // public override void ModifyRequirement(Item consumable, ref Requirement requirement, List<object> extras) {
+    //     base.ModifyRequirement(consumable, ref requirement, extras);
+    //     if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
+    // }
 
-    public override void ModifyRequirement(Item consumable, ref Requirement requirement, List<object> extras) {
-        base.ModifyRequirement(consumable, ref requirement, extras);
-        if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
-    }
+    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+    //     Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
+    //     if (ammo is not null) displayed.Add(ammo);
+    // }
 
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
-        if (ammo is not null) displayed.Add(ammo);
-    }
-
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;
-    }
+    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+    //     if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;
+    // }
 }

@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using SpikysLib;
 using SpikysLib.Configs;
 using SpikysLib.Localization;
-using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
@@ -16,24 +15,12 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
         LanguageHelper.ModifyKey += s => InfinityRoutingRegex.Replace(s, "Mods.SPIC.Infinities.$1$3");
         LanguageHelper.ModifyKey += s => DisplayRoutingRegex.Replace(s, "Mods.SPIC.Displays.$1$2");
     }
-
-    public override void Load() {
-        FullInfinity.RegisterExtraLocalization<System.Enum>((infinity, category) => infinity.Mod.GetLocalization($"Configs.{category.GetType().Name}.{category}.Label").Value);
-        FullInfinity.RegisterExtraLocalization<LocalizedText>((infinity, text) => text.Value);
-        FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => CamelCaseRegex.Replace(str, " $1").Trim()).Value);
-    }
-
     public override void PostSetupContent() {
-        Configs.Presets.PresetLoader.SetupPresets();
-        Configs.InfinityDisplay.Instance.Load();
         Configs.InfinitySettings.Instance.Load();
     }
 
-    public override void Unload() {
-        FullInfinity.ClearExtraLocs();
-        
+    public override void Unload() {        
         InfinityManager.Unload();
-        Configs.Presets.PresetLoader.Unload();
         Instance = null!;
     }
 

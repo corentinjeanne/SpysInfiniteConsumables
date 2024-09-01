@@ -33,9 +33,7 @@ public sealed class SpicPlayer : ModPlayer {
             orig(canDelayCheck);
             return;
         }
-        InfinityManager.ClearInfinities();
+        InfinityManager.ClearEndpoints();
         orig(canDelayCheck);
     }
-
-    public override void PreUpdate() => InfinityManager.DecreaseCacheLock();
 }

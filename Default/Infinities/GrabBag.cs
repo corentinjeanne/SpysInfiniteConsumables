@@ -1,12 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
-using Terraria.ModLoader;
 using SPIC.Configs;
-using SpikysLib;
-using System.Collections.Generic;
-using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -23,27 +18,26 @@ public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDisplay {
+public sealed class GrabBag : Infinity<Item, GrabBagCategory> {
 
-    public override Group<Item> Group => Items.Instance;
+    public override GroupInfinity<Item> Group => Consumable.Instance;
     public static GrabBag Instance = null!;
-    public static GrabBagRequirements Config = null!;
+    public static GrabBagRequirements Config = new();
 
-    public override bool Enabled { get; set; } = false;
+    // public override bool Enabled { get; set; } = false;
 
-    public override int IconType => ItemID.FairyQueenBossBag;
-    public override Color Color { get; set; } = Colors.RarityDarkPurple;
+    // public override Color Color { get; set; } = Colors.RarityDarkPurple;
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
+    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
-    public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
+    protected override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
         GrabBagCategory.Container => new(Config.Container),
         GrabBagCategory.TreasureBag => new(Config.TreasureBag),
         GrabBagCategory.Extractinator => new(Config.Extractinator),
         _ => Requirement.None,
     };
 
-    public override GrabBagCategory GetCategory(Item item) {
+    protected override GrabBagCategory GetCategory(Item item) {
         switch (item.type) {
         case ItemID.Geode: return GrabBagCategory.Container;
         }
@@ -57,8 +51,8 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? key = consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
-        if (key is not null) displayed.Add(key);
-    }
+    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+    //     Item? key = consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
+    //     if (key is not null) displayed.Add(key);
+    // }
 }

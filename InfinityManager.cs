@@ -1,139 +1,98 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Microsoft.Xna.Framework;
-using SPIC.Configs;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
-using SpikysLib.DataStructures;
 using Terraria;
 
 namespace SPIC;
 
 public static class InfinityManager {
+    public static long CountConsumables<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
+            => infinity.CountConsumablesEndpoint().GetValue(new(player, consumable));
 
-    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum
-        => (TCategory?)infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Extras.Find(i => i is TCategory) ?? default;
-    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum
-        => (TCategory?)infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Extras.Find(i => i is TCategory) ?? default;
+    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
+        => infinity.GetCategoryEndpoint().GetValue(consumable);
 
-    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
-    public static long GetInfinity<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity;
+    public static Requirement GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity)
+        => infinity.GetRequirementEndpoint().GetValue(consumable);
 
-    public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
-    public static long GetInfinity<TConsumable>(int consumable, long count, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(Main.LocalPlayer, consumable, infinity).Requirement.Infinity(count);
+    public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity)
+        => GetRequirement(consumable, infinity).Infinity(count);
+    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
+        => GetInfinity(consumable, player.CountConsumables(consumable, infinity), infinity);
 
-    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
-    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Infinity<TConsumable> infinity) where TConsumable : notnull
-        => infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Infinity >= consumed;
-    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, System.Func<bool> retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) where TConsumable : notnull {
+    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity)
+        => player.GetInfinity(consumable, infinity) >= consumed;
+    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool> retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) {
         foreach (Infinity<TConsumable> infinity in infinities) {
-            if (!infinity.Group.GetEffectiveInfinity(player, consumable, infinity).Requirement.IsNone) return player.HasInfinite(consumable, consumed, infinity);
+            if (!GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
         }
-        if (!retryIfNoneIncluded()) return false;
-        return player.HasInfinite(consumable, consumed, infinities);
+        return retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
-    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) where TConsumable : notnull => player.HasInfinite(consumable, consumed, () => false, infinities);
+    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
+    
+    public static long CountConsumables<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity)
+        => infinity.CountConsumablesEndpoint().TryGetValue((player.whoAmI, consumable), out long count) ? count : player.CountConsumables(infinity.ToConsumable(consumable), infinity);
 
+    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
+        => infinity.GetCategoryEndpoint().TryGetValue(consumable, out TCategory category) ? category : GetCategory(infinity.ToConsumable(consumable), infinity);
 
-    public static ItemDisplay GetLocalItemDisplay(this Item item) => InfinityDisplay.Instance.Cache != CacheStyle.None ? s_displays.GetOrAdd((item.type, item.stack, item.prefix), () => ComputeLocalItemDisplay(item)) : ComputeLocalItemDisplay(item);
-    private static ItemDisplay ComputeLocalItemDisplay(this Item item) {
-        ItemDisplay itemDisplay = new();
-        foreach (IGroup group in Groups) {
-            foreach ((IInfinity infinity, int displayed, FullInfinity display, InfinityVisibility visibility) in group.GetDisplayedInfinities(Main.LocalPlayer, item))
-                itemDisplay.Add(infinity, displayed, display, visibility);
+    public static Requirement GetRequirement<TConsumable>(int consumable, Infinity<TConsumable> infinity)
+        => infinity.GetRequirementEndpoint().TryGetValue(consumable, out Requirement requirement) ? requirement : GetRequirement(infinity.ToConsumable(consumable), infinity);
+
+    public static long GetInfinity<TConsumable>(int consumable, long count, Infinity<TConsumable> infinity)
+        => GetRequirement(consumable, infinity).Infinity(count);
+    public static long GetInfinity<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity)
+        => GetInfinity(consumable, player.CountConsumables(consumable, infinity), infinity);
+
+    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Infinity<TConsumable> infinity)
+        => player.GetInfinity(consumable, infinity) >= consumed;
+    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Func<bool> retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) {
+        foreach (Infinity<TConsumable> infinity in infinities) {
+            if (!GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
         }
-        return itemDisplay;
+        return retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
+    }
+    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
+
+    public static void ClearEndpoints() {
+        foreach (IInfinityEndpoint endpoint in s_categories.Values) endpoint.Clear();
+        foreach (IInfinityEndpoint endpoint in s_requirements.Values) endpoint.Clear();
+        foreach (IInfinityEndpoint endpoint in s_countConsumables.Values) endpoint.Clear();
     }
 
-    public static void ClearInfinities() {
-        foreach (IGroup group in s_groups) group.ClearInfinities();
-        if (s_cacheRefresh != 0) s_delayed = true;
-        else {
-            s_displays.Clear();
-            s_cacheRefresh = InfinityDisplay.Instance.CacheRefreshDelay;
-        }
-    }
-
-    public static void DecreaseCacheLock() {
-        if (s_cacheRefresh > 0) s_cacheRefresh--;
-        else {
-            if (!s_delayed) return;
-            ClearInfinities();
-            s_delayed = false;
-        }
-    }
-
-    internal static void Register<TConsumable>(Infinity<TConsumable> infinity) where TConsumable : notnull {
+    public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
+    
+    internal static void Register<TConsumable>(Infinity<TConsumable> infinity) {
         ConfigHelper.SetInstance(infinity);
-        Group<TConsumable>? group = (Group<TConsumable>?)s_groups.Find(mg => mg == infinity.Group);
-        group?.Add(infinity);
         s_infinities.Add(infinity);
-        s_defaultEnabled[infinity] = infinity.Enabled;
-        s_defaultColors[infinity] = infinity.Color;
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
-    internal static void Register<TConsumable>(Group<TConsumable> group) where TConsumable : notnull {
-        ConfigHelper.SetInstance(group);
-        if (group is Default.Infinities.Items) s_groups.Insert(0, group);
-        else s_groups.Add(group);
-        GroupsLCM = s_groups.Count * GroupsLCM / SpikysLib.MathHelper.GCD(GroupsLCM, s_groups.Count);
-        foreach (IInfinity infinity in s_infinities) {
-            if (infinity.Group == group) group.Add((Infinity<TConsumable>)infinity);
-        }
-    }
-
-    public static IGroup? GetGroup(string mod, string name) => s_groups.Find(mg => mg.Mod.Name == mod && mg.Name == name);
-    public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
-
-    public static bool DefaultEnabled(this IInfinity infinity) => s_defaultEnabled[infinity];
-    public static Color DefaultColor(this IInfinity infinity) => s_defaultColors[infinity];
-
-    public static bool SaveDetectedCategory<TConsumable, TCategory>(TConsumable consumable, TCategory category, Infinity<TConsumable, TCategory> infinity) where TConsumable : notnull where TCategory : struct, System.Enum {
-        if (!InfinitySettings.Instance.DetectMissingCategories) return false;
-        Terraria.ModLoader.Config.ItemDefinition def = new(infinity.Group.ToItem(consumable).type);
-        if (!infinity.Group.Config.Customs.TryGetValue(def, out Custom? custom)) custom = infinity.Group.Config.Customs[def] = new() { Choice = nameof(Custom.Individual), Individual = new() };
-        InfinityDefinition infDef = new(infinity);
-        if (custom.Choice == nameof(custom.Global) || custom.Individual.ContainsKey(infDef)) return false;
-
-        custom.Individual[infDef] = new Count<TCategory>(category);
-        ClearInfinities();
-        return true;
-    }
-
     public static void Unload() {
-        foreach (var g in s_groups) ConfigHelper.SetInstance(g, true);
-        s_groups.Clear();
         foreach (var i in s_infinities) ConfigHelper.SetInstance(i, true);
         s_infinities.Clear();
     }
 
-    public static ReadOnlyCollection<IGroup> Groups => new(s_groups);
+    public static InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)> CountConsumablesEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
+        => s_countConsumables.GetOrAddRaw(infinity, () => new InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)>(args => (args.Player.whoAmI, infinity.GetId(args.Consumable))));
+    
+    public static InfinityEndpoint<TConsumable, Requirement, int> GetRequirementEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
+        => s_requirements.GetOrAddRaw(infinity, () => new InfinityEndpoint<TConsumable, Requirement, int>(c => infinity.GetId(c)));
+    
+    public static InfinityEndpoint<TConsumable, TCategory, int> GetCategoryEndpoint<TConsumable, TCategory>(this Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
+        => s_categories.GetOrAddRaw(infinity, () => new InfinityEndpoint<TConsumable, TCategory, int>(c => infinity.GetId(c)));
+
     public static ReadOnlyCollection<IInfinity> Infinities => new(s_infinities);
 
-
-    public static int GroupsLCM { get; private set; } = 1;
     public static int InfinitiesLCM { get; private set; } = 1;
 
-    internal static string CacheStats() {
-        List<string> parts = new() { $"Diplay: {s_displays.Stats()}" };
-        foreach (IGroup group in Groups) parts.Add(group.CacheStats());
-        s_displays.ClearStats();
-        return string.Join('\n', parts);
-    }
+    private static readonly List<IInfinity> s_infinities = [];
 
-    private static readonly List<IGroup> s_groups = new();
-    private static readonly List<IInfinity> s_infinities = new();
-    private static readonly Dictionary<IInfinity, bool> s_defaultEnabled = new();
-    private static readonly Dictionary<IInfinity, Color> s_defaultColors = new();
 
-    private static int s_cacheRefresh = 0;
-    private static bool s_delayed;
-    private static readonly DictionaryWithStats<(int type, int stack, int prefix), ItemDisplay> s_displays = new() {
-        EstimateValueSize = (ItemDisplay value) => value.DisplayedInfinities.Length * FullInfinity.EstimatedSize
-    };
+    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_countConsumables = [];
+    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_requirements = [];
+    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_categories = [];
 }
+
+public readonly record struct PlayerConsumable<TConsumable>(Player Player, TConsumable Consumable);

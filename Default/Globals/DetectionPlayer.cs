@@ -48,11 +48,9 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.InItemCheck = false;
     }
 
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinities();
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearEndpoints();
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
-
-    public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
 
     public void PrepareDetection(Item item) {
         DetectingCategoryOf = item;
@@ -70,17 +68,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
 
     public bool TryDetectCategory(bool mustDetect = false) {
-        if (DetectingCategoryOf is null) return false;
-
-        void SaveUsable(UsableCategory category) => InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
-
-        DetectionDataScreenShot data = GetDetectionData();
-        if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
-        else if (mustDetect) SaveUsable(UsableCategory.Booster);
-        else return false;
-        DetectingCategoryOf = null;
-
-        return true;
+        return false;
     }
 
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
@@ -140,7 +128,6 @@ public sealed class DetectionPlayer : ModPlayer {
         Item item = self.inventory[selItem];
 
         Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
-        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Bucket, Placeable.Instance);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

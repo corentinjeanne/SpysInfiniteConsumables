@@ -1,83 +1,89 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using Microsoft.Xna.Framework;
-using SPIC.Configs;
 using SpikysLib;
-using SpikysLib.Localization;
-using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 
 namespace SPIC;
 
-public interface IInfinity : ILocalizedModType, ILoadable {
-    IGroup Group { get; }
-    bool Enabled { get; }
-
-    Color Color { get; }
-    int IconType { get; }
-    LocalizedText DisplayName { get; }
+public interface IComponent {
+    void Load(IInfinity infinity);
+    void Unload();
+    void Validate();
 }
 
-public abstract class Infinity<TConsumable> : ModType, IInfinity where TConsumable : notnull {
+
+public interface IInfinity : ILocalizedModType, ILoadable {
+    ReadOnlyCollection<IComponent> Components { get; }
+    LocalizedText Label { get; }
+    LocalizedText DisplayName { get; }
+    LocalizedText Tooltip { get; }
+}
+
+public abstract class Infinity<TConsumable> : ModType, IInfinity {
     protected sealed override void Register() {
         ModTypeLookup<Infinity<TConsumable>>.Register(this);
         InfinityManager.Register(this);
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{{{this.GetLocalizationKey("Tooltip")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
-
-        if (GetType().IsSubclassOfGeneric(typeof(Infinity<,>), out Type? impl)) LanguageHelper.RegisterLocalizationKeysForMembers(typeof(Count<>).MakeGenericType(impl.GenericTypeArguments[1]));
-        
-        FieldInfo? configField = GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
-        if (configField is not null) LanguageHelper.RegisterLocalizationKeysForMembers(configField.FieldType);
     }
     public sealed override void SetupContent() => SetStaticDefaults();
 
-    public abstract Requirement GetRequirement(TConsumable consumable, List<object> extras);
-    
-    public abstract Group<TConsumable> Group { get; }
-    public virtual bool Enabled { get; set; } = true;
+    public override void Load() {
+        _components = GetComponents();
+        foreach (IComponent component in Components) component.Load(this);
+        InfinityManager.CountConsumablesEndpoint(this).Register(CountConsumables);
+        InfinityManager.GetRequirementEndpoint(this).Register(GetRequirement);
+    }
 
-    public abstract int IconType { get; }
-    public abstract Color Color { get; set; }
+    public override void Unload() {
+        foreach (IComponent component in Components) component.Unload();
+        _components = null!;
+    }
+
+    public virtual GroupInfinity<TConsumable>? Group => null;
+    public virtual int GetId(TConsumable consumable) => Group!.GetId(consumable);
+    public virtual TConsumable ToConsumable(int id) => Group!.ToConsumable(id);
+
+    protected virtual long CountConsumables(PlayerConsumable<TConsumable> args) => Group!.CountConsumables(args);
+    protected virtual Requirement GetRequirement(TConsumable consumable) => throw new NotImplementedException();
+
+    protected virtual IList<IComponent> GetComponents()
+        => GetType().GetFields(BindingFlags.Static | BindingFlags.Public)
+            .Where(f => f.FieldType.ImplementsInterface(typeof(IComponent), out _))
+            .Select(f => (IComponent)f.GetValue(this)!)
+            .ToArray();
+
+    public ReadOnlyCollection<IComponent> Components => _components.AsReadOnly();
+    private IList<IComponent> _components = null!;
+
     public string LocalizationCategory => "Infinities";
-    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", PrettyPrintName);
-    
-    IGroup IInfinity.Group => Group;
-
-    public virtual void ModifyRequirement(TConsumable consumable, ref Requirement requirement, List<object> extras) {}
-
-    public virtual void ModifyInfinity(Player player, TConsumable consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {}
-
-    public virtual void ModifyDisplay(Player player, Item item, TConsumable consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {}
-
-    public virtual void ModifyDisplayedConsumables(TConsumable consumable, List<TConsumable> displayed) {}
+    public virtual LocalizedText Label => this.GetLocalization("Label");
+    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
+    public virtual LocalizedText Tooltip => this.GetLocalization("Tooltip");
 }
 
-public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TConsumable : notnull where TCategory : struct, Enum {
-
-    public override Requirement GetRequirement(TConsumable consumable, List<object> extras) {
-        TCategory category = GetCategory(consumable);
-        extras.Add(category);
-        HashSet<TCategory> categories = new();
-        Requirement req = GetRequirement(category);
-        while (req.Count < 0 && categories.Add(category)) {
-            category = Enum.Parse<TCategory>((-req.Count).ToString());
-            extras.Add(category);
-            req = GetRequirement(category);
-        }
-        return req;
+public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TCategory : struct, Enum {
+    public override void Load() {
+        base.Load();
+        if (LoaderUtils.HasOverride(this, i => i.GetCategory)) InfinityManager.GetCategoryEndpoint(this).Register(GetCategory);
     }
 
-    public override void ModifyRequirement(TConsumable consumable, ref Requirement requirement, List<object> extras) {
-        if (!Group.Config.HasCustomCategory(consumable, this, out TCategory category)) return;
-        extras.Clear();
-        extras.Add(category);
-        requirement = GetRequirement(category);
-    }
+    protected virtual TCategory GetCategory(TConsumable consumable) => throw new NotImplementedException();
+    protected abstract Requirement GetRequirement(TCategory category);
 
-    public abstract TCategory GetCategory(TConsumable consumable);
-    public abstract Requirement GetRequirement(TCategory category);
+    protected sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
+}
+
+public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable> {
+    protected sealed override Requirement GetRequirement(TConsumable consumable) {
+        long count = long.MaxValue;
+        float multiplier = 1;
+        return new(count, multiplier);
+    }
 }

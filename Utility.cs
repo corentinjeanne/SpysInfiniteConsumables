@@ -51,6 +51,4 @@ public static class Utility {
         NPCStats a = new(total, boss);
         return a;
     }
-
-    public static void SetConfig(object instance, object? config) => instance.GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public)?.SetValue(null, config);
 }

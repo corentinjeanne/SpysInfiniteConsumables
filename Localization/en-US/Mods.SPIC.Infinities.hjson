@@ -1,15 +1,12 @@
-Items: {
-	DisplayName: Items
+Consumable: {
+	DisplayName: Consumable
+	Label: "[i:42] {Mods.SPIC.Infinities.Ammo.Tooltip}"
 	Tooltip: Allows consumable items to be infinite
-}
-
-Currencies: {
-	DisplayName: Currencies
-	Tooltip: Allows currency items to be infinite
 }
 
 Ammo: {
 	DisplayName: Ammunition
+	Label: "[i:3103] {Mods.SPIC.Infinities.Ammo.Tooltip}"
 	Tooltip: Items fired by a weapon
 	None.Label: None
 
@@ -26,7 +23,8 @@ Ammo: {
 
 Currency: {
 	DisplayName: Currency
-	Tooltip: Items used in NPC shops
+	Label: "[i:3817] {Mods.SPIC.Infinities.Currency.Tooltip}"
+	Tooltip: Items used for trading
 	None.Label: None
 	Coins.Label: Coins
 	SingleCoin.Label: Single Coin
@@ -64,6 +62,7 @@ Currency: {
 
 GrabBag: {
 	DisplayName: Grab Bag
+	Label: "[i:4782] {Mods.SPIC.Infinities.GrabBag.Tooltip}"
 	Tooltip: Item dropping other items when opened
 	None.Label: None
 
@@ -85,6 +84,7 @@ GrabBag: {
 
 JourneySacrifice: {
 	DisplayName: Journey Sacrifice
+	Label: "[i:2890] {Mods.SPIC.Infinities.JourneySacrifice.Tooltip}"
 	Tooltip:
 		'''
 		Journey mode research
@@ -100,6 +100,7 @@ JourneySacrifice: {
 
 Material: {
 	DisplayName: Material
+	Label: "[i:398] {Mods.SPIC.Infinities.Material.Tooltip}"
 	Tooltip: Items used in crafting
 	None.Label: None
 
@@ -136,6 +137,7 @@ Material: {
 
 Placeable: {
 	DisplayName: Placeable
+	Label: "[i:3061] {Mods.SPIC.Infinities.Placeable.Tooltip}"
 	Tooltip: Items placed in the world
 	TileDuplication: Exact Infinity
 	None.Label: None
@@ -188,6 +190,7 @@ Placeable: {
 
 Usable: {
 	DisplayName: Usable
+	Label: "[i:3104] {Mods.SPIC.Infinities.Usable.Tooltip}"
 	Tooltip: Items vanishing upon use
 	None.Label: None
 

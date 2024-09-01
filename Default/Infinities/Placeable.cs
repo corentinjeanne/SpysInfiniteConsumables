@@ -3,11 +3,7 @@ using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
 using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
-using Terraria.Localization;
-using SpikysLib;
 using SpikysLib.IL;
-using SPIC.Default.Displays;
 using MonoMod.Cil;
 
 namespace SPIC.Default.Infinities;
@@ -54,18 +50,18 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineDisplay {
+public sealed class Placeable : Infinity<Item, PlaceableCategory> {
 
-    public override Group<Item> Group => Items.Instance;
+    public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Placeable Instance = null!;
-    public static PlaceableRequirements Config = null!;
+    public static PlaceableRequirements Config = new();
 
 
-    public override int IconType => ItemID.ArchitectGizmoPack;
-    public override Color Color { get; set; } = Colors.RarityAmber;
+    // public override Color Color { get; set; } = Colors.RarityAmber;
 
     public override void Load() {
         IL_Player.PlaceThing_Tiles_PlaceIt_ConsumeFlexibleWandMaterial += IL_FixConsumeFlexibleWand;
+        base.Load();
     }
 
     public override void SetStaticDefaults() {
@@ -94,7 +90,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         ClearWandAmmos();
     }
 
-    public override Requirement GetRequirement(PlaceableCategory category) {
+    protected override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
             PlaceableCategory.Tile => new(Config.Tile),
             PlaceableCategory.Wiring => new(Config.Wiring),
@@ -113,7 +109,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         };
     }
 
-    public override PlaceableCategory GetCategory(Item item) {
+    protected override PlaceableCategory GetCategory(Item item) {
         PlaceableCategory category = GetCategory(item, false);
         return category == PlaceableCategory.None && IsWandAmmo(item.type, out int wandType) ? GetCategory(new(wandType), true) : category;
     }
@@ -176,18 +172,18 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
     public static void RegisterWand(Item wand) => s_wandAmmos.TryAdd(wand.tileWand, wand.type);
     public static bool IsWandAmmo(int type, out int wandType) => s_wandAmmos.TryGetValue(type, out wandType);
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-        if (displayed == item.type) {
-            if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
-            return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
-        }
-        (string name, TooltipLineID position) = GetWandType(item) switch {
-            WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
-            WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
-            WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
-        };
-        return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
-    }
+    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    //     if (displayed == item.type) {
+    //         if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
+    //         return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+    //     }
+    //     (string name, TooltipLineID position) = GetWandType(item) switch {
+    //         WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
+    //         WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
+    //         WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
+    //     };
+    //     return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
+    // }
 
     public enum WandType {
         None,
@@ -206,53 +202,30 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, ITooltipLineD
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
-    public override void ModifyInfinity(Player player, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
-        if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
-        if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
-            extras.Add(this.GetLocalizationKey("TileDuplication"));
-            infinity = 0;
-        }
-    }
+    // public override void ModifyInfinity(Player player, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
+    //     if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
+    //     if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
+    //         extras.Add(this.GetLocalizationKey("TileDuplication"));
+    //         infinity = 0;
+    //     }
+    // }
 
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index < 50 || 58 <= index) return;
+    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+    //     if (index < 50 || 58 <= index) return;
 
-        PlaceableCategory category = GetCategory(item);
-        if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
-    }
+    //     PlaceableCategory category = GetCategory(item);
+    //     if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
+    // }
 
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? item = GetWandType(consumable) switch {
-            WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
-            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            WandType.Flexible => consumable.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
-            _ => null
-        };
-        if (item is not null) displayed.Add(item);
-    }
-
-    // public static bool CanNoDuplicationWork(Item item = null) => Main.netMode == NetmodeID.SinglePlayer && (item == null || !AlwaysDrop(item));
-
-    // //- TODO Update as tml updates
-    // // Wires and actuators
-    // // Wall XxX
-    // // 2x5, 3x5, 3x6
-    // // Sunflower, Gnome
-    // // Chest
-    // // drop in 2x1 bug : num instead of num3
-    // public static bool AlwaysDrop(Item item) {
-    //     if (item.type == ItemID.Wire || item.type == ItemID.Actuator) return true;
-    //     if ((item.createTile < TileID.Dirt && item.createWall != WallID.None) || item.createTile == TileID.TallGateClosed) return false;
-    //     if (item.createTile == TileID.GardenGnome || item.createTile == TileID.Sunflower || TileID.Sets.BasicChest[item.createTile]) return true;
-
-    //     TileObjectData data = TileObjectData.GetTileData(item.createTile, item.placeStyle);
-
-    //     // No data or 1x1 moditem
-    //     if (data == null || (item.ModItem != null && data.Width > 1 && data.Height > 1)) return false;
-    //     if ((data.Width == 2 && data.Height == 1) || (data.Width == 2 && data.Height == 5) || (data.Width == 3 && data.Height == 4) || (data.Width == 3 && data.Height == 5) || (data.Width == 3 && data.Height == 6)) return true;
-
-    //     return data.AnchorWall || (TileID.Sets.HasOutlines[item.createTile] && System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, t => t == item.createTile));
+    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+    //     Item? item = GetWandType(consumable) switch {
+    //         WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
+    //         WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+    //         WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+    //         WandType.Flexible => consumable.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
+    //         _ => null
+    //     };
+    //     if (item is not null) displayed.Add(item);
     // }
 }

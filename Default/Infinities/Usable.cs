@@ -1,11 +1,6 @@
 using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
-using System.Collections.Generic;
-using SpikysLib;
-using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 
@@ -38,17 +33,16 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay {
+public sealed class Usable : Infinity<Item, UsableCategory> {
 
-    public override Group<Item> Group => Items.Instance;
+    public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Usable Instance = null!;
-    public static UsableRequirements Config = null!;
+    public static UsableRequirements Config = new();
 
 
-    public override int IconType => ItemID.EndlessMusketPouch;
-    public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
+    // public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
 
-    public override Requirement GetRequirement(UsableCategory category) {
+    protected override Requirement GetRequirement(UsableCategory category) {
         return category switch {
             UsableCategory.Weapon => new(Config.Weapon),
             UsableCategory.Potion => new(Config.Potion),
@@ -64,7 +58,7 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
         };
     }
 
-    public override UsableCategory GetCategory(Item item) {
+    protected override UsableCategory GetCategory(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
@@ -99,18 +93,18 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-        if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
-        return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
-    }
+    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    //     if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
+    //     return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
+    // }
 
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
-    }
+    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+    //     if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
+    // }
 
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
-        if (item is not null) displayed.Add(item);
-    }
+    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
+    //     Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
+    //     if (item is not null) displayed.Add(item);
+    // }
 }
