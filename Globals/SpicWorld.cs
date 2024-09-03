@@ -10,6 +10,6 @@ public class SpicWorld : ModSystem {
     public override void LoadWorldData(TagCompound tag) { }
 
     public override void SaveWorldData(TagCompound tag) {
-        Configs.InfinitySettings.Instance.Save();
+        Configs.Infinities.Instance.Save();
     }
 }

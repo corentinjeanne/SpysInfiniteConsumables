@@ -3,6 +3,7 @@ using System.ComponentModel;
 using SpikysLib;
 using Terraria.GameContent.UI;
 using SpikysLib.Configs;
+using SPIC.Configs;
 
 namespace SPIC.Default.Infinities;
 
@@ -25,17 +26,16 @@ public sealed class CurrencyRequirements {
     [DefaultValue(1/5)] private float SingleCoin { set => ConfigHelper.MoveMember(value != 1 / 5, c => SingleCoinMultiplier = value); }
 }
 
-public sealed class Currency : Infinity<int, CurrencyCategory> {
+public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableComponents<CurrencyRequirements> {
 
     public static Currency Instance = null!;
-    public static CurrencyRequirements Config = new();
 
     // public override bool Enabled { get; set; } = false;
     // public override Color Color { get; set; } = Colors.CoinGold;
 
     protected override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Config.CoinsMultiplier),
-        CurrencyCategory.SingleCoin => new(20, Config.SingleCoinMultiplier),
+        CurrencyCategory.Coins => new(10000, Configs.Infinities.Get(this).CoinsMultiplier),
+        CurrencyCategory.SingleCoin => new(20, Configs.Infinities.Get(this).SingleCoinMultiplier),
         _ => Requirement.None
     };
 

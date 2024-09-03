@@ -65,14 +65,10 @@ public static class InfinityManager {
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
     
     internal static void Register<TConsumable>(Infinity<TConsumable> infinity) {
-        ConfigHelper.SetInstance(infinity);
         s_infinities.Add(infinity);
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
-    public static void Unload() {
-        foreach (var i in s_infinities) ConfigHelper.SetInstance(i, true);
-        s_infinities.Clear();
-    }
+    public static void Unload() => s_infinities.Clear();
 
     public static InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)> CountConsumablesEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
         => s_countConsumables.GetOrAddRaw(infinity, () => new InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)>(args => (args.Player.whoAmI, infinity.GetId(args.Consumable))));

@@ -50,11 +50,10 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Item, PlaceableCategory> {
+public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurableComponents<PlaceableRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Placeable Instance = null!;
-    public static PlaceableRequirements Config = new();
 
 
     // public override Color Color { get; set; } = Colors.RarityAmber;
@@ -92,19 +91,19 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory> {
 
     protected override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Tile => new(Config.Tile),
-            PlaceableCategory.Wiring => new(Config.Wiring),
-            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Config.Tile),
-            PlaceableCategory.Torch => new(Config.Torch),
-            PlaceableCategory.Ore => new(Config.Ore),
-            PlaceableCategory.Furniture => new(Config.Furniture),
+            PlaceableCategory.Tile => new(Configs.Infinities.Get(this).Tile),
+            PlaceableCategory.Wiring => new(Configs.Infinities.Get(this).Wiring),
+            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Configs.Infinities.Get(this).Tile),
+            PlaceableCategory.Torch => new(Configs.Infinities.Get(this).Torch),
+            PlaceableCategory.Ore => new(Configs.Infinities.Get(this).Ore),
+            PlaceableCategory.Furniture => new(Configs.Infinities.Get(this).Furniture),
             // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
             //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-            //     => new(Config.Furniture),
-            PlaceableCategory.Bucket => new(Config.Bucket),
-            PlaceableCategory.Mechanical => new(Config.Mechanical),
-            PlaceableCategory.Seed => new(Config.Seed),
-            PlaceableCategory.Paint => new(Config.Paint),
+            //     => new(Configs.Infinities.Get(this).Furniture),
+            PlaceableCategory.Bucket => new(Configs.Infinities.Get(this).Bucket),
+            PlaceableCategory.Mechanical => new(Configs.Infinities.Get(this).Mechanical),
+            PlaceableCategory.Seed => new(Configs.Infinities.Get(this).Seed),
+            PlaceableCategory.Paint => new(Configs.Infinities.Get(this).Paint),
             _ => Requirement.None,
         };
     }

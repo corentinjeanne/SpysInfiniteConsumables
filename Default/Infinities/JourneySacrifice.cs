@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using System.ComponentModel;
+using SPIC.Configs;
 
 namespace SPIC.Default.Infinities;
 
@@ -10,11 +11,10 @@ public sealed class JourneySacrificeRequirements {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Item> {
+public sealed class JourneySacrifice : Infinity<Item>, IConfigurableComponents<JourneySacrificeRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static JourneySacrifice Instance = null!;
-    public static JourneySacrificeRequirements Config = new();
 
 
     // public override bool Enabled { get; set; } = false;

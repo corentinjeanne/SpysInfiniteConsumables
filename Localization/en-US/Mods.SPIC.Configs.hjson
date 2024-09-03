@@ -352,3 +352,23 @@ Count`1: {
 		Tooltip: ""
 	}
 }
+
+Infinities: {
+	DisplayName: Infinities
+	Headers.Features: Features Header
+
+	DetectMissingCategories: {
+		Label: Detect Missing Categories
+		Tooltip: ""
+	}
+
+	PreventItemDuplication: {
+		Label: Prevent Item Duplication
+		Tooltip: ""
+	}
+
+	Configs: {
+		Label: Configs
+		Tooltip: ""
+	}
+}

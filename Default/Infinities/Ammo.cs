@@ -15,18 +15,15 @@ public sealed class AmmoRequirements {
     public Count<AmmoCategory> Special = 999;
 }
 
-public sealed class Ammo : Infinity<Item, AmmoCategory> {
+public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigurableComponents<AmmoRequirements> {
     public static Ammo Instance = null!;
     public override GroupInfinity<Item>? Group => Consumable.Instance;
-
-    public static AmmoRequirements Config = new();
-
 
     // public override Color Color { get; set; } = new Color(34, 221, 151, 255); // Vortex
 
     protected override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(Config.Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
+        AmmoCategory.Classic => new(Configs.Infinities.Get(this).Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Configs.Infinities.Get(this).Special),
         _ => Requirement.None,
     };
 

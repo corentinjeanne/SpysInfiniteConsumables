@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using SpikysLib;
+using SpikysLib.Configs;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
@@ -13,18 +14,30 @@ namespace SPIC;
 public interface IComponent {
     void Load(IInfinity infinity);
     void Unload();
-    void Validate();
+
+    IInfinity Infinity { get; }
 }
 
 
 public interface IInfinity : ILocalizedModType, ILoadable {
-    ReadOnlyCollection<IComponent> Components { get; }
+    IEnumerable<IComponent> Components { get; }
     LocalizedText Label { get; }
     LocalizedText DisplayName { get; }
     LocalizedText Tooltip { get; }
 }
 
-public abstract class Infinity<TConsumable> : ModType, IInfinity {
+public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
+    public override void Load() {
+        ConfigHelper.SetInstance(this);
+        Components = GetComponents();
+        foreach (IComponent component in Components) component.Load(this);
+    }
+
+    void IComponent.Load(IInfinity infinity) {
+        InfinityManager.CountConsumablesEndpoint(this).Register(CountConsumables);
+        InfinityManager.GetRequirementEndpoint(this).Register(GetRequirement);
+    }
+
     protected sealed override void Register() {
         ModTypeLookup<Infinity<TConsumable>>.Register(this);
         InfinityManager.Register(this);
@@ -32,18 +45,16 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{{{this.GetLocalizationKey("Tooltip")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
-    public sealed override void SetupContent() => SetStaticDefaults();
 
-    public override void Load() {
-        _components = GetComponents();
-        foreach (IComponent component in Components) component.Load(this);
-        InfinityManager.CountConsumablesEndpoint(this).Register(CountConsumables);
-        InfinityManager.GetRequirementEndpoint(this).Register(GetRequirement);
+    public sealed override void SetupContent() {
+        Group?.RegisterChild(this);
+        SetStaticDefaults();
     }
 
     public override void Unload() {
         foreach (IComponent component in Components) component.Unload();
-        _components = null!;
+        Components = null!;
+        ConfigHelper.SetInstance(this, true);
     }
 
     public virtual GroupInfinity<TConsumable>? Group => null;
@@ -53,19 +64,19 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     protected virtual long CountConsumables(PlayerConsumable<TConsumable> args) => Group!.CountConsumables(args);
     protected virtual Requirement GetRequirement(TConsumable consumable) => throw new NotImplementedException();
 
-    protected virtual IList<IComponent> GetComponents()
+    protected virtual IEnumerable<IComponent> GetComponents()
         => GetType().GetFields(BindingFlags.Static | BindingFlags.Public)
             .Where(f => f.FieldType.ImplementsInterface(typeof(IComponent), out _))
-            .Select(f => (IComponent)f.GetValue(this)!)
-            .ToArray();
+            .Select(f => (IComponent)f.GetValue(null)!);
 
-    public ReadOnlyCollection<IComponent> Components => _components.AsReadOnly();
-    private IList<IComponent> _components = null!;
+    public IEnumerable<IComponent> Components { get; private set; } = null!;
 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText Label => this.GetLocalization("Label");
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
     public virtual LocalizedText Tooltip => this.GetLocalization("Tooltip");
+
+    IInfinity IComponent.Infinity => this;
 }
 
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TCategory : struct, Enum {
@@ -80,10 +91,25 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
     protected sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
 }
 
-public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable> {
+public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>{
     protected sealed override Requirement GetRequirement(TConsumable consumable) {
-        long count = long.MaxValue;
-        float multiplier = 1;
+        long count = 0;
+        float multiplier = float.MaxValue;
+        foreach (Infinity<TConsumable> infinity in _orderedInfinities) {
+            Requirement requirement = InfinityManager.GetRequirement(consumable, infinity);
+            if (requirement.IsNone) continue;
+            count = Math.Max(count, requirement.Count);
+            multiplier = Math.Min(multiplier, requirement.Multiplier);
+        }
         return new(count, multiplier);
     }
+
+    internal void RegisterChild(Infinity<TConsumable> infinity) {
+        _infinities.Add(infinity);
+        _orderedInfinities.Add(infinity);
+    }
+
+    public ReadOnlyCollection<Infinity<TConsumable>> Infinities => _orderedInfinities.AsReadOnly();
+    private readonly List<Infinity<TConsumable>> _orderedInfinities = [];
+    private readonly HashSet<Infinity<TConsumable>> _infinities = [];
 }

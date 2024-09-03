@@ -18,11 +18,10 @@ public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item, GrabBagCategory> {
+public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComponents<GrabBagRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static GrabBag Instance = null!;
-    public static GrabBagRequirements Config = new();
 
     // public override bool Enabled { get; set; } = false;
 
@@ -31,9 +30,9 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory> {
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
     protected override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Container),
-        GrabBagCategory.TreasureBag => new(Config.TreasureBag),
-        GrabBagCategory.Extractinator => new(Config.Extractinator),
+        GrabBagCategory.Container => new(Configs.Infinities.Get(this).Container),
+        GrabBagCategory.TreasureBag => new(Configs.Infinities.Get(this).TreasureBag),
+        GrabBagCategory.Extractinator => new(Configs.Infinities.Get(this).Extractinator),
         _ => Requirement.None,
     };
 

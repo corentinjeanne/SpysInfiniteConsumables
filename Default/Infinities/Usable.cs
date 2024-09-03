@@ -33,27 +33,25 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Item, UsableCategory> {
+public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableComponents<UsableRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Usable Instance = null!;
-    public static UsableRequirements Config = new();
-
 
     // public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
 
     protected override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Config.Weapon),
-            UsableCategory.Potion => new(Config.Potion),
-            // UsableCategory.Recovery => new(Config.Potion),
-            // UsableCategory.Buff => new(Config.Potion),
-            UsableCategory.Booster => new(Config.Booster),
-            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Booster),
-            UsableCategory.Summoner => new(Config.Summoner),
-            UsableCategory.Critter => new(Config.Critter),
-            // UsableCategory.Explosive => new(Config.Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
+            UsableCategory.Weapon => new(Configs.Infinities.Get(this).Weapon),
+            UsableCategory.Potion => new(Configs.Infinities.Get(this).Potion),
+            // UsableCategory.Recovery => new(Configs.Infinities.Get(this).Potion),
+            // UsableCategory.Buff => new(Configs.Infinities.Get(this).Potion),
+            UsableCategory.Booster => new(Configs.Infinities.Get(this).Booster),
+            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Configs.Infinities.Get(this).Booster),
+            UsableCategory.Summoner => new(Configs.Infinities.Get(this).Summoner),
+            UsableCategory.Critter => new(Configs.Infinities.Get(this).Critter),
+            // UsableCategory.Explosive => new(Configs.Infinities.Get(this).Tool),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Configs.Infinities.Get(this).Tool),
             _ => Requirement.None,
         };
     }

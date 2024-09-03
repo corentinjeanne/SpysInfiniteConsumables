@@ -25,22 +25,21 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Item, MaterialCategory> {
+public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableComponents<MaterialRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Material Instance = null!;
-    public static MaterialRequirements Config = new();
 
 
     // public override bool Enabled { get; set; } = false;
     // public override Color Color { get; set; } = new Color(254, 126, 229, 255); // Nebula
 
     protected override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
-        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
-        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
-        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
-        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
+        MaterialCategory.Basic => new(Configs.Infinities.Get(this).Basic, Configs.Infinities.Get(this).Multiplier),
+        MaterialCategory.Ore => new(Configs.Infinities.Get(this).Ore, Configs.Infinities.Get(this).Multiplier),
+        MaterialCategory.Furniture => new(Configs.Infinities.Get(this).Furniture, Configs.Infinities.Get(this).Multiplier),
+        MaterialCategory.Miscellaneous => new(Configs.Infinities.Get(this).Miscellaneous, Configs.Infinities.Get(this).Multiplier),
+        MaterialCategory.NonStackable => new(Configs.Infinities.Get(this).NonStackable, Configs.Infinities.Get(this).Multiplier),
         _ => Requirement.None,
     };
 

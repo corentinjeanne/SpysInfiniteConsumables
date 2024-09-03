@@ -15,13 +15,13 @@ namespace SPIC.Default.Globals {
         public override void Unload() => ClearExploded();
 
         public override void OnSpawn(Projectile projectile, IEntitySource source) {
-            if (projectile.noDropItem || source is not EntitySource_ItemUse_WithAmmo spawn || !Configs.InfinitySettings.Instance.PreventItemDuplication) return;
+            if (projectile.noDropItem || source is not EntitySource_ItemUse_WithAmmo spawn || !Configs.Infinities.Instance.PreventItemDuplication) return;
             if (!spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) || proj != projectile.type) ammoType = DetectionPlayer.FindAmmoType(spawn.Player, projectile.type);
             if (spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance)) projectile.noDropItem = true;
         }
 
         private static void Explode(Projectile proj) {
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.InfinitySettings.Instance.DetectMissingCategories) return;
+            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.Infinities.Instance.DetectMissingCategories) return;
             _explodedProjTypes.Add(proj.type);
 
             int type = DetectionPlayer.FindAmmoType(Main.player[proj.owner], proj.type);
