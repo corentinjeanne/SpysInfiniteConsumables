@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using SPIC.Configs;
 using SpikysLib;
+using SpikysLib.Collections;
 using SpikysLib.Configs;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -27,10 +30,11 @@ public interface IInfinity : ILocalizedModType, ILoadable {
 }
 
 public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
+    protected override void InitTemplateInstance() => ConfigHelper.SetInstance(this);
+
     public override void Load() {
-        ConfigHelper.SetInstance(this);
-        Components = GetComponents();
-        foreach (IComponent component in Components) component.Load(this);
+        foreach (IComponent component in GetComponents()) RegisterComponent(component);
+        if (!Components.Contains(this)) RegisterComponent(this);
     }
 
     void IComponent.Load(IInfinity infinity) {
@@ -47,13 +51,19 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
     }
 
     public sealed override void SetupContent() {
-        Group?.RegisterChild(this);
+        if (Group is null) InfinityManager.RegisterRootInfinity(this);
+        else Group.RegisterChild(this);
         SetStaticDefaults();
     }
 
+    public void RegisterComponent(IComponent component) {
+        _components.Add(component);
+        component.Load(this);
+    }
+
     public override void Unload() {
-        foreach (IComponent component in Components) component.Unload();
-        Components = null!;
+        foreach (IComponent component in _components) component.Unload();
+        _components.Clear();
         ConfigHelper.SetInstance(this, true);
     }
 
@@ -69,7 +79,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
             .Where(f => f.FieldType.ImplementsInterface(typeof(IComponent), out _))
             .Select(f => (IComponent)f.GetValue(null)!);
 
-    public IEnumerable<IComponent> Components { get; private set; } = null!;
+    public IEnumerable<IComponent> Components => _components.AsReadOnly();
+    public readonly List<IComponent> _components = [];
 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText Label => this.GetLocalization("Label");
@@ -91,7 +102,7 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
     protected sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
 }
 
-public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>{
+public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>, IConfigurableComponents<GroupConfig> {
     protected sealed override Requirement GetRequirement(TConsumable consumable) {
         long count = 0;
         float multiplier = float.MaxValue;
@@ -107,6 +118,23 @@ public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>{
     internal void RegisterChild(Infinity<TConsumable> infinity) {
         _infinities.Add(infinity);
         _orderedInfinities.Add(infinity);
+    }
+
+    void IConfigurableComponents<GroupConfig>.OnLoaded(GroupConfig config) {
+        _orderedInfinities.Clear();
+        List<IInfinity> toRemove = [];
+        foreach (Infinity<TConsumable> infinity in _infinities) config.Infinities.GetOrAdd(new(infinity), new Toggle<Dictionary<string, object>>(true));
+        foreach ((InfinityDefinition key, Toggle<Dictionary<string, object>> value) in config.Infinities) {
+            IInfinity? i = key.Entity;
+            if (i is null) continue;
+            if (i is not Infinity<TConsumable> infinity || !_infinities.Contains(infinity)) {
+                toRemove.Add(i);
+                continue;
+            }
+            Configs.Infinities.Instance.LoadInfinityConfig(infinity, value);
+            _orderedInfinities.Add(infinity);
+        }
+        foreach (var infinity in toRemove) config.Infinities.Remove(new(infinity));
     }
 
     public ReadOnlyCollection<Infinity<TConsumable>> Infinities => _orderedInfinities.AsReadOnly();

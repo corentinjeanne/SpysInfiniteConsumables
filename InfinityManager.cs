@@ -68,7 +68,10 @@ public static class InfinityManager {
         s_infinities.Add(infinity);
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
-    public static void Unload() => s_infinities.Clear();
+    public static void Unload() {
+        s_infinities.Clear();
+        s_rootInfinities.Clear();
+    } 
 
     public static InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)> CountConsumablesEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
         => s_countConsumables.GetOrAddRaw(infinity, () => new InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)>(args => (args.Player.whoAmI, infinity.GetId(args.Consumable))));
@@ -79,11 +82,17 @@ public static class InfinityManager {
     public static InfinityEndpoint<TConsumable, TCategory, int> GetCategoryEndpoint<TConsumable, TCategory>(this Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
         => s_categories.GetOrAddRaw(infinity, () => new InfinityEndpoint<TConsumable, TCategory, int>(c => infinity.GetId(c)));
 
+    internal static void RegisterRootInfinity<TConsumable>(Infinity<TConsumable> infinity) {
+        s_rootInfinities.Add(infinity);
+    }
+
     public static ReadOnlyCollection<IInfinity> Infinities => new(s_infinities);
+    public static ReadOnlyCollection<IInfinity> RootInfinities => new(s_rootInfinities);
 
     public static int InfinitiesLCM { get; private set; } = 1;
 
     private static readonly List<IInfinity> s_infinities = [];
+    private static readonly List<IInfinity> s_rootInfinities = [];
 
 
     private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_countConsumables = [];
