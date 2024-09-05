@@ -1,5 +1,4 @@
 using Terraria;
-using Terraria.ID;
 using System.ComponentModel;
 using SPIC.Configs;
 
@@ -17,7 +16,7 @@ public sealed class JourneySacrifice : Infinity<Item>, IConfigurableComponents<J
     public static JourneySacrifice Instance = null!;
 
 
-    // public override bool Enabled { get; set; } = false;
+    public override bool EnabledByDefault => false;
     // public override Color Color { get; set; } = Colors.JourneyMode;
 
     protected override Requirement GetRequirement(Item item) => new(item.ResearchUnlockCount);

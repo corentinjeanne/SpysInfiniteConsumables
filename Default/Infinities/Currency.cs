@@ -30,7 +30,7 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableCom
 
     public static Currency Instance = null!;
 
-    // public override bool Enabled { get; set; } = false;
+    public override bool EnabledByDefault => false;
     // public override Color Color { get; set; } = Colors.CoinGold;
 
     protected override Requirement GetRequirement(CurrencyCategory category) => category switch {

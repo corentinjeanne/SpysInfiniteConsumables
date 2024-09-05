@@ -44,12 +44,13 @@ public sealed class Infinities : ModConfig {
             _rootConfigs = value;
             _configs.Clear();
             foreach(IInfinity infinity in InfinityManager.RootInfinities) {
-                Toggle<Dictionary<string, object>> config = _rootConfigs.GetOrAdd(new(infinity), new Toggle<Dictionary<string, object>>(true));
+                Toggle<Dictionary<string, object>> config = _rootConfigs.GetOrAdd(new(infinity), DefaultConfig(infinity));
                 LoadInfinityConfig(infinity, config);
             }
         }
     }
-    
+
+    internal static Toggle<Dictionary<string, object>> DefaultConfig(IInfinity infinity) => new(infinity.EnabledByDefault);
     internal void LoadInfinityConfig(IInfinity infinity, Toggle<Dictionary<string, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
         foreach (IComponent component in infinity.Components) {

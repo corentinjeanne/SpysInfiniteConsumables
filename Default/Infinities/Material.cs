@@ -31,7 +31,7 @@ public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableC
     public static Material Instance = null!;
 
 
-    // public override bool Enabled { get; set; } = false;
+    public override bool EnabledByDefault => false;
     // public override Color Color { get; set; } = new Color(254, 126, 229, 255); // Nebula
 
     protected override Requirement GetRequirement(MaterialCategory category) => category switch {

@@ -23,7 +23,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComp
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static GrabBag Instance = null!;
 
-    // public override bool Enabled { get; set; } = false;
+    public override bool EnabledByDefault => false;
 
     // public override Color Color { get; set; } = Colors.RarityDarkPurple;
 

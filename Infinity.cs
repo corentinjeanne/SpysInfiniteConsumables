@@ -27,6 +27,7 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     LocalizedText Label { get; }
     LocalizedText DisplayName { get; }
     LocalizedText Tooltip { get; }
+    bool EnabledByDefault { get; }
 }
 
 public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
@@ -82,6 +83,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
     public IEnumerable<IComponent> Components => _components.AsReadOnly();
     public readonly List<IComponent> _components = [];
 
+    public virtual bool EnabledByDefault => true;
+
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText Label => this.GetLocalization("Label");
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
@@ -123,7 +126,7 @@ public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>, IConfi
     void IConfigurableComponents<GroupConfig>.OnLoaded(GroupConfig config) {
         _orderedInfinities.Clear();
         List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in _infinities) config.Infinities.GetOrAdd(new(infinity), new Toggle<Dictionary<string, object>>(true));
+        foreach (Infinity<TConsumable> infinity in _infinities) config.Infinities.GetOrAdd(new(infinity), Configs.Infinities.DefaultConfig(infinity));
         foreach ((InfinityDefinition key, Toggle<Dictionary<string, object>> value) in config.Infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
