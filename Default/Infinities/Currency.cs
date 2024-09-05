@@ -4,6 +4,7 @@ using SpikysLib;
 using Terraria.GameContent.UI;
 using SpikysLib.Configs;
 using SPIC.Configs;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Infinities;
 
@@ -30,12 +31,12 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableCom
 
     public static Currency Instance = null!;
 
-    public override bool EnabledByDefault => false;
-    // public override Color Color { get; set; } = Colors.CoinGold;
+    public override bool DefaultEnabled => false;
+    public override Color DefaultColor => Colors.CoinGold;
 
     protected override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Configs.Infinities.Get(this).CoinsMultiplier),
-        CurrencyCategory.SingleCoin => new(20, Configs.Infinities.Get(this).SingleCoinMultiplier),
+        CurrencyCategory.Coins => new(10000, Configs.InfinitySettings.Get(this).CoinsMultiplier),
+        CurrencyCategory.SingleCoin => new(20, Configs.InfinitySettings.Get(this).SingleCoinMultiplier),
         _ => Requirement.None
     };
 

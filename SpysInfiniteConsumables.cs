@@ -16,7 +16,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
         LanguageHelper.ModifyKey += s => DisplayRoutingRegex.Replace(s, "Mods.SPIC.Displays.$1$2");
     }
     public override void PostSetupContent() {
-        Configs.Infinities.Instance.Load();
+        Configs.InfinitySettings.Instance.Load();
     }
 
     public override void Unload() {        

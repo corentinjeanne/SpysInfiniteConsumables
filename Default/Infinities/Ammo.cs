@@ -1,6 +1,7 @@
 ﻿using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -19,11 +20,11 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigurableComponents
     public static Ammo Instance = null!;
     public override GroupInfinity<Item>? Group => Consumable.Instance;
 
-    // public override Color Color { get; set; } = new Color(34, 221, 151, 255); // Vortex
+    public override Color DefaultColor => new(34, 221, 151, 255); // Vortex
 
     protected override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(Configs.Infinities.Get(this).Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Configs.Infinities.Get(this).Special),
+        AmmoCategory.Classic => new(Configs.InfinitySettings.Get(this).Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Configs.InfinitySettings.Get(this).Special),
         _ => Requirement.None,
     };
 

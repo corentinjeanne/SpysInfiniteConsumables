@@ -27,10 +27,10 @@ public sealed class DetectionPlayer : ModPlayer {
 
     private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
         bool enabled;
-        if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Configs.Infinities.Get(Currency.Instance).Nurse;
-        else if (Main.InReforgeMenu) enabled = Configs.Infinities.Get(Currency.Instance).Reforging;
-        else if (Main.npcShop != 0) enabled = Configs.Infinities.Get(Currency.Instance).Shop;
-        else enabled = Configs.Infinities.Get(Currency.Instance).Others;
+        if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Configs.InfinitySettings.Get(Currency.Instance).Nurse;
+        else if (Main.InReforgeMenu) enabled = Configs.InfinitySettings.Get(Currency.Instance).Reforging;
+        else if (Main.npcShop != 0) enabled = Configs.InfinitySettings.Get(Currency.Instance).Shop;
+        else enabled = Configs.InfinitySettings.Get(Currency.Instance).Others;
         return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
     }
 
@@ -41,7 +41,7 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.Infinities.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
@@ -127,7 +127,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Configs.Infinities settings = Configs.Infinities.Instance;
+        Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

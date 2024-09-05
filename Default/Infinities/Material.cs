@@ -4,6 +4,7 @@ using Terraria.ModLoader.Config;
 
 using SPIC.Configs;
 using System.ComponentModel;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Infinities;
 public enum MaterialCategory {
@@ -31,15 +32,15 @@ public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableC
     public static Material Instance = null!;
 
 
-    public override bool EnabledByDefault => false;
-    // public override Color Color { get; set; } = new Color(254, 126, 229, 255); // Nebula
+    public override bool DefaultEnabled => false;
+    public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
     protected override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Configs.Infinities.Get(this).Basic, Configs.Infinities.Get(this).Multiplier),
-        MaterialCategory.Ore => new(Configs.Infinities.Get(this).Ore, Configs.Infinities.Get(this).Multiplier),
-        MaterialCategory.Furniture => new(Configs.Infinities.Get(this).Furniture, Configs.Infinities.Get(this).Multiplier),
-        MaterialCategory.Miscellaneous => new(Configs.Infinities.Get(this).Miscellaneous, Configs.Infinities.Get(this).Multiplier),
-        MaterialCategory.NonStackable => new(Configs.Infinities.Get(this).NonStackable, Configs.Infinities.Get(this).Multiplier),
+        MaterialCategory.Basic => new(Configs.InfinitySettings.Get(this).Basic, Configs.InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Ore => new(Configs.InfinitySettings.Get(this).Ore, Configs.InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Furniture => new(Configs.InfinitySettings.Get(this).Furniture, Configs.InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Miscellaneous => new(Configs.InfinitySettings.Get(this).Miscellaneous, Configs.InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.NonStackable => new(Configs.InfinitySettings.Get(this).NonStackable, Configs.InfinitySettings.Get(this).Multiplier),
         _ => Requirement.None,
     };
 

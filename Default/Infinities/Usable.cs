@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Infinities;
 
@@ -38,20 +39,20 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableCompon
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Usable Instance = null!;
 
-    // public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
+    public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
     protected override Requirement GetRequirement(UsableCategory category) {
         return category switch {
-            UsableCategory.Weapon => new(Configs.Infinities.Get(this).Weapon),
-            UsableCategory.Potion => new(Configs.Infinities.Get(this).Potion),
+            UsableCategory.Weapon => new(Configs.InfinitySettings.Get(this).Weapon),
+            UsableCategory.Potion => new(Configs.InfinitySettings.Get(this).Potion),
             // UsableCategory.Recovery => new(Configs.Infinities.Get(this).Potion),
             // UsableCategory.Buff => new(Configs.Infinities.Get(this).Potion),
-            UsableCategory.Booster => new(Configs.Infinities.Get(this).Booster),
+            UsableCategory.Booster => new(Configs.InfinitySettings.Get(this).Booster),
             // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Configs.Infinities.Get(this).Booster),
-            UsableCategory.Summoner => new(Configs.Infinities.Get(this).Summoner),
-            UsableCategory.Critter => new(Configs.Infinities.Get(this).Critter),
+            UsableCategory.Summoner => new(Configs.InfinitySettings.Get(this).Summoner),
+            UsableCategory.Critter => new(Configs.InfinitySettings.Get(this).Critter),
             // UsableCategory.Explosive => new(Configs.Infinities.Get(this).Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Configs.Infinities.Get(this).Tool),
+            UsableCategory.Tool or UsableCategory.Unknown => new(Configs.InfinitySettings.Get(this).Tool),
             _ => Requirement.None,
         };
     }

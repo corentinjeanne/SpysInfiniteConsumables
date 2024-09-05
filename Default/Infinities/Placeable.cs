@@ -5,6 +5,7 @@ using SPIC.Configs;
 using Terraria.ModLoader;
 using SpikysLib.IL;
 using MonoMod.Cil;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Infinities;
 
@@ -56,7 +57,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurable
     public static Placeable Instance = null!;
 
 
-    // public override Color Color { get; set; } = Colors.RarityAmber;
+    public override Color DefaultColor => Colors.RarityAmber;
 
     public override void Load() {
         IL_Player.PlaceThing_Tiles_PlaceIt_ConsumeFlexibleWandMaterial += IL_FixConsumeFlexibleWand;
@@ -91,19 +92,19 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurable
 
     protected override Requirement GetRequirement(PlaceableCategory category) {
         return category switch {
-            PlaceableCategory.Tile => new(Configs.Infinities.Get(this).Tile),
-            PlaceableCategory.Wiring => new(Configs.Infinities.Get(this).Wiring),
+            PlaceableCategory.Tile => new(Configs.InfinitySettings.Get(this).Tile),
+            PlaceableCategory.Wiring => new(Configs.InfinitySettings.Get(this).Wiring),
             // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Configs.Infinities.Get(this).Tile),
-            PlaceableCategory.Torch => new(Configs.Infinities.Get(this).Torch),
-            PlaceableCategory.Ore => new(Configs.Infinities.Get(this).Ore),
-            PlaceableCategory.Furniture => new(Configs.Infinities.Get(this).Furniture),
+            PlaceableCategory.Torch => new(Configs.InfinitySettings.Get(this).Torch),
+            PlaceableCategory.Ore => new(Configs.InfinitySettings.Get(this).Ore),
+            PlaceableCategory.Furniture => new(Configs.InfinitySettings.Get(this).Furniture),
             // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
             //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
             //     => new(Configs.Infinities.Get(this).Furniture),
-            PlaceableCategory.Bucket => new(Configs.Infinities.Get(this).Bucket),
-            PlaceableCategory.Mechanical => new(Configs.Infinities.Get(this).Mechanical),
-            PlaceableCategory.Seed => new(Configs.Infinities.Get(this).Seed),
-            PlaceableCategory.Paint => new(Configs.Infinities.Get(this).Paint),
+            PlaceableCategory.Bucket => new(Configs.InfinitySettings.Get(this).Bucket),
+            PlaceableCategory.Mechanical => new(Configs.InfinitySettings.Get(this).Mechanical),
+            PlaceableCategory.Seed => new(Configs.InfinitySettings.Get(this).Seed),
+            PlaceableCategory.Paint => new(Configs.InfinitySettings.Get(this).Paint),
             _ => Requirement.None,
         };
     }

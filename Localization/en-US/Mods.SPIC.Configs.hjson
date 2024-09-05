@@ -3,7 +3,7 @@ InfinitySettings: {
 
 	Headers: {
 		Features: Features
-		Configs: Group Configs
+		Configs: Infinity Configs
 	}
 
 	DetectMissingCategories: {
@@ -33,14 +33,14 @@ InfinitySettings: {
 	}
 }
 
-InfinityDisplay: {
-	DisplayName: Infinities Display
+InfinityDisplays: {
+	DisplayName: Infinities Displays
 
 	Headers: {
 		General: General
 		Displays: Displays
-		Colors: Infinity Colors
 		Performances: Performances
+		Configs: Infinity Configs
 	}
 
 	Displays: {
@@ -78,11 +78,6 @@ InfinityDisplay: {
 		Tooltip: ""
 	}
 
-	Colors: {
-		Label: Colors
-		Tooltip: ""
-	}
-
 	Cache: {
 		Label: Cache
 		Tooltip:
@@ -103,32 +98,11 @@ InfinityDisplay: {
 			May cause visual inconsistencies, especially for large values (>15)
 			'''
 	}
-
-	Info: {
-		Label: "[i:4344] Update Info"
-		Tooltip: "{$Mods.SPIC.Chat.Info}"
-	}
-
-	Changelog: {
-		Label: "[i:509] Changelog"
-		Tooltip: "{$Mods.SPIC.Chat.Changelog}"
-	}
 }
 
 GroupConfig: {
-	Headers: {
-		Infinities: Enabled Infinities
-		Configs: Infinity Configs
-		Customs: Custom Requirements
-	}
-
 	Preset: {
 		Label: Active Preset
-		Tooltip: ""
-	}
-
-	Infinities: {
-		Label: Enabled Infinities
 		Tooltip: ""
 	}
 
@@ -137,30 +111,25 @@ GroupConfig: {
 		Tooltip:
 			'''
 			The maximum number of Infinities taken into account directly, uses the order bellow from top to bottom.
-			Infinities that are not used take the minimum used infinity as their value.
+			Unused infinities take the minimum used infinity as their value.
 			'''
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
-
-	Customs: {
-		Label: "[i:1913] Customs"
-		Tooltip: Replace the requirements of items by a global requirement or individual ones per infinity
 	}
 
 	Tooltip: ""
 }
 
-GroupColors: {
-	Colors: {
-		Label: Colors
+UsedInfinities: {
+	Tooltip: ""
+
+	All: {
+		Label: All
 		Tooltip: ""
 	}
 
-	Tooltip: ""
+	Used: {
+		Label: Used
+		Tooltip: ""
+	}
 }
 
 Version: {
@@ -192,20 +161,6 @@ Version: {
 	}
 }
 
-Custom: {
-	Global: {
-		Label: Global
-		Tooltip: ""
-	}
-
-	Individual: {
-		Label: Individual
-		Tooltip: ""
-	}
-
-	Tooltip: ""
-}
-
 Count: {
 	Disabled: {
 		Label: Disabled
@@ -220,47 +175,14 @@ Count: {
 	Tooltip: ""
 }
 
-ModGroupDefinition.Tooltip: ""
-MetaGroupDefinition.Tooltip: ""
-
-PresetDefinition: {
-	Tooltip: {
-		Label: Tooltip
-		Tooltip: ""
-	}
-
-	AllowNull: {
-		Label: Allow Null
-		Tooltip: ""
-	}
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
-}
-
-ModConsumableDefinition.Tooltip: ""
-
-InfinityDefinition: {
+Count`1: {
 	Tooltip: ""
 
-	DisplayName: {
-		Label: Display Name
+	Category: {
+		Label: Category
 		Tooltip: ""
 	}
 }
-
-GroupDefinition: {
-	Tooltip: ""
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
-}
-
-Text.Tooltip: ""
 
 Corner: {
 	Tooltip: ""
@@ -283,20 +205,6 @@ CacheStyle: {
 	Performances.Label: Performances
 }
 
-UsedInfinities: {
-	Tooltip: ""
-
-	All: {
-		Label: All
-		Tooltip: ""
-	}
-
-	Used: {
-		Label: Used
-		Tooltip: ""
-	}
-}
-
 GlowStyle: {
 	Tooltip: ""
 	Off.Label: Off
@@ -304,71 +212,4 @@ GlowStyle: {
 	Fancy.Label: Fancy
 }
 
-DisplayDefinition: {
-	Tooltip: ""
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
-}
-
-Definition`1: {
-	Tooltip: {
-		Label: Tooltip
-		Tooltip: ""
-	}
-
-	AllowNull: {
-		Label: Allow Null
-		Tooltip: ""
-	}
-}
-
-InfinityDictionary: {
-	Tooltip: ""
-
-	Order: {
-		Label: Order
-		Tooltip: ""
-	}
-
-	Enabled: {
-		Label: Enabled
-		Tooltip: ""
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
-}
-
-Count`1: {
-	Tooltip: ""
-
-	Category: {
-		Label: Category
-		Tooltip: ""
-	}
-}
-
-Infinities: {
-	DisplayName: Infinities
-	Headers.Features: Features Header
-
-	DetectMissingCategories: {
-		Label: Detect Missing Categories
-		Tooltip: ""
-	}
-
-	PreventItemDuplication: {
-		Label: Prevent Item Duplication
-		Tooltip: ""
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
-}
+InfinityDefinition.Tooltip: ""

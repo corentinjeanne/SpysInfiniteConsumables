@@ -1,24 +1,11 @@
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Microsoft.Xna.Framework;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
 using SpikysLib.DataStructures;
 using Terraria.ModLoader.Config;
-using Terraria.ModLoader.Config.UI;
 
 namespace SPIC.Configs;
-
-// public class InfinityValueWrapper<TValue> : ValueWrapper<InfinityDefinition, Toggle<Dictionary<string, object>>> {
-//     [ColorNoAlpha, ColorHSLSlider, ValueWrapper]
-//     public override TValue Value { get; set; } = default!;
-
-//     public override void OnBind(ConfigElement element) {
-//         if (Key.IsUnloaded) return;
-//         // SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, Key.Entity!.Color);
-//         SpikysLib.Reflection.ConfigElement.TooltipFunction.SetValue(element, () => Key.Tooltip!);
-//     }
-// }
 
 public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }
@@ -43,5 +30,9 @@ public sealed class UsedInfinities : MultiChoice<int> {
 public sealed class GroupConfig {
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
-    [CustomModConfigItem(typeof(DictionaryValuesElement)), ValueWrapper(typeof(InfinityConfigsWrapper))] public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = new();
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))] public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = new();
+}
+
+public sealed class ClientGroupConfig {
+    [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityClientConfigsWrapper))] public OrderedDictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> Infinities { get; set; } = new();
 }

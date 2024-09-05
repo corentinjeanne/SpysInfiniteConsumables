@@ -1,6 +1,8 @@
 using Terraria;
 using System.ComponentModel;
 using SPIC.Configs;
+using Microsoft.Xna.Framework;
+using Terraria.ID;
 
 namespace SPIC.Default.Infinities;
 
@@ -10,14 +12,14 @@ public sealed class JourneySacrificeRequirements {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Item>, IConfigurableComponents<JourneySacrificeRequirements> {
+public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableComponents<JourneySacrificeRequirements> {
 
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static JourneySacrifice Instance = null!;
 
 
-    public override bool EnabledByDefault => false;
-    // public override Color Color { get; set; } = Colors.JourneyMode;
+    public override bool DefaultEnabled => false;
+    public override Color DefaultColor => Colors.JourneyMode;
 
     protected override Requirement GetRequirement(Item item) => new(item.ResearchUnlockCount);
 
