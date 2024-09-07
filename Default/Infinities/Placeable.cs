@@ -6,6 +6,8 @@ using Terraria.ModLoader;
 using SpikysLib.IL;
 using MonoMod.Cil;
 using Microsoft.Xna.Framework;
+using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
 
@@ -52,10 +54,9 @@ public sealed class PlaceableRequirements {
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurableComponents<PlaceableRequirements> {
-
+    public static Custom<Item, PlaceableCategory> Custom = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Placeable Instance = null!;
-
 
     public override Color DefaultColor => Colors.RarityAmber;
 
@@ -90,26 +91,24 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurable
         ClearWandAmmos();
     }
 
-    protected override Requirement GetRequirement(PlaceableCategory category) {
-        return category switch {
-            PlaceableCategory.Tile => new(Configs.InfinitySettings.Get(this).Tile),
-            PlaceableCategory.Wiring => new(Configs.InfinitySettings.Get(this).Wiring),
-            // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Configs.Infinities.Get(this).Tile),
-            PlaceableCategory.Torch => new(Configs.InfinitySettings.Get(this).Torch),
-            PlaceableCategory.Ore => new(Configs.InfinitySettings.Get(this).Ore),
-            PlaceableCategory.Furniture => new(Configs.InfinitySettings.Get(this).Furniture),
-            // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
-            //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-            //     => new(Configs.Infinities.Get(this).Furniture),
-            PlaceableCategory.Bucket => new(Configs.InfinitySettings.Get(this).Bucket),
-            PlaceableCategory.Mechanical => new(Configs.InfinitySettings.Get(this).Mechanical),
-            PlaceableCategory.Seed => new(Configs.InfinitySettings.Get(this).Seed),
-            PlaceableCategory.Paint => new(Configs.InfinitySettings.Get(this).Paint),
-            _ => Requirement.None,
-        };
-    }
+    protected override Optional<Requirement> GetRequirement(PlaceableCategory category) => category switch {
+        PlaceableCategory.Tile => new(InfinitySettings.Get(this).Tile),
+        PlaceableCategory.Wiring => new(InfinitySettings.Get(this).Wiring),
+        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Infinities.Get(this).Tile),
+        PlaceableCategory.Torch => new(InfinitySettings.Get(this).Torch),
+        PlaceableCategory.Ore => new(InfinitySettings.Get(this).Ore),
+        PlaceableCategory.Furniture => new(InfinitySettings.Get(this).Furniture),
+        // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
+        //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
+        //     => new(Infinities.Get(this).Furniture),
+        PlaceableCategory.Bucket => new(InfinitySettings.Get(this).Bucket),
+        PlaceableCategory.Mechanical => new(InfinitySettings.Get(this).Mechanical),
+        PlaceableCategory.Seed => new(InfinitySettings.Get(this).Seed),
+        PlaceableCategory.Paint => new(InfinitySettings.Get(this).Paint),
+        _ => Requirement.None,
+    };
 
-    protected override PlaceableCategory GetCategory(Item item) {
+    protected override Optional<PlaceableCategory> GetCategory(Item item) {
         PlaceableCategory category = GetCategory(item, false);
         return category == PlaceableCategory.None && IsWandAmmo(item.type, out int wandType) ? GetCategory(new(wandType), true) : category;
     }

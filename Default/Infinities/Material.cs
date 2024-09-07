@@ -1,12 +1,14 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
-
 using SPIC.Configs;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
+using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
+
 public enum MaterialCategory {
     None,
     Basic,
@@ -27,7 +29,7 @@ public sealed class MaterialRequirements {
 }
 
 public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableComponents<MaterialRequirements> {
-
+    public static Custom<Item, MaterialCategory> Custom = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Material Instance = null!;
 
@@ -35,16 +37,16 @@ public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableC
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
-    protected override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Configs.InfinitySettings.Get(this).Basic, Configs.InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Ore => new(Configs.InfinitySettings.Get(this).Ore, Configs.InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Furniture => new(Configs.InfinitySettings.Get(this).Furniture, Configs.InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Miscellaneous => new(Configs.InfinitySettings.Get(this).Miscellaneous, Configs.InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.NonStackable => new(Configs.InfinitySettings.Get(this).NonStackable, Configs.InfinitySettings.Get(this).Multiplier),
+    protected override Optional<Requirement> GetRequirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => new(InfinitySettings.Get(this).Basic, InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Ore => new(InfinitySettings.Get(this).Ore, InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Furniture => new(InfinitySettings.Get(this).Furniture, InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.Miscellaneous => new(InfinitySettings.Get(this).Miscellaneous, InfinitySettings.Get(this).Multiplier),
+        MaterialCategory.NonStackable => new(InfinitySettings.Get(this).NonStackable, InfinitySettings.Get(this).Multiplier),
         _ => Requirement.None,
     };
 
-    protected override MaterialCategory GetCategory(Item item) {
+    protected override Optional<MaterialCategory> GetCategory(Item item) {
         int type = item.type;
         switch (type) {
         case ItemID.FallenStar: return MaterialCategory.Miscellaneous;

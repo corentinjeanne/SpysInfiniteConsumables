@@ -3,6 +3,8 @@ using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
+using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
 
@@ -20,7 +22,7 @@ public sealed class GrabBagRequirements {
 }
 
 public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComponents<GrabBagRequirements> {
-
+    public static Custom<Item, GrabBagCategory> Custom = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static GrabBag Instance = null!;
 
@@ -29,14 +31,14 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComp
 
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
-    protected override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Configs.InfinitySettings.Get(this).Container),
-        GrabBagCategory.TreasureBag => new(Configs.InfinitySettings.Get(this).TreasureBag),
-        GrabBagCategory.Extractinator => new(Configs.InfinitySettings.Get(this).Extractinator),
+    protected override Optional<Requirement> GetRequirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Container => new(InfinitySettings.Get(this).Container),
+        GrabBagCategory.TreasureBag => new(InfinitySettings.Get(this).TreasureBag),
+        GrabBagCategory.Extractinator => new(InfinitySettings.Get(this).Extractinator),
         _ => Requirement.None,
     };
 
-    protected override GrabBagCategory GetCategory(Item item) {
+    protected override Optional<GrabBagCategory> GetCategory(Item item) {
         switch (item.type) {
         case ItemID.Geode: return GrabBagCategory.Container;
         }

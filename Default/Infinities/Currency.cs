@@ -5,6 +5,8 @@ using Terraria.GameContent.UI;
 using SpikysLib.Configs;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
+using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
 
@@ -28,19 +30,19 @@ public sealed class CurrencyRequirements {
 }
 
 public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableComponents<CurrencyRequirements> {
-
+    public static Custom<int, AmmoCategory> Custom = new(i => new(CurrencyHelper.LowestValueType(i)));
     public static Currency Instance = null!;
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.CoinGold;
 
-    protected override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Configs.InfinitySettings.Get(this).CoinsMultiplier),
-        CurrencyCategory.SingleCoin => new(20, Configs.InfinitySettings.Get(this).SingleCoinMultiplier),
+    protected override Optional<Requirement> GetRequirement(CurrencyCategory category) => category switch {
+        CurrencyCategory.Coins => new(10000, InfinitySettings.Get(this).CoinsMultiplier),
+        CurrencyCategory.SingleCoin => new(20, InfinitySettings.Get(this).SingleCoinMultiplier),
         _ => Requirement.None
     };
 
-    protected override CurrencyCategory GetCategory(int currency) {
+    protected override Optional<CurrencyCategory> GetCategory(int currency) {
         if (currency == CurrencyHelper.Coins) return CurrencyCategory.Coins;
         if (!CustomCurrencyManager.TryGetCurrencySystem(currency, out var system)) return CurrencyCategory.None;
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;

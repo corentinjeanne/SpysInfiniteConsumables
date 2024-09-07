@@ -1,8 +1,8 @@
 using Terraria;
 using System.ComponentModel;
-using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
+using Microsoft.CodeAnalysis;
 
 namespace SPIC.Default.Infinities;
 
@@ -21,7 +21,7 @@ public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableCompon
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.JourneyMode;
 
-    protected override Requirement GetRequirement(Item item) => new(item.ResearchUnlockCount);
+    protected override Optional<Requirement> GetRequirement(Item item) => new Requirement(item.ResearchUnlockCount);
 
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 

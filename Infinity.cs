@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SPIC.Configs;
 using SpikysLib;
@@ -15,24 +15,19 @@ using Terraria.ModLoader.Core;
 
 namespace SPIC;
 
-public interface IComponent {
-    void Load(IInfinity infinity);
-    void Unload();
+public interface IInfinity : ILocalizedModType, ILoadable, IComponent {
+    void RegisterComponent(IComponent component);
+    ReadOnlyCollection<IComponent> Components { get; }
 
-    IInfinity Infinity { get; }
-}
+    bool DefaultEnabled { get; }
+    Color DefaultColor { get; }
 
-
-public interface IInfinity : ILocalizedModType, ILoadable {
-    IEnumerable<IComponent> Components { get; }
     LocalizedText Label { get; }
     LocalizedText DisplayName { get; }
     LocalizedText Tooltip { get; }
-    bool DefaultEnabled { get; }
-    Color DefaultColor { get; }
 }
 
-public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
+public abstract class Infinity<TConsumable> : ModType, IInfinity {
     protected override void InitTemplateInstance() => ConfigHelper.SetInstance(this);
 
     public override void Load() {
@@ -59,11 +54,6 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
         SetStaticDefaults();
     }
 
-    public void RegisterComponent(IComponent component) {
-        _components.Add(component);
-        component.Load(this);
-    }
-
     public override void Unload() {
         foreach (IComponent component in _components) component.Unload();
         _components.Clear();
@@ -73,17 +63,20 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IComponent {
     public virtual GroupInfinity<TConsumable>? Group => null;
     public virtual int GetId(TConsumable consumable) => Group!.GetId(consumable);
     public virtual TConsumable ToConsumable(int id) => Group!.ToConsumable(id);
+    protected virtual Optional<long> CountConsumables(PlayerConsumable<TConsumable> args) => Group!.CountConsumables(args);
 
-    protected virtual long CountConsumables(PlayerConsumable<TConsumable> args) => Group!.CountConsumables(args);
-    protected virtual Requirement GetRequirement(TConsumable consumable) => throw new NotImplementedException();
-
+    protected virtual Optional<Requirement> GetRequirement(TConsumable consumable) => throw new NotImplementedException();
+    
     protected virtual IEnumerable<IComponent> GetComponents()
         => GetType().GetFields(BindingFlags.Static | BindingFlags.Public)
             .Where(f => f.FieldType.ImplementsInterface(typeof(IComponent), out _))
             .Select(f => (IComponent)f.GetValue(null)!);
-
-    public IEnumerable<IComponent> Components => _components.AsReadOnly();
-    public readonly List<IComponent> _components = [];
+    public void RegisterComponent(IComponent component) {
+        _components.Add(component);
+        component.Load(this);
+    }
+    public ReadOnlyCollection<IComponent> Components => _components.AsReadOnly();
+    private readonly List<IComponent> _components = [];
 
     public virtual bool DefaultEnabled => true;
     public virtual Color DefaultColor => Color.White;
@@ -102,14 +95,14 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
         if (LoaderUtils.HasOverride(this, i => i.GetCategory)) InfinityManager.GetCategoryEndpoint(this).Register(GetCategory);
     }
 
-    protected virtual TCategory GetCategory(TConsumable consumable) => throw new NotImplementedException();
-    protected abstract Requirement GetRequirement(TCategory category);
+    protected virtual Optional<TCategory> GetCategory(TConsumable consumable) => throw new NotImplementedException();
+    protected abstract Optional<Requirement> GetRequirement(TCategory category);
 
-    protected sealed override Requirement GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
+    protected sealed override Optional<Requirement> GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
 }
 
 public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
-    protected sealed override Requirement GetRequirement(TConsumable consumable) {
+    protected sealed override Optional<Requirement> GetRequirement(TConsumable consumable) {
         long count = 0;
         float multiplier = float.MaxValue;
         foreach (Infinity<TConsumable> infinity in _orderedInfinities) {
@@ -118,7 +111,7 @@ public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>, IConfi
             count = Math.Max(count, requirement.Count);
             multiplier = Math.Min(multiplier, requirement.Multiplier);
         }
-        return new(count, multiplier);
+        return new Requirement(count, multiplier);
     }
 
     internal void RegisterChild(Infinity<TConsumable> infinity) {

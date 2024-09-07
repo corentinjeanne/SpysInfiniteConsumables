@@ -1,6 +1,32 @@
 using System;
 
-namespace SPIC.Configs;
+namespace SPIC;
+
+public interface IComponent {
+    void Load(IInfinity infinity);
+    void Unload();
+
+    IInfinity Infinity { get; }
+}
+
+public class Component<TInfinity> : IComponent where TInfinity: IInfinity {
+    public virtual void Load() { }
+    public virtual void Unload() { }
+
+    public TInfinity Infinity { get; private set; } = default!;
+
+    IInfinity IComponent.Infinity => Infinity;
+
+    void IComponent.Load(IInfinity infinity) {
+        Infinity = (TInfinity)infinity;
+        Load();
+    }
+
+    void IComponent.Unload() {
+        Unload();
+        Infinity = default!;
+    }
+}
 
 public interface IConfigurableComponents : IComponent {
     Type ConfigType { get; }

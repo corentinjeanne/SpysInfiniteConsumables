@@ -2,6 +2,8 @@ using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
+using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
 
@@ -35,29 +37,27 @@ public sealed class UsableRequirements {
 
 
 public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableComponents<UsableRequirements> {
-
+    public static Custom<Item, UsableCategory> Custom = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Usable Instance = null!;
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
-    protected override Requirement GetRequirement(UsableCategory category) {
-        return category switch {
-            UsableCategory.Weapon => new(Configs.InfinitySettings.Get(this).Weapon),
-            UsableCategory.Potion => new(Configs.InfinitySettings.Get(this).Potion),
-            // UsableCategory.Recovery => new(Configs.Infinities.Get(this).Potion),
-            // UsableCategory.Buff => new(Configs.Infinities.Get(this).Potion),
-            UsableCategory.Booster => new(Configs.InfinitySettings.Get(this).Booster),
-            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Configs.Infinities.Get(this).Booster),
-            UsableCategory.Summoner => new(Configs.InfinitySettings.Get(this).Summoner),
-            UsableCategory.Critter => new(Configs.InfinitySettings.Get(this).Critter),
-            // UsableCategory.Explosive => new(Configs.Infinities.Get(this).Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Configs.InfinitySettings.Get(this).Tool),
-            _ => Requirement.None,
-        };
-    }
+    protected override Optional<Requirement> GetRequirement(UsableCategory category) => category switch {
+        UsableCategory.Weapon => new(InfinitySettings.Get(this).Weapon),
+        UsableCategory.Potion => new(InfinitySettings.Get(this).Potion),
+        // UsableCategory.Recovery => new(Infinities.Get(this).Potion),
+        // UsableCategory.Buff => new(Infinities.Get(this).Potion),
+        UsableCategory.Booster => new(InfinitySettings.Get(this).Booster),
+        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Infinities.Get(this).Booster),
+        UsableCategory.Summoner => new(InfinitySettings.Get(this).Summoner),
+        UsableCategory.Critter => new(InfinitySettings.Get(this).Critter),
+        // UsableCategory.Explosive => new(Infinities.Get(this).Tool),
+        UsableCategory.Tool or UsableCategory.Unknown => new(InfinitySettings.Get(this).Tool),
+        _ => Requirement.None,
+    };
 
-    protected override UsableCategory GetCategory(Item item) {
+    protected override Optional<UsableCategory> GetCategory(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 

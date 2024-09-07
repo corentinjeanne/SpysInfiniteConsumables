@@ -57,9 +57,9 @@ public static class InfinityManager {
     public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
 
     public static void ClearEndpoints() {
-        foreach (IInfinityEndpoint endpoint in s_categories.Values) endpoint.Clear();
-        foreach (IInfinityEndpoint endpoint in s_requirements.Values) endpoint.Clear();
-        foreach (IInfinityEndpoint endpoint in s_countConsumables.Values) endpoint.Clear();
+        foreach (IEndpoint endpoint in s_categories.Values) endpoint.ClearCache();
+        foreach (IEndpoint endpoint in s_requirements.Values) endpoint.ClearCache();
+        foreach (IEndpoint endpoint in s_countConsumables.Values) endpoint.ClearCache();
     }
 
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
@@ -73,14 +73,14 @@ public static class InfinityManager {
         s_rootInfinities.Clear();
     } 
 
-    public static InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)> CountConsumablesEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
-        => s_countConsumables.GetOrAddRaw(infinity, () => new InfinityEndpoint<PlayerConsumable<TConsumable>, long, (int, int)>(args => (args.Player.whoAmI, infinity.GetId(args.Consumable))));
+    public static Endpoint<PlayerConsumable<TConsumable>, long, (int, int)> CountConsumablesEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
+        => s_countConsumables.GetOrAddRaw(infinity, () => new Endpoint<PlayerConsumable<TConsumable>, long, (int, int)>(args => (args.Player.whoAmI, infinity.GetId(args.Consumable))));
     
-    public static InfinityEndpoint<TConsumable, Requirement, int> GetRequirementEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
-        => s_requirements.GetOrAddRaw(infinity, () => new InfinityEndpoint<TConsumable, Requirement, int>(c => infinity.GetId(c)));
+    public static Endpoint<TConsumable, Requirement, int> GetRequirementEndpoint<TConsumable>(this Infinity<TConsumable> infinity)
+        => s_requirements.GetOrAddRaw(infinity, () => new Endpoint<TConsumable, Requirement, int>(c => infinity.GetId(c)));
     
-    public static InfinityEndpoint<TConsumable, TCategory, int> GetCategoryEndpoint<TConsumable, TCategory>(this Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
-        => s_categories.GetOrAddRaw(infinity, () => new InfinityEndpoint<TConsumable, TCategory, int>(c => infinity.GetId(c)));
+    public static Endpoint<TConsumable, TCategory, int> GetCategoryEndpoint<TConsumable, TCategory>(this Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
+        => s_categories.GetOrAddRaw(infinity, () => new Endpoint<TConsumable, TCategory, int>(c => infinity.GetId(c)));
 
     internal static void RegisterRootInfinity<TConsumable>(Infinity<TConsumable> infinity) {
         s_rootInfinities.Add(infinity);
@@ -95,9 +95,9 @@ public static class InfinityManager {
     private static readonly List<IInfinity> s_rootInfinities = [];
 
 
-    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_countConsumables = [];
-    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_requirements = [];
-    private static readonly Dictionary<IInfinity, IInfinityEndpoint> s_categories = [];
+    private static readonly Dictionary<IInfinity, IEndpoint> s_countConsumables = [];
+    private static readonly Dictionary<IInfinity, IEndpoint> s_requirements = [];
+    private static readonly Dictionary<IInfinity, IEndpoint> s_categories = [];
 }
 
 public readonly record struct PlayerConsumable<TConsumable>(Player Player, TConsumable Consumable);
