@@ -54,7 +54,7 @@ public sealed class PlaceableRequirements {
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurableComponents<PlaceableRequirements> {
-    public static Custom<Item, PlaceableCategory> Custom = new(i => new(i.type));
+    public static Customs<Item, PlaceableCategory> Customs = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Placeable Instance = null!;
 

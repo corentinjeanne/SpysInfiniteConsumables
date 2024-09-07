@@ -6,7 +6,7 @@ using Terraria;
 namespace SPIC.Default.Infinities;
 
 public class Consumable : GroupInfinity<Item> {
-    public static Custom<Item> Custom = new(i => new(i.type));
+    public static Customs<Item> Customs = new(i => new(i.type));
     public static Consumable Instance = null!;
 
 

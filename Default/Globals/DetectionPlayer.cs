@@ -68,7 +68,17 @@ public sealed class DetectionPlayer : ModPlayer {
 
 
     public bool TryDetectCategory(bool mustDetect = false) {
-        return false;
+        if (DetectingCategoryOf is null) return false;
+
+        void SaveUsable(UsableCategory category) => Usable.Customs.SaveDetectedCategory(DetectingCategoryOf, category);
+
+        DetectionDataScreenShot data = GetDetectionData();
+        if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
+        else if (mustDetect) SaveUsable(UsableCategory.Booster);
+        else return false;
+        DetectingCategoryOf = null;
+
+        return true;
     }
 
     private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
@@ -127,11 +137,11 @@ public sealed class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
+        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) Placeable.Customs.SaveDetectedCategory(item, PlaceableCategory.Bucket);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (settings.PreventItemDuplication) return;
+        else if (Configs.InfinitySettings.Instance.PreventItemDuplication) return;
 
         orig(self, type, selItem);
     }

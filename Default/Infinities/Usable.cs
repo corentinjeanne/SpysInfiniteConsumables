@@ -37,7 +37,7 @@ public sealed class UsableRequirements {
 
 
 public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableComponents<UsableRequirements> {
-    public static Custom<Item, UsableCategory> Custom = new(i => new(i.type));
+    public static Customs<Item, UsableCategory> Customs = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static Usable Instance = null!;
 

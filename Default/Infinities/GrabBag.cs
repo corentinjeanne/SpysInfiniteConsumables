@@ -22,7 +22,7 @@ public sealed class GrabBagRequirements {
 }
 
 public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComponents<GrabBagRequirements> {
-    public static Custom<Item, GrabBagCategory> Custom = new(i => new(i.type));
+    public static Customs<Item, GrabBagCategory> Customs = new(i => new(i.type));
     public override GroupInfinity<Item> Group => Consumable.Instance;
     public static GrabBag Instance = null!;
 
