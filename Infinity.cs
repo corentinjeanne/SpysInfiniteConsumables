@@ -36,8 +36,10 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
 
     void IComponent.Load(IInfinity infinity) {
-        InfinityManager.CountConsumablesEndpoint(this).Register(CountConsumables);
-        InfinityManager.GetRequirementEndpoint(this).Register(GetRequirement);
+        if (LoaderUtils.HasOverride(this, i => i.GetId)) this.GetIdEndpoint().Register(GetId);
+        if (LoaderUtils.HasOverride(this, i => i.ToConsumable)) this.ToConsumableEndpoint().Register(ToConsumable);
+        if (LoaderUtils.HasOverride(this, i => i.CountConsumables)) this.CountConsumablesEndpoint().Register(CountConsumables);
+        if (LoaderUtils.HasOverride(this, i => i.GetRequirement)) this.GetRequirementEndpoint().Register(GetRequirement);
     }
 
     protected sealed override void Register() {
@@ -49,8 +51,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
 
     public sealed override void SetupContent() {
-        if (Group is null) InfinityManager.RegisterRootInfinity(this);
-        else Group.RegisterChild(this);
+        foreach (IComponent component in _components) component.SetStaticDefaults();
         SetStaticDefaults();
     }
 
@@ -59,12 +60,12 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         _components.Clear();
         ConfigHelper.SetInstance(this, true);
     }
+    
+    void IComponent.Unload() { }
 
-    public virtual GroupInfinity<TConsumable>? Group => null;
-    public virtual int GetId(TConsumable consumable) => Group!.GetId(consumable);
-    public virtual TConsumable ToConsumable(int id) => Group!.ToConsumable(id);
-    protected virtual Optional<long> CountConsumables(PlayerConsumable<TConsumable> args) => Group!.CountConsumables(args);
-
+    protected virtual Optional<int> GetId(TConsumable consumable) => throw new NotImplementedException();
+    protected virtual Optional<TConsumable> ToConsumable(int id) => throw new NotImplementedException();
+    protected virtual Optional<long> CountConsumables(PlayerConsumable<TConsumable> args) => throw new NotImplementedException();
     protected virtual Optional<Requirement> GetRequirement(TConsumable consumable) => throw new NotImplementedException();
     
     protected virtual IEnumerable<IComponent> GetComponents()

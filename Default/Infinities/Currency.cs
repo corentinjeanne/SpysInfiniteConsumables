@@ -48,8 +48,8 @@ public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableCom
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
-    public override int GetId(int consumable) => consumable;
-    public override int ToConsumable(int id) => id;
+    protected override Optional<int> GetId(int consumable) => consumable;
+    protected override Optional<int> ToConsumable(int id) => id;
 
 
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);

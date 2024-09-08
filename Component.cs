@@ -5,6 +5,7 @@ namespace SPIC;
 public interface IComponent {
     void Load(IInfinity infinity);
     void Unload();
+    void SetStaticDefaults();
 
     IInfinity Infinity { get; }
 }
@@ -12,6 +13,7 @@ public interface IComponent {
 public class Component<TInfinity> : IComponent where TInfinity: IInfinity {
     public virtual void Load() { }
     public virtual void Unload() { }
+    public virtual void SetStaticDefaults() { }
 
     public TInfinity Infinity { get; private set; } = default!;
 

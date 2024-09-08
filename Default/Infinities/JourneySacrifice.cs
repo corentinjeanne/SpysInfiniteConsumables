@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Microsoft.CodeAnalysis;
+using SPIC.Default.Components;
 
 namespace SPIC.Default.Infinities;
 
@@ -13,8 +14,7 @@ public sealed class JourneySacrificeRequirements {
 }
 
 public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableComponents<JourneySacrificeRequirements> {
-
-    public override GroupInfinity<Item> Group => Consumable.Instance;
+    public static InfinityGroup<Item> Group = new(() => Consumable.Instance);
     public static JourneySacrifice Instance = null!;
 
 

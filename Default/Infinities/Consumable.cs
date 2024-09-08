@@ -13,6 +13,6 @@ public class Consumable : GroupInfinity<Item> {
     public override Color DefaultColor => new(64, 64, 64);
 
     protected override Optional<long> CountConsumables(PlayerConsumable<Item> args) => args.Player.CountItem(args.Consumable.type);
-    public override int GetId(Item consumable) => consumable.type;
-    public override Item ToConsumable(int id) => new Item(id);
+    protected override Optional<int> GetId(Item consumable) => consumable.type;
+    protected override Optional<Item> ToConsumable(int id) => new Item(id);
 }

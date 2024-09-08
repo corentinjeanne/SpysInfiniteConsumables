@@ -38,7 +38,7 @@ public sealed class UsableRequirements {
 
 public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableComponents<UsableRequirements> {
     public static Customs<Item, UsableCategory> Customs = new(i => new(i.type));
-    public override GroupInfinity<Item> Group => Consumable.Instance;
+    public static InfinityGroup<Item> Group = new(() => Consumable.Instance);
     public static Usable Instance = null!;
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust

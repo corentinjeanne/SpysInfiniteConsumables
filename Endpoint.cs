@@ -7,13 +7,13 @@ using Microsoft.CodeAnalysis;
 namespace SPIC;
 
 public interface IEndpoint {
-    object? GetValue(object arg);
+    object? GetValue(object? arg);
 
     void ClearCache();
     void Unload();
 }
 
-public interface IEndpoint<TArg, TValue> : IEndpoint where TValue : notnull {
+public interface IEndpoint<TArg, TValue> : IEndpoint {
     TValue GetValue(TArg args);
 
     void Register(GetValueFn provider);
@@ -22,13 +22,29 @@ public interface IEndpoint<TArg, TValue> : IEndpoint where TValue : notnull {
     ReadOnlyCollection<GetValueFn> Providers { get; }
     ReadOnlyCollection<ModifyValueFn> Modifiers { get; }
 
-    object? IEndpoint.GetValue(object arg) => GetValue((TArg)arg);
+    object? IEndpoint.GetValue(object? arg) => GetValue((TArg)arg!);
 
     delegate Optional<TValue> GetValueFn(TArg args);
     delegate void ModifyValueFn(TArg args, ref TValue value);
 }
 
-public sealed class Endpoint<TArg, TValue, TIndex> : IEndpoint<TArg, TValue> where TIndex : notnull where TValue : notnull {
+public sealed class SimpleEndpoint<TArg, TValue> : IEndpoint<TArg, TValue> {
+
+    public TValue GetValue(TArg args) => _provider!(args).Value;
+
+    public void Register(IEndpoint<TArg, TValue>.GetValueFn provider) => _provider ??= provider;
+    public void Unload() => _provider = null;
+
+    public ReadOnlyCollection<IEndpoint<TArg, TValue>.GetValueFn> Providers => new([_provider!]);
+    
+    private IEndpoint<TArg, TValue>.GetValueFn? _provider;
+
+    void IEndpoint.ClearCache() {}
+    void IEndpoint<TArg, TValue>.Register(IEndpoint<TArg, TValue>.ModifyValueFn modifier) => throw new NotSupportedException();
+    ReadOnlyCollection<IEndpoint<TArg, TValue>.ModifyValueFn> IEndpoint<TArg, TValue>.Modifiers => throw new NotSupportedException();
+}
+
+public sealed class Endpoint<TArg, TValue, TIndex> : IEndpoint<TArg, TValue> where TIndex : notnull {
 
     public Endpoint(IndexerFn indexer) {
         _indexer = indexer;

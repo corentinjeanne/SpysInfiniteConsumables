@@ -16,7 +16,7 @@ public sealed class Customs<TConsumable> : Component<Infinity<TConsumable>>, ICo
         InfinityManager.GetRequirementEndpoint(Infinity).Register(GetRequirement);
     }
 
-    public Optional<Requirement> GetRequirement(TConsumable consumable) {
+    private Optional<Requirement> GetRequirement(TConsumable consumable) {
         var customRequirements = InfinitySettings.Get(this);
         return customRequirements.customs.TryGetValue(ToDefinition(consumable), out Count? custom) ? new(new(custom.Value)) : default;
     }
@@ -31,7 +31,7 @@ public sealed class Customs<TConsumable, TCategory> : Component<Infinity<TConsum
         InfinityManager.GetCategoryEndpoint(Infinity).Register(GetCategory);
     }
 
-    public Optional<TCategory> GetCategory(TConsumable consumable) {
+    private Optional<TCategory> GetCategory(TConsumable consumable) {
         var customRequirements = InfinitySettings.Get(this);
         return customRequirements.customs.TryGetValue(ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value < 0 ? new(custom.Category) : default;
     }
@@ -40,7 +40,7 @@ public sealed class Customs<TConsumable, TCategory> : Component<Infinity<TConsum
         => InfinitySettings.Instance.DetectMissingCategories
         && InfinitySettings.Get(this).customs.TryAdd(ToDefinition(consumable), new(category));
 
-    public Optional<Requirement> GetRequirement(TConsumable consumable) {
+    private Optional<Requirement> GetRequirement(TConsumable consumable) {
         var customRequirements = InfinitySettings.Get(this);
         return customRequirements.customs.TryGetValue(ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? new(new(custom.Value)) : default;
     }

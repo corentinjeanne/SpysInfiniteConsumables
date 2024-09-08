@@ -55,7 +55,7 @@ public sealed class PlaceableRequirements {
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurableComponents<PlaceableRequirements> {
     public static Customs<Item, PlaceableCategory> Customs = new(i => new(i.type));
-    public override GroupInfinity<Item> Group => Consumable.Instance;
+    public static InfinityGroup<Item> Group = new(() => Consumable.Instance);
     public static Placeable Instance = null!;
 
     public override Color DefaultColor => Colors.RarityAmber;
