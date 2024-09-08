@@ -21,6 +21,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
 
     public override void Unload() {        
         InfinityManager.Unload();
+        Endpoints.Unload();
         Instance = null!;
     }
 
