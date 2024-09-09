@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using Terraria;
 using Terraria.ID;
 using SpikysLib;

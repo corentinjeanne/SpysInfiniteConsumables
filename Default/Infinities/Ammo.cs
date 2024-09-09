@@ -20,7 +20,7 @@ public sealed class AmmoRequirements {
 
 public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigurableComponents<AmmoRequirements> {
     public static Customs<Item, AmmoCategory> Customs = new(i => new(i.type));
-    public static InfinityGroup<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.Instance);
     public static Ammo Instance = null!;
 
     public override Color DefaultColor => new(34, 221, 151, 255); // Vortex

@@ -28,6 +28,8 @@ public class Component<TInfinity> : IComponent where TInfinity: IInfinity {
         Unload();
         Infinity = default!;
     }
+
+    public static implicit operator TInfinity(Component<TInfinity> component) => component.Infinity;
 }
 
 public interface IConfigurableComponents : IComponent {

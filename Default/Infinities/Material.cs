@@ -30,7 +30,7 @@ public sealed class MaterialRequirements {
 
 public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableComponents<MaterialRequirements> {
     public static Customs<Item, MaterialCategory> Customs = new(i => new(i.type));
-    public static InfinityGroup<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.Instance);
     public static Material Instance = null!;
 
 

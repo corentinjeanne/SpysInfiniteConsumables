@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SpikysLib.Collections;
@@ -30,7 +31,7 @@ public sealed class InfinitySettings : ModConfig {
     internal static InfinityConfig DefaultConfig(IInfinity infinity) => new(infinity.DefaultEnabled);
     internal void LoadInfinityConfig(IInfinity infinity, InfinityConfig config) {
         (var oldConfigs, config.Value) = (config.Value, []);
-        foreach (IComponent component in infinity.Components) {
+        foreach (IComponent component in infinity.Components.Reverse()) {
             if (component is not IConfigurableComponents configurable) continue;
             Type configType = configurable.ConfigType;
             string key = configurable.ConfigKey;
@@ -53,6 +54,6 @@ public sealed class InfinitySettings : ModConfig {
 
     public InfinityConfig GetConfig(IInfinity infinity) => _configs[infinity];
 
-    public static bool IsEnabled<TConfig>(IInfinity infinity) => Instance.GetConfig(infinity).Key;
+    public static bool IsEnabled(IInfinity infinity) => Instance.GetConfig(infinity).Key;
     public static TConfig Get<TConfig>(IConfigurableComponents<TConfig> config) where TConfig: new() => (TConfig)Instance.GetConfig(config.Infinity).Value[config.ConfigKey];
 }

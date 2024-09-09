@@ -30,7 +30,7 @@ public sealed class CurrencyRequirements {
 }
 
 public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableComponents<CurrencyRequirements> {
-    public static Customs<int, AmmoCategory> Customs = new(i => new(CurrencyHelper.LowestValueType(i)));
+    public static Customs<int, CurrencyCategory> Customs = new(i => new(CurrencyHelper.LowestValueType(i)));
     public static Currency Instance = null!;
 
     public override bool DefaultEnabled => false;

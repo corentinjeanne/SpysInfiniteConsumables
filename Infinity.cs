@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
@@ -40,6 +41,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         if (LoaderUtils.HasOverride(this, i => i.ToConsumable)) Endpoints.ToConsumable(this).Register(ToConsumable);
         if (LoaderUtils.HasOverride(this, i => i.CountConsumables)) Endpoints.CountConsumables(this).Register(CountConsumables);
         if (LoaderUtils.HasOverride(this, i => i.GetRequirement)) Endpoints.GetRequirement(this).Register(GetRequirement);
+        Endpoints.IdInfinity(this).Register(_ => this);
     }
 
     protected sealed override void Register() {
@@ -76,6 +78,17 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         _components.Add(component);
         component.Load(this);
     }
+
+    public TComponent GetComponent<TComponent>() where TComponent: IComponent => TryGetComponent(out TComponent? component) ? component : throw new NullReferenceException("Component not found");
+    public bool TryGetComponent<TComponent>([NotNullWhen(true)] out TComponent? component) where TComponent : IComponent {
+        foreach(IComponent c in _components) {
+            if (c is not TComponent comp) continue;
+            component = comp;
+            return true;
+        }
+        component = default;
+        return false;
+    }
     public ReadOnlyCollection<IComponent> Components => _components.AsReadOnly();
     private readonly List<IComponent> _components = [];
 
@@ -100,58 +113,4 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
     protected abstract Optional<Requirement> GetRequirement(TCategory category);
 
     protected sealed override Optional<Requirement> GetRequirement(TConsumable consumable) => GetRequirement(InfinityManager.GetCategory(consumable, this));
-}
-
-public abstract class GroupInfinity<TConsumable> : Infinity<TConsumable>, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
-    protected sealed override Optional<Requirement> GetRequirement(TConsumable consumable) {
-        long count = 0;
-        float multiplier = float.MaxValue;
-        foreach (Infinity<TConsumable> infinity in _orderedInfinities) {
-            Requirement requirement = InfinityManager.GetRequirement(consumable, infinity);
-            if (requirement.IsNone) continue;
-            count = Math.Max(count, requirement.Count);
-            multiplier = Math.Min(multiplier, requirement.Multiplier);
-        }
-        return new Requirement(count, multiplier);
-    }
-
-    internal void RegisterChild(Infinity<TConsumable> infinity) {
-        _infinities.Add(infinity);
-        _orderedInfinities.Add(infinity);
-    }
-
-    void IConfigurableComponents<GroupConfig>.OnLoaded(GroupConfig config) {
-        _orderedInfinities.Clear();
-        List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in _infinities) config.Infinities.GetOrAdd(new(infinity), InfinitySettings.DefaultConfig(infinity));
-        foreach ((InfinityDefinition key, Toggle<Dictionary<string, object>> value) in config.Infinities) {
-            IInfinity? i = key.Entity;
-            if (i is null) continue;
-            if (i is not Infinity<TConsumable> infinity || !_infinities.Contains(infinity)) {
-                toRemove.Add(i);
-                continue;
-            }
-            InfinitySettings.Instance.LoadInfinityConfig(infinity, value);
-            _orderedInfinities.Add(infinity);
-        }
-        foreach (var infinity in toRemove) config.Infinities.Remove(new(infinity));
-    }
-    void IClientConfigurableComponents<ClientGroupConfig>.OnLoaded(ClientGroupConfig config) {
-        List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in _infinities) config.Infinities.GetOrAdd(new(infinity), InfinityDisplays.DefaultConfig(infinity));
-        foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<string, object>> value) in config.Infinities) {
-            IInfinity? i = key.Entity;
-            if (i is null) continue;
-            if (i is not Infinity<TConsumable> infinity || !_infinities.Contains(infinity)) {
-                toRemove.Add(i);
-                continue;
-            }
-            InfinityDisplays.Instance.LoadInfinityConfig(infinity, value);
-        }
-        foreach (var infinity in toRemove) config.Infinities.Remove(new(infinity));
-    }
-
-    public ReadOnlyCollection<Infinity<TConsumable>> Infinities => _orderedInfinities.AsReadOnly();
-    private readonly List<Infinity<TConsumable>> _orderedInfinities = [];
-    private readonly HashSet<Infinity<TConsumable>> _infinities = [];
 }

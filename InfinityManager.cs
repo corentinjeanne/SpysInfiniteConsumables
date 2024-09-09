@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using SPIC.Configs;
+using SPIC.Default.Components;
 using Terraria;
 
 namespace SPIC;
@@ -12,27 +14,36 @@ public static class InfinityManager {
         => Endpoints.GetCategory(infinity).TryGetValue(consumable, out TCategory category) ? category : GetCategory(ToConsumable(consumable, infinity), infinity);
 
     public static Requirement GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity)
-        => Endpoints.GetRequirement(infinity).GetValue(consumable);
-    public static Requirement GetRequirement<TConsumable>(int consumable, Infinity<TConsumable> infinity)
-        => Endpoints.GetRequirement(infinity).TryGetValue(consumable, out Requirement requirement) ? requirement : GetRequirement(ToConsumable(consumable, infinity), infinity);
-    
+        => !infinity.IsEnabled() ? default : Endpoints.GetRequirement(infinity).GetValue(consumable);
+    public static Requirement GetRequirement<TConsumable>(int consumable, Infinity<TConsumable> infinity) {
+        if (!infinity.IsEnabled()) return default;
+        if (Endpoints.GetRequirement(infinity).TryGetValue(consumable, out Requirement requirement)) return requirement;
+        return GetRequirement(ToConsumable(consumable, infinity), infinity);
+    }
+
     public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity)
         => GetRequirement(consumable, infinity).Infinity(count);
     public static long GetInfinity<TConsumable>(int consumable, long count, Infinity<TConsumable> infinity)
         => GetRequirement(consumable, infinity).Infinity(count);
     
     public static long CountConsumables<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
-        => Endpoints.CountConsumables(infinity.GetIdGroup()).GetValue(new(player, consumable));
+        => Endpoints.CountConsumables(infinity.IdInfinity()).GetValue(new(player, consumable));
     public static long CountConsumables<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity) 
-        => Endpoints.CountConsumables(infinity.GetIdGroup()).TryGetValue((player.whoAmI, consumable), out long count) ? count : player.CountConsumables(ToConsumable(consumable, infinity), infinity);
+        => Endpoints.CountConsumables(infinity.IdInfinity()).TryGetValue((player.whoAmI, consumable), out long count) ? count : player.CountConsumables(ToConsumable(consumable, infinity), infinity);
 
-    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
+    public static HashSet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, InfinityGroup<TConsumable> infinityGroup)
+        => Endpoints.UsedInfinities(infinityGroup).GetValue(consumable);
+    public static HashSet<Infinity<TConsumable>> UsedInfinities<TConsumable>(int consumable, InfinityGroup<TConsumable> infinityGroup) 
+        => Endpoints.UsedInfinities(infinityGroup).TryGetValue(consumable, out var usedInfinities) ? usedInfinities :  UsedInfinities(ToConsumable(consumable, infinityGroup.Infinity), infinityGroup);
+
+    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity) // ? Make it an endpoint
         => GetInfinity(consumable, player.CountConsumables(consumable, infinity), infinity);
     public static long GetInfinity<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity)
         => GetInfinity(consumable, player.CountConsumables(consumable, infinity), infinity);
 
-    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity) => player.GetInfinity(consumable, infinity) >= consumed;
-    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Infinity<TConsumable> infinity) => player.GetInfinity(consumable, infinity) >= consumed;
+    public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity) =>  infinity.IsEnabled() && player.GetInfinity(consumable, infinity) >= consumed;
+    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Infinity<TConsumable> infinity) => infinity.IsEnabled() &&  player.GetInfinity(consumable, infinity) >= consumed;
+    
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
     public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
     
@@ -49,9 +60,10 @@ public static class InfinityManager {
         return retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
 
-    public static Infinity<TConsumable> GetIdGroup<TConsumable>(this Infinity<TConsumable> infinity) => Endpoints.GetIdGroup(infinity).GetValue(null);
-    public static TConsumable ToConsumable<TConsumable>(int consumable, Infinity<TConsumable> infinity) => Endpoints.ToConsumable(infinity.GetIdGroup()).GetValue(consumable);
-    public static int GetId<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => Endpoints.GetId(infinity.GetIdGroup()).GetValue(consumable);
+    public static bool IsEnabled(this IInfinity infinity) => InfinitySettings.IsEnabled(infinity);
+    public static Infinity<TConsumable> IdInfinity<TConsumable>(this Infinity<TConsumable> infinity) => Endpoints.IdInfinity(infinity).GetValue(null);
+    public static TConsumable ToConsumable<TConsumable>(int consumable, Infinity<TConsumable> infinity) => Endpoints.ToConsumable(infinity.IdInfinity()).GetValue(consumable);
+    public static int GetId<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => Endpoints.GetId(infinity.IdInfinity()).GetValue(consumable);
 
     public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
     
