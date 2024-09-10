@@ -8,10 +8,10 @@ using Terraria;
 namespace SPIC;
 
 public static class InfinityManager {
-    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
-        => Endpoints.GetCategory(infinity).GetValue(consumable);
-    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
-        => Endpoints.GetCategory(infinity).TryGetValue(consumable, out TCategory category) ? category : GetCategory(ToConsumable(consumable, infinity), infinity);
+    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
+        => Endpoints.GetCategory(category).GetValue(consumable);
+    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
+        => Endpoints.GetCategory(category).TryGetValue(consumable, out TCategory c) ? c : GetCategory(ToConsumable(consumable, category.Infinity), category);
 
     public static Requirement GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity)
         => !infinity.IsEnabled() ? default : Endpoints.GetRequirement(infinity).GetValue(consumable);

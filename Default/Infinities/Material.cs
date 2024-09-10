@@ -28,25 +28,26 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableComponents<MaterialRequirements> {
+public sealed class Material : Infinity<Item> , IConfigurableComponents<MaterialRequirements> {
     public static Customs<Item, MaterialCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Category<Item, MaterialCategory> Category = new(GetRequirement, GetCategory);
     public static Material Instance = null!;
 
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
-    protected override Optional<Requirement> GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(InfinitySettings.Get(this).Basic, InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Ore => new(InfinitySettings.Get(this).Ore, InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Furniture => new(InfinitySettings.Get(this).Furniture, InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.Miscellaneous => new(InfinitySettings.Get(this).Miscellaneous, InfinitySettings.Get(this).Multiplier),
-        MaterialCategory.NonStackable => new(InfinitySettings.Get(this).NonStackable, InfinitySettings.Get(this).Multiplier),
+    private static Optional<Requirement> GetRequirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => new(InfinitySettings.Get(Instance).Basic, InfinitySettings.Get(Instance).Multiplier),
+        MaterialCategory.Ore => new(InfinitySettings.Get(Instance).Ore, InfinitySettings.Get(Instance).Multiplier),
+        MaterialCategory.Furniture => new(InfinitySettings.Get(Instance).Furniture, InfinitySettings.Get(Instance).Multiplier),
+        MaterialCategory.Miscellaneous => new(InfinitySettings.Get(Instance).Miscellaneous, InfinitySettings.Get(Instance).Multiplier),
+        MaterialCategory.NonStackable => new(InfinitySettings.Get(Instance).NonStackable, InfinitySettings.Get(Instance).Multiplier),
         _ => Requirement.None,
     };
 
-    protected override Optional<MaterialCategory> GetCategory(Item item) {
+    private static Optional<MaterialCategory> GetCategory(Item item) {
         int type = item.type;
         switch (type) {
         case ItemID.FallenStar: return MaterialCategory.Miscellaneous;
@@ -57,7 +58,7 @@ public sealed class Material : Infinity<Item, MaterialCategory> , IConfigurableC
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Instance);
+        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Category);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;

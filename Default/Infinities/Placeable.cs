@@ -53,9 +53,10 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurableComponents<PlaceableRequirements> {
+public sealed class Placeable : Infinity<Item>, IConfigurableComponents<PlaceableRequirements> {
     public static Customs<Item, PlaceableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Category<Item, PlaceableCategory> Category = new(GetRequirement, GetCategory);
     public static Placeable Instance = null!;
 
     public override Color DefaultColor => Colors.RarityAmber;
@@ -74,11 +75,11 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurable
 
     private static void IL_FixConsumeFlexibleWand(ILContext il) {
         ILCursor cursor = new(il);
-        if (cursor.TryGotoNext(i => i.SaferMatchCall(Reflection.ItemLoader.ConsumeItem))) return; // Allready there
+        if (cursor.TryGotoNext(i => i.SaferMatchCall(Reflection.ItemLoader.ConsumeItem))) return; // Already there
 
         ILLabel? br = null;
         if (!cursor.TryGotoNext(i => i.MatchLdfld(Reflection.Item.stack)) || !cursor.TryGotoPrev(MoveType.After, i => i.MatchBrfalse(out br))) {
-            SpysInfiniteConsumables.Instance.Logger.Error($"{nameof(IL_FixConsumeFlexibleWand)} failled to apply. Rubblemaker will not be infinite");
+            SpysInfiniteConsumables.Instance.Logger.Error($"{nameof(IL_FixConsumeFlexibleWand)} failed to apply. Rubblemaker will not be infinite");
             return;
         }
         cursor.EmitLdloc1().EmitLdarg0();
@@ -91,24 +92,24 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigurable
         ClearWandAmmos();
     }
 
-    protected override Optional<Requirement> GetRequirement(PlaceableCategory category) => category switch {
-        PlaceableCategory.Tile => new(InfinitySettings.Get(this).Tile),
-        PlaceableCategory.Wiring => new(InfinitySettings.Get(this).Wiring),
-        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Infinities.Get(this).Tile),
-        PlaceableCategory.Torch => new(InfinitySettings.Get(this).Torch),
-        PlaceableCategory.Ore => new(InfinitySettings.Get(this).Ore),
-        PlaceableCategory.Furniture => new(InfinitySettings.Get(this).Furniture),
+    private static Optional<Requirement> GetRequirement(PlaceableCategory category) => category switch {
+        PlaceableCategory.Tile => new(InfinitySettings.Get(Instance).Tile),
+        PlaceableCategory.Wiring => new(InfinitySettings.Get(Instance).Wiring),
+        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Infinities.Get(Instance).Tile),
+        PlaceableCategory.Torch => new(InfinitySettings.Get(Instance).Torch),
+        PlaceableCategory.Ore => new(InfinitySettings.Get(Instance).Ore),
+        PlaceableCategory.Furniture => new(InfinitySettings.Get(Instance).Furniture),
         // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
         //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-        //     => new(Infinities.Get(this).Furniture),
-        PlaceableCategory.Bucket => new(InfinitySettings.Get(this).Bucket),
-        PlaceableCategory.Mechanical => new(InfinitySettings.Get(this).Mechanical),
-        PlaceableCategory.Seed => new(InfinitySettings.Get(this).Seed),
-        PlaceableCategory.Paint => new(InfinitySettings.Get(this).Paint),
+        //     => new(Infinities.Get(Instance).Furniture),
+        PlaceableCategory.Bucket => new(InfinitySettings.Get(Instance).Bucket),
+        PlaceableCategory.Mechanical => new(InfinitySettings.Get(Instance).Mechanical),
+        PlaceableCategory.Seed => new(InfinitySettings.Get(Instance).Seed),
+        PlaceableCategory.Paint => new(InfinitySettings.Get(Instance).Paint),
         _ => Requirement.None,
     };
 
-    protected override Optional<PlaceableCategory> GetCategory(Item item) {
+    private static Optional<PlaceableCategory> GetCategory(Item item) {
         PlaceableCategory category = GetCategory(item, false);
         return category == PlaceableCategory.None && IsWandAmmo(item.type, out int wandType) ? GetCategory(new(wandType), true) : category;
     }

@@ -26,7 +26,7 @@ namespace SPIC.Default.Globals {
 
             int type = DetectionPlayer.FindAmmoType(Main.player[proj.owner], proj.type);
 
-            AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Instance);
+            AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Category);
             // UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
             if (ammo != AmmoCategory.None && ammo != AmmoCategory.Special) {
                 if (Ammo.Customs.SaveDetectedCategory(new(type), AmmoCategory.Special)) DetectionPlayer.RefilExplosive(Main.player[proj.owner], proj.type, type);

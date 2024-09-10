@@ -22,7 +22,7 @@ public sealed class ConsumptionItem : GlobalItem {
                 return !player.HasInfinite(item, 1,
                     () => {
                         if (!Ammo.Customs.SaveDetectedCategory(item, AmmoCategory.Special)) return false;
-                        UsableCategory usableCategory = InfinityManager.GetCategory(item, Usable.Instance);
+                        UsableCategory usableCategory = InfinityManager.GetCategory(item, Usable.Category);
                         if (usableCategory == UsableCategory.Tool || usableCategory == UsableCategory.Unknown) Usable.Customs.SaveDetectedCategory(item, UsableCategory.None);
                         return true;
                     },

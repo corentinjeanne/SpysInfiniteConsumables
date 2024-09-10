@@ -21,9 +21,10 @@ public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComponents<GrabBagRequirements> {
+public sealed class GrabBag : Infinity<Item>, IConfigurableComponents<GrabBagRequirements> {
     public static Customs<Item, GrabBagCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Category<Item, GrabBagCategory> Category = new(GetRequirement, GetCategory);
     public static GrabBag Instance = null!;
 
     public override bool DefaultEnabled => false;
@@ -31,14 +32,14 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigurableComp
 
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
 
-    protected override Optional<Requirement> GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(InfinitySettings.Get(this).Container),
-        GrabBagCategory.TreasureBag => new(InfinitySettings.Get(this).TreasureBag),
-        GrabBagCategory.Extractinator => new(InfinitySettings.Get(this).Extractinator),
+    private static Optional<Requirement> GetRequirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Container => new(InfinitySettings.Get(Instance).Container),
+        GrabBagCategory.TreasureBag => new(InfinitySettings.Get(Instance).TreasureBag),
+        GrabBagCategory.Extractinator => new(InfinitySettings.Get(Instance).Extractinator),
         _ => Requirement.None,
     };
 
-    protected override Optional<GrabBagCategory> GetCategory(Item item) {
+    private static Optional<GrabBagCategory> GetCategory(Item item) {
         switch (item.type) {
         case ItemID.Geode: return GrabBagCategory.Container;
         }

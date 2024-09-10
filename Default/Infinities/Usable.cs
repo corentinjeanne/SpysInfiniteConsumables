@@ -36,34 +36,35 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Item, UsableCategory>, IConfigurableComponents<UsableRequirements> {
+public sealed class Usable : Infinity<Item>, IConfigurableComponents<UsableRequirements> {
     public static Customs<Item, UsableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Category<Item, UsableCategory> Category = new(GetRequirement, GetCategory);
     public static Usable Instance = null!;
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
-    protected override Optional<Requirement> GetRequirement(UsableCategory category) => category switch {
-        UsableCategory.Weapon => new(InfinitySettings.Get(this).Weapon),
-        UsableCategory.Potion => new(InfinitySettings.Get(this).Potion),
-        // UsableCategory.Recovery => new(Infinities.Get(this).Potion),
-        // UsableCategory.Buff => new(Infinities.Get(this).Potion),
-        UsableCategory.Booster => new(InfinitySettings.Get(this).Booster),
-        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Infinities.Get(this).Booster),
-        UsableCategory.Summoner => new(InfinitySettings.Get(this).Summoner),
-        UsableCategory.Critter => new(InfinitySettings.Get(this).Critter),
-        // UsableCategory.Explosive => new(Infinities.Get(this).Tool),
-        UsableCategory.Tool or UsableCategory.Unknown => new(InfinitySettings.Get(this).Tool),
+    private static Optional<Requirement> GetRequirement(UsableCategory category) => category switch {
+        UsableCategory.Weapon => new(InfinitySettings.Get(Instance).Weapon),
+        UsableCategory.Potion => new(InfinitySettings.Get(Instance).Potion),
+        // UsableCategory.Recovery => new(Infinities.Get(Instance).Potion),
+        // UsableCategory.Buff => new(Infinities.Get(Instance).Potion),
+        UsableCategory.Booster => new(InfinitySettings.Get(Instance).Booster),
+        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Infinities.Get(Instance).Booster),
+        UsableCategory.Summoner => new(InfinitySettings.Get(Instance).Summoner),
+        UsableCategory.Critter => new(InfinitySettings.Get(Instance).Critter),
+        // UsableCategory.Explosive => new(Infinities.Get(Instance).Tool),
+        UsableCategory.Tool or UsableCategory.Unknown => new(InfinitySettings.Get(Instance).Tool),
         _ => Requirement.None,
     };
 
-    protected override Optional<UsableCategory> GetCategory(Item item) {
+    private static Optional<UsableCategory> GetCategory(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
-        // Vanilla inconsitancies or special items
+        // Vanilla inconsistencies or special items
         switch (item.type) {
-        case ItemID.Geode: return UsableCategory.None; // Grabbag
+        case ItemID.Geode: return UsableCategory.None; // Grab bag
         case ItemID.FallenStar: return UsableCategory.None; // usable
         case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority
         case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None

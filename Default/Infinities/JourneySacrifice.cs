@@ -14,7 +14,7 @@ public sealed class JourneySacrificeRequirements {
 }
 
 public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableComponents<JourneySacrificeRequirements> {
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
     public static JourneySacrifice Instance = null!;
 
 

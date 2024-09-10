@@ -3,29 +3,29 @@ using System;
 namespace SPIC;
 
 public interface IComponent {
-    void Load(IInfinity infinity);
-    void Unload();
+    void Bind(IInfinity infinity);
+    void Unbind();
     void SetStaticDefaults();
 
     IInfinity Infinity { get; }
 }
 
 public class Component<TInfinity> : IComponent where TInfinity: IInfinity {
-    public virtual void Load() { }
-    public virtual void Unload() { }
+    public virtual void Bind() { }
+    public virtual void Unbind() { }
     public virtual void SetStaticDefaults() { }
 
     public TInfinity Infinity { get; private set; } = default!;
 
     IInfinity IComponent.Infinity => Infinity;
 
-    void IComponent.Load(IInfinity infinity) {
+    void IComponent.Bind(IInfinity infinity) {
         Infinity = (TInfinity)infinity;
-        Load();
+        Bind();
     }
 
-    void IComponent.Unload() {
-        Unload();
+    void IComponent.Unbind() {
+        Unbind();
         Infinity = default!;
     }
 

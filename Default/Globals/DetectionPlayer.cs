@@ -41,7 +41,7 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Category) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
@@ -137,7 +137,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) Placeable.Customs.SaveDetectedCategory(item, PlaceableCategory.Bucket);
+        if (InfinityManager.GetCategory(item, Placeable.Category) == PlaceableCategory.None) Placeable.Customs.SaveDetectedCategory(item, PlaceableCategory.Bucket);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

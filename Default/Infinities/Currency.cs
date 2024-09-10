@@ -29,27 +29,29 @@ public sealed class CurrencyRequirements {
     [DefaultValue(1/5)] private float SingleCoin { set => ConfigHelper.MoveMember(value != 1 / 5, c => SingleCoinMultiplier = value); }
 }
 
-public sealed class Currency : Infinity<int, CurrencyCategory>, IConfigurableComponents<CurrencyRequirements> {
+public sealed class Currency : Infinity<int>, IConfigurableComponents<CurrencyRequirements> {
     public static Customs<int, CurrencyCategory> Customs = new(i => new(CurrencyHelper.LowestValueType(i)));
+    public static Category<int, CurrencyCategory> Category = new(GetRequirement, GetCategory);
     public static Currency Instance = null!;
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.CoinGold;
 
-    protected override Optional<Requirement> GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, InfinitySettings.Get(this).CoinsMultiplier),
-        CurrencyCategory.SingleCoin => new(20, InfinitySettings.Get(this).SingleCoinMultiplier),
+    protected override Optional<int> GetId(int consumable) => consumable;
+    protected override Optional<int> ToConsumable(int id) => id;
+   
+    private static Optional<Requirement> GetRequirement(CurrencyCategory category) => category switch {
+        CurrencyCategory.Coins => new(10000, InfinitySettings.Get(Instance).CoinsMultiplier),
+        CurrencyCategory.SingleCoin => new(20, InfinitySettings.Get(Instance).SingleCoinMultiplier),
         _ => Requirement.None
     };
 
-    protected override Optional<CurrencyCategory> GetCategory(int currency) {
+    private static Optional<CurrencyCategory> GetCategory(int currency) {
         if (currency == CurrencyHelper.Coins) return CurrencyCategory.Coins;
         if (!CustomCurrencyManager.TryGetCurrencySystem(currency, out var system)) return CurrencyCategory.None;
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
-    protected override Optional<int> GetId(int consumable) => consumable;
-    protected override Optional<int> ToConsumable(int id) => id;
 
 
     // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);

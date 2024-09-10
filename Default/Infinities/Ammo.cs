@@ -18,20 +18,21 @@ public sealed class AmmoRequirements {
     public Count<AmmoCategory> Special = 999;
 }
 
-public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigurableComponents<AmmoRequirements> {
+public sealed class Ammo : Infinity<Item>, IConfigurableComponents<AmmoRequirements> {
     public static Customs<Item, AmmoCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.Instance);
+    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Category<Item, AmmoCategory> Category = new(GetRequirement, GetCategory);
     public static Ammo Instance = null!;
 
     public override Color DefaultColor => new(34, 221, 151, 255); // Vortex
 
-    protected override Optional<Requirement> GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(InfinitySettings.Get(this).Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(InfinitySettings.Get(this).Special),
+    private static Optional<Requirement> GetRequirement(AmmoCategory category) => category switch {
+        AmmoCategory.Classic => new(InfinitySettings.Get(Instance).Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(InfinitySettings.Get(Instance).Special),
         _ => Requirement.None,
     };
 
-    protected override Optional<AmmoCategory> GetCategory(Item ammo) {
+    private static Optional<AmmoCategory> GetCategory(Item ammo) {
         if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
