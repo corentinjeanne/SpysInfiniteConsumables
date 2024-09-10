@@ -46,8 +46,8 @@ public sealed class ClientGroupConfig {
 
 public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>>, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
     public override void Load() {
-        Endpoints.UsedInfinities(this).Register(UsedInfinities);
-        Endpoints.GetRequirement(Infinity).Register(GetRequirement);
+        Endpoints.UsedInfinities(this).AddProvider(UsedInfinities);
+        Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
     }
     
     public void RegisterChild(Group<TConsumable> infinity) {

@@ -37,11 +37,11 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
 
     void IComponent.Load(IInfinity infinity) {
-        if (LoaderUtils.HasOverride(this, i => i.GetId)) Endpoints.GetId(this).Register(GetId);
-        if (LoaderUtils.HasOverride(this, i => i.ToConsumable)) Endpoints.ToConsumable(this).Register(ToConsumable);
-        if (LoaderUtils.HasOverride(this, i => i.CountConsumables)) Endpoints.CountConsumables(this).Register(CountConsumables);
-        if (LoaderUtils.HasOverride(this, i => i.GetRequirement)) Endpoints.GetRequirement(this).Register(GetRequirement);
-        Endpoints.IdInfinity(this).Register(_ => this);
+        if (LoaderUtils.HasOverride(this, i => i.GetId)) Endpoints.GetId(this).AddProvider(GetId);
+        if (LoaderUtils.HasOverride(this, i => i.ToConsumable)) Endpoints.ToConsumable(this).AddProvider(ToConsumable);
+        if (LoaderUtils.HasOverride(this, i => i.CountConsumables)) Endpoints.CountConsumables(this).AddProvider(CountConsumables);
+        if (LoaderUtils.HasOverride(this, i => i.GetRequirement)) Endpoints.GetRequirement(this).AddProvider(GetRequirement);
+        Endpoints.IdInfinity(this).AddProvider(_ => this);
     }
 
     protected sealed override void Register() {
@@ -106,7 +106,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TCategory : struct, Enum {
     public override void Load() {
         base.Load();
-        if (LoaderUtils.HasOverride(this, i => i.GetCategory)) Endpoints.GetCategory(this).Register(GetCategory);
+        if (LoaderUtils.HasOverride(this, i => i.GetCategory)) Endpoints.GetCategory(this).AddProvider(GetCategory);
     }
 
     protected virtual Optional<TCategory> GetCategory(TConsumable consumable) => throw new NotImplementedException();
