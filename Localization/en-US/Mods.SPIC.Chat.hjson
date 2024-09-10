@@ -14,10 +14,9 @@ Changelog:
 	- Changed Grab Bags to be disabled by default
 	- Added automatic localization generation
 	- Moved Definition and CustomDictionaryElement to Spiky's Lib
-	- Auto generate localization
 	- Added loads of tooltips
 	- Simplified notification
 	- Added Version config
 	- Updated to Spiky's lib v1.2
-	- Fixed Classic preset
+	- Fixed bugs with preset
 	'''

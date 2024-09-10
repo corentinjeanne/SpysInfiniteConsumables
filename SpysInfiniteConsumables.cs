@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using SPIC.Configs;
 using SpikysLib;
 using SpikysLib.Configs;
 using SpikysLib.Localization;
@@ -16,7 +17,8 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
         LanguageHelper.ModifyKey += s => DisplayRoutingRegex.Replace(s, "Mods.SPIC.Displays.$1$2");
     }
     public override void PostSetupContent() {
-        Configs.InfinitySettings.Instance.Load();
+        InfinitySettings.Instance.Load();
+        InfinityDisplays.Instance.Load();
     }
 
     public override void Unload() {        
@@ -46,6 +48,6 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
     }
 
     private static readonly Regex CamelCaseRegex = new("([A-Z])");
-    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(Category|Requirements)(.*)$""");
+    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Custom)(Category|Requirements)(.*)$""");
     private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Group)Config(.*)$""");
 }

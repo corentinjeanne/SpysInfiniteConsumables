@@ -230,3 +230,12 @@ Usable: {
 
 	Unknown.Label: Tool?
 }
+
+Custom: {
+	customs: {
+		Label: Customs
+		Tooltip: ""
+	}
+
+	Tooltip: ""
+}

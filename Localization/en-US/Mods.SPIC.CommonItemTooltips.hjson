@@ -1,6 +1,5 @@
 Count: "{0} {^0:consumable:consumables}"
 Items: "{0} {^0:item;items}"
-Mixed: Mixed
 Custom: Custom
 Infinite: Infinite {0}
-PartialyInfinite: Infinite {0} below {1}
+PartiallyInfinite: Infinite {0} below {1}

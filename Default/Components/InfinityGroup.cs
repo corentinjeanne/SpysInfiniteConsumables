@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using SPIC.Configs;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
@@ -17,14 +19,14 @@ public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities(int value) : base(value) { }
 
     [Choice] public Text All { get; set; } = new();
-    [Choice, Range(1, 9999)] public int Used { get; set; } = 1;
+    [Choice, Range(1, 9999)] public int Maximum { get; set; } = 1;
 
     public override int Value {
-        get => Choice == nameof(All) ? 0 : Used;
+        get => Choice == nameof(All) ? 0 : Maximum;
         set {
             if (value != 0) {
-                Choice = nameof(Used);
-                Used = value;
+                Choice = nameof(Maximum);
+                Maximum = value;
             } else Choice = nameof(All);
         }
     }
@@ -33,7 +35,16 @@ public sealed class UsedInfinities : MultiChoice<int> {
 }
 
 public sealed class GroupConfig {
-    // TODO presets
+    [JsonIgnore, ShowDespiteJsonIgnore] public PresetDefinition Preset {
+        get => _preset;
+        set {
+            _preset = value;
+            if (Infinities.Count != 0) value.Entity?.ApplyCriterias(this);
+        }
+    }
+
+    private PresetDefinition _preset = new();
+
     public UsedInfinities UsedInfinities { get; set; } = 0;
 
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))] public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = [];
@@ -43,13 +54,23 @@ public sealed class ClientGroupConfig {
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityClientConfigsWrapper))] public OrderedDictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> Infinities { get; set; } = [];
 }
 
+public interface IInfinityGroup: IComponent {
+    ReadOnlyCollection<Preset> Presets { get; }
+    ReadOnlyCollection<IInfinity> Infinities { get; }
+}
 
-public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>>, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
+public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>>, IInfinityGroup, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
     public override void Bind() {
         Endpoints.UsedInfinities(this).AddProvider(UsedInfinities);
         Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
     }
-    
+
+    public override void SetStaticDefaults() {
+        foreach (Preset preset in PresetLoader.Presets) {
+            if (preset.AppliesTo(this)) _presets.Add(preset);
+        }
+    }
+
     public void RegisterChild(Group<TConsumable> infinity) {
         _infinities.Add(infinity);
         _orderedInfinities.Add(infinity);
@@ -102,6 +123,11 @@ public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>
             _orderedInfinities.Add(infinity.GetComponent<Group<TConsumable>>());
         }
         foreach (var infinity in toRemove) config.Infinities.Remove(new(infinity));
+
+        Preset? preset = null;
+        foreach (Preset p in PresetLoader.Presets) if (p.MeetsCriterias(config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
+        config.Preset = preset is not null ? new(preset.Mod.Name, preset.Name) : new();
+        config.Preset.Filter = this;
     }
     void IClientConfigurableComponents<ClientGroupConfig>.OnLoaded(ClientGroupConfig config) {
         List<IInfinity> toRemove = [];
@@ -119,6 +145,11 @@ public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>
     }
 
     public ReadOnlyCollection<Group<TConsumable>> Infinities => _orderedInfinities.AsReadOnly();
+    public ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
+
+    ReadOnlyCollection<IInfinity> IInfinityGroup.Infinities => new(_infinities.Cast<IInfinity>().ToArray());
+
     private readonly List<Group<TConsumable>> _orderedInfinities = [];
     private readonly HashSet<Infinity<TConsumable>> _infinities = [];
+    private readonly List<Preset> _presets = [];
 }
