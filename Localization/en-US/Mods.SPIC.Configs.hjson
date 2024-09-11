@@ -115,7 +115,10 @@ GroupConfig: {
 			'''
 	}
 
-	Tooltip: ""
+	Infinities: {
+		Label: Infinities
+		Tooltip: ""
+	}
 }
 
 UsedInfinities: {
@@ -128,6 +131,13 @@ UsedInfinities: {
 
 	Maximum: {
 		Label: Maximum
+		Tooltip: ""
+	}
+}
+
+ClientGroupConfig: {
+	Infinities: {
+		Label: Infinities
 		Tooltip: ""
 	}
 }
@@ -189,8 +199,6 @@ CustomRequirements`1: {
 		Label: Customs
 		Tooltip: ""
 	}
-
-	Tooltip: ""
 }
 
 Corner: {
@@ -223,3 +231,4 @@ GlowStyle: {
 
 InfinityDefinition.Tooltip: ""
 DisplayDefinition.Tooltip: ""
+PresetDefinition.Tooltip: ""

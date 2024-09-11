@@ -1,14 +1,17 @@
 Tooltip: {
+	Label: "[i:171] Tooltip"
+	Tooltip: Display the requirement and infinity of items in their tooltip
+
 	AddMissingLines: {
 		Label: Add Missing Lines
 		Tooltip: Add lines on which should be displayed infinities if they are not present
 	}
-
-	Label: "[i:171] Tooltip"
-	Tooltip: Display the requirement and infinity of items in their tooltip
 }
 
 Glow: {
+	Label: "[i:75] Glow"
+	Tooltip: Adds a glow around infinite items
+
 	FancyGlow: {
 		Label: Fancy Glow
 		Tooltip:
@@ -27,12 +30,12 @@ Glow: {
 		Label: Animation Length
 		Tooltip: ""
 	}
-
-	Label: "[i:75] Glow"
-	Tooltip: Adds a glow around infinite items
 }
 
 Dots: {
+	Label: "[i:3629] Dots"
+	Tooltip: Display the infinity of items on their inventory slots with dots
+
 	Start: {
 		Label: First Dot position
 		Tooltip: ""
@@ -47,7 +50,4 @@ Dots: {
 		Label: Group time
 		Tooltip: The time each infinity group is display before changing to the next group
 	}
-
-	Label: "[i:3629] Dots"
-	Tooltip: Display the infinity of items on their inventory slots with dots
 }

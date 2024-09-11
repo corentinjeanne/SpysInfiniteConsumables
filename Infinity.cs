@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SpikysLib;
 using SpikysLib.Configs;
+using SpikysLib.Localization;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
@@ -50,7 +51,10 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{${{this.GetLocalizationKey("DisplayName")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
-        // TODO configs localization
+        foreach (IComponent component in _components) {
+            if (component is IConfigurableComponents configurable) LanguageHelper.RegisterLocalizationKeysForMembers(configurable.ConfigType);
+            if (component is IClientConfigurableComponents clientConfigurable) LanguageHelper.RegisterLocalizationKeysForMembers(clientConfigurable.ConfigType);
+        }
     }
 
     public sealed override void SetupContent() {
