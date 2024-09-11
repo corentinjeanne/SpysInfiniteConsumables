@@ -2,9 +2,9 @@
 using System;
 using Microsoft.CodeAnalysis;
 
-namespace SPIC.Default.Components;
+namespace SPIC.Components;
 
-public sealed class Category<TConsumable, TCategory> : Component<Infinity<TConsumable>>, ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
+public sealed class Category<TConsumable, TCategory> : Component<Infinity<TConsumable>>, Endpoints.ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
     
     public Category(Func<TCategory, Optional<Requirement>> getRequirement, IEndpoint<TConsumable, TCategory>.ProviderFn? getCategory = null) {
         GetRequirement = getRequirement;

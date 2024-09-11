@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using SPIC.Components;
 using SPIC.Configs;
-using SPIC.Default.Components;
 using Terraria;
 
 namespace SPIC;
 
 public static class InfinityManager {
-    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
+    public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, Endpoints.ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
         => Endpoints.GetCategory(category).GetValue(consumable);
-    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
+    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, Endpoints.ICategoryAccessor<TConsumable, TCategory> category) where TCategory : struct, Enum
         => Endpoints.GetCategory(category).TryGetValue(consumable, out TCategory c) ? c : GetCategory(ToConsumable(consumable, category.Infinity), category);
 
     public static Requirement GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity)

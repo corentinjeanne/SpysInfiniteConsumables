@@ -12,7 +12,7 @@ using SpikysLib.Configs.UI;
 using SpikysLib.DataStructures;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.Default.Components;
+namespace SPIC.Components;
 
 public sealed class UsedInfinities : MultiChoice<int> {
     public UsedInfinities() : base() { }

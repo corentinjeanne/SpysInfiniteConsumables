@@ -1,4 +1,4 @@
-using SPIC.Default.Components;
+using SPIC.Components;
 using Terraria.Localization;
 using Terraria.ModLoader;
 

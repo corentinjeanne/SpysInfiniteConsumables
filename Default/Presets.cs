@@ -1,6 +1,6 @@
 using SPIC.Configs;
 using SpikysLib.Collections;
-using SPIC.Default.Components;
+using SPIC.Components;
 using SpikysLib.Configs;
 
 namespace SPIC.Default.Presets;

@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
-using SPIC.Default.Components;
+using SPIC.Components;
 using Terraria;
 
 namespace SPIC.Default.Infinities;

@@ -6,7 +6,7 @@ using SpikysLib.Configs;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
-using SPIC.Default.Components;
+using SPIC.Components;
 
 namespace SPIC.Default.Infinities;
 

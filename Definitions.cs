@@ -3,7 +3,7 @@ using System.ComponentModel;
 using SpikysLib;
 using SPIC.Configs;
 using Newtonsoft.Json;
-using SPIC.Default.Components;
+using SPIC.Components;
 
 namespace SPIC;
 

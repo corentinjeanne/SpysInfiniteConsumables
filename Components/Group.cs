@@ -2,7 +2,7 @@
 using System;
 using Microsoft.CodeAnalysis;
 
-namespace SPIC.Default.Components;
+namespace SPIC.Components;
 
 public sealed class Group<TConsumable> : Component<Infinity<TConsumable>> {
     public Group(Func<InfinityGroup<TConsumable>> getter) => _getter = getter;

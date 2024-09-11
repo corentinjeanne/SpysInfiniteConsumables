@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
-using SPIC.Default.Components;
+using SPIC.Components;
 using SpikysLib.Collections;
 
 namespace SPIC;
 
 public static class Endpoints {
+    public interface ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
+        Infinity<TConsumable> Infinity { get; }
+    }
+
     public static SimpleEndpoint<object?, Infinity<TConsumable>> IdInfinity<TConsumable>(Infinity<TConsumable> infinity)
        => s_idInfinities.GetOrAddRaw(infinity, () => new SimpleEndpoint<object?, Infinity<TConsumable>>());
 

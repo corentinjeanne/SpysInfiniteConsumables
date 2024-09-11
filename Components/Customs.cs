@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using SPIC.Configs;
 using Terraria.ModLoader.Config;
 
-namespace SPIC.Default.Components;
+namespace SPIC.Components;
 
 public class CustomRequirements<TCount> where TCount : Count {
     public Dictionary<ItemDefinition, TCount> customs = [];
@@ -24,7 +24,7 @@ public sealed class Customs<TConsumable> : Component<Infinity<TConsumable>>, ICo
     public Func<TConsumable, ItemDefinition> ToDefinition { get; }
 }
 
-public sealed class Customs<TConsumable, TCategory> : Component<Infinity<TConsumable>>, IConfigurableComponents<CustomRequirements<Count<TCategory>>>, ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
+public sealed class Customs<TConsumable, TCategory> : Component<Infinity<TConsumable>>, IConfigurableComponents<CustomRequirements<Count<TCategory>>>, Endpoints.ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
     public Customs(Func<TConsumable, ItemDefinition> toDefinition) => ToDefinition = toDefinition;
     public override void Bind() {
         Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);

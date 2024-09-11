@@ -3,7 +3,7 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Microsoft.CodeAnalysis;
-using SPIC.Default.Components;
+using SPIC.Components;
 
 namespace SPIC.Default.Infinities;
 
