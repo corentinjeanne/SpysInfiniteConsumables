@@ -17,14 +17,14 @@ public sealed class InfinitySettings : ModConfig {
     [DefaultValue(true)] public bool DetectMissingCategories;
     [DefaultValue(true)] public bool PreventItemDuplication { get; set; }
 
-    [Header("Configs")]
+    [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
-    public Dictionary<InfinityDefinition,  InfinityConfig> Configs {
-        get => _rootConfigs;
+    public Dictionary<InfinityDefinition, InfinityConfig> Infinities {
+        get => _rootInfinities;
         set {
-            _rootConfigs = value;
-            _configs.Clear();
-            foreach(IInfinity infinity in InfinityManager.RootInfinities) LoadInfinityConfig(infinity, _rootConfigs.GetOrAdd(new(infinity), DefaultConfig(infinity)));
+            _rootInfinities = value;
+            _infinities.Clear();
+            foreach (IInfinity infinity in InfinityManager.RootInfinities) LoadInfinityConfig(infinity, _rootInfinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
         }
     }
 
@@ -43,17 +43,16 @@ public sealed class InfinitySettings : ModConfig {
             };
             configurable.OnLoaded(config.Value[key]);
         }
-        _configs[infinity] = config;
+        _infinities[infinity] = config;
     }
 
-    private Dictionary<InfinityDefinition, InfinityConfig> _rootConfigs = [];
-    private readonly Dictionary<IInfinity, InfinityConfig> _configs = [];
+    private Dictionary<InfinityDefinition, InfinityConfig> _rootInfinities = [];
+    private readonly Dictionary<IInfinity, InfinityConfig> _infinities = [];
 
-    public override ConfigScope Mode => ConfigScope.ServerSide;    
+    public override ConfigScope Mode => ConfigScope.ServerSide;
     public static InfinitySettings Instance = null!;
 
-    public InfinityConfig GetConfig(IInfinity infinity) => _configs[infinity];
-
+    public InfinityConfig GetConfig(IInfinity infinity) => _infinities[infinity];
     public static bool IsEnabled(IInfinity infinity) => Instance.GetConfig(infinity).Key;
-    public static TConfig Get<TConfig>(IConfigurableComponents<TConfig> config) where TConfig: new() => (TConfig)Instance.GetConfig(config.Infinity).Value[config.ConfigKey];
+    public static TConfig Get<TConfig>(IConfigurableComponents<TConfig> config) where TConfig : new() => (TConfig)Instance.GetConfig(config.Infinity).Value[config.ConfigKey];
 }

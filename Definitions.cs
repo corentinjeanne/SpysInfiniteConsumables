@@ -35,3 +35,17 @@ public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition, II
 
     public override InfinityDefinition[] GetValues() => InfinityManager.Infinities.Select(infinity => new InfinityDefinition(infinity)).ToArray();
 }
+
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
+public sealed class DisplayDefinition : EntityDefinition<DisplayDefinition, Display> {
+    public DisplayDefinition() : base() { }
+    public DisplayDefinition(string fullName) : base(fullName) { }
+    public DisplayDefinition(string mod, string name) : base(mod, name) { }
+    public DisplayDefinition(Display entity) : this(entity.Mod.Name, entity.Name) { }
+
+    public override Display? Entity => DisplayLoader.GetDisplay(Mod, Name);
+
+    public override string DisplayName => Entity?.Label.Value ?? base.DisplayName;
+
+    public override DisplayDefinition[] GetValues() => DisplayLoader.Displays.Select(display => new DisplayDefinition(display.Mod.Name, display.Name)).ToArray();
+}

@@ -3,7 +3,7 @@ InfinitySettings: {
 
 	Headers: {
 		Features: Features
-		Configs: Infinity Configs
+		Infinities: Infinity Configs
 	}
 
 	DetectMissingCategories: {
@@ -27,8 +27,8 @@ InfinitySettings: {
 			'''
 	}
 
-	Configs: {
-		Label: Configs
+	Infinities: {
+		Label: Infinity Configs
 		Tooltip: ""
 	}
 }
@@ -38,14 +38,9 @@ InfinityDisplays: {
 
 	Headers: {
 		General: General
-		Displays: Displays
+		Displays: Display Configs
+		Infinities: Infinity Configs
 		Performances: Performances
-		Configs: Infinity Configs
-	}
-
-	Displays: {
-		Label: Displays
-		Tooltip: ""
 	}
 
 	ShowInfinities: {
@@ -73,8 +68,13 @@ InfinityDisplays: {
 		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
 	}
 
-	Configs: {
-		Label: Configs
+	Displays: {
+		Label: Displays
+		Tooltip: ""
+	}
+
+	Infinities: {
+		Label: Infinity Configs
 		Tooltip: ""
 	}
 
@@ -222,3 +222,4 @@ GlowStyle: {
 }
 
 InfinityDefinition.Tooltip: ""
+DisplayDefinition.Tooltip: ""

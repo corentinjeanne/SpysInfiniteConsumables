@@ -50,6 +50,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{${{this.GetLocalizationKey("DisplayName")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
+        // TODO configs localization
     }
 
     public sealed override void SetupContent() {
