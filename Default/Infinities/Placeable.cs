@@ -8,6 +8,10 @@ using MonoMod.Cil;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
 using SPIC.Components;
+using SPIC.Default.Displays;
+using SpikysLib;
+using Terraria.Localization;
+using SpikysLib.Constants;
 
 namespace SPIC.Default.Infinities;
 
@@ -55,9 +59,10 @@ public sealed class PlaceableRequirements {
 
 public sealed class Placeable : Infinity<Item>, IConfigurableComponents<PlaceableRequirements> {
     public static Customs<Item, PlaceableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
     public static Category<Item, PlaceableCategory> Category = new(GetRequirement, GetCategory);
     public static Placeable Instance = null!;
+    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
 
     public override Color DefaultColor => Colors.RarityAmber;
 
@@ -167,23 +172,23 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
         // return PlaceableCategory.None;
     }
 
-    private static readonly Dictionary<int, int> s_wandAmmos = new(); // ammoType, wandType
+    private static readonly Dictionary<int, int> s_wandAmmos = []; // ammoType, wandType
     internal static void ClearWandAmmos() => s_wandAmmos.Clear();
     public static void RegisterWand(Item wand) => s_wandAmmos.TryAdd(wand.tileWand, wand.type);
     public static bool IsWandAmmo(int type, out int wandType) => s_wandAmmos.TryGetValue(type, out wandType);
 
-    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-    //     if (displayed == item.type) {
-    //         if(item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
-    //         return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
-    //     }
-    //     (string name, TooltipLineID position) = GetWandType(item) switch {
-    //         WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
-    //         WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
-    //         WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
-    //     };
-    //     return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
-    // }
+    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) {
+            if(item.XMasDeco()) return (new(Instance.Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
+            return (new(Instance.Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+        }
+        (string name, TooltipLineID position) = GetWandType(item) switch {
+            WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
+            WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
+            WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
+        };
+        return (new(Instance.Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
+    }
 
     public enum WandType {
         None,
@@ -202,30 +207,31 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
-    // public override void ModifyInfinity(Player player, Item consumable, Requirement requirement, long count, ref long infinity, List<object> extras) {
-    //     if(!InfinitySettings.Instance.PreventItemDuplication || count <= requirement.Count) return;
+    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index < InventorySlots.Coins.Start || InventorySlots.Ammo.End <= index) return default;
+
+        PlaceableCategory category = InfinityManager.GetCategory(item, Category);
+        if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) return InfinityVisibility.Exclusive;
+        return default;
+    }
+
+    // protected override void ModifyInfinity(Player player, Item consumable, ref InfinityValue value) {
+    //     if(!InfinitySettings.Instance.PreventItemDuplication || value.Count <= value.Requirement.Count) return;
     //     if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
     //         extras.Add(this.GetLocalizationKey("TileDuplication"));
     //         infinity = 0;
     //     }
     // }
 
-    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-    //     if (index < 50 || 58 <= index) return;
-
-    //     PlaceableCategory category = GetCategory(item);
-    //     if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
-    // }
-
-    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-    //     Item? item = GetWandType(consumable) switch {
-    //         WandType.Tile => Main.LocalPlayer.FindItemRaw(consumable.tileWand),
-    //         WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-    //         WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-    //         WandType.Flexible => consumable.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
-    //         _ => null
-    //     };
-    //     if (item is not null) displayed.Add(item);
-    // }
+    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+        Item? ammo = GetWandType(item) switch {
+            WandType.Tile => Main.LocalPlayer.FindItemRaw(item.tileWand),
+            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
+            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
+            WandType.Flexible => item.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
+            _ => null
+        };
+        if (ammo is not null) displayed.Add(ammo);
+    }
 }

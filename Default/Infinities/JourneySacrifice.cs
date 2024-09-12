@@ -4,29 +4,32 @@ using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Microsoft.CodeAnalysis;
 using SPIC.Components;
+using Terraria.ModLoader;
+using SpikysLib;
+using SPIC.Default.Displays;
+using SPIC.Configs;
 
 namespace SPIC.Default.Infinities;
-
-public enum JourneyCategory { NotConsumable, Consumable }
 
 public sealed class JourneySacrificeRequirements {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
 public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableComponents<JourneySacrificeRequirements> {
-    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
     public static JourneySacrifice Instance = null!;
-
+    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.JourneyMode;
 
     protected override Optional<Requirement> GetRequirement(Item item) => new Requirement(item.ResearchUnlockCount);
 
-    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
+    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 
-    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-    //     if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
-    //     else if(Config.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
-    // }
+    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+        if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) return InfinityVisibility.Exclusive;
+        else if(InfinityDisplays.Get(this).hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) return InfinityVisibility.Hidden;
+        return default;
+    }
 }

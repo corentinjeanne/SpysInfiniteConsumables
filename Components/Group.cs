@@ -8,8 +8,8 @@ public sealed class Group<TConsumable> : Component<Infinity<TConsumable>> {
     public Group(Func<InfinityGroup<TConsumable>> getter) => _getter = getter;
 
     public override void Bind() {
-        Endpoints.IdInfinity(Infinity).AddProvider(_ => InfinityGroup.Infinity);
-        Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
+        Endpoints.IdInfinity(Infinity).Add(_ => InfinityGroup.Infinity);
+        Endpoints.GetRequirement(Infinity).Providers.Add(GetRequirement);
     }
     public override void SetStaticDefaults() {
         InfinityGroup ??= _getter();

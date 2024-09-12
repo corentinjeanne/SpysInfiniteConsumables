@@ -4,6 +4,11 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
 using SPIC.Components;
+using SPIC.Default.Displays;
+using Terraria.ModLoader;
+using SpikysLib;
+using SpikysLib.Constants;
+using System.Collections.Generic;
 
 namespace SPIC.Default.Infinities;
 
@@ -38,9 +43,10 @@ public sealed class UsableRequirements {
 
 public sealed class Usable : Infinity<Item>, IConfigurableComponents<UsableRequirements> {
     public static Customs<Item, UsableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
     public static Category<Item, UsableCategory> Category = new(GetRequirement, GetCategory);
     public static Usable Instance = null!;
+    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
@@ -93,18 +99,18 @@ public sealed class Usable : Infinity<Item>, IConfigurableComponents<UsableRequi
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
-    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-    //     if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
-    //     return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
-    // }
+    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) return (new(Instance.Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
+        return (new(Instance.Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
+    }
 
-    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-    //     if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
-    // }
+    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        return InventorySlots.Ammo.Contains(index) && InfinityManager.GetCategory(item, Category) == UsableCategory.Critter ? new(InfinityVisibility.Exclusive) : default;
+    }
 
-    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-    //     Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
-    //     if (item is not null) displayed.Add(item);
-    // }
+    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+        Item? ammo = item.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
+        if (ammo is not null) displayed.Add(ammo);
+    }
 }

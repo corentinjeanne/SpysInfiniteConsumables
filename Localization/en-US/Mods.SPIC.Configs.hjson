@@ -43,28 +43,18 @@ InfinityDisplays: {
 		Performances: Performances
 	}
 
-	ShowInfinities: {
-		Label: "[i:3084] Show Infinities"
-		Tooltip: ""
+	groups: {
+		Label: "[i:3093] Show Groups"
+		Tooltip: Displays the infinity of group infinities
 	}
 
-	ShowRequirement: {
-		Label: "[i:3102] Show Requirements"
-		Tooltip: ""
+	exclusiveDisplay: {
+		Label: "[i:5075] Exclusive Displays"
+		Tooltip: Only display Infinities relevant to the context (e.g. the only infinity displayed when an item is in an ammo slot is the Ammo Infinity)
 	}
 
-	ShowInfo: {
-		Label: "[i:393] Show Extra Info"
-		Tooltip: Displays more precise info about the item, such as its category
-	}
-
-	ShowExclusiveDisplay: {
-		Label: "[i:5075] Show Exclusive Displays"
-		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
-	}
-
-	ShowAlternateDisplays: {
-		Label: "[i:4953] Show Alternate Displays"
+	alternateDisplays: {
+		Label: "[i:4953] Alternate Displays"
 		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
 	}
 
@@ -98,12 +88,21 @@ InfinityDisplays: {
 			May cause visual inconsistencies, especially for large values (>15)
 			'''
 	}
+
+	displayedInfinities: {
+		Label: displayed Infinities
+		Tooltip: ""
+	}
 }
 
 GroupConfig: {
 	Preset: {
 		Label: Active Preset
-		Tooltip: ""
+		Tooltip:
+			'''
+			The preset inferred from your group settings.
+			Click to select a preset and apply it.
+			'''
 	}
 
 	UsedInfinities: {
@@ -232,3 +231,10 @@ GlowStyle: {
 InfinityDefinition.Tooltip: ""
 DisplayDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
+
+DisplayedInfinities: {
+	Tooltip: ""
+	Leaves.Label: Leaves
+	Groups.Label: Groups
+	Both.Label: Both
+}

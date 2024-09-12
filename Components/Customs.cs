@@ -13,7 +13,7 @@ public class CustomRequirements<TCount> where TCount : Count {
 public sealed class Customs<TConsumable> : Component<Infinity<TConsumable>>, IConfigurableComponents<CustomRequirements<Count>> {
     public Customs(Func<TConsumable, ItemDefinition> toDefinition) => ToDefinition = toDefinition;
     public override void Bind() {
-        Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
+        Endpoints.GetRequirement(Infinity).Providers.Add(GetRequirement);
     }
 
     private Optional<Requirement> GetRequirement(TConsumable consumable) {
@@ -27,8 +27,8 @@ public sealed class Customs<TConsumable> : Component<Infinity<TConsumable>>, ICo
 public sealed class Customs<TConsumable, TCategory> : Component<Infinity<TConsumable>>, IConfigurableComponents<CustomRequirements<Count<TCategory>>>, Endpoints.ICategoryAccessor<TConsumable, TCategory> where TCategory : struct, Enum {
     public Customs(Func<TConsumable, ItemDefinition> toDefinition) => ToDefinition = toDefinition;
     public override void Bind() {
-        Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
-        Endpoints.GetCategory(this).AddProvider(GetCategory);
+        Endpoints.GetRequirement(Infinity).Providers.Add(GetRequirement);
+        Endpoints.GetCategory(this).Providers.Add(GetCategory);
     }
 
     private Optional<TCategory> GetCategory(TConsumable consumable) {

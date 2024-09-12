@@ -7,6 +7,11 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
 using SPIC.Components;
+using Terraria.ModLoader;
+using Terraria;
+using Terraria.Localization;
+using SPIC.Default.Displays;
+using SpikysLib.Constants;
 
 namespace SPIC.Default.Infinities;
 
@@ -33,13 +38,15 @@ public sealed class Currency : Infinity<int>, IConfigurableComponents<CurrencyRe
     public static Customs<int, CurrencyCategory> Customs = new(i => new(CurrencyHelper.LowestValueType(i)));
     public static Category<int, CurrencyCategory> Category = new(GetRequirement, GetCategory);
     public static Currency Instance = null!;
+    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine, CountToString);
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.CoinGold;
 
     protected override Optional<int> GetId(int consumable) => consumable;
     protected override Optional<int> ToConsumable(int id) => id;
-   
+    protected override Optional<int> ToConsumable(Item item) => item.CurrencyType();
+
     private static Optional<Requirement> GetRequirement(CurrencyCategory category) => category switch {
         CurrencyCategory.Coins => new(10000, InfinitySettings.Get(Instance).CoinsMultiplier),
         CurrencyCategory.SingleCoin => new(20, InfinitySettings.Get(Instance).SingleCoinMultiplier),
@@ -52,12 +59,18 @@ public sealed class Currency : Infinity<int>, IConfigurableComponents<CurrencyRe
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
 
+    public static string CountToString(int consumable, long count, long value) {
+        if (count == 0) return CurrencyHelper.PriceText(consumable, value);
+        if (InfinityManager.GetCategory(consumable, Category) == CurrencyCategory.SingleCoin) return $"{count}/{CurrencyHelper.PriceText(consumable, value)}";
+        return $"{CurrencyHelper.PriceText(consumable, count)}/{CurrencyHelper.PriceText(consumable, value)}";
+    }
 
+    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ?
+        ((TooltipLine, TooltipLineID?))(new(Instance.Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) :
+        Displays.Tooltip.DefaultTooltipLine(Instance);
 
-    // public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);
-
-    // public override void ModifyDisplay(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-    //     if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
-    // }
+    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        return InventorySlots.Coins.Contains(index) ? new(InfinityVisibility.Exclusive) : default;
+    }
 }

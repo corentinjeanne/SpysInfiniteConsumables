@@ -1,4 +1,4 @@
-Count: "{0} {^0:consumable:consumables}"
+Count: "{0} {^0:consumable;consumables}"
 Items: "{0} {^0:item;items}"
 Custom: Custom
 Infinite: Infinite {0}

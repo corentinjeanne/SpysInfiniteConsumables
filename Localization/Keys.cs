@@ -6,4 +6,5 @@ public static class Keys {
     public const string Chat = $"{Root}.{nameof(Chat)}";
     public const string Infinities = $"{Root}.{nameof(Infinities)}";
     public const string Displays = $"{Root}.{nameof(Displays)}";
+    public const string CommonItemTooltips = $"{Root}.{nameof(CommonItemTooltips)}";
 }

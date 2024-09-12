@@ -1,8 +1,8 @@
-using System;
 using Terraria;
 using Terraria.ID;
 using SpikysLib;
 using SpikysLib.CrossMod;
+using SpikysLib.Collections;
 
 namespace SPIC;
 
@@ -24,13 +24,12 @@ public static class Utility {
 
     public static bool IsSimilar(this Item a, Item b, bool loose = true) => loose ? !a.IsNotSameTypePrefixAndStack(b) : a == b;
 
-    public static bool IsFromVisibleInventory(this Player player, Item item, bool loose = true) {
-        if (Main.mouseItem.IsSimilar(item, loose)
-                || Array.Find(player.inventory, i => i.IsSimilar(item, loose)) is not null
-                || (player.InChest(out var chest) && Array.Find(chest, i => i.IsSimilar(item, loose)) is not null)
-                || (MagicStorageIntegration.Enabled && MagicStorageIntegration.Countains(item)))
-            return true;
-        return false;
+    public static bool IsVisibleInInventory(Item item, bool loose = true) {
+        Player player = Main.LocalPlayer;
+        return Main.mouseItem.IsSimilar(item, loose)
+            || player.inventory.Exist(i => i.IsSimilar(item, loose))
+            || (player.InChest(out var chest) && chest.Exist(i => i.IsSimilar(item, loose)))
+            || (MagicStorageIntegration.Enabled && MagicStorageIntegration.Contains(item));
     }
 
 

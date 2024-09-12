@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,6 +12,11 @@ using InfinityConfig = SpikysLib.Configs.NestedValue<Microsoft.Xna.Framework.Col
 namespace SPIC.Configs;
 
 public sealed class InfinityDisplays : ModConfig {
+
+    [Header("General")]
+    [DefaultValue(DisplayedInfinities.Leaves)] public DisplayedInfinities displayedInfinities;
+    [DefaultValue(true)] public bool exclusiveDisplay;
+    [DefaultValue(true)] public bool alternateDisplays;
 
     [Header("Displays")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(EntityDefinitionValueWrapper<,>))]
@@ -79,3 +85,5 @@ public sealed class InfinityDisplays : ModConfig {
     public static bool IsEnabled(IDisplay display) => Instance._displays[display].Key;
     public static TConfig Get<TConfig>(IConfigurableDisplay<TConfig> config) where TConfig : new() => (TConfig)Instance._displays[config].Value;
 }
+
+[Flags] public enum DisplayedInfinities {Leaves, Groups, Both}

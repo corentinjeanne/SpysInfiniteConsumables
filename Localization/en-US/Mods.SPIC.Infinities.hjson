@@ -1,6 +1,6 @@
-Consumable: {
-	DisplayName: Consumable
-	Label: "[i:42] {$Mods.SPIC.Infinities.Consumable.DisplayName}"
+ConsumableItem: {
+	DisplayName: Item
+	Label: "[i:42] {$Mods.SPIC.Infinities.ConsumableItem.DisplayName}"
 	Tooltip: Allows consumable items to be infinite
 }
 
@@ -12,7 +12,7 @@ Ammo: {
 
 	Classic: {
 		Label: Classic Ammo
-		Tooltip: Arrows, Bullets, Rockets or Darts
+		Tooltip: Arrows, Bullets, Rockets and Darts
 	}
 
 	Special: {
@@ -30,12 +30,12 @@ Currency: {
 	SingleCoin.Label: Single Coin
 
 	CoinsMultiplier: {
-		Label: Coins infinity Multiplier
+		Label: Coins Multiplier
 		Tooltip: Currency with more than one item
 	}
 
 	SingleCoinMultiplier: {
-		Label: Single Coin infinity Multiplier
+		Label: Single Coin Multiplier
 		Tooltip: Currency composed of a single item
 	}
 
@@ -143,8 +143,8 @@ Placeable: {
 	None.Label: None
 
 	Tile: {
-		Label: Tile
-		Tooltip: Blocks and Walls
+		Label: Block or Wall
+		Tooltip: ""
 	}
 
 	Torch: {
@@ -234,7 +234,7 @@ Usable: {
 Custom: {
 	customs: {
 		Label: Customs
-		Tooltip: ""
+		Tooltip: Overrides the requirement of the selected consumables
 	}
 
 	Tooltip: ""

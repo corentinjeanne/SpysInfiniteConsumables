@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -7,97 +8,109 @@ using SpikysLib.Collections;
 
 namespace SPIC;
 
-public interface IEndpoint {
-    object? GetValue(object? arg);
+public class FunctionList<T> : IEnumerable<T> where T: Delegate {
+    public void Add(T function) => _functions.Add(function);
+    public virtual void Unload() => _functions.Clear();
 
+    public ReadOnlyCollection<T> Functions => _functions.AsReadOnly();
+    protected readonly List<T> _functions = [];
+
+    public IEnumerator<T> GetEnumerator() => _functions.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_functions).GetEnumerator();
+}
+
+public interface IProvider {
+    object? GetValue(object? arg);
     void Unload();
 }
 
-public interface IEndpoint<TArg, TValue> : IEndpoint {
-    TValue GetValue(TArg args);
-
-    void AddProvider(ProviderFn provider);
-    void AddModifier(ModifierFn modifier);
-
-    ReadOnlyCollection<ProviderFn> Providers { get; }
-    ReadOnlyCollection<ModifierFn> Modifiers { get; }
-
-    object? IEndpoint.GetValue(object? arg) => GetValue((TArg)arg!);
-
-    delegate Optional<TValue> ProviderFn(TArg args);
-    delegate void ModifierFn(TArg args, ref TValue value);
+public interface IEndpoint<TArg, TValue> : IProvider {
+    TValue GetValue(TArg arg);
+    object? IProvider.GetValue(object? arg) => GetValue((TArg)arg!);
 }
 
-public sealed class SimpleEndpoint<TArg, TValue> : IEndpoint<TArg, TValue> {
 
-    public TValue GetValue(TArg args) => Provider(args).Value;
+public sealed class ProviderList<TArg, TValue> : FunctionList<ProviderList<TArg, TValue>.ProviderFn>, IEndpoint<TArg, TValue> {
+    public ProviderList(FallbackFn? fallback = null) => Fallback = fallback;
 
-    public void AddProvider(IEndpoint<TArg, TValue>.ProviderFn provider) => Provider ??= provider;
-    public void Unload() => Provider = null!;
+    public TValue GetValue(TArg args) {
+        foreach (var provider in _functions) {
+            Optional<TValue> value = provider(args);
+            if (value.HasValue) return value.Value;
+        }
+        return Fallback is not null ? Fallback(args) : throw new NullReferenceException("No provider returned a value");
+    }
 
-    public IEndpoint<TArg, TValue>.ProviderFn Provider { get; private set; } = default!;
+    public sealed override void Unload() {
+        base.Unload();
+        Fallback = null!;
+    }
 
-    ReadOnlyCollection<IEndpoint<TArg, TValue>.ProviderFn> IEndpoint<TArg, TValue>.Providers => new([Provider]);
-    void IEndpoint<TArg, TValue>.AddModifier(IEndpoint<TArg, TValue>.ModifierFn modifier) => throw new NotSupportedException();
-    ReadOnlyCollection<IEndpoint<TArg, TValue>.ModifierFn> IEndpoint<TArg, TValue>.Modifiers => throw new NotSupportedException();
+    public FallbackFn? Fallback { get; private set; }
+
+    public delegate Optional<TValue> ProviderFn(TArg args);
+    public delegate TValue FallbackFn(TArg args);
+}
+
+public interface IModifier {
+    void ModifyValue(object? arg, ref object? value);
+    void Unload();
+}
+
+public sealed class ModifierList<TArg, TValue> : FunctionList<ModifierList<TArg, TValue>.ModifierFn>, IModifier {
+    public void ModifyValue(TArg args, ref TValue value) {
+        foreach (var modifier in _functions) modifier(args, ref value);
+    }
+
+    void IModifier.ModifyValue(object? arg, ref object? value) {
+        TValue v = (TValue)value!;
+        ModifyValue((TArg)arg!, ref v);
+        value = v;
+    }
+
+    public delegate void ModifierFn(TArg args, ref TValue value);
 }
 
 public sealed class Endpoint<TArg, TValue> : IEndpoint<TArg, TValue> {
-    public TValue GetValue(TArg args) {
-        Optional<TValue> v = new();
-        foreach (var provider in _providers) {
-            if ((v = provider(args)).HasValue) break;
-        }
-        if (!v.HasValue) throw new NullReferenceException("No provider returned a value");
+    public Endpoint(ProviderList<TArg, TValue>.FallbackFn? fallback = null) => Providers = new(fallback);
 
-        TValue value = v.Value;
-        foreach (var modifier in _modifiers) modifier(args, ref value);
+    public TValue GetValue(TArg args) {
+        TValue value = Providers.GetValue(args);
+        Modifiers.ModifyValue(args, ref value);
         return value;
     }
 
-    public void AddProvider(IEndpoint<TArg, TValue>.ProviderFn provider) => _providers.Add(provider);
-    public void AddModifier(IEndpoint<TArg, TValue>.ModifierFn modifier) => _modifiers.Add(modifier);
-
     public void Unload() {
-        _providers.Clear();
-        _modifiers.Clear();
+        Providers.Unload();
+        Modifiers.Unload();
     }
 
-    public ReadOnlyCollection<IEndpoint<TArg, TValue>.ProviderFn> Providers => _providers.AsReadOnly();
-    public ReadOnlyCollection<IEndpoint<TArg, TValue>.ModifierFn> Modifiers => _modifiers.AsReadOnly();
-
-    private readonly List<IEndpoint<TArg, TValue>.ProviderFn> _providers = [];
-    private readonly List<IEndpoint<TArg, TValue>.ModifierFn> _modifiers = [];
+    public ProviderList<TArg, TValue> Providers { get; }
+    public ModifierList<TArg, TValue> Modifiers { get; } = [];
 }
 
-public interface ICachedEndpoint: IEndpoint {
+public interface ICachedEndpoint : IProvider {
     void Clear();
 }
 
-public sealed class CachedEndpoint<TArg, TValue, TIndex>: IEndpoint<TArg, TValue>, ICachedEndpoint where TIndex : notnull {
-    public CachedEndpoint(IndexerFn indexer): this(new Endpoint<TArg, TValue>(), indexer) {}
-    public CachedEndpoint(IEndpoint<TArg, TValue> endpoint, IndexerFn indexer) {
-        Endpoint = endpoint;
-        _indexer = indexer;
-    }
+public sealed class CachedEndpoint<TArg, TValue, TIndex> : IEndpoint<TArg, TValue>, ICachedEndpoint where TIndex : notnull {
+    public CachedEndpoint(IndexerFn indexer) => Indexer = indexer;
 
     public bool TryGetValue(TIndex index, [MaybeNullWhen(false)] out TValue value) => _values.TryGetValue(index, out value);
-    public TValue GetValue(TArg args) => _values.GetOrAdd(_indexer(args), () => Endpoint.GetValue(args));
+    public TValue GetValue(TArg args) => _values.GetOrAdd(Indexer(args), () => _endpoint.GetValue(args));
+
     public void Clear() => _values.Clear();
     public void Unload() {
-        Endpoint.Unload();
+        _endpoint.Unload();
         Clear();
-        Endpoint = null!;
-        _indexer = null!;
+        Indexer = null!;
     }
-    
-    public void AddProvider(IEndpoint<TArg, TValue>.ProviderFn provider) => Endpoint.AddProvider(provider);
-    public void AddModifier(IEndpoint<TArg, TValue>.ModifierFn modifier) => Endpoint.AddModifier(modifier);
-    public ReadOnlyCollection<IEndpoint<TArg, TValue>.ProviderFn> Providers => Endpoint.Providers;
-    public ReadOnlyCollection<IEndpoint<TArg, TValue>.ModifierFn> Modifiers => Endpoint.Modifiers;
-    public IEndpoint<TArg, TValue> Endpoint { get; private set; }
 
-    private IndexerFn _indexer;
+    public ProviderList<TArg, TValue> Providers => _endpoint.Providers;
+    public ModifierList<TArg, TValue> Modifiers => _endpoint.Modifiers;
+    public IndexerFn Indexer { get; private set; }
+
+    private readonly Endpoint<TArg, TValue> _endpoint = new();
     private readonly Dictionary<TIndex, TValue> _values = [];
 
     public delegate TIndex IndexerFn(TArg args);

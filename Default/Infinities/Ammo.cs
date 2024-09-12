@@ -4,6 +4,8 @@ using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
 using SPIC.Components;
+using SpikysLib.Constants;
+using System.Collections.Generic;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -20,7 +22,7 @@ public sealed class AmmoRequirements {
 
 public sealed class Ammo : Infinity<Item>, IConfigurableComponents<AmmoRequirements> {
     public static Customs<Item, AmmoCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => Consumable.InfinityGroup);
+    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
     public static Category<Item, AmmoCategory> Category = new(GetRequirement, GetCategory);
     public static Ammo Instance = null!;
 
@@ -40,18 +42,17 @@ public sealed class Ammo : Infinity<Item>, IConfigurableComponents<AmmoRequireme
         return AmmoCategory.Special;
     }
 
-    // public override void ModifyRequirement(Item consumable, ref Requirement requirement, List<object> extras) {
-    //     base.ModifyRequirement(consumable, ref requirement, extras);
-    //     if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
-    // }
+    protected override void ModifyRequirement(Item consumable, ref Requirement requirement) {
+        if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
+    }
 
-    // public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-    //     Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
-    //     if (ammo is not null) displayed.Add(ammo);
-    // }
+    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+        Item? ammo = item.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(item) : null;
+        if (ammo is not null) displayed.Add(ammo);
+    }
 
-    // public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-    //     int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-    //     if (index >= 50 && 58 > index) visibility = InfinityVisibility.Exclusive;
-    // }
+    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        return InventorySlots.Coins.Start <= index && index < InventorySlots.Ammo.End ? new(InfinityVisibility.Exclusive) : default;
+    }
 }

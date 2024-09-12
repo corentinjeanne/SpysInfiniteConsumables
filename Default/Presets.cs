@@ -54,7 +54,7 @@ public sealed class Classic : Preset {
     public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance)];
     public override int CriteriasCount => 3;
 
-    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.Consumable;
+    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.ConsumableItem;
 
     public override bool MeetsCriterias(GroupConfig config) {
         for (int i = 0; i < Order.Length; i++) {
@@ -81,7 +81,7 @@ public sealed class Classic : Preset {
 public sealed class JourneyRequirements : Preset {
     public override int CriteriasCount => 3;
 
-    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.Consumable;
+    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.ConsumableItem;
 
     public override bool MeetsCriterias(GroupConfig config)
         => config.Infinities.Keys[0].Equals(new InfinityDefinition(Infinities.JourneySacrifice.Instance)) && config.Infinities[0].Key && config.UsedInfinities == 1;

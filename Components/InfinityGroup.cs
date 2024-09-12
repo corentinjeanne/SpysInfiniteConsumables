@@ -61,8 +61,8 @@ public interface IInfinityGroup: IComponent {
 
 public sealed class InfinityGroup<TConsumable> : Component<Infinity<TConsumable>>, IInfinityGroup, IConfigurableComponents<GroupConfig>, IClientConfigurableComponents<ClientGroupConfig> {
     public override void Bind() {
-        Endpoints.UsedInfinities(this).AddProvider(UsedInfinities);
-        Endpoints.GetRequirement(Infinity).AddProvider(GetRequirement);
+        Endpoints.UsedInfinities(this).Providers.Add(UsedInfinities);
+        Endpoints.GetRequirement(Infinity).Providers.Add(GetRequirement);
     }
 
     public override void SetStaticDefaults() {
