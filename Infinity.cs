@@ -58,7 +58,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
         if (InfinityDisplays.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
         foreach(TConsumable consumable in consumables) {
-            InfinityVisibility visibility = IsConsumable || InfinityManager.UsedInfinities(consumable, Consumable).Contains(this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
+            InfinityVisibility visibility = (IsConsumable || !Equals(consumable, consumables[0]) || InfinityManager.UsedInfinities(consumable, Consumable).Contains(this)) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
             InfinityValue infinity = new(Consumable.GetId(consumable), Main.LocalPlayer.CountConsumables(consumable, Consumable), InfinityManager.GetRequirement(consumable, this), Main.LocalPlayer.GetInfinity(consumable, this));
             ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
             if (infinity.Requirement <= 0) continue;

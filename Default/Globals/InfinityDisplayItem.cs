@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using SPIC.Default.Displays;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace SPIC.Default.Globals;
 
@@ -11,24 +13,10 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (Tooltip.Instance.Enabled) Tooltip.ModifyTooltips(item, tooltips);
     }
 
-    // public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-    //     InfinityDisplays config = InfinityDisplays.Instance;
-
-    //     if (Main.gameMenu || !Glow.Instance.Enabled || !config.ShowInfinities) return true;
-
-    //     ItemDisplay itemDisplay = item.GetLocalItemDisplay();
-
-    //     List<IInfinity> withDisplay = new();
-    //     foreach ((IInfinity i, int _, FullInfinity display) in itemDisplay.DisplayedInfinities) {
-    //         if (display.Infinity > 0) withDisplay.Add(i);
-    //     }
-
-    //     if (withDisplay.Count == 0) return true;
-    //     IInfinity infinity = withDisplay[s_InfinityIndex % withDisplay.Count];
-    //     DisplayGlow(spriteBatch, item, position, frame, origin, scale, infinity);
-
-    //     return true;
-    // }
+    public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
+        if (!Main.gameMenu && Glow.Instance.Enabled) Glow.PreDrawInInventory(item, spriteBatch, position, frame, origin, scale);
+        return true;
+    }
 
     // public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
     //     InfinityDisplays config = InfinityDisplays.Instance;
@@ -106,24 +94,6 @@ public sealed class InfinityDisplayItem : GlobalItem {
     //     }
     // }
 
-    // public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, IInfinity infinity) {
-    //     Texture2D texture = TextureAssets.Item[item.type].Value;
-
-    //     float angle = Main.GlobalTimeWrappedHourly % InfinityDisplays.Get(Glow.Instance).AnimationLength / InfinityDisplays.Get(Glow.Instance).AnimationLength; // 0>1
-    //     float distance = (angle <= 0.5f ? angle : (1 - angle)) * 2; // 0>1>0
-    //     Color color = InfinityDisplays.GetColor(infinity) * InfinityDisplays.Get(Glow.Instance).Intensity * distance;
-
-    //     if (!InfinityDisplays.Get(Glow.Instance).FancyGlow) {
-    //         float scl = 1 + 8 * distance / frame.Width;
-    //         spriteBatch.Draw(texture, position, frame, color, 0, origin, scale * scl, 0, 0f);
-    //         return;
-    //     }
-
-    //     angle += item.type % 16 / 16;
-    //     for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance).RotatedBy((f * 2 + angle) * Math.PI), frame, color, 0, origin, scale, 0, 0f);
-    //     color *= 0.67f;
-    //     for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance).RotatedBy((f + angle) * -2 * Math.PI), frame, color, 0, origin, scale, 0, 0f);
-    // }
 
     // public static void IncrementCounters() {
     //     if (Main.GlobalTimeWrappedHourly >= s_groupTimer) {

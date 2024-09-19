@@ -7,7 +7,6 @@ using SPIC.Configs;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Default.Displays;
 
@@ -41,6 +40,7 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
         foreach (var display in InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays)) ModifyTooltips(item, tooltips, display.Value, display.Infinity);
     }
 
+    // TODO category
     public static void ModifyTooltips(Item item, List<TooltipLine> tooltips, InfinityValue value, IInfinity infinity) {
         (TooltipLine lineToFind, TooltipLineID? position) = GetTooltipLine(item, value.Consumable, infinity);
 

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using SpikysLib;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Globals;
 
@@ -49,6 +50,8 @@ public sealed class DetectionPlayer : ModPlayer {
     }
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
+
+    public override void PreUpdate() => Glow.PreUpdate();
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
 

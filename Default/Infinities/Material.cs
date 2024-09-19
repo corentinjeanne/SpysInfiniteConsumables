@@ -35,11 +35,9 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
     public MaterialRequirements Config { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
-
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
-    // TODO multiplier
     public override long GetRequirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => Config.Basic,
         MaterialCategory.Ore => Config.Ore,

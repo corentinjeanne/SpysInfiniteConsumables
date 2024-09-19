@@ -18,7 +18,6 @@ public class ConsumableItem : ConsumableInfinity<Item>, ICountToString { // TODO
     public override Item ToConsumable(Item item) => item;
     public override ItemDefinition ToDefinition(Item consumable) => new(consumable.type);
 
-    // TODO check with Usable
     public string CountToString(int consumable, long value, long outOf)
         => outOf == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", value) : $"{value}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Items", outOf)}";
 }

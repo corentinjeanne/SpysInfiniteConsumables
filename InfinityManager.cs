@@ -32,9 +32,10 @@ public static class InfinityManager {
     public static long GetInfinity(this Player player, int consumable, IInfinityBridge infinity) => infinity.GetInfinity(player, consumable);
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
+        bool visible = Utility.IsVisibleInInventory(item);
+
         List<ReadOnlyCollection<InfinityDisplay>> displays = [];
         InfinityVisibility minVisibility = InfinityVisibility.Visible;
-
         foreach (var infinity in s_consumableInfinities.Where(i => i.Enabled)) {
             List<InfinityDisplay> subDisplays = [];
             void AddInfinityDisplay(IInfinity infinity) {
@@ -45,7 +46,10 @@ public static class InfinityManager {
                         subDisplays.Clear();
                         minVisibility = visibility;
                     }
-                    subDisplays.Add(new(infinity, value));
+                    subDisplays.Add(new(
+                        infinity,
+                        visible ? value : new(value.Consumable, 0, value.Requirement, 0)
+                    ));
                 }
             }
             if (InfinityDisplays.Instance.displayedInfinities.HasFlag(DisplayedInfinities.Consumables)) AddInfinityDisplay(infinity);

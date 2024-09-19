@@ -2,11 +2,9 @@ using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
-using Microsoft.CodeAnalysis;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
-using SpikysLib.Constants;
 using System.Collections.Generic;
 
 namespace SPIC.Default.Infinities;

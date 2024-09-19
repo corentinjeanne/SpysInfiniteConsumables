@@ -31,13 +31,23 @@ Glow: {
 			'''
 	}
 
+	Offset: {
+		Label: Offset
+		Tooltip: Offset the glow of each items
+	}
+
+	AnimationLength: {
+		Label: Animation Length
+		Tooltip: ""
+	}
+
 	Intensity: {
 		Label: Intensity
 		Tooltip: ""
 	}
 
-	AnimationLength: {
-		Label: Animation Length
+	Size: {
+		Label: Size
 		Tooltip: ""
 	}
 }
