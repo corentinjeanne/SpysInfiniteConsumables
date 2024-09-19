@@ -3,7 +3,6 @@ using Terraria.ID;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
-using SPIC.Components;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -41,30 +40,28 @@ public sealed class UsableRequirements {
 }
 
 
-public sealed class Usable : Infinity<Item>, IConfigurableComponents<UsableRequirements> {
-    public static Customs<Item, UsableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
-    public static Category<Item, UsableCategory> Category = new(GetRequirement, GetCategory);
+public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<UsableRequirements>, ITooltipLineDisplay {
     public static Usable Instance = null!;
-    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
+    public UsableRequirements Config { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
-    private static Optional<Requirement> GetRequirement(UsableCategory category) => category switch {
-        UsableCategory.Weapon => new(InfinitySettings.Get(Instance).Weapon),
-        UsableCategory.Potion => new(InfinitySettings.Get(Instance).Potion),
+    public override Requirement GetRequirement(UsableCategory category) => category switch {
+        UsableCategory.Weapon => new(Config.Weapon),
+        UsableCategory.Potion => new(Config.Potion),
         // UsableCategory.Recovery => new(Infinities.Get(Instance).Potion),
         // UsableCategory.Buff => new(Infinities.Get(Instance).Potion),
-        UsableCategory.Booster => new(InfinitySettings.Get(Instance).Booster),
+        UsableCategory.Booster => new(Config.Booster),
         // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Infinities.Get(Instance).Booster),
-        UsableCategory.Summoner => new(InfinitySettings.Get(Instance).Summoner),
-        UsableCategory.Critter => new(InfinitySettings.Get(Instance).Critter),
+        UsableCategory.Summoner => new(Config.Summoner),
+        UsableCategory.Critter => new(Config.Critter),
         // UsableCategory.Explosive => new(Infinities.Get(Instance).Tool),
-        UsableCategory.Tool or UsableCategory.Unknown => new(InfinitySettings.Get(Instance).Tool),
-        _ => Requirement.None,
+        UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
+        _ => default,
     };
 
-    private static Optional<UsableCategory> GetCategory(Item item) {
+    protected override UsableCategory GetCategoryInner(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
@@ -99,18 +96,18 @@ public sealed class Usable : Infinity<Item>, IConfigurableComponents<UsableRequi
         return item.chlorophyteExtractinatorConsumable ? UsableCategory.None : UsableCategory.Unknown; // Confetti, Recall like potion, shimmer boosters, boosters, modded summons
     }
 
-    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) return (new(Instance.Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
         return (new(Instance.Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
-    }
-
-    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        return InventorySlots.Ammo.Contains(index) && InfinityManager.GetCategory(item, Category) == UsableCategory.Critter ? new(InfinityVisibility.Exclusive) : default;
     }
 
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
         Item? ammo = item.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
         if (ammo is not null) displayed.Add(ammo);
+    }
+
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
     }
 }

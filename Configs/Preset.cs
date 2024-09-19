@@ -1,4 +1,3 @@
-using SPIC.Components;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
@@ -20,7 +19,7 @@ public abstract class Preset : ModType, ILocalizedModType {
 
     public abstract int CriteriasCount { get; }
 
-    public abstract bool MeetsCriterias(GroupConfig config);
-    public abstract void ApplyCriterias(GroupConfig config);
-    public virtual bool AppliesTo(IInfinityGroup group) => true;
+    public abstract bool MeetsCriterias(ConsumableInfinities config);
+    public abstract void ApplyCriterias(ConsumableInfinities config);
+    public virtual bool AppliesTo(IConsumableInfinity infinity) => true;
 }

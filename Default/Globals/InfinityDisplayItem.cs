@@ -1,45 +1,20 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
-using SpikysLib;
-using SPIC.Configs;
 using SPIC.Default.Displays;
-using Terraria.Localization;
 
 namespace SPIC.Default.Globals;
 
 public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        if (!InfinityDisplays.IsEnabled(Tooltip.Instance)) return;
-        foreach (var d in InfinityManager.GetDisplayedInfinities(item)) ModifyTooltips(item, tooltips, d);
-    }
-    public static void ModifyTooltips(Item item, List<TooltipLine> tooltips, InfinityDisplay display) {
-        (var infinity, var value, var subDisplays) = display;
-        if (value.Requirement.Count > 0 && InfinityDisplays.Instance.displayedInfinities.HasFlag(display.SubDisplays.Count == 0 ? DisplayedInfinities.Leaves : DisplayedInfinities.Groups)){
-            (TooltipLine lineToFind, TooltipLineID? position) = Tooltip.GetTooltipLine(item, display.Value.Consumable, infinity);
-            bool added = false;
-            TooltipLine? line = InfinityDisplays.Get(Tooltip.Instance).AddMissingLines ? tooltips.FindOrAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
-            if (line is null) return;
-
-            if (value.Value > 0) {
-                line.OverrideColor = InfinityDisplays.GetColor(infinity);
-                line.Text = value.Value < value.Count ?
-                    Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                    Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, Tooltip.CountToString(value.Consumable, value.Value, infinity));
-            } else {
-                line.Text += $" ({Tooltip.CountToString(value.Consumable, value.Count, value.Requirement.Count, infinity)})";
-            }
-            if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
-        }
-        foreach (var d in subDisplays) ModifyTooltips(item, tooltips, d);
+        if (Tooltip.Instance.Enabled) Tooltip.ModifyTooltips(item, tooltips);
     }
 
     // public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
     //     InfinityDisplays config = InfinityDisplays.Instance;
 
-    //     if (Main.gameMenu || !InfinityDisplays.IsEnabled(Glow.Instance) || !config.ShowInfinities) return true;
+    //     if (Main.gameMenu || !Glow.Instance.Enabled || !config.ShowInfinities) return true;
 
     //     ItemDisplay itemDisplay = item.GetLocalItemDisplay();
 
@@ -58,7 +33,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
     // public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
     //     InfinityDisplays config = InfinityDisplays.Instance;
 
-    //     if (Main.gameMenu || !InfinityDisplays.IsEnabled(Dots.Instance) || !(config.ShowInfinities || config.ShowRequirement)) return;
+    //     if (Main.gameMenu || !Dots.Instance.Enabled || !(config.ShowInfinities || config.ShowRequirement)) return;
 
     //     Vector2 cornerDirection = InfinityDisplays.Get(Dots.Instance).Start switch {
     //         Corner.TopLeft => new(-1, -1),

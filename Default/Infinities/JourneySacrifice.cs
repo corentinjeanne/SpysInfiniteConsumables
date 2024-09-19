@@ -2,8 +2,6 @@ using Terraria;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
-using Microsoft.CodeAnalysis;
-using SPIC.Components;
 using Terraria.ModLoader;
 using SpikysLib;
 using SPIC.Default.Displays;
@@ -15,21 +13,20 @@ public sealed class JourneySacrificeRequirements {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Item>, IClientConfigurableComponents<JourneySacrificeRequirements> {
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
+public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeRequirements>, ITooltipLineDisplay {
     public static JourneySacrifice Instance = null!;
-    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
+    public JourneySacrificeRequirements ClientConfig { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.JourneyMode;
 
-    protected override Optional<Requirement> GetRequirement(Item item) => new Requirement(item.ResearchUnlockCount);
+    protected override Requirement GetRequirementInner(Item item) => new(item.ResearchUnlockCount);
 
-    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 
-    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
-        if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) return InfinityVisibility.Exclusive;
-        else if(InfinityDisplays.Get(this).hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) return InfinityVisibility.Hidden;
-        return default;
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
+        else if (ClientConfig.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
     }
 }

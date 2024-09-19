@@ -1,11 +1,9 @@
 using System.Linq;
 using System.ComponentModel;
 using SpikysLib;
-using SPIC.Configs;
 using Newtonsoft.Json;
-using SPIC.Components;
 
-namespace SPIC;
+namespace SPIC.Configs;
 
 [TypeConverter("SPIC.IO.ToFromStringConverterFix")]
 public sealed class PresetDefinition : EntityDefinition<PresetDefinition, Preset> {
@@ -17,9 +15,9 @@ public sealed class PresetDefinition : EntityDefinition<PresetDefinition, Preset
 
     public override bool AllowNull => true;
 
-    [JsonIgnore] public IInfinityGroup? Filter { get; set; }
+    [JsonIgnore] public IConsumableInfinity? Consumable { get; set; }
 
-    public override PresetDefinition[] GetValues() => (Filter?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
+    public override PresetDefinition[] GetValues() => (Consumable?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
 }
 
 [TypeConverter("SPIC.IO.ToFromStringConverterFix")]

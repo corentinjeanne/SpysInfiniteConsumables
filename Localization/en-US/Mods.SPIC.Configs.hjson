@@ -95,7 +95,7 @@ InfinityDisplays: {
 	}
 }
 
-GroupConfig: {
+ConsumableInfinities: {
 	Preset: {
 		Label: Active Preset
 		Tooltip:
@@ -134,7 +134,7 @@ UsedInfinities: {
 	}
 }
 
-ClientGroupConfig: {
+ClientConsumableInfinities: {
 	Infinities: {
 		Label: Infinities
 		Tooltip: ""
@@ -234,7 +234,7 @@ PresetDefinition.Tooltip: ""
 
 DisplayedInfinities: {
 	Tooltip: ""
-	Leaves.Label: Leaves
-	Groups.Label: Groups
+	Infinities.Label: Infinities
+	Consumables.Label: Consumables
 	Both.Label: Both
 }

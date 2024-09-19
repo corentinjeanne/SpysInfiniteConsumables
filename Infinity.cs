@@ -1,56 +1,96 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
-using SpikysLib;
+using SPIC.Configs;
 using SpikysLib.Configs;
 using SpikysLib.Localization;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Core;
+using Terraria.ModLoader.Config;
 
 namespace SPIC;
 
-public interface IInfinity : ILocalizedModType, ILoadable, IComponent {
-    void BindComponent(IComponent component);
-    ReadOnlyCollection<IComponent> Components { get; }
-    TComponent GetComponent<TComponent>() where TComponent : IComponent;
-    bool TryGetComponent<TComponent>([NotNullWhen(true)] out TComponent? component) where TComponent : IComponent;
+public interface IInfinity : ILocalizedModType, ILoadable {
+    bool Enabled { get; set; }
+    IConsumableInfinity Consumable { get; }
+    bool IsConsumable { get; }
 
-    IEnumerable<InfinityValue> GetDisplayedInfinities(Item item);
+    IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item);
 
-    bool DefaultEnabled { get; }
-    Color DefaultColor { get; }
-
+    Color Color { get; set; }
     LocalizedText Label { get; }
     LocalizedText DisplayName { get; }
     LocalizedText Tooltip { get; }
+
+    bool DefaultEnabled { get; }
+    Color DefaultColor { get; }
 }
 
 public abstract class Infinity<TConsumable> : ModType, IInfinity {
+    public bool Enabled { get => _enabled && (IsConsumable || Consumable.Enabled); set => _enabled = value; }
+    private bool _enabled;
+    public virtual bool DefaultEnabled => true;
+
+    public abstract ConsumableInfinity<TConsumable> Consumable { get; }
+    IConsumableInfinity IInfinity.Consumable => Consumable;
+    public bool IsConsumable => Consumable == this;
+
+    public Requirement GetRequirement(TConsumable consumable) {
+        Optional<Requirement> custom = Customs.GetRequirement(consumable);
+        Requirement requirement = custom.HasValue ? custom.Value : GetRequirementInner(consumable);
+        ModifyRequirement(consumable, ref requirement);
+        return requirement;
+    }
+    protected abstract Requirement GetRequirementInner(TConsumable consumable);
+    protected virtual void ModifyRequirement(TConsumable consumable, ref Requirement requirement) { }
+
+    public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item) {
+        List<TConsumable> consumables = [Consumable.ToConsumable(item)];
+        ModifyDisplayedConsumables(item, ref consumables);
+        foreach(TConsumable consumable in consumables) {
+            InfinityVisibility visibility = IsConsumable || InfinityManager.UsedInfinities(consumable, Consumable).Contains(this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
+            InfinityValue infinity = new(Consumable.GetId(consumable), Main.LocalPlayer.CountConsumables(consumable, Consumable), InfinityManager.GetRequirement(consumable, this), Main.LocalPlayer.GetInfinity(consumable, this));
+            ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
+            if (infinity.Requirement.IsNone) continue;
+            yield return (visibility, infinity);
+        }
+    }
+    protected virtual void ModifyDisplayedConsumables(Item item, ref List<TConsumable> consumables) { }
+    protected virtual void ModifyDisplayedInfinity(Item item, TConsumable consumable, ref InfinityVisibility visibility, ref InfinityValue value) { }
+
+    public ICustoms<TConsumable> Customs { get; private set; } = null!;
+
+    public Color Color { get; set; }
+    public virtual Color DefaultColor => Color.White;
+
+    public string LocalizationCategory => "Infinities";
+    public virtual LocalizedText Label => this.GetLocalization("Label");
+    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
+    public virtual LocalizedText Tooltip => this.GetLocalization("Tooltip");
+
+
     protected override void InitTemplateInstance() => ConfigHelper.SetInstance(this);
 
     public override void Load() {
-        foreach (IComponent component in GetComponents()) BindComponent(component);
-        if (!Components.Contains(this)) BindComponent(this);
+        AddConfig(this, "config");
+        Customs = CreateCustoms();
+        AddConfig(Customs, "customs");
     }
 
-    void IComponent.Bind(IInfinity infinity) => Bind();
-    public virtual void Bind() {
-        if (LoaderUtils.HasOverride(this, i => i.GetId)) Endpoints.GetId(this).Add(GetId);
-        if (LoaderUtils.HasOverride<Infinity<TConsumable>, ToConsumableFn>(this, i => i.ToConsumable)) Endpoints.ToConsumable(this).Add(ToConsumable);
-        if (LoaderUtils.HasOverride<Infinity<TConsumable>, ItemToConsumableFn>(this, i => i.ToConsumable)) Endpoints.ItemToConsumable(this).Add(ToConsumable);
-        if (LoaderUtils.HasOverride(this, i => i.CountConsumables)) Endpoints.CountConsumables(this).Providers.Add(CountConsumables);
-        if (LoaderUtils.HasOverride(this, i => i.GetRequirement)) Endpoints.GetRequirement(this).Providers.Add(GetRequirement);
-        if (LoaderUtils.HasOverride(this, i => i.ModifyRequirement)) Endpoints.GetRequirement(this).Modifiers.Add(ModifyRequirement);
-        if (LoaderUtils.HasOverride(this, i => i.GetVisibility)) Endpoints.GetVisibility(this).Add(GetVisibility);
-        if (LoaderUtils.HasOverride(this, i => i.ModifyDisplayedConsumables)) Endpoints.ModifyDisplayedConsumables(this).Add(ModifyDisplayedConsumables);
-        if (LoaderUtils.HasOverride(this, i => i.ModifyDisplayedInfinity)) Endpoints.ModifyDisplayedInfinity(this).Add(ModifyDisplayedInfinity);
+    protected virtual ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable>(this);
+
+    protected void AddConfig(object obj, string key) {
+        if (obj is IConfigProvider config) {
+            InfinitySettings.AddConfig(this, key, config);
+            LanguageHelper.RegisterLocalizationKeysForMembers(config.ConfigType);
+        }
+        if (obj is IClientConfigProvider clientConfig) {
+            InfinityDisplays.AddConfig(this, key, clientConfig);
+            LanguageHelper.RegisterLocalizationKeysForMembers(clientConfig.ConfigType);
+        }
     }
 
     protected sealed override void Register() {
@@ -59,76 +99,45 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{${{this.GetLocalizationKey("DisplayName")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
-        foreach (IComponent component in _components) {
-            if (component is IConfigurableComponents configurable) LanguageHelper.RegisterLocalizationKeysForMembers(configurable.ConfigType);
-            if (component is IClientConfigurableComponents clientConfigurable) LanguageHelper.RegisterLocalizationKeysForMembers(clientConfigurable.ConfigType);
+    }
+
+    public override void SetStaticDefaults() {
+        if (!IsConsumable) Consumable.AddInfinity(this);
+    }
+
+    public sealed override void SetupContent() => SetStaticDefaults();
+
+    public override void Unload() => ConfigHelper.SetInstance(this, true);
+}
+
+public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TCategory: struct, Enum {
+    public TCategory GetCategory(TConsumable consumable) {
+        TCategory category;
+        Optional<TCategory> custom = Customs.GetCategory(consumable);
+        category = custom.HasValue ? custom.Value : GetCategoryInner(consumable);
+        return category;
+    }
+    protected abstract TCategory GetCategoryInner(TConsumable consumable);
+
+    public abstract Requirement GetRequirement(TCategory category);
+    protected override Requirement GetRequirementInner(TConsumable consumable) {
+        HashSet<long> categories = [];
+        Requirement requirement = GetRequirement(InfinityManager.GetCategory(consumable, this));
+        while (requirement.Count < 0 && categories.Add(-requirement.Count)) {
+            var category = -requirement.Count;
+            requirement = GetRequirement(Unsafe.As<long, TCategory>(ref category));
         }
+        return requirement;
     }
 
-    public sealed override void SetupContent() {
-        foreach (IComponent component in _components) component.SetStaticDefaults();
-        SetStaticDefaults();
+    protected sealed override ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable, TCategory>(this);
+    public new Customs<TConsumable, TCategory> Customs => (Customs<TConsumable, TCategory>)base.Customs;
+    public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
+        Dictionary<ItemDefinition, Count<TCategory>> customs = Customs.Config.customs;
+        if (!InfinitySettings.Instance.DetectMissingCategories || !customs.TryAdd(Consumable.ToDefinition(consumable), new Count<TCategory>(category)))
+            return false;
+
+        InfinityManager.ClearCache();
+        return true;
     }
-
-    public override void Unload() {
-        foreach (IComponent component in _components) component.Unbind();
-        _components.Clear();
-        ConfigHelper.SetInstance(this, true);
-    }
-    
-    public virtual void Unbind() { }
-
-    protected virtual Optional<int> GetId(TConsumable consumable) => default;
-    protected virtual Optional<TConsumable> ToConsumable(int id) => default;
-    protected virtual Optional<TConsumable> ToConsumable(Item item) => default;
-    protected virtual Optional<long> CountConsumables(PlayerConsumable<TConsumable> args) => default;
-    protected virtual Optional<Requirement> GetRequirement(TConsumable consumable) => default;
-    protected virtual void ModifyRequirement(TConsumable consumable, ref Requirement requirement) { }
-    protected virtual Optional<InfinityVisibility> GetVisibility(Item item) => default;
-    protected virtual void ModifyDisplayedConsumables(Item item, ref List<TConsumable> consumables) { }
-    protected virtual void ModifyDisplayedInfinity(ItemConsumable<TConsumable> args, ref InfinityValue value) { }
-
-    private delegate Optional<TConsumable> ToConsumableFn(int consumable);
-    private delegate Optional<TConsumable> ItemToConsumableFn(Item item);
-
-    protected virtual IEnumerable<IComponent> GetComponents()
-        => GetType().GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Where(f => f.FieldType.ImplementsInterface(typeof(IComponent), out _))
-            .Select(f => (IComponent)f.GetValue(null)!);
-    public void BindComponent(IComponent component) {
-        _components.Add(component);
-        component.Bind(this);
-    }
-
-    public TComponent GetComponent<TComponent>() where TComponent: IComponent => TryGetComponent(out TComponent? component) ? component : throw new NullReferenceException("Component not found");
-    public bool TryGetComponent<TComponent>([NotNullWhen(true)] out TComponent? component) where TComponent : IComponent {
-        foreach(IComponent c in _components) {
-            if (c is not TComponent comp) continue;
-            component = comp;
-            return true;
-        }
-        component = default;
-        return false;
-    }
-
-    public IEnumerable<InfinityValue> GetDisplayedInfinities(Item item) {
-        foreach(TConsumable consumable in InfinityManager.GetDisplayedConsumables(item, this)) {
-            InfinityValue infinity = new(InfinityManager.GetId(consumable, this), Main.LocalPlayer.CountConsumables(consumable, this), InfinityManager.GetRequirement(consumable, this), Main.LocalPlayer.GetInfinity(consumable, this));
-            InfinityManager.ModifyDisplayedInfinity(item, consumable, ref infinity, this);
-            yield return infinity;
-        }
-    }
-
-    public ReadOnlyCollection<IComponent> Components => _components.AsReadOnly();
-    private readonly List<IComponent> _components = [];
-
-    public virtual bool DefaultEnabled => true;
-    public virtual Color DefaultColor => Color.White;
-
-    public string LocalizationCategory => "Infinities";
-    public virtual LocalizedText Label => this.GetLocalization("Label");
-    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
-    public virtual LocalizedText Tooltip => this.GetLocalization("Tooltip");
-
-    IInfinity IComponent.Infinity => this;
 }

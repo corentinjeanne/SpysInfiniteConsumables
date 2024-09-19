@@ -3,8 +3,6 @@ using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
-using Microsoft.CodeAnalysis;
-using SPIC.Components;
 using Terraria.ModLoader;
 using SpikysLib;
 using SPIC.Default.Displays;
@@ -25,24 +23,22 @@ public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item>, IConfigurableComponents<GrabBagRequirements> {
-    public static Customs<Item, GrabBagCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
-    public static Category<Item, GrabBagCategory> Category = new(GetRequirement, GetCategory);
+public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<GrabBagRequirements>, ITooltipLineDisplay {
     public static GrabBag Instance = null!;
-    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance; 
+    public GrabBagRequirements Config { get; set; } = null!;
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.RarityDarkPurple;
 
-    private static Optional<Requirement> GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(InfinitySettings.Get(Instance).Container),
-        GrabBagCategory.TreasureBag => new(InfinitySettings.Get(Instance).TreasureBag),
-        GrabBagCategory.Extractinator => new(InfinitySettings.Get(Instance).Extractinator),
-        _ => Requirement.None,
+    public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Container => new(Config.Container),
+        GrabBagCategory.TreasureBag => new(Config.TreasureBag),
+        GrabBagCategory.Extractinator => new(Config.Extractinator),
+        _ => default,
     };
 
-    private static Optional<GrabBagCategory> GetCategory(Item item) {
+    protected override GrabBagCategory GetCategoryInner(Item item) {
         switch (item.type) {
         case ItemID.Geode: return GrabBagCategory.Container;
         }
@@ -56,7 +52,7 @@ public sealed class GrabBag : Infinity<Item>, IConfigurableComponents<GrabBagReq
         return GrabBagCategory.None; // GrabBagCategory.Unknown;
     }
 
-    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
         => (new(Instance.Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", Instance.DisplayName.Value), TooltipLineID.Tooltip);
     
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {

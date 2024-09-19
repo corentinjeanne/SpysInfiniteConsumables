@@ -13,7 +13,7 @@ public sealed class InfinityConfigsWrapper : KeyValueWrapper<InfinityDefinition,
     
     public static void OnBind(InfinityDefinition key, ConfigElement element) {
         if (key.IsUnloaded) return;
-        SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, InfinityDisplays.GetColor(key.Entity!));
+        SpikysLib.Reflection.ConfigElement.backgroundColor.SetValue(element, key.Entity!.Color);
         SpikysLib.Reflection.ConfigElement.TooltipFunction.SetValue(element, () => key.Tooltip!);
     }
 }

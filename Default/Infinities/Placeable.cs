@@ -7,7 +7,6 @@ using SpikysLib.IL;
 using MonoMod.Cil;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis;
-using SPIC.Components;
 using SPIC.Default.Displays;
 using SpikysLib;
 using Terraria.Localization;
@@ -57,12 +56,10 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Paint = 999;
 }
 
-public sealed class Placeable : Infinity<Item>, IConfigurableComponents<PlaceableRequirements> {
-    public static Customs<Item, PlaceableCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
-    public static Category<Item, PlaceableCategory> Category = new(GetRequirement, GetCategory);
+public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
     public static Placeable Instance = null!;
-    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
+    public PlaceableRequirements Config { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public override Color DefaultColor => Colors.RarityAmber;
 
@@ -72,6 +69,7 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
     }
 
     public override void SetStaticDefaults() {
+        base.SetStaticDefaults();
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
@@ -97,24 +95,24 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
         ClearWandAmmos();
     }
 
-    private static Optional<Requirement> GetRequirement(PlaceableCategory category) => category switch {
-        PlaceableCategory.Tile => new(InfinitySettings.Get(Instance).Tile),
-        PlaceableCategory.Wiring => new(InfinitySettings.Get(Instance).Wiring),
+    public override Requirement GetRequirement(PlaceableCategory category) => category switch {
+        PlaceableCategory.Tile => new(Config.Tile),
+        PlaceableCategory.Wiring => new(Config.Wiring),
         // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Infinities.Get(Instance).Tile),
-        PlaceableCategory.Torch => new(InfinitySettings.Get(Instance).Torch),
-        PlaceableCategory.Ore => new(InfinitySettings.Get(Instance).Ore),
-        PlaceableCategory.Furniture => new(InfinitySettings.Get(Instance).Furniture),
+        PlaceableCategory.Torch => new(Config.Torch),
+        PlaceableCategory.Ore => new(Config.Ore),
+        PlaceableCategory.Furniture => new(Config.Furniture),
         // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
         //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
         //     => new(Infinities.Get(Instance).Furniture),
-        PlaceableCategory.Bucket => new(InfinitySettings.Get(Instance).Bucket),
-        PlaceableCategory.Mechanical => new(InfinitySettings.Get(Instance).Mechanical),
-        PlaceableCategory.Seed => new(InfinitySettings.Get(Instance).Seed),
-        PlaceableCategory.Paint => new(InfinitySettings.Get(Instance).Paint),
-        _ => Requirement.None,
+        PlaceableCategory.Bucket => new(Config.Bucket),
+        PlaceableCategory.Mechanical => new(Config.Mechanical),
+        PlaceableCategory.Seed => new(Config.Seed),
+        PlaceableCategory.Paint => new(Config.Paint),
+        _ => default,
     };
 
-    private static Optional<PlaceableCategory> GetCategory(Item item) {
+    protected override PlaceableCategory GetCategoryInner(Item item) {
         PlaceableCategory category = GetCategory(item, false);
         return category == PlaceableCategory.None && IsWandAmmo(item.type, out int wandType) ? GetCategory(new(wandType), true) : category;
     }
@@ -177,17 +175,17 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
     public static void RegisterWand(Item wand) => s_wandAmmos.TryAdd(wand.tileWand, wand.type);
     public static bool IsWandAmmo(int type, out int wandType) => s_wandAmmos.TryGetValue(type, out wandType);
 
-    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
         if (displayed == item.type) {
-            if(item.XMasDeco()) return (new(Instance.Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
-            return (new(Instance.Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
+            if (item.XMasDeco()) return (new(Mod, "Tooltip0", Language.GetTextValue("CommonItemTooltip.PlaceableOnXmasTree")), TooltipLineID.Tooltip);
+            return (new(Mod, "Placeable", Lang.tip[33].Value), TooltipLineID.Placeable);
         }
         (string name, TooltipLineID position) = GetWandType(item) switch {
             WandType.Wire => ("Tooltip0", TooltipLineID.Tooltip),
             WandType.PaintBrush or WandType.PaintRoller => ("PaintConsumes", TooltipLineID.Modded),
             WandType.Tile or WandType.Flexible or _ => ("WandConsumes", TooltipLineID.WandConsumes),
         };
-        return (new(Instance.Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
+        return (new(Mod, name, Lang.tip[52].Value + Lang.GetItemName(displayed)), position);
     }
 
     public enum WandType {
@@ -207,15 +205,6 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
-    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index < InventorySlots.Coins.Start || InventorySlots.Ammo.End <= index) return default;
-
-        PlaceableCategory category = InfinityManager.GetCategory(item, Category);
-        if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) return InfinityVisibility.Exclusive;
-        return default;
-    }
-
     // protected override void ModifyInfinity(Player player, Item consumable, ref InfinityValue value) {
     //     if(!InfinitySettings.Instance.PreventItemDuplication || value.Count <= value.Requirement.Count) return;
     //     if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
@@ -223,7 +212,7 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
     //         infinity = 0;
     //     }
     // }
-
+    
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
         Item? ammo = GetWandType(item) switch {
             WandType.Tile => Main.LocalPlayer.FindItemRaw(item.tileWand),
@@ -233,5 +222,13 @@ public sealed class Placeable : Infinity<Item>, IConfigurableComponents<Placeabl
             _ => null
         };
         if (ammo is not null) displayed.Add(ammo);
+    }
+
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (index < 50 || 58 <= index) return;
+
+        PlaceableCategory category = GetCategory(item);
+        if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
     }
 }

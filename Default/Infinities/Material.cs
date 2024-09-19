@@ -4,8 +4,6 @@ using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
-using Microsoft.CodeAnalysis;
-using SPIC.Components;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -31,27 +29,25 @@ public sealed class MaterialRequirements {
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Item>, IConfigurableComponents<MaterialRequirements> {
-    public static Customs<Item, MaterialCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
-    public static Category<Item, MaterialCategory> Category = new(GetRequirement, GetCategory);
+public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider<MaterialRequirements>, ITooltipLineDisplay{
     public static Material Instance = null!;
-    public static TooltipDisplay TooltipDisplay = new(GetTooltipLine);
+    public MaterialRequirements Config { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
 
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
-    private static Optional<Requirement> GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(InfinitySettings.Get(Instance).Basic, InfinitySettings.Get(Instance).Multiplier),
-        MaterialCategory.Ore => new(InfinitySettings.Get(Instance).Ore, InfinitySettings.Get(Instance).Multiplier),
-        MaterialCategory.Furniture => new(InfinitySettings.Get(Instance).Furniture, InfinitySettings.Get(Instance).Multiplier),
-        MaterialCategory.Miscellaneous => new(InfinitySettings.Get(Instance).Miscellaneous, InfinitySettings.Get(Instance).Multiplier),
-        MaterialCategory.NonStackable => new(InfinitySettings.Get(Instance).NonStackable, InfinitySettings.Get(Instance).Multiplier),
-        _ => Requirement.None,
+    public override Requirement GetRequirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
+        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
+        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
+        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
+        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
+        _ => default,
     };
 
-    private static Optional<MaterialCategory> GetCategory(Item item) {
+    protected override MaterialCategory GetCategoryInner(Item item) {
         int type = item.type;
         switch (type) {
         case ItemID.FallenStar: return MaterialCategory.Miscellaneous;
@@ -62,7 +58,7 @@ public sealed class Material : Infinity<Item>, IConfigurableComponents<MaterialR
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Category);
+        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Instance); // TODO check recursion
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;
@@ -75,31 +71,18 @@ public sealed class Material : Infinity<Item>, IConfigurableComponents<MaterialR
         return MaterialCategory.Miscellaneous;
     }
 
-    public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
-
-    public static bool IsSelectedRecipeMaterial(Item item) {
-        if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return false;
-        Item? material = Main.recipe[Main.availableRecipe[Main.focusRecipe]].requiredItem.Find(i => i.IsSimilar(item));
-        return material is not null;
-    }
-
-    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
-        if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return default;
-        Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
-        Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
-        return material is null ? default : new(InfinityVisibility.Exclusive);
-    }
-
-    protected override void ModifyDisplayedInfinity(ItemConsumable<Item> args, ref InfinityValue value) {
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
         if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
         Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
-        Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(args.Item));
+        Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
         if (material is null) return;
 
+        visibility = InfinityVisibility.Exclusive;
         Requirement requirement = value.Requirement.ForInfinity(material.stack, 1);
 
-        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == args.Item.type);
+        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type);
         if (group == -1) {
             value = value with { Requirement = requirement };
             return;

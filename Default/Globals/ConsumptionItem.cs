@@ -14,16 +14,16 @@ public sealed class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             if (item != player.HeldItem) { // Wands
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? Ammo.Customs.SaveDetectedCategory(item, AmmoCategory.Special) : Placeable.Customs.SaveDetectedCategory(item, PlaceableCategory.Tile),
+                    () => player.HeldItem.damage != 0 ? Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special) : Placeable.Instance.SaveDetectedCategory(item, PlaceableCategory.Tile),
                     Placeable.Instance, Ammo.Instance
                 );
             }
             if (detectionPlayer.usedCannon) { // Cannons
                 return !player.HasInfinite(item, 1,
                     () => {
-                        if (!Ammo.Customs.SaveDetectedCategory(item, AmmoCategory.Special)) return false;
-                        UsableCategory usableCategory = InfinityManager.GetCategory(item, Usable.Category);
-                        if (usableCategory == UsableCategory.Tool || usableCategory == UsableCategory.Unknown) Usable.Customs.SaveDetectedCategory(item, UsableCategory.None);
+                        if (!Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special)) return false;
+                        UsableCategory usableCategory = InfinityManager.GetCategory(item, Usable.Instance);
+                        if (usableCategory == UsableCategory.Tool || usableCategory == UsableCategory.Unknown) Usable.Instance.SaveDetectedCategory(item, UsableCategory.None);
                         return true;
                     },
                     Ammo.Instance
@@ -37,13 +37,13 @@ public sealed class ConsumptionItem : GlobalItem {
         } else if (detectionPlayer.InRightClick) {
             if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
-                () => GrabBag.Customs.SaveDetectedCategory(item, GrabBagCategory.Container),
+                () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
                 GrabBag.Instance, Usable.Instance
             );
         } else { // Hotkey or special right click action
             if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
-                () => GrabBag.Customs.SaveDetectedCategory(item, GrabBagCategory.Container),
+                () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
                 Usable.Instance, GrabBag.Instance
             );
         }

@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+
 using SpikysLib.Localization;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -25,7 +25,7 @@ public interface IDisplay : ILocalizedModType {
 
 public abstract class Display : ModType, IDisplay {
 
-    [DefaultValue(true)]
+    public bool Enabled { get; set; }
     public virtual bool DefaultEnabled => true;
 
     public string LocalizationCategory => "Displays";

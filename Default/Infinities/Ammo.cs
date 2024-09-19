@@ -2,10 +2,11 @@
 using Terraria.ID;
 using SPIC.Configs;
 using Microsoft.Xna.Framework;
-using Microsoft.CodeAnalysis;
-using SPIC.Components;
-using SpikysLib.Constants;
 using System.Collections.Generic;
+using Terraria.ModLoader;
+using SpikysLib;
+using SpikysLib.Constants;
+using SPIC.Default.Displays;
 
 namespace SPIC.Default.Infinities;
 public enum AmmoCategory {
@@ -20,21 +21,20 @@ public sealed class AmmoRequirements {
     public Count<AmmoCategory> Special = 999;
 }
 
-public sealed class Ammo : Infinity<Item>, IConfigurableComponents<AmmoRequirements> {
-    public static Customs<Item, AmmoCategory> Customs = new(i => new(i.type));
-    public static Group<Item> Group = new(() => ConsumableItem.InfinityGroup);
-    public static Category<Item, AmmoCategory> Category = new(GetRequirement, GetCategory);
+public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigProvider<AmmoRequirements>, ITooltipLineDisplay {
     public static Ammo Instance = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
+    public AmmoRequirements Config { get; set; } = null!;
 
     public override Color DefaultColor => new(34, 221, 151, 255); // Vortex
 
-    private static Optional<Requirement> GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(InfinitySettings.Get(Instance).Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(InfinitySettings.Get(Instance).Special),
-        _ => Requirement.None,
+    public override Requirement GetRequirement(AmmoCategory category) => category switch {
+        AmmoCategory.Classic => new(Config.Classic),
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
+        _ => default,
     };
 
-    private static Optional<AmmoCategory> GetCategory(Item ammo) {
+    protected override AmmoCategory GetCategoryInner(Item ammo) {
         if(ammo.type == ItemID.DD2EnergyCrystal) return AmmoCategory.Special;
         if (!ammo.consumable || ammo.ammo == AmmoID.None) return AmmoCategory.None;
         if (ammo.ammo == AmmoID.Arrow || ammo.ammo == AmmoID.Bullet || ammo.ammo == AmmoID.Rocket || ammo.ammo == AmmoID.Dart)
@@ -42,17 +42,22 @@ public sealed class Ammo : Infinity<Item>, IConfigurableComponents<AmmoRequireme
         return AmmoCategory.Special;
     }
 
-    protected override void ModifyRequirement(Item consumable, ref Requirement requirement) {
-        if(requirement.Count > consumable.maxStack) requirement = new(requirement.Count, requirement.Multiplier);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
+        if (displayed == item.type) return (new(Mod, "Ammo", Lang.tip[34].Value), TooltipLineID.Ammo);
+        return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
-        Item? ammo = item.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(item) : null;
+    protected override void ModifyRequirement(Item consumable, ref Requirement requirement) {
+        if (requirement.Count > consumable.maxStack) requirement = new(consumable.maxStack, requirement.Multiplier);
+    }
+
+    protected override void ModifyDisplayedConsumables(Item consumable, ref List<Item> displayed) {
+        Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
         if (ammo is not null) displayed.Add(ammo);
     }
 
-    protected override Optional<InfinityVisibility> GetVisibility(Item item) {
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        return InventorySlots.Coins.Start <= index && index < InventorySlots.Ammo.End ? new(InfinityVisibility.Exclusive) : default;
+        if (InventorySlots.Coins.Start <= index && index < InventorySlots.Ammo.End) visibility = InfinityVisibility.Exclusive;
     }
 }

@@ -1,6 +1,5 @@
 using SPIC.Configs;
 using SpikysLib.Collections;
-using SPIC.Components;
 using SpikysLib.Configs;
 
 namespace SPIC.Default.Presets;
@@ -8,8 +7,8 @@ namespace SPIC.Default.Presets;
 public sealed class Defaults : Preset {
     public override int CriteriasCount => 3;
 
-    public override bool MeetsCriterias(GroupConfig config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.DefaultEnabled) && config.UsedInfinities == 0;
-    public override void ApplyCriterias(GroupConfig config) {
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.DefaultEnabled) && config.UsedInfinities == 0;
+    public override void ApplyCriterias(ConsumableInfinities config) {
         foreach ((var def, var value) in config.Infinities) {
             if (!def.IsUnloaded) value.Key = def.Entity!.DefaultEnabled;
         }
@@ -20,10 +19,10 @@ public sealed class Defaults : Preset {
 public sealed class OneForMany : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool AppliesTo(IInfinityGroup group) => group.Infinities.Count > 1;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity.Infinities.Count > 1;
 
-    public override bool MeetsCriterias(GroupConfig config) => config.Infinities.Values.Exist(v => v.Key) && config.UsedInfinities == 1;
-    public override void ApplyCriterias(GroupConfig config) {
+    public override bool MeetsCriterias(ConsumableInfinities config) => config.Infinities.Values.Exist(v => v.Key) && config.UsedInfinities == 1;
+    public override void ApplyCriterias(ConsumableInfinities config) {
         config.UsedInfinities = 1;
         if (!MeetsCriterias(config)) config.Infinities[0].Key = true;
     }
@@ -32,9 +31,9 @@ public sealed class OneForMany : Preset {
 public sealed class AllEnabled : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool MeetsCriterias(GroupConfig config) => !config.Infinities.Values.Exist(v => !v.Key) && config.UsedInfinities == 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Values.Exist(v => !v.Key) && config.UsedInfinities == 0;
 
-    public override void ApplyCriterias(GroupConfig config) {
+    public override void ApplyCriterias(ConsumableInfinities config) {
         foreach (InfinityDefinition def in config.Infinities.Keys) ((IToggle)config.Infinities[def]!).Key = true;
         config.UsedInfinities = 0;
     }
@@ -43,8 +42,8 @@ public sealed class AllEnabled : Preset {
 public sealed class AllDisabled : Preset {
     public override int CriteriasCount => 1;
 
-    public override bool MeetsCriterias(GroupConfig config) => !config.Infinities.Values.Exist(v => v.Key);
-    public override void ApplyCriterias(GroupConfig config) {
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Values.Exist(v => v.Key);
+    public override void ApplyCriterias(ConsumableInfinities config) {
         foreach (InfinityDefinition def in config.Infinities.Keys) ((IToggle)config.Infinities[def]!).Key = false;
     }
 }
@@ -54,15 +53,15 @@ public sealed class Classic : Preset {
     public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance)];
     public override int CriteriasCount => 3;
 
-    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.ConsumableItem;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 
-    public override bool MeetsCriterias(GroupConfig config) {
+    public override bool MeetsCriterias(ConsumableInfinities config) {
         for (int i = 0; i < Order.Length; i++) {
             if (!config.Infinities.Keys[i].Equals(Order[i]) || !config.Infinities[i].Key) return false;
         }
         return config.UsedInfinities == 1;
     }
-    public override void ApplyCriterias(GroupConfig config) {
+    public override void ApplyCriterias(ConsumableInfinities config) {
         (var oldInfinities, config.Infinities) = (config.Infinities, []);
         for (int i = 0; i < Order.Length; i++) {
             InfinityDefinition def = Order[i];
@@ -81,11 +80,11 @@ public sealed class Classic : Preset {
 public sealed class JourneyRequirements : Preset {
     public override int CriteriasCount => 3;
 
-    public override bool AppliesTo(IInfinityGroup group) => group.Infinity is Infinities.ConsumableItem;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 
-    public override bool MeetsCriterias(GroupConfig config)
+    public override bool MeetsCriterias(ConsumableInfinities config)
         => config.Infinities.Keys[0].Equals(new InfinityDefinition(Infinities.JourneySacrifice.Instance)) && config.Infinities[0].Key && config.UsedInfinities == 1;
-    public override void ApplyCriterias(GroupConfig config) {
+    public override void ApplyCriterias(ConsumableInfinities config) {
         InfinityDefinition def = new(Infinities.JourneySacrifice.Instance);
         config.Infinities.Move(def, 0);
         config.Infinities[0].Key = true;

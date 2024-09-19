@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SpikysLib.Collections;
+using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
-using InfinityConfig = SpikysLib.Configs.Toggle<System.Collections.Generic.Dictionary<string, object>>;
 
 namespace SPIC.Configs;
 
@@ -19,40 +18,35 @@ public sealed class InfinitySettings : ModConfig {
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
-    public Dictionary<InfinityDefinition, InfinityConfig> Infinities {
-        get => _rootInfinities;
+    public Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities {
+        get => _infinities;
         set {
-            _rootInfinities = value;
-            _infinities.Clear();
-            foreach (IInfinity infinity in InfinityManager.RootInfinities) LoadInfinityConfig(infinity, _rootInfinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
+            _infinities = value;
+            foreach (IConsumableInfinity infinity in InfinityManager.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
         }
     }
+    private Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> _infinities = [];
 
-    internal static InfinityConfig DefaultConfig(IInfinity infinity) => new(infinity.DefaultEnabled);
-    internal void LoadInfinityConfig(IInfinity infinity, InfinityConfig config) {
+    public override ConfigScope Mode => ConfigScope.ServerSide;
+    public static InfinitySettings Instance = null!;
+
+    public static Toggle<Dictionary<string, object>> DefaultConfig(IInfinity infinity) => new(infinity.DefaultEnabled);
+    public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<string, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
-        foreach (IComponent component in infinity.Components.Reverse()) {
-            if (component is not IConfigurableComponents configurable) continue;
-            Type configType = configurable.ConfigType;
-            string key = configurable.ConfigKey;
+        infinity.Enabled = config.Key;
+        foreach ((var key, var provider) in _configs.GetValueOrDefault(infinity, [])) {
+            Type configType = provider.ConfigType;
             object? oldConfig = oldConfigs.GetValueOrDefault(key, null!);
             config.Value[key] = oldConfig switch {
                 null => JsonConvert.DeserializeObject("{}", configType, ConfigManager.serializerSettings)!,
                 JToken token => token.ToObject(configType)!,
                 _ => oldConfig
             };
-            configurable.OnLoaded(config.Value[key]);
+            provider.Config = config.Value[key];
+            provider.OnLoaded();
         }
-        _infinities[infinity] = config;
     }
+    public static void AddConfig(IInfinity infinity, string key, IConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));
+    private static readonly Dictionary<IInfinity, List<(string key, IConfigProvider)>> _configs = [];
 
-    private Dictionary<InfinityDefinition, InfinityConfig> _rootInfinities = [];
-    private readonly Dictionary<IInfinity, InfinityConfig> _infinities = [];
-
-    public override ConfigScope Mode => ConfigScope.ServerSide;
-    public static InfinitySettings Instance = null!;
-
-    public InfinityConfig GetConfig(IInfinity infinity) => _infinities[infinity];
-    public static bool IsEnabled(IInfinity infinity) => Instance.GetConfig(infinity).Key;
-    public static TConfig Get<TConfig>(IConfigurableComponents<TConfig> config) where TConfig : new() => (TConfig)Instance.GetConfig(config.Infinity).Value[config.ConfigKey];
 }

@@ -33,7 +33,7 @@ public sealed class SpicPlayer : ModPlayer {
             orig(canDelayCheck);
             return;
         }
-        Endpoints.ClearCache();
+        InfinityManager.ClearCache();
         orig(canDelayCheck);
     }
 }

@@ -21,18 +21,18 @@ public sealed class DetectionPlayer : ModPlayer {
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
         On_Player.Spawn += HookSpawn;
-        On_Player.PayCurrency += HookPayCurrency;
+        // On_Player.PayCurrency += HookPayCurrency;
         On_Player.ShootFromCannon += HookShootFromCannon;
     }
 
-    private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
-        bool enabled;
-        if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Configs.InfinitySettings.Get(Currency.Instance).Nurse;
-        else if (Main.InReforgeMenu) enabled = Configs.InfinitySettings.Get(Currency.Instance).Reforging;
-        else if (Main.npcShop != 0) enabled = Configs.InfinitySettings.Get(Currency.Instance).Shop;
-        else enabled = Configs.InfinitySettings.Get(Currency.Instance).Others;
-        return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
-    }
+    // private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
+    //     bool enabled;
+    //     if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Configs.InfinitySettings.Get(Currency.Instance).Nurse;
+    //     else if (Main.InReforgeMenu) enabled = Configs.InfinitySettings.Get(Currency.Instance).Reforging;
+    //     else if (Main.npcShop != 0) enabled = Configs.InfinitySettings.Get(Currency.Instance).Shop;
+    //     else enabled = Configs.InfinitySettings.Get(Currency.Instance).Others;
+    //     return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
+    // }
 
     private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
         DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
@@ -41,14 +41,14 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Category) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
         detectionPlayer.InItemCheck = false;
     }
 
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => Endpoints.ClearCache();
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
 
@@ -70,7 +70,7 @@ public sealed class DetectionPlayer : ModPlayer {
     public bool TryDetectCategory(bool mustDetect = false) {
         if (DetectingCategoryOf is null) return false;
 
-        void SaveUsable(UsableCategory category) => Usable.Customs.SaveDetectedCategory(DetectingCategoryOf, category);
+        void SaveUsable(UsableCategory category) => Usable.Instance.SaveDetectedCategory(DetectingCategoryOf, category);
 
         DetectionDataScreenShot data = GetDetectionData();
         if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
@@ -137,7 +137,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         Item item = self.inventory[selItem];
 
-        if (InfinityManager.GetCategory(item, Placeable.Category) == PlaceableCategory.None) Placeable.Customs.SaveDetectedCategory(item, PlaceableCategory.Bucket);
+        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) Placeable.Instance.SaveDetectedCategory(item, PlaceableCategory.Bucket);
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;

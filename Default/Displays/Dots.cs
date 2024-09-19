@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Terraria.ModLoader.Config;
 using SpikysLib.Configs;
 using System;
+using SPIC.Configs;
 
 namespace SPIC.Default.Displays;
 
@@ -14,8 +15,10 @@ public sealed class DotsConfig {
     [DefaultValue(5f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 5f, c => GroupTime = value); }
 }
 
-public sealed class Dots : Display, IConfigurableDisplay<DotsConfig> {
+public sealed class Dots : Display, IConfigProvider<DotsConfig> {
     public static Dots Instance = null!;
+
+    public DotsConfig Config { get; set; } = null!;
 }
 
 public enum Direction { Vertical, Horizontal }
