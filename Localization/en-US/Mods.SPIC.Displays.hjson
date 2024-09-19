@@ -22,7 +22,7 @@ Glow: {
 	Label: "[i:75] Glow"
 	Tooltip: Adds a glow around infinite items
 
-	FancyGlow: {
+	fancyGlow: {
 		Label: Fancy Glow
 		Tooltip:
 			'''
@@ -31,23 +31,23 @@ Glow: {
 			'''
 	}
 
-	Offset: {
+	offset: {
 		Label: Offset
 		Tooltip: Offset the glow of each items
 	}
 
-	AnimationLength: {
+	animationLength: {
 		Label: Animation Length
 		Tooltip: ""
 	}
 
-	Intensity: {
+	intensity: {
 		Label: Intensity
 		Tooltip: ""
 	}
 
-	Size: {
-		Label: Size
+	scale: {
+		Label: Scale
 		Tooltip: ""
 	}
 }
@@ -56,18 +56,33 @@ Dots: {
 	Label: "[i:3629] Dots"
 	Tooltip: Display the infinity of items on their inventory slots with dots
 
-	Start: {
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
+	}
+
+	start: {
 		Label: First Dot position
 		Tooltip: ""
 	}
 
-	Direction: {
+	direction: {
 		Label: Direction
 		Tooltip: ""
 	}
 
-	GroupTime: {
-		Label: Group time
-		Tooltip: The time each infinity group is display before changing to the next group
+	time: {
+		Label: Consumable time
+		Tooltip: The time each consumable infinity is display before changing to the next
+	}
+
+	scale: {
+		Label: Scale
+		Tooltip: ""
+	}
+
+	missingOpacity: {
+		Label: Missing Opacity
+		Tooltip: The opacity of the part of the dot representing the requirement
 	}
 }

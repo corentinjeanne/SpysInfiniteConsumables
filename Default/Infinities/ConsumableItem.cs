@@ -10,7 +10,7 @@ namespace SPIC.Default.Infinities;
 public class ConsumableItem : ConsumableInfinity<Item>, ICountToString { // TODO Better inventory compatibility
     public static ConsumableItem Instance = null!;
 
-    public override Color DefaultColor => new(200, 200, 200);
+    public override Color DefaultColor => new(209, 138, 138);
 
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);
     public override int GetId(Item consumable) => consumable.type;
