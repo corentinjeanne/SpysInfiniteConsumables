@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
+using System;
 
 namespace SPIC.Default.Infinities;
 
@@ -38,14 +39,16 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
 
-    public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
-        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
-        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
-        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
-        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
-        _ => default,
+    // TODO multiplier
+    public override long GetRequirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => Config.Basic,
+        MaterialCategory.Ore => Config.Ore,
+        MaterialCategory.Furniture => Config.Furniture,
+        MaterialCategory.Miscellaneous => Config.Miscellaneous,
+        MaterialCategory.NonStackable => Config.NonStackable,
+        _ => 0,
     };
+    protected override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * Config.Multiplier);
 
     protected override MaterialCategory GetCategoryInner(Item item) {
         int type = item.type;
@@ -58,7 +61,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Instance); // TODO check recursion
+        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Instance);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;
@@ -80,7 +83,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
         if (material is null) return;
 
         visibility = InfinityVisibility.Exclusive;
-        Requirement requirement = value.Requirement.ForInfinity(material.stack, 1);
+        long requirement = Math.Max(value.Requirement, (int)MathF.Ceiling(material.stack / Config.Multiplier));
 
         int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type);
         if (group == -1) {
@@ -88,6 +91,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
             return;
         }
         long count = PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-        value = value with { Count = count, Requirement = requirement };
+        value = new(value.Consumable, count, requirement, count >= requirement ? count : 0);
     }
 }

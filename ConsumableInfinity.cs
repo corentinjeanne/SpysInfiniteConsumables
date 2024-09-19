@@ -13,7 +13,7 @@ public interface IConsumableInfinity : IInfinity {
     ReadOnlyCollection<IInfinity> Infinities { get; }
 }
 
-public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity {
+public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity, IConsumableBridge {
 
     public override ConsumableInfinity<TConsumable> Consumable => this;
     public ConsumableInfinitiesProvider<TConsumable> ConsumableInfinities { get; private set; } = null!;
@@ -27,25 +27,20 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
     public HashSet<Infinity<TConsumable>> UsedInfinities(TConsumable consumable) {
         HashSet<Infinity<TConsumable>> usedInfinities = [];
         int max = ConsumableInfinities.Config.UsedInfinities;
-        foreach (Infinity<TConsumable> infinity in _orderedInfinities) {
-            if (!infinity.Enabled) continue;
-            Requirement value = infinity.GetRequirement(consumable);
-            if (value.IsNone) continue;
+        foreach (Infinity<TConsumable> infinity in _orderedInfinities.Where(i => i.Enabled)) {
+            long value = infinity.GetRequirement(consumable);
+            if (value <= 0) continue;
             usedInfinities.Add(infinity);
             if (usedInfinities.Count == max) break;
         }
         return usedInfinities;
     }
 
-    protected sealed override Requirement GetRequirementInner(TConsumable consumable) {
-        long count = 0;
-        float multiplier = float.MaxValue;
-        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this)) {
-            Requirement requirement = InfinityManager.GetRequirement(consumable, infinity);
-            count = Math.Max(count, requirement.Count);
-            multiplier = Math.Min(multiplier, requirement.Multiplier);
-        }
-        return new(count, multiplier);
+    protected sealed override long GetRequirementInner(TConsumable consumable) {
+        long requirement = 0;
+        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this).Where(i => i.Enabled))
+            requirement = Math.Max(requirement, InfinityManager.GetRequirement(consumable, infinity));
+        return requirement;
     }
     
     public void AddInfinity(Infinity<TConsumable> infinity) {
@@ -73,4 +68,6 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
             if (preset.AppliesTo(this)) _presets.Add(preset);
         }
     }
+
+    long IConsumableBridge.CountConsumables(Player player, int consumable) => player.CountConsumables(ToConsumable(consumable), this);
 }

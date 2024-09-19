@@ -10,14 +10,14 @@ public class CustomRequirements<TCount> where TCount : Count {
 }
 
 public interface ICustoms<TConsumable> {
-    Optional<Requirement> GetRequirement(TConsumable consumable);
+    Optional<long> GetRequirement(TConsumable consumable);
 }
 
 public sealed class Customs<TConsumable> : ICustoms<TConsumable>, IConfigProvider<CustomRequirements<Count>> {
     public Customs(Infinity<TConsumable> infinity) => Infinity = infinity;
 
-    public Optional<Requirement> GetRequirement(TConsumable consumable)
-        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count? custom) ? new(new(custom.Value)) : default;
+    public Optional<long> GetRequirement(TConsumable consumable)
+        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count? custom) ? new(custom.Value) : default;
 
     public CustomRequirements<Count> Config { get; set; } = null!;
     public Infinity<TConsumable> Infinity { get; }
@@ -29,8 +29,8 @@ public sealed class Customs<TConsumable, TCategory> : ICustoms<TConsumable>, ICo
     public Optional<TCategory> GetCategory(TConsumable consumable)
         => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value < 0 ? new(custom.Category) : default;
 
-    public Optional<Requirement> GetRequirement(TConsumable consumable)
-        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? new(new(custom.Value)) : default;
+    public Optional<long> GetRequirement(TConsumable consumable)
+        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? new(custom.Value) : default;
 
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
         if (!InfinitySettings.Instance.DetectMissingCategories || !Config.customs.TryAdd(Infinity.Consumable.ToDefinition(consumable), new(category)))

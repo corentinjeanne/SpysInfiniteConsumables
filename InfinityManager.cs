@@ -11,37 +11,25 @@ namespace SPIC;
 public static class InfinityManager {
     public static TCategory GetCategory<TConsumable, TCategory>(TConsumable consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
         => infinity.GetCategory(consumable);
-    public static TCategory GetCategory<TConsumable, TCategory>(int consumable, Infinity<TConsumable, TCategory> infinity) where TCategory : struct, Enum
-        => GetCategory(infinity.Consumable.ToConsumable(consumable), infinity);
+    public static TCategory GetCategory<TCategory>(int consumable, IInfinityBridge<TCategory> infinity) where TCategory : struct, Enum => infinity.GetCategory(consumable);
 
-    public static Requirement GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) {
+    public static long GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) {
         if (!infinity.Enabled) return default;
         if (!infinity.IsConsumable && !UsedInfinities(consumable, infinity.Consumable).Contains(infinity)) return GetRequirement(consumable, infinity.Consumable);
         return infinity.GetRequirement(consumable);
     }
-    // => infinity.Enabled ? infinity.GetRequirement(consumable) : default;
-    public static Requirement GetRequirement<TConsumable>(int consumable, Infinity<TConsumable> infinity)
-        => infinity.Enabled ? GetRequirement(infinity.Consumable.ToConsumable(consumable), infinity) : default;
-
-    public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity)
-        => GetRequirement(consumable, infinity).Infinity(count);
-    public static long GetInfinity<TConsumable>(int consumable, long count, Infinity<TConsumable> infinity)
-        => GetRequirement(consumable, infinity).Infinity(count);
+    public static long GetRequirement(int consumable, IInfinityBridge infinity) => infinity.GetRequirement(consumable);
 
     public static long CountConsumables<TConsumable>(this Player player, TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
         => infinity.CountConsumables(player, consumable);
-    public static long CountConsumables<TConsumable>(this Player player, int consumable, ConsumableInfinity<TConsumable> infinity)
-        => infinity.CountConsumables(player, infinity.ToConsumable(consumable));
+    public static long CountConsumables(this Player player, int consumable, IConsumableBridge infinity) => infinity.CountConsumables(player, consumable);
 
-    public static HashSet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
+    public static IReadOnlySet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
         => infinity.UsedInfinities(consumable);
-    public static HashSet<Infinity<TConsumable>> UsedInfinities<TConsumable>(int consumable, ConsumableInfinity<TConsumable> infinity)
-        => UsedInfinities(infinity.ToConsumable(consumable), infinity);
 
     public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
-        => GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity);
-    public static long GetInfinity<TConsumable>(this Player player, int consumable, Infinity<TConsumable> infinity)
-        => GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity);
+        => infinity.GetInfinity(infinity.Consumable.GetId(consumable), player.CountConsumables(consumable, infinity.Consumable));
+    public static long GetInfinity(this Player player, int consumable, IInfinityBridge infinity) => infinity.GetInfinity(player, consumable);
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
         List<ReadOnlyCollection<InfinityDisplay>> displays = [];
@@ -52,7 +40,7 @@ public static class InfinityManager {
             void AddInfinityDisplay(IInfinity infinity) {
                 foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item)) {
                     if (visibility < minVisibility) continue;
-                    if (visibility > minVisibility) {
+                    if (InfinityDisplays.Instance.alternateDisplays && visibility > minVisibility) {
                         displays.Clear();
                         subDisplays.Clear();
                         minVisibility = visibility;
@@ -68,20 +56,20 @@ public static class InfinityManager {
     }
 
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity) => infinity.Enabled && player.GetInfinity(consumable, infinity) >= consumed;
-    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Infinity<TConsumable> infinity) => infinity.Enabled && player.GetInfinity(consumable, infinity) >= consumed;
+    public static bool HasInfinite(this Player player, int consumable, long consumed, IInfinityBridge infinity) => infinity.Enabled && player.GetInfinity(consumable, infinity) >= consumed;
 
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
-    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
+    public static bool HasInfinite(this Player player, int consumable, long consumed, params IInfinityBridge[] infinities) => player.HasInfinite(consumable, consumed, () => false, infinities);
 
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool> retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) {
         foreach (Infinity<TConsumable> infinity in infinities) {
-            if (!GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
+            if (infinity.Enabled && GetRequirement(consumable, infinity) > 0) return player.HasInfinite(consumable, consumed, infinity);
         }
         return retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
-    public static bool HasInfinite<TConsumable>(this Player player, int consumable, long consumed, Func<bool> retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) {
-        foreach (Infinity<TConsumable> infinity in infinities) {
-            if (!GetRequirement(consumable, infinity).IsNone) return player.HasInfinite(consumable, consumed, infinity);
+    public static bool HasInfinite(this Player player, int consumable, long consumed, Func<bool> retryIfNoneIncluded, params IInfinityBridge[] infinities) {
+        foreach (IInfinityBridge infinity in infinities) {
+            if (infinity.Enabled && GetRequirement(consumable, infinity) > 0) return player.HasInfinite(consumable, consumed, infinity);
         }
         return retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
@@ -111,5 +99,5 @@ public static class InfinityManager {
 
 public enum InfinityVisibility { Hidden, Visible, Exclusive }
 
-public readonly record struct InfinityValue(int Consumable, long Count, Requirement Requirement, long Value);
+public readonly record struct InfinityValue(int Consumable, long Count, long Requirement, long Infinity);
 public readonly record struct InfinityDisplay(IInfinity Infinity, InfinityValue Value);

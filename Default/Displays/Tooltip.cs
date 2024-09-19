@@ -7,7 +7,7 @@ using SPIC.Configs;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using tModPorter;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SPIC.Default.Displays;
 
@@ -19,8 +19,9 @@ public interface ICountToString {
 }
 
 public sealed class TooltipConfig {
-    [DefaultValue(true)] public bool addMissingLines = true;
-    [DefaultValue(true)] public bool colorInfiniteLines = true;
+    [DefaultValue(true)] public bool displayRequirement = true;
+    [DefaultValue(true)] public bool coloredLines = true;
+    [DefaultValue(true)] public float missingLinesOpacity = 0.75f;
 
 }
 
@@ -42,18 +43,25 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
 
     public static void ModifyTooltips(Item item, List<TooltipLine> tooltips, InfinityValue value, IInfinity infinity) {
         (TooltipLine lineToFind, TooltipLineID? position) = GetTooltipLine(item, value.Consumable, infinity);
-        bool added = false;
-        TooltipLine? line = Instance.Config.addMissingLines ? tooltips.FindOrAddLine(lineToFind, out added, position) : tooltips.FindLine(lineToFind.Name);
-        if (line is null) return;
 
-        if (value.Value > 0) {
-            if (Instance.Config.colorInfiniteLines) line.OverrideColor = infinity.Color;
-            line.Text = value.Value == value.Count ?
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, CountToString(value.Consumable, value.Value, infinity));
-        } else {
-            line.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement.Count, infinity)})";
+        TooltipLine? line = tooltips.FindLine(lineToFind.Name);
+        if (line is null && Instance.Config.missingLinesOpacity <= 0f) return;
+        bool added = false;
+        void SetLine() {
+            if (line is not null) return;
+            added = true;
+            line = tooltips.AddLine(lineToFind, position);
         }
-        if (added) line.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
+        if (value.Infinity > 0) {
+            SetLine();
+            if (Instance.Config.coloredLines) line!.OverrideColor = infinity.Color;
+            line!.Text = value.Infinity == value.Count ?
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, CountToString(value.Consumable, value.Infinity, infinity));
+        } else if (Instance.Config.displayRequirement) {
+            SetLine();
+            line!.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity)})";
+        }
+        if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }
 }

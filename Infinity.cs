@@ -29,7 +29,7 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     Color DefaultColor { get; }
 }
 
-public abstract class Infinity<TConsumable> : ModType, IInfinity {
+public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridge {
     public bool Enabled { get => _enabled && (IsConsumable || Consumable.Enabled); set => _enabled = value; }
     private bool _enabled;
     public virtual bool DefaultEnabled => true;
@@ -38,23 +38,30 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     IConsumableInfinity IInfinity.Consumable => Consumable;
     public bool IsConsumable => Consumable == this;
 
-    public Requirement GetRequirement(TConsumable consumable) {
-        Optional<Requirement> custom = Customs.GetRequirement(consumable);
-        Requirement requirement = custom.HasValue ? custom.Value : GetRequirementInner(consumable);
+    public long GetRequirement(TConsumable consumable) {
+        Optional<long> custom = Customs.GetRequirement(consumable);
+        long requirement = custom.HasValue ? custom.Value : GetRequirementInner(consumable);
         ModifyRequirement(consumable, ref requirement);
         return requirement;
     }
-    protected abstract Requirement GetRequirementInner(TConsumable consumable);
-    protected virtual void ModifyRequirement(TConsumable consumable, ref Requirement requirement) { }
+    protected abstract long GetRequirementInner(TConsumable consumable);
+    protected virtual void ModifyRequirement(TConsumable consumable, ref long requirement) { }
+
+    public long GetInfinity(int consumable, long count) {
+        long infinity = count >= InfinityManager.GetRequirement(consumable, this) ? count : 0;
+        ModifyInfinity(consumable, ref infinity);
+        return infinity;
+    }
+    protected virtual void ModifyInfinity(int consumable, ref long infinity) { }
 
     public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
-        ModifyDisplayedConsumables(item, ref consumables);
+        if (InfinityDisplays.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
         foreach(TConsumable consumable in consumables) {
             InfinityVisibility visibility = IsConsumable || InfinityManager.UsedInfinities(consumable, Consumable).Contains(this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
             InfinityValue infinity = new(Consumable.GetId(consumable), Main.LocalPlayer.CountConsumables(consumable, Consumable), InfinityManager.GetRequirement(consumable, this), Main.LocalPlayer.GetInfinity(consumable, this));
             ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
-            if (infinity.Requirement.IsNone) continue;
+            if (infinity.Requirement <= 0) continue;
             yield return (visibility, infinity);
         }
     }
@@ -63,14 +70,13 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
 
     public ICustoms<TConsumable> Customs { get; private set; } = null!;
 
-    public Color Color { get; set; }
+    public virtual Color Color { get; set; }
     public virtual Color DefaultColor => Color.White;
 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText Label => this.GetLocalization("Label");
     public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName");
     public virtual LocalizedText Tooltip => this.GetLocalization("Tooltip");
-
 
     protected override void InitTemplateInstance() => ConfigHelper.SetInstance(this);
 
@@ -108,9 +114,13 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     public sealed override void SetupContent() => SetStaticDefaults();
 
     public override void Unload() => ConfigHelper.SetInstance(this, true);
+
+    IConsumableBridge IInfinityBridge.Consumable => Consumable;
+    long IInfinityBridge.GetRequirement(int consumable) => InfinityManager.GetRequirement(Consumable.ToConsumable(consumable), this);
+    long IInfinityBridge.GetInfinity(Player player, int consumable) => player.GetInfinity(Consumable.ToConsumable(consumable), this);
 }
 
-public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> where TCategory: struct, Enum {
+public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinityBridge<TCategory> where TCategory: struct, Enum {
     public TCategory GetCategory(TConsumable consumable) {
         TCategory category;
         Optional<TCategory> custom = Customs.GetCategory(consumable);
@@ -119,12 +129,12 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
     }
     protected abstract TCategory GetCategoryInner(TConsumable consumable);
 
-    public abstract Requirement GetRequirement(TCategory category);
-    protected override Requirement GetRequirementInner(TConsumable consumable) {
+    public abstract long GetRequirement(TCategory category);
+    protected override long GetRequirementInner(TConsumable consumable) {
         HashSet<long> categories = [];
-        Requirement requirement = GetRequirement(InfinityManager.GetCategory(consumable, this));
-        while (requirement.Count < 0 && categories.Add(-requirement.Count)) {
-            var category = -requirement.Count;
+        long requirement = GetRequirement(InfinityManager.GetCategory(consumable, this));
+        while (requirement < 0 && categories.Add(-requirement)) {
+            var category = -requirement;
             requirement = GetRequirement(Unsafe.As<long, TCategory>(ref category));
         }
         return requirement;
@@ -140,4 +150,6 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable> w
         InfinityManager.ClearCache();
         return true;
     }
+
+    TCategory IInfinityBridge<TCategory>.GetCategory(int consumable) => InfinityManager.GetCategory(Consumable.ToConsumable(consumable), this);
 }

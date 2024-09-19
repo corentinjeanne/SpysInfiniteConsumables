@@ -95,21 +95,21 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         ClearWandAmmos();
     }
 
-    public override Requirement GetRequirement(PlaceableCategory category) => category switch {
-        PlaceableCategory.Tile => new(Config.Tile),
-        PlaceableCategory.Wiring => new(Config.Wiring),
-        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => new(Infinities.Get(Instance).Tile),
-        PlaceableCategory.Torch => new(Config.Torch),
-        PlaceableCategory.Ore => new(Config.Ore),
-        PlaceableCategory.Furniture => new(Config.Furniture),
+    public override long GetRequirement(PlaceableCategory category) => category switch {
+        PlaceableCategory.Tile => Config.Tile,
+        PlaceableCategory.Wiring => Config.Wiring,
+        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => Infinities.GetInstance).Tile),
+        PlaceableCategory.Torch => Config.Torch,
+        PlaceableCategory.Ore => Config.Ore,
+        PlaceableCategory.Furniture => Config.Furniture,
         // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
         //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-        //     => new(Infinities.Get(Instance).Furniture),
-        PlaceableCategory.Bucket => new(Config.Bucket),
-        PlaceableCategory.Mechanical => new(Config.Mechanical),
-        PlaceableCategory.Seed => new(Config.Seed),
-        PlaceableCategory.Paint => new(Config.Paint),
-        _ => default,
+        //     => Infinities.GetInstance).Furniture),
+        PlaceableCategory.Bucket => Config.Bucket,
+        PlaceableCategory.Mechanical => Config.Mechanical,
+        PlaceableCategory.Seed => Config.Seed,
+        PlaceableCategory.Paint => Config.Paint,
+        _ => 0,
     };
 
     protected override PlaceableCategory GetCategoryInner(Item item) {

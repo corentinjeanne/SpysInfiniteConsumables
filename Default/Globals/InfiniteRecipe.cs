@@ -28,6 +28,6 @@ public class InfiniteRecipe : ModSystem {
         int g = recipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == type);
         if(g == -1) return;
         long total = PlayerHelper.OwnedItems.GetValueOrDefault(RecipeGroup.recipeGroups[recipe.acceptedGroups[g]].GetGroupFakeItemId(), 0);
-        if (InfinityManager.GetInfinity(type, total, Material.Instance) >= amount) amount = 0;
+        if (Material.Instance.GetInfinity(type, total) >= amount) amount = 0;
     }
 }

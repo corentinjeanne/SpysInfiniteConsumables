@@ -28,10 +28,10 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigProvider<AmmoReq
 
     public override Color DefaultColor => new(34, 221, 151, 255); // Vortex
 
-    public override Requirement GetRequirement(AmmoCategory category) => category switch {
-        AmmoCategory.Classic => new(Config.Classic),
-        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => new(Config.Special),
-        _ => default,
+    public override long GetRequirement(AmmoCategory category) => category switch {
+        AmmoCategory.Classic => Config.Classic,
+        AmmoCategory.Special /*or AmmoCategory.Explosive*/ => Config.Special,
+        _ => 0,
     };
 
     protected override AmmoCategory GetCategoryInner(Item ammo) {
@@ -47,8 +47,8 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigProvider<AmmoReq
         return (new(Mod, "WeaponConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    protected override void ModifyRequirement(Item consumable, ref Requirement requirement) {
-        if (requirement.Count > consumable.maxStack) requirement = new(consumable.maxStack, requirement.Multiplier);
+    protected override void ModifyRequirement(Item consumable, ref long requirement) {
+        if (requirement > consumable.maxStack) requirement = consumable.maxStack;
     }
 
     protected override void ModifyDisplayedConsumables(Item consumable, ref List<Item> displayed) {

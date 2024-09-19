@@ -29,7 +29,7 @@ namespace SPIC.Default.Globals {
             AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Instance);
             // UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
             if (ammo != AmmoCategory.None && ammo != AmmoCategory.Special) {
-                if (Ammo.Instance.SaveDetectedCategory(new(type), AmmoCategory.Special)) DetectionPlayer.RefilExplosive(Main.player[proj.owner], proj.type, type);
+                if (Ammo.Instance.SaveDetectedCategory(new(type), AmmoCategory.Special)) DetectionPlayer.RefillExplosive(Main.player[proj.owner], proj.type, type);
             }
             // else if(usable != UsableCategory.None && usable != UsableCategory.Tool){
             //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);

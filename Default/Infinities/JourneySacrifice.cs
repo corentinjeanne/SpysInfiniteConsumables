@@ -21,7 +21,7 @@ public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<Jou
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.JourneyMode;
 
-    protected override Requirement GetRequirementInner(Item item) => new(item.ResearchUnlockCount);
+    protected override long GetRequirementInner(Item item) => item.ResearchUnlockCount;
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 

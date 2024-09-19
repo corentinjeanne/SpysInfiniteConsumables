@@ -41,7 +41,7 @@ public sealed class InfinityDisplays : ModConfig {
 
     private Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> _infinities = [];
 
-    public override ConfigScope Mode => ConfigScope.ServerSide;
+    public override ConfigScope Mode => ConfigScope.ClientSide;
     public static InfinityDisplays Instance = null!;
 
     public static void LoadConfig(Display display, Toggle<object> config) {

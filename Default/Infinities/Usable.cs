@@ -47,18 +47,18 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<Usa
 
     public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
 
-    public override Requirement GetRequirement(UsableCategory category) => category switch {
-        UsableCategory.Weapon => new(Config.Weapon),
-        UsableCategory.Potion => new(Config.Potion),
-        // UsableCategory.Recovery => new(Infinities.Get(Instance).Potion),
-        // UsableCategory.Buff => new(Infinities.Get(Instance).Potion),
-        UsableCategory.Booster => new(Config.Booster),
-        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Infinities.Get(Instance).Booster),
-        UsableCategory.Summoner => new(Config.Summoner),
-        UsableCategory.Critter => new(Config.Critter),
-        // UsableCategory.Explosive => new(Infinities.Get(Instance).Tool),
-        UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
-        _ => default,
+    public override long GetRequirement(UsableCategory category) => category switch {
+        UsableCategory.Weapon => Config.Weapon,
+        UsableCategory.Potion => Config.Potion,
+        // UsableCategory.Recovery => Infinities.GetInstance).Potion),
+        // UsableCategory.Buff => Infinities.GetInstance).Potion),
+        UsableCategory.Booster => Config.Booster,
+        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => Infinities.GetInstance).Booster),
+        UsableCategory.Summoner => Config.Summoner,
+        UsableCategory.Critter => Config.Critter,
+        // UsableCategory.Explosive => Infinities.GetInstance).Tool),
+        UsableCategory.Tool or UsableCategory.Unknown => Config.Tool,
+        _ => 0,
     };
 
     protected override UsableCategory GetCategoryInner(Item item) {

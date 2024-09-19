@@ -2,9 +2,19 @@ Tooltip: {
 	Label: "[i:171] Tooltip"
 	Tooltip: Display the requirement and infinity of items in their tooltip
 
-	AddMissingLines: {
-		Label: Add Missing Lines
-		Tooltip: Add lines on which should be displayed infinities if they are not present
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
+	}
+
+	coloredLines: {
+		Label: Colored Lines
+		Tooltip: Colors tooltip lines where the item is infinite
+	}
+
+	missingLinesOpacity: {
+		Label: Missing Lines Opacity
+		Tooltip: The opacity of lines added to the tooltip
 	}
 }
 

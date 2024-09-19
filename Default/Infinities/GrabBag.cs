@@ -31,11 +31,11 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<G
     public override bool DefaultEnabled => false;
     public override Color DefaultColor => Colors.RarityDarkPurple;
 
-    public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Container),
-        GrabBagCategory.TreasureBag => new(Config.TreasureBag),
-        GrabBagCategory.Extractinator => new(Config.Extractinator),
-        _ => default,
+    public override long GetRequirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Container => Config.Container,
+        GrabBagCategory.TreasureBag => Config.TreasureBag,
+        GrabBagCategory.Extractinator => Config.Extractinator,
+        _ => 0,
     };
 
     protected override GrabBagCategory GetCategoryInner(Item item) {

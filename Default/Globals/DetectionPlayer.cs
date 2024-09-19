@@ -104,7 +104,7 @@ public sealed class DetectionPlayer : ModPlayer {
         return ItemID.None;
     }
 
-    public static void RefilExplosive(Player player, int projType, int refill) {
+    public static void RefillExplosive(Player player, int projType, int refill) {
         int owned = player.CountItems(refill);
         int used = 0;
         foreach (Projectile proj in Main.projectile)
@@ -114,7 +114,7 @@ public sealed class DetectionPlayer : ModPlayer {
             /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
             player.GetItem(player.whoAmI, new(refill, used), new(NoText: true));
 
-        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => infinity.GetInfinity(refill, owned) == 0 && Usable.Instance.GetInfinity(refill, owned + used) != 0;
     }
 
     private void HookShootFromCannon(On_Player.orig_ShootFromCannon orig, Player self, int x, int y) {
