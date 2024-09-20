@@ -36,6 +36,10 @@ public sealed class InfinityDisplays : ModConfig {
         }
     }
 
+    [Header("Performances")]
+    public bool DisableCache { get; set; }
+    [DefaultValue(1), Range(0, 1000)] public int CacheRefreshDelay { get; set; }
+
     private Dictionary<DisplayDefinition, Toggle<object>> _displays = [];
 
     private Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> _infinities = [];

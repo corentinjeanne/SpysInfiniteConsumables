@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SpikysLib;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
+using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -50,4 +51,7 @@ public sealed class InfinitySettings : ModConfig {
     public static void AddConfig(IInfinity infinity, string key, IConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));
     private static readonly Dictionary<IInfinity, List<(string key, IConfigProvider)>> _configs = [];
 
+    public override void OnChanged() {
+        if (!Main.gameMenu && Main.netMode != NetmodeID.Server) InfinityManager.ClearCache();
+    }
 }

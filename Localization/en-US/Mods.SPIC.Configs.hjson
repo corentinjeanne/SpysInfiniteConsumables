@@ -68,15 +68,9 @@ InfinityDisplays: {
 		Tooltip: ""
 	}
 
-	Cache: {
-		Label: Cache
-		Tooltip:
-			'''
-			Type /spiccache in-game to see the cached values
-			Performances: Optimal performances, large cache (~10kB). Will not recompute any value
-			Smart: Great performances, small cache (~3kB). May recompute some values
-			None: Horrendous performances, no cache. Just don't
-			'''
+	DisableCache: {
+		Label: Disable Cache
+		Tooltip: Just don't
 	}
 
 	CacheRefreshDelay: {

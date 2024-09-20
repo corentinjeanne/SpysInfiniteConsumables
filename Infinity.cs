@@ -31,9 +31,12 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     LocalizedText Tooltip { get; }
 
     InfinityDefaults Defaults { get; }
+
+    long GetRequirement(int consumable);
+    long GetInfinity(int consumable, long count);
 }
 
-public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridge {
+public abstract class Infinity<TConsumable> : ModType, IInfinity {
     public bool Enabled { get => _enabled && (IsConsumable || Consumable.Enabled); set => _enabled = value; }
     private bool _enabled;
 
@@ -117,8 +120,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
     protected sealed override void Register() {
         ModTypeLookup<Infinity<TConsumable>>.Register(this);
         InfinityLoader.Register(this);
-        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{${{this.GetLocalizationKey("DisplayName")}}}""");
+        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
 
@@ -130,12 +133,15 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
 
     public override void Unload() => ConfigHelper.SetInstance(this, true);
 
-    IConsumableBridge IInfinityBridge.Consumable => Consumable;
-    long IInfinityBridge.GetRequirement(int consumable) => InfinityManager.GetRequirement(Consumable.ToConsumable(consumable), this);
-    long IInfinityBridge.GetInfinity(int consumable, long count) => InfinityManager.GetInfinity(Consumable.ToConsumable(consumable), count, this);
+    long IInfinity.GetRequirement(int consumable) => InfinityManager.GetRequirement(Consumable.ToConsumable(consumable), this);
+    long IInfinity.GetInfinity(int consumable, long count) => InfinityManager.GetInfinity(Consumable.ToConsumable(consumable), count, this);
 }
 
-public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinityBridge<TCategory> where TCategory: struct, Enum {
+public interface IInfinity<TCategory> : IInfinity where TCategory : struct, Enum {
+    TCategory GetCategory(int consumable);
+}
+
+public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinity<TCategory> where TCategory: struct, Enum {
     public TCategory GetCategory(TConsumable consumable) {
         TCategory category;
         Optional<TCategory> custom = Customs.GetCategory(consumable);
@@ -166,5 +172,5 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, 
         return true;
     }
 
-    TCategory IInfinityBridge<TCategory>.GetCategory(int consumable) => InfinityManager.GetCategory(Consumable.ToConsumable(consumable), this);
+    TCategory IInfinity<TCategory>.GetCategory(int consumable) => InfinityManager.GetCategory(Consumable.ToConsumable(consumable), this);
 }

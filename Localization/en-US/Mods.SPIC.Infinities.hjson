@@ -29,54 +29,24 @@ Currency: {
 	Coins.Label: Coins
 	SingleCoin.Label: Single Coin
 
-	CoinsMultiplier: {
+	coinsMultiplier: {
 		Label: Coins Multiplier
 		Tooltip: Currency with more than one item
 	}
 
-	SingleCoinMultiplier: {
+	coinsRequirement: {
+		Label: Coins Requirement
+		Tooltip: Currency with more than one item
+	}
+
+	singleMultiplier: {
 		Label: Single Coin Multiplier
 		Tooltip: Currency composed of a single item
 	}
 
-	Shop: {
-		Label: NPC Shop
-		Tooltip: ""
-	}
-
-	Nurse: {
-		Label: Nurse Healing
-		Tooltip: ""
-	}
-
-	Reforging: {
-		Label: Item Reforging
-		Tooltip: ""
-	}
-
-	Others: {
-		Label: Others
-		Tooltip: ""
-	}
-
-	coinsMultiplier: {
-		Label: coins Multiplier
-		Tooltip: ""
-	}
-
-	coinsRequirement: {
-		Label: coins Requirement
-		Tooltip: ""
-	}
-
-	singleMultiplier: {
-		Label: single Multiplier
-		Tooltip: ""
-	}
-
 	singleRequirement: {
-		Label: single Requirement
-		Tooltip: ""
+		Label: Single Coin Requirement
+		Tooltip: Currency composed of a single item
 	}
 }
 
@@ -260,38 +230,38 @@ Custom: {
 	Tooltip: ""
 }
 
-Coin: {
+Requirement: {
 	multiplier: {
-		Label: multiplier
+		Label: Multiplier
 		Tooltip: ""
 	}
 
 	requirement: {
-		Label: requirement
+		Label: Requirement
 		Tooltip: ""
 	}
 }
 
 Nurse: {
-	DisplayName: Nurse
-	Label: Nurse
+	DisplayName: Nurse Healing
+	Label: "[i:58] {$Mods.SPIC.Infinities.Nurse.DisplayName}"
 	Tooltip: ""
 }
 
 Purchase: {
 	DisplayName: Purchase
-	Label: Purchase
+	Label: "[i:1978] {$Mods.SPIC.Infinities.Purchase.DisplayName}"
 	Tooltip: ""
 }
 
 Reforging: {
-	DisplayName: Reforging
-	Label: Reforging
+	DisplayName: Item Reforging
+	Label: "[i:407] {$Mods.SPIC.Infinities.Reforging.DisplayName}"
 	Tooltip: ""
 }
 
 Shop: {
-	DisplayName: Shop
-	Label: Shop
+	DisplayName: NPC Shop
+	Label: "[i:73] {$Mods.SPIC.Infinities.Shop.DisplayName}"
 	Tooltip: ""
 }

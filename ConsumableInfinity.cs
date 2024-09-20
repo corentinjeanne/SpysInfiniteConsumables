@@ -18,9 +18,11 @@ public interface IConsumableInfinity : IInfinity {
     ReadOnlyCollection<IInfinity> Infinities { get; }
     DisplayedInfinities DisplayedInfinities { get; }
     ConsumableDefaults ConsumableDefaults { get; }
+
+    long CountConsumables(Player player, int consumable);
 }
 
-public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity, IConsumableBridge {
+public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity {
 
     public override ConsumableInfinity<TConsumable> Consumable => this;
     public ConsumableInfinitiesProvider<TConsumable> ConsumableInfinities { get; private set; } = null!;
@@ -51,10 +53,10 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
     }
 
     protected sealed override long GetInfinityInner(TConsumable consumable, long count) {
-        long value = 0;
+        long value = long.MaxValue;
         foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this).Where(i => i.Enabled))
             value = Math.Min(value, InfinityManager.GetInfinity(consumable, count, infinity));
-        return value;
+        return value == long.MaxValue ? 0 : value;
     }
 
     public void AddInfinity(Infinity<TConsumable> infinity) {
@@ -87,5 +89,5 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
         }
     }
 
-    long IConsumableBridge.CountConsumables(Player player, int consumable) => player.CountConsumables(ToConsumable(consumable), this);
+    long IConsumableInfinity.CountConsumables(Player player, int consumable) => player.CountConsumables(ToConsumable(consumable), this);
 }

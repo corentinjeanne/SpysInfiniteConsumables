@@ -29,10 +29,10 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
 
     public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);
 
-    public string CountToString(int consumable, long count, long value) {
-        if (count == 0) return CurrencyHelper.PriceText(consumable, value);
-        if (InfinityManager.GetCategory(consumable, Shop.Instance) == CurrencyCategory.SingleCoin) return $"{count}/{CurrencyHelper.PriceText(consumable, value)}";
-        return $"{CurrencyHelper.PriceText(consumable, count)}/{CurrencyHelper.PriceText(consumable, value)}";
+    public string CountToString(int consumable, long value, long outOf) {
+        if (outOf == 0) return CurrencyHelper.PriceText(consumable, value);
+        if (InfinityManager.GetCategory(consumable, Shop.Instance) == CurrencyCategory.SingleCoin) return $"{value}/{CurrencyHelper.PriceText(consumable, outOf)}";
+        return $"{CurrencyHelper.PriceText(consumable, value)}/{CurrencyHelper.PriceText(consumable, outOf)}";
     }
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ?

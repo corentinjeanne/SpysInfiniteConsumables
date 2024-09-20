@@ -12,6 +12,7 @@ public static class InfinityLoader {
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
     public static void Unload() {
+        InfinityManager.ClearCache();
         s_infinities.Clear();
         s_consumableInfinities.Clear();
     }
