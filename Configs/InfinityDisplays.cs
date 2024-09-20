@@ -13,7 +13,6 @@ namespace SPIC.Configs;
 public sealed class InfinityDisplays : ModConfig {
 
     [Header("General")]
-    [DefaultValue(DisplayedInfinities.Infinities)] public DisplayedInfinities displayedInfinities;
     [DefaultValue(true)] public bool exclusiveDisplay;
     [DefaultValue(true)] public bool alternateDisplays;
 
@@ -46,19 +45,20 @@ public sealed class InfinityDisplays : ModConfig {
 
     public static void LoadConfig(Display display, Toggle<object> config) {
         Type configType = display is IConfigProvider c1 ? c1.ConfigType : typeof(Empty);
-        config.Value = config.Value switch {
+        object? oldConfig = config.Value;
+        config.Value = oldConfig switch {
             null => JsonConvert.DeserializeObject("{}", configType, ConfigManager.serializerSettings)!,
             JToken token => token.ToObject(configType)!,
-            _ => config.Value
+            _ => oldConfig
         };
         if (display is IConfigProvider c2) {
             c2.Config = config.Value;
-            c2.OnLoaded();
+            c2.OnLoaded(oldConfig is null);
         }
         display.Enabled = config.Key;
     }
 
-    public static NestedValue<Color, Dictionary<string, object>> DefaultClientConfig(IInfinity infinity) => new(infinity.DefaultColor);
+    public static NestedValue<Color, Dictionary<string, object>> DefaultClientConfig(IInfinity infinity) => new(infinity.Defaults.Color);
     public static void LoadConfig(IInfinity infinity, NestedValue<Color, Dictionary<string, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
         infinity.Color = config.Key;
@@ -71,11 +71,11 @@ public sealed class InfinityDisplays : ModConfig {
                 _ => oldConfig
             };
             provider.ClientConfig = config.Value[key];
-            provider.OnLoadedClient();
+            provider.OnLoadedClient(oldConfig is null);
         }
     }
     public static void AddConfig(IInfinity infinity, string key, IClientConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));
     private static readonly Dictionary<IInfinity, List<(string key, IClientConfigProvider)>> _configs = [];
 }
 
-[Flags] public enum DisplayedInfinities { Infinities = 0b01, Consumables = 0b10, Both = 0b11 }
+[Flags] public enum DisplayedInfinities { Infinities = 0b01, Consumable = 0b10, Both = 0b11 }

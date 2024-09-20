@@ -8,9 +8,16 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC;
 
+public readonly struct ConsumableDefaults() {
+    public readonly Preset? Preset { get; init; }
+    public readonly DisplayedInfinities DisplayedInfinities { get; init; } = DisplayedInfinities.Infinities;
+}
+
 public interface IConsumableInfinity : IInfinity {
     ReadOnlyCollection<Preset> Presets { get; }
     ReadOnlyCollection<IInfinity> Infinities { get; }
+    DisplayedInfinities DisplayedInfinities { get; }
+    ConsumableDefaults ConsumableDefaults { get; }
 }
 
 public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity, IConsumableBridge {
@@ -42,7 +49,7 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
             requirement = Math.Max(requirement, InfinityManager.GetRequirement(consumable, infinity));
         return requirement;
     }
-    
+
     public void AddInfinity(Infinity<TConsumable> infinity) {
         _infinities.Add(infinity);
         _orderedInfinities.Add(infinity);
@@ -50,7 +57,11 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
 
     public ReadOnlyCollection<Infinity<TConsumable>> Infinities => _orderedInfinities.AsReadOnly();
     ReadOnlyCollection<IInfinity> IConsumableInfinity.Infinities => _orderedInfinities.Cast<IInfinity>().ToArray().AsReadOnly();
+
+    public virtual ConsumableDefaults ConsumableDefaults => new();
     public ReadOnlyCollection<Preset> Presets => _presets.AsReadOnly();
+
+    public DisplayedInfinities DisplayedInfinities => ConsumableInfinities.ClientConfig.displayedInfinities;
 
     internal readonly HashSet<Infinity<TConsumable>> _infinities = [];
     internal readonly List<Infinity<TConsumable>> _orderedInfinities = [];

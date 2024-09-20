@@ -10,6 +10,7 @@ public sealed class PresetDefinition : EntityDefinition<PresetDefinition, Preset
     public PresetDefinition() : base() { }
     public PresetDefinition(string key) : base(key) { }
     public PresetDefinition(string mod, string name) : base(mod, name) { }
+    public PresetDefinition(Preset preset) : this(preset.Mod.Name, preset.Name) { }
 
     public override Preset? Entity => PresetLoader.GetPreset(Mod, Name);
 

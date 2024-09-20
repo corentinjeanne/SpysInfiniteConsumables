@@ -43,7 +43,7 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<Usa
     public UsableRequirements Config { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
-    public override Color DefaultColor => new(136, 226, 255, 255); // Stardust
+    public sealed override InfinityDefaults Defaults => new() { Color = new(136, 226, 255) };
 
     public override long GetRequirement(UsableCategory category) => category switch {
         UsableCategory.Weapon => Config.Weapon,

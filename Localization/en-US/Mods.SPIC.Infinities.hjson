@@ -58,6 +58,26 @@ Currency: {
 		Label: Others
 		Tooltip: ""
 	}
+
+	coinsMultiplier: {
+		Label: coins Multiplier
+		Tooltip: ""
+	}
+
+	coinsRequirement: {
+		Label: coins Requirement
+		Tooltip: ""
+	}
+
+	singleMultiplier: {
+		Label: single Multiplier
+		Tooltip: ""
+	}
+
+	singleRequirement: {
+		Label: single Requirement
+		Tooltip: ""
+	}
 }
 
 GrabBag: {
@@ -237,5 +257,41 @@ Custom: {
 		Tooltip: Overrides the requirement of the selected consumables
 	}
 
+	Tooltip: ""
+}
+
+Coin: {
+	multiplier: {
+		Label: multiplier
+		Tooltip: ""
+	}
+
+	requirement: {
+		Label: requirement
+		Tooltip: ""
+	}
+}
+
+Nurse: {
+	DisplayName: Nurse
+	Label: Nurse
+	Tooltip: ""
+}
+
+Purchase: {
+	DisplayName: Purchase
+	Label: Purchase
+	Tooltip: ""
+}
+
+Reforging: {
+	DisplayName: Reforging
+	Label: Reforging
+	Tooltip: ""
+}
+
+Shop: {
+	DisplayName: Shop
+	Label: Shop
 	Tooltip: ""
 }

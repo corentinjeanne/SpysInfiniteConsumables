@@ -13,6 +13,11 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC;
 
+public readonly struct InfinityDefaults() {
+    public readonly bool Enabled { get; init; } = true;
+    public readonly Color Color { get; init; } = Color.White;
+}
+
 public interface IInfinity : ILocalizedModType, ILoadable {
     bool Enabled { get; set; }
     IConsumableInfinity Consumable { get; }
@@ -25,14 +30,12 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     LocalizedText DisplayName { get; }
     LocalizedText Tooltip { get; }
 
-    bool DefaultEnabled { get; }
-    Color DefaultColor { get; }
+    InfinityDefaults Defaults { get; }
 }
 
 public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridge {
     public bool Enabled { get => _enabled && (IsConsumable || Consumable.Enabled); set => _enabled = value; }
     private bool _enabled;
-    public virtual bool DefaultEnabled => true;
 
     public abstract ConsumableInfinity<TConsumable> Consumable { get; }
     IConsumableInfinity IInfinity.Consumable => Consumable;
@@ -47,12 +50,11 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
     protected abstract long GetRequirementInner(TConsumable consumable);
     protected virtual void ModifyRequirement(TConsumable consumable, ref long requirement) { }
 
-    public long GetInfinity(int consumable, long count) {
-        long infinity = count >= InfinityManager.GetRequirement(consumable, this) ? count : 0;
-        ModifyInfinity(consumable, ref infinity);
+    public virtual long GetInfinity(int consumable, long count) {
+        long requirement = InfinityManager.GetRequirement(consumable, this);
+        long infinity = requirement > 0 && count >= requirement ? count : 0;
         return infinity;
     }
-    protected virtual void ModifyInfinity(int consumable, ref long infinity) { }
 
     public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
@@ -71,7 +73,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
     public ICustoms<TConsumable> Customs { get; private set; } = null!;
 
     public virtual Color Color { get; set; }
-    public virtual Color DefaultColor => Color.White;
+
+    public virtual InfinityDefaults Defaults => new();
 
     public string LocalizationCategory => "Infinities";
     public virtual LocalizedText Label => this.GetLocalization("Label");

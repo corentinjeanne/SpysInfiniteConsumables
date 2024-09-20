@@ -6,11 +6,9 @@ using Terraria.ModLoader;
 using SpikysLib.IL;
 using MonoMod.Cil;
 using Microsoft.Xna.Framework;
-using Microsoft.CodeAnalysis;
 using SPIC.Default.Displays;
 using SpikysLib;
 using Terraria.Localization;
-using SpikysLib.Constants;
 
 namespace SPIC.Default.Infinities;
 
@@ -61,7 +59,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
     public PlaceableRequirements Config { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
-    public override Color DefaultColor => Colors.RarityAmber;
+    public sealed override InfinityDefaults Defaults => new() { Color = Colors.RarityAmber };
 
     public override void Load() {
         IL_Player.PlaceThing_Tiles_PlaceIt_ConsumeFlexibleWandMaterial += IL_FixConsumeFlexibleWand;

@@ -22,18 +22,18 @@ public sealed class DetectionPlayer : ModPlayer {
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
         On_Player.Spawn += HookSpawn;
-        // On_Player.PayCurrency += HookPayCurrency;
+        On_Player.PayCurrency += HookPayCurrency;
         On_Player.ShootFromCannon += HookShootFromCannon;
     }
 
-    // private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
-    //     bool enabled;
-    //     if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Configs.InfinitySettings.Get(Currency.Instance).Nurse;
-    //     else if (Main.InReforgeMenu) enabled = Configs.InfinitySettings.Get(Currency.Instance).Reforging;
-    //     else if (Main.npcShop != 0) enabled = Configs.InfinitySettings.Get(Currency.Instance).Shop;
-    //     else enabled = Configs.InfinitySettings.Get(Currency.Instance).Others;
-    //     return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
-    // }
+    private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
+        Infinity<int> infinity;
+        if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) infinity = Nurse.Instance;
+        else if (Main.InReforgeMenu) infinity = Reforging.Instance;
+        else if (Main.npcShop != 0) infinity = Shop.Instance;
+        else infinity = Purchase.Instance;
+        return self.HasInfinite(customCurrency, price, infinity) || orig(self, price, customCurrency);
+    }
 
     private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
         DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();

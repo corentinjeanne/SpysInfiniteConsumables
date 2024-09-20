@@ -20,7 +20,7 @@ public interface ICountToString {
 public sealed class TooltipConfig {
     [DefaultValue(true)] public bool displayRequirement = true;
     [DefaultValue(true)] public bool coloredLines = true;
-    [DefaultValue(true)] public float missingLinesOpacity = 0.75f;
+    [DefaultValue(0.75f)] public float missingLinesOpacity = 0.75f;
 
 }
 

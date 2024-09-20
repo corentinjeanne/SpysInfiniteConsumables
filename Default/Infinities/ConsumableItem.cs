@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using SPIC.Default.Displays;
 using SpikysLib;
 using Terraria;
@@ -10,7 +9,8 @@ namespace SPIC.Default.Infinities;
 public class ConsumableItem : ConsumableInfinity<Item>, ICountToString { // TODO Better inventory compatibility
     public static ConsumableItem Instance = null!;
 
-    public override Color DefaultColor => new(209, 138, 138);
+    public sealed override InfinityDefaults Defaults => new() { Color = new(209, 138, 138) };
+    public sealed override ConsumableDefaults ConsumableDefaults => new() { Preset = Default.Presets.ConsumableDefaults.Instance };
 
     public override long CountConsumables(Player player, Item consumable) => player.CountItems(consumable.type, true);
     public override int GetId(Item consumable) => consumable.type;

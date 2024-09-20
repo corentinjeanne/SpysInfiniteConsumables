@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using SpikysLib.Collections;
@@ -47,6 +48,7 @@ public class ConsumableInfinities {
 }
 
 public class ClientConsumableInfinities {
+    [DefaultValue(DisplayedInfinities.Infinities)] public DisplayedInfinities displayedInfinities = DisplayedInfinities.Infinities;
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityClientConfigsWrapper))] public OrderedDictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> Infinities { get; set; } = [];
 }
 
@@ -54,7 +56,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     public ConsumableInfinities Config { get; set; } = null!;
     public ClientConsumableInfinities ClientConfig { get; set; } = null!;
 
-    public void OnLoaded() {
+    public void OnLoaded(bool created) {
         Infinity._orderedInfinities.Clear();
         List<IInfinity> toRemove = [];
         foreach (var infinity in Infinity._infinities) Config.Infinities.GetOrAdd(new(infinity), InfinitySettings.DefaultConfig(infinity));
@@ -70,14 +72,19 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
         }
         foreach (var infinity in toRemove) Config.Infinities.Remove(new(infinity));
 
-        Preset? preset = null;
-        foreach (Preset p in Infinity.Presets) if (p.MeetsCriterias(Config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
-        Config.Preset = preset is not null ? new(preset.Mod.Name, preset.Name) : new();
+        if (created && Infinity.ConsumableDefaults.Preset is not null) {
+            Infinity.ConsumableDefaults.Preset.ApplyCriterias(Config);
+            Config.Preset = new(Infinity.ConsumableDefaults.Preset);
+        } else {
+            Preset? preset = null;
+            foreach (Preset p in Infinity.Presets) if (p.MeetsCriterias(Config) && (preset is null || p.CriteriasCount >= preset.CriteriasCount)) preset = p;
+            Config.Preset = preset is not null ? new(preset) : new();
+        }
         Config.Preset.Consumable = Infinity;
     }
-    public void OnLoadedClient() {
+    public void OnLoadedClient(bool created) {
         List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in Infinity._infinities) ClientConfig.Infinities.GetOrAdd(new(infinity), InfinityDisplays.DefaultClientConfig(infinity));
+        foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.Infinities.GetOrAdd(new(infinity), InfinityDisplays.DefaultClientConfig(infinity));
         foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<string, object>> value) in ClientConfig.Infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
@@ -88,5 +95,6 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
             InfinityDisplays.LoadConfig(infinity, value);
         }
         foreach (var infinity in toRemove) ClientConfig.Infinities.Remove(new(infinity));
+        if (created) ClientConfig.displayedInfinities = Infinity.ConsumableDefaults.DisplayedInfinities;
     }
 }

@@ -4,16 +4,51 @@ using SpikysLib.Configs;
 
 namespace SPIC.Default.Presets;
 
-public sealed class Defaults : Preset {
+public sealed class ConsumableDefaults : Preset {
+    public static ConsumableDefaults Instance = null!;
+    
     public override int CriteriasCount => 3;
+    public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance), new(Infinities.GrabBag.Instance), new(Infinities.Material.Instance), new(Infinities.JourneySacrifice.Instance)];
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.DefaultEnabled) && config.UsedInfinities == 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.UsedInfinities == 0;
     public override void ApplyCriterias(ConsumableInfinities config) {
-        foreach ((var def, var value) in config.Infinities) {
-            if (!def.IsUnloaded) value.Key = def.Entity!.DefaultEnabled;
+        (var oldInfinities, config.Infinities) = (config.Infinities, []);
+        foreach (InfinityDefinition def in Order) {
+            config.Infinities.Add(def, oldInfinities[def]);
+            oldInfinities.Remove(def);
+            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+        }
+        foreach ((var def, var value) in oldInfinities) {
+            config.Infinities.Add(def, value);
+            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
         config.UsedInfinities = 0;
     }
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
+}
+
+public sealed class CurrencyDefaults : Preset {
+    public static CurrencyDefaults Instance = null!;
+    
+    public override int CriteriasCount => 3;
+    public static InfinityDefinition[] Order => [new(Infinities.Shop.Instance), new(Infinities.Reforging.Instance), new(Infinities.Nurse.Instance), new(Infinities.Purchase.Instance)];
+
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.UsedInfinities == 0;
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        (var oldInfinities, config.Infinities) = (config.Infinities, []);
+        for (int i = 0; i < Order.Length; i++) {
+            InfinityDefinition def = Order[i];
+            config.Infinities.Add(def, oldInfinities[def]);
+            oldInfinities.Remove(def);
+            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+        }
+        foreach ((var def, var value) in oldInfinities) {
+            config.Infinities.Add(def, value);
+            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+        }
+        config.UsedInfinities = 0;
+    }
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.Currency;
 }
 
 public sealed class OneForMany : Preset {

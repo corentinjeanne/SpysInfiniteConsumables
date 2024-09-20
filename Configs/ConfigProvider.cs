@@ -5,7 +5,7 @@ namespace SPIC.Configs;
 public interface IConfigProvider {
     Type ConfigType { get; }
     object Config { set; }
-    void OnLoaded() { }
+    void OnLoaded(bool created) { }
 }
 
 public interface IConfigProvider<TConfig> : IConfigProvider where TConfig : new() {
@@ -17,7 +17,7 @@ public interface IConfigProvider<TConfig> : IConfigProvider where TConfig : new(
 public interface IClientConfigProvider {
     Type ConfigType { get; }
     object ClientConfig { set; }
-    void OnLoadedClient() { }
+    void OnLoadedClient(bool created) { }
 }
 
 public interface IClientConfigProvider<TConfig> : IClientConfigProvider where TConfig : new() {

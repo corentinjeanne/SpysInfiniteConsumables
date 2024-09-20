@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpikysLib;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
@@ -30,7 +31,7 @@ public sealed class InfinitySettings : ModConfig {
     public override ConfigScope Mode => ConfigScope.ServerSide;
     public static InfinitySettings Instance = null!;
 
-    public static Toggle<Dictionary<string, object>> DefaultConfig(IInfinity infinity) => new(infinity.DefaultEnabled);
+    public static Toggle<Dictionary<string, object>> DefaultConfig(IInfinity infinity) => new(infinity.Defaults.Enabled);
     public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<string, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
         infinity.Enabled = config.Key;
@@ -43,7 +44,7 @@ public sealed class InfinitySettings : ModConfig {
                 _ => oldConfig
             };
             provider.Config = config.Value[key];
-            provider.OnLoaded();
+            provider.OnLoaded(oldConfig is null);
         }
     }
     public static void AddConfig(IInfinity infinity, string key, IConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));

@@ -3,7 +3,6 @@ using Terraria.ID;
 using Terraria.ModLoader.Config;
 using SPIC.Configs;
 using System.ComponentModel;
-using Microsoft.Xna.Framework;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -34,9 +33,11 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
     public static Material Instance = null!;
     public MaterialRequirements Config { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
-
-    public override bool DefaultEnabled => false;
-    public override Color DefaultColor => new(254, 126, 229, 255); // Nebula
+    
+    public sealed override InfinityDefaults Defaults => new() {
+        Enabled = false,
+        Color = new(254, 126, 229)
+    };
 
     public override long GetRequirement(MaterialCategory category) => category switch {
         MaterialCategory.Basic => Config.Basic,
@@ -46,7 +47,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
         MaterialCategory.NonStackable => Config.NonStackable,
         _ => 0,
     };
-    protected override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * Config.Multiplier);
+    public sealed override long GetInfinity(int consumable, long count) => (long)(base.GetInfinity(consumable, count) * Config.Multiplier);
 
     protected override MaterialCategory GetCategoryInner(Item item) {
         int type = item.type;
@@ -89,6 +90,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
             return;
         }
         long count = PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-        value = new(value.Consumable, count, requirement, count >= requirement ? count : 0);
+        value = value.For(count, requirement);
     }
 }

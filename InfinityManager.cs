@@ -27,8 +27,12 @@ public static class InfinityManager {
     public static IReadOnlySet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
         => infinity.UsedInfinities(consumable);
 
-    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
-        => infinity.GetInfinity(infinity.Consumable.GetId(consumable), player.CountConsumables(consumable, infinity.Consumable));
+    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity) {
+        if (!infinity.Enabled) return default;
+        if (!infinity.IsConsumable && !UsedInfinities(consumable, infinity.Consumable).Contains(infinity)) return player.GetInfinity(consumable, infinity.Consumable);
+        return infinity.GetInfinity(infinity.Consumable.GetId(consumable), player.CountConsumables(consumable, infinity.Consumable));
+    }
+
     public static long GetInfinity(this Player player, int consumable, IInfinityBridge infinity) => infinity.GetInfinity(player, consumable);
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
@@ -52,9 +56,9 @@ public static class InfinityManager {
                     ));
                 }
             }
-            if (InfinityDisplays.Instance.displayedInfinities.HasFlag(DisplayedInfinities.Consumables)) AddInfinityDisplay(infinity);
-            if (InfinityDisplays.Instance.displayedInfinities.HasFlag(DisplayedInfinities.Infinities)) foreach(IInfinity i in infinity.Infinities.Where(i => i.Enabled)) AddInfinityDisplay(i);
-            displays.Add(subDisplays.AsReadOnly());
+            if (infinity.DisplayedInfinities.HasFlag(DisplayedInfinities.Consumable)) AddInfinityDisplay(infinity);
+            if (infinity.DisplayedInfinities.HasFlag(DisplayedInfinities.Infinities)) foreach (IInfinity i in infinity.Infinities.Where(i => i.Enabled)) AddInfinityDisplay(i);
+            if (subDisplays.Count > 0) displays.Add(subDisplays.AsReadOnly());
         }
         return displays.AsReadOnly();
     }
@@ -84,7 +88,7 @@ public static class InfinityManager {
 
     internal static void Register<TConsumable>(Infinity<TConsumable> infinity) {
         s_infinities.Add(infinity);
-        if(infinity is ConsumableInfinity<TConsumable> consumable) s_consumableInfinities.Add(consumable);
+        if (infinity is ConsumableInfinity<TConsumable> consumable) s_consumableInfinities.Add(consumable);
         InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
     }
     public static void Unload() {
@@ -103,5 +107,8 @@ public static class InfinityManager {
 
 public enum InfinityVisibility { Hidden, Visible, Exclusive }
 
-public readonly record struct InfinityValue(int Consumable, long Count, long Requirement, long Infinity);
+public readonly record struct InfinityValue(int Consumable, long Count, long Requirement, long Infinity) {
+    public InfinityValue For(long requirement) => For(Count, requirement);
+    public InfinityValue For(long count, long requirement) => new(Consumable, count, requirement, count >= requirement ? count : 0);
+}
 public readonly record struct InfinityDisplay(IInfinity Infinity, InfinityValue Value);

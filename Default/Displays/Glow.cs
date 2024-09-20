@@ -30,7 +30,7 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
         DisplayGlow(spriteBatch, item, position, frame, origin, scale, display.Infinity.Color);
     }
 
-    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, Color color) {
+    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, Color color) { //BUG fix color when offset true
         Texture2D texture = TextureAssets.Item[item.type].Value;
         float offset = item.GetHashCode() % 16 / 16f;
 

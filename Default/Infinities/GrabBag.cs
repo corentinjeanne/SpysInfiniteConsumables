@@ -2,7 +2,6 @@
 using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using SpikysLib;
 using SPIC.Default.Displays;
@@ -28,8 +27,10 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<G
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance; 
     public GrabBagRequirements Config { get; set; } = null!;
 
-    public override bool DefaultEnabled => false;
-    public override Color DefaultColor => Colors.RarityDarkPurple;
+    public sealed override InfinityDefaults Defaults => new(){
+        Enabled = false,
+        Color = Colors.RarityDarkPurple
+    };
 
     public override long GetRequirement(GrabBagCategory bag) => bag switch {
         GrabBagCategory.Container => Config.Container,

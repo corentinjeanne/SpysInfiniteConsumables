@@ -1,6 +1,5 @@
 using Terraria;
 using System.ComponentModel;
-using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -18,8 +17,10 @@ public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<Jou
     public JourneySacrificeRequirements ClientConfig { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
-    public override bool DefaultEnabled => false;
-    public override Color DefaultColor => Colors.JourneyMode;
+    public sealed override InfinityDefaults Defaults => new() {
+        Enabled = false,
+        Color = Colors.JourneyMode
+    };
 
     protected override long GetRequirementInner(Item item) => item.ResearchUnlockCount;
 

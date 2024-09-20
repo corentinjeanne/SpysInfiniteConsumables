@@ -1,7 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -26,7 +25,7 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigProvider<AmmoReq
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
     public AmmoRequirements Config { get; set; } = null!;
 
-    public override Color DefaultColor => new(34, 221, 151, 255); // Vortex
+    public sealed override InfinityDefaults Defaults => new() { Color = new(34, 221, 151, 255) }; // Vortex
 
     public override long GetRequirement(AmmoCategory category) => category switch {
         AmmoCategory.Classic => Config.Classic,

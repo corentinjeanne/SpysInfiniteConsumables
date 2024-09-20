@@ -88,11 +88,6 @@ InfinityDisplays: {
 			May cause visual inconsistencies, especially for large values (>15)
 			'''
 	}
-
-	displayedInfinities: {
-		Label: displayed Infinities
-		Tooltip: ""
-	}
 }
 
 ConsumableInfinities: {
@@ -135,6 +130,17 @@ UsedInfinities: {
 }
 
 ClientConsumableInfinities: {
+	displayedInfinities: {
+		Label: Displayed Infinities
+		Tooltip:
+			'''
+			The infinities that are displayed with the displays above
+			{$Mods.SPIC.Configs.DisplayedInfinities.Infinities.Label}: Only display the used infinities
+			{$Mods.SPIC.Configs.DisplayedInfinities.Consumable.Label}: Only display the consumable infinity
+			{$Mods.SPIC.Configs.DisplayedInfinities.Both.Label}:  Display this consumable infinity and its used infinities 
+			'''
+	}
+
 	Infinities: {
 		Label: Infinities
 		Tooltip: ""
@@ -235,6 +241,6 @@ PresetDefinition.Tooltip: ""
 DisplayedInfinities: {
 	Tooltip: ""
 	Infinities.Label: Infinities
-	Consumables.Label: Consumables
+	Consumable.Label: Consumable
 	Both.Label: Both
 }

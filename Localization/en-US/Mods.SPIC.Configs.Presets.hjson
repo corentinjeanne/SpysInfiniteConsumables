@@ -1,10 +1,11 @@
-Defaults: {
+ConsumableDefaults: {
 	DisplayName: Defaults
-	Tooltip:
-		'''
-		All infinities are used
-		Only the infinities enabled by default are enabled
-		'''
+	Tooltip: ""
+}
+
+CurrencyDefaults: {
+	DisplayName: Defaults
+	Tooltip: ""
 }
 
 OneForMany: {
