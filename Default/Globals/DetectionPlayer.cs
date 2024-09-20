@@ -5,7 +5,6 @@ using Terraria.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
-using SpikysLib;
 using SPIC.Default.Displays;
 
 namespace SPIC.Default.Globals;

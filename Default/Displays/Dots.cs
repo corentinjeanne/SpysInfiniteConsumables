@@ -103,5 +103,3 @@ public sealed class Dots : Display, IConfigProvider<DotsConfig> {
 
 public enum Direction { Vertical, Horizontal }
 public enum Corner { TopLeft, TopRight, BottomLeft, BottomRight }
-public enum CacheStyle { None, Smart, Performances }
-public enum GlowStyle { Off, Simple, Fancy }

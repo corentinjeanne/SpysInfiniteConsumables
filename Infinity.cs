@@ -78,8 +78,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
                 InfinityManager.GetInfinity(consumable, count, this)
             );
             ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
-            if (infinity.Requirement <= 0) continue;
-            yield return (visibility, infinity);
+            if (infinity.Requirement > 0) yield return (visibility, infinity);
         }
     }
     protected virtual void ModifyDisplayedConsumables(Item item, ref List<TConsumable> consumables) { }
@@ -103,7 +102,6 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Customs = CreateCustoms();
         AddConfig(Customs, "customs");
     }
-
     protected virtual ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable>(this);
 
     protected void AddConfig(object obj, string key) {
@@ -125,11 +123,10 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
     }
 
-    public override void SetStaticDefaults() {
+    public sealed override void SetupContent() {
         if (!IsConsumable) Consumable.AddInfinity(this);
+        SetStaticDefaults();
     }
-
-    public sealed override void SetupContent() => SetStaticDefaults();
 
     public override void Unload() => ConfigHelper.SetInstance(this, true);
 
@@ -143,10 +140,8 @@ public interface IInfinity<TCategory> : IInfinity where TCategory : struct, Enum
 
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinity<TCategory> where TCategory: struct, Enum {
     public TCategory GetCategory(TConsumable consumable) {
-        TCategory category;
         Optional<TCategory> custom = Customs.GetCategory(consumable);
-        category = custom.HasValue ? custom.Value : GetCategoryInner(consumable);
-        return category;
+        return custom.HasValue ? custom.Value : GetCategoryInner(consumable);
     }
     protected abstract TCategory GetCategoryInner(TConsumable consumable);
 

@@ -200,6 +200,17 @@ CustomRequirements`1: {
 	}
 }
 
+InfinityDefinition.Tooltip: ""
+DisplayDefinition.Tooltip: ""
+PresetDefinition.Tooltip: ""
+
+DisplayedInfinities: {
+	Tooltip: ""
+	Infinities.Label: Infinities
+	Consumable.Label: Consumable
+	Both.Label: Both
+}
+
 Corner: {
 	Tooltip: ""
 	TopLeft.Label: Top Left
@@ -212,29 +223,4 @@ Direction: {
 	Tooltip: ""
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
-}
-
-CacheStyle: {
-	Tooltip: ""
-	None.Label: None
-	Smart.Label: Smart (Recommended)
-	Performances.Label: Performances
-}
-
-GlowStyle: {
-	Tooltip: ""
-	Off.Label: Off
-	Simple.Label: Simple
-	Fancy.Label: Fancy
-}
-
-InfinityDefinition.Tooltip: ""
-DisplayDefinition.Tooltip: ""
-PresetDefinition.Tooltip: ""
-
-DisplayedInfinities: {
-	Tooltip: ""
-	Infinities.Label: Infinities
-	Consumable.Label: Consumable
-	Both.Label: Both
 }

@@ -5,7 +5,6 @@ using SPIC.Configs;
 using Terraria.ModLoader;
 using SpikysLib.IL;
 using MonoMod.Cil;
-using Microsoft.Xna.Framework;
 using SPIC.Default.Displays;
 using SpikysLib;
 using Terraria.Localization;
@@ -67,7 +66,6 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
     }
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         for (int t = 0; t < ItemLoader.ItemCount; t++) {
             Item i = new(t);
             if (i.tileWand != -1) RegisterWand(i);
@@ -95,14 +93,14 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
 
     public override long GetRequirement(PlaceableCategory category) => category switch {
         PlaceableCategory.Tile => Config.Tile,
+        // PlaceableCategory.Block or PlaceableCategory.Wall => Config.Tile,
         PlaceableCategory.Wiring => Config.Wiring,
-        // PlaceableCategory.Block or PlaceableCategory.Wall or PlaceableCategory.Wiring => Infinities.GetInstance).Tile),
         PlaceableCategory.Torch => Config.Torch,
         PlaceableCategory.Ore => Config.Ore,
         PlaceableCategory.Furniture => Config.Furniture,
         // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
         //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-        //     => Infinities.GetInstance).Furniture),
+        //     => Config.Furniture,
         PlaceableCategory.Bucket => Config.Bucket,
         PlaceableCategory.Mechanical => Config.Mechanical,
         PlaceableCategory.Seed => Config.Seed,
@@ -121,7 +119,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         }
 
         if (item.PaintOrCoating) return PlaceableCategory.Paint;
-        if(!item.consumable && ItemID.Sets.AlsoABuildingItem[item.type] && ItemID.Sets.IsLavaImmuneRegardlessOfRarity[item.type] && item.maxStack != 1) return PlaceableCategory.Bucket;
+        if (!item.consumable && ItemID.Sets.AlsoABuildingItem[item.type] && ItemID.Sets.IsLavaImmuneRegardlessOfRarity[item.type] && item.maxStack != 1) return PlaceableCategory.Bucket;
         if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
 
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
@@ -195,11 +193,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         PaintRoller
     }
 
-    public static WandType GetWandType(Item item) => item switch {
-        { tileWand: not -1 } => WandType.Tile,
-        { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
-        { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush,
-        { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
+    public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile, { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire, { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush, { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
@@ -210,7 +204,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
     //         infinity = 0;
     //     }
     // }
-    
+
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
         Item? ammo = GetWandType(item) switch {
             WandType.Tile => Main.LocalPlayer.FindItemRaw(item.tileWand),

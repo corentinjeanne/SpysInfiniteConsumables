@@ -20,6 +20,8 @@ public abstract class Preset : ModType, ILocalizedModType {
 
     public sealed override void SetupContent() => SetStaticDefaults();
 
+    public override void Unload() => ConfigHelper.SetInstance(this, true);
+
     public abstract int CriteriasCount { get; }
 
     public abstract bool MeetsCriterias(ConsumableInfinities config);

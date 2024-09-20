@@ -24,7 +24,7 @@ public interface IConsumableInfinity : IInfinity {
 
 public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, IConsumableInfinity {
 
-    public override ConsumableInfinity<TConsumable> Consumable => this;
+    public sealed override ConsumableInfinity<TConsumable> Consumable => this;
     public ConsumableInfinitiesProvider<TConsumable> ConsumableInfinities { get; private set; } = null!;
 
     public abstract int GetId(TConsumable consumable);
@@ -47,14 +47,14 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
 
     protected sealed override long GetRequirementInner(TConsumable consumable) {
         long requirement = 0;
-        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this).Where(i => i.Enabled))
+        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this))
             requirement = Math.Max(requirement, InfinityManager.GetRequirement(consumable, infinity));
         return requirement;
     }
 
     protected sealed override long GetInfinityInner(TConsumable consumable, long count) {
         long value = long.MaxValue;
-        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this).Where(i => i.Enabled))
+        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this))
             value = Math.Min(value, InfinityManager.GetInfinity(consumable, count, infinity));
         return value == long.MaxValue ? 0 : value;
     }
@@ -83,7 +83,6 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
     }
 
     public override void SetStaticDefaults() {
-        base.SetStaticDefaults();
         foreach (var preset in PresetLoader.Presets) {
             if (preset.AppliesTo(this)) _presets.Add(preset);
         }

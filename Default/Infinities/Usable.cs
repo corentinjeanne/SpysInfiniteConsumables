@@ -1,7 +1,6 @@
 using Terraria;
 using Terraria.ID;
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
 using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;

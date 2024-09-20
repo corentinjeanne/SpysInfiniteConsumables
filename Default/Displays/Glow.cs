@@ -32,7 +32,7 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
 
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, Color color) { //BUG fix color when offset true
         Texture2D texture = TextureAssets.Item[item.type].Value;
-        float offset = item.GetHashCode() % 16 / 16f;
+        float offset = item.GetHashCode() % 64 / 64f;
 
         float progress = (s_nextIndexTime - Main.GlobalTimeWrappedHourly) / Instance.Config.animationLength; // 0>1
         if (Instance.Config.offset) progress = (progress + offset) % 1;
@@ -45,7 +45,7 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
             return;
         }
 
-        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, 1.5f + 1.5f * distance * Instance.Config.scale).RotatedBy((f * 2 + progress) * Math.PI), frame, color, 0, origin, scale, 0, 0f);
+        for (float f = 0f; f < 1f; f += 1 / 3f) spriteBatch.Draw(texture, position + new Vector2(0f, (1.5f + 1.5f * distance) * Instance.Config.scale).RotatedBy((f * 2 + progress) * Math.PI), frame, color, 0, origin, scale, 0, 0f);
         color *= 0.67f;
         for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance * Instance.Config.scale).RotatedBy((f + progress) * -2 * Math.PI), frame, color, 0, origin, scale, 0, 0f);
     }
@@ -59,5 +59,4 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
 
     private static float s_nextIndexTime = 0;
     private static int s_index = 0;
-
 }
