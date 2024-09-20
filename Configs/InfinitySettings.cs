@@ -23,7 +23,7 @@ public sealed class InfinitySettings : ModConfig {
         get => _infinities;
         set {
             _infinities = value;
-            foreach (IConsumableInfinity infinity in InfinityManager.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
+            foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
         }
     }
     private Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> _infinities = [];

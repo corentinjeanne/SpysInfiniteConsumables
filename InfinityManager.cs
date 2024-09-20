@@ -13,31 +13,29 @@ public static class InfinityManager {
         => infinity.GetCategory(consumable);
     public static TCategory GetCategory<TCategory>(int consumable, IInfinityBridge<TCategory> infinity) where TCategory : struct, Enum => infinity.GetCategory(consumable);
 
-    public static long GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) {
-        return !infinity.Enabled ? 0 : GetUsedInfinity(consumable, infinity).GetRequirement(consumable);
-    }
+    public static long GetRequirement<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity)
+        => !infinity.Enabled ? 0 : GetUsedInfinity(consumable, infinity).GetRequirement(consumable);
     public static long GetRequirement(int consumable, IInfinityBridge infinity) => infinity.GetRequirement(consumable);
 
-    public static long CountConsumables<TConsumable>(this Player player, TConsumable consumable, ConsumableInfinity<TConsumable> infinity) => infinity.CountConsumables(player, consumable);
+    public static long CountConsumables<TConsumable>(this Player player, TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
+        => infinity.CountConsumables(player, consumable);
     public static long CountConsumables(this Player player, int consumable, IConsumableBridge infinity) => infinity.CountConsumables(player, consumable);
 
+    public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity)
+        => !infinity.Enabled ? 0 : GetUsedInfinity(consumable, infinity).GetInfinity(consumable, count);
+    public static long GetInfinity(int consumable, long count, IInfinityBridge infinity) => infinity.GetInfinity(consumable, count);
+    
     public static IReadOnlySet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
         => infinity.UsedInfinities(consumable);
     public static bool IsUsed<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => infinity.IsConsumable || UsedInfinities(consumable, infinity.Consumable).Contains(infinity);
     public static Infinity<TConsumable> GetUsedInfinity<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => IsUsed(consumable, infinity) ? infinity : infinity.Consumable;
-
-    public static long GetInfinity<TConsumable>(TConsumable consumable, long count, Infinity<TConsumable> infinity) {
-        if (!infinity.Enabled) return 0;
-        return GetUsedInfinity(consumable, infinity).GetInfinity(consumable, count);
-    }
-    public static long GetInfinity(int consumable, long count, IInfinityBridge infinity) => infinity.GetInfinity(consumable, count);
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
         bool visible = Utility.IsVisibleInInventory(item);
 
         List<ReadOnlyCollection<InfinityDisplay>> displays = [];
         InfinityVisibility minVisibility = InfinityVisibility.Visible;
-        foreach (var infinity in s_consumableInfinities.Where(i => i.Enabled)) {
+        foreach (var infinity in InfinityLoader.ConsumableInfinities.Where(i => i.Enabled)) {
             List<InfinityDisplay> subDisplays = [];
             void AddInfinityDisplay(IInfinity infinity) {
                 foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item)) {
@@ -82,25 +80,6 @@ public static class InfinityManager {
 
     public static void ClearCache() { }
 
-    public static IInfinity? GetInfinity(string mod, string name) => s_infinities.Find(g => g.Mod.Name == mod && g.Name == name);
-
-    internal static void Register<TConsumable>(Infinity<TConsumable> infinity) {
-        s_infinities.Add(infinity);
-        if (infinity is ConsumableInfinity<TConsumable> consumable) s_consumableInfinities.Add(consumable);
-        InfinitiesLCM = s_infinities.Count * InfinitiesLCM / SpikysLib.MathHelper.GCD(InfinitiesLCM, s_infinities.Count);
-    }
-    public static void Unload() {
-        s_infinities.Clear();
-        s_consumableInfinities.Clear();
-    }
-
-    public static ReadOnlyCollection<IInfinity> Infinities => new(s_infinities);
-    public static ReadOnlyCollection<IConsumableInfinity> ConsumableInfinities => new(s_consumableInfinities);
-
-    public static int InfinitiesLCM { get; private set; } = 1;
-
-    private static readonly List<IInfinity> s_infinities = [];
-    private static readonly List<IConsumableInfinity> s_consumableInfinities = [];
 }
 
 public enum InfinityVisibility { Hidden, Visible, Exclusive }

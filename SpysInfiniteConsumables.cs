@@ -22,7 +22,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
     }
 
     public override void Unload() {        
-        InfinityManager.Unload();
+        InfinityLoader.Unload();
         Instance = null!;
     }
 
@@ -36,7 +36,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
                 string mod = parts[0];
                 string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityManager.GetInfinity(mod, name)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityLoader.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorrect", cast);

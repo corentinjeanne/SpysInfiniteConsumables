@@ -116,7 +116,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
 
     protected sealed override void Register() {
         ModTypeLookup<Infinity<TConsumable>>.Register(this);
-        InfinityManager.Register(this);
+        InfinityLoader.Register(this);
         Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Label"), () => $$"""{${{this.GetLocalizationKey("DisplayName")}}}""");
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");

@@ -28,11 +28,11 @@ public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition, II
     public InfinityDefinition(string mod, string name) : base(mod, name) { }
     public InfinityDefinition(IInfinity infinity) : this(infinity.Mod.Name, infinity.Name) { }
 
-    public override IInfinity? Entity => InfinityManager.GetInfinity(Mod, Name);
+    public override IInfinity? Entity => InfinityLoader.GetInfinity(Mod, Name);
 
     public override string DisplayName => Entity?.Label.Value ?? base.DisplayName;
 
-    public override InfinityDefinition[] GetValues() => InfinityManager.Infinities.Select(infinity => new InfinityDefinition(infinity)).ToArray();
+    public override InfinityDefinition[] GetValues() => InfinityLoader.Infinities.Select(infinity => new InfinityDefinition(infinity)).ToArray();
 }
 
 [TypeConverter("SPIC.IO.ToFromStringConverterFix")]

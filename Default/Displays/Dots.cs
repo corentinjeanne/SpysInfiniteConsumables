@@ -50,8 +50,8 @@ public sealed class Dots : Display, IConfigProvider<DotsConfig> {
         position += (TextureAssets.InventoryBack.Value.Size() / 2f * Main.inventoryScale - dotSize*1.2f) * cornerDirection;
         Vector2 dotDelta = dotSize * (Instance.Config.direction == Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0));
 
-        foreach ((var infinity, var value) in displays[s_index % displays.Count].Where(d => d.Value.Count > 0)) {
-            DisplayDot(spriteBatch, position, value, infinity.Color, scale);
+        foreach (var display in displays[s_index % displays.Count].Where(d => d.Value.Count > 0)) {
+            DisplayDot(spriteBatch, position, display.Value, display.Infinity.Color, scale);
             position += dotDelta;
         }
 
@@ -91,7 +91,7 @@ public sealed class Dots : Display, IConfigProvider<DotsConfig> {
     public static void PreUpdate() {
         if (Main.GlobalTimeWrappedHourly >= s_nextIndexTime) {
             s_nextIndexTime = (s_nextIndexTime + Instance.Config.time) % 3600;
-            s_index = (s_index + 1) % InfinityManager.InfinitiesLCM;
+            s_index = (s_index + 1) % InfinityLoader.InfinitiesLCM;
         }
     }
 

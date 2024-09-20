@@ -32,7 +32,7 @@ public sealed class InfinityDisplays : ModConfig {
         get => _infinities;
         set {
             _infinities = value;
-            foreach (IInfinity infinity in InfinityManager.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultClientConfig(infinity)));
+            foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultClientConfig(infinity)));
         }
     }
 

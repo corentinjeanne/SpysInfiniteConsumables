@@ -30,8 +30,8 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
     public TooltipConfig Config { get; set; } = null!;
 
     public static (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int consumable, IInfinity infinity) => infinity is ITooltipLineDisplay ttl ? ttl.GetTooltipLine(item, consumable) : DefaultTooltipLine(infinity);
-    public static string CountToString(int consumable, long value, long outOf, IInfinity infinity) => infinity.Consumable is ICountToString cts ? cts.CountToString(consumable, value, outOf) : DefaultCount(value, outOf);
-    public static string CountToString(int consumable, long value, IInfinity infinity) => CountToString(consumable, value, 0, infinity);
+    public static string CountToString(int consumable, long value, long outOf, IConsumableInfinity infinity) => infinity is ICountToString cts ? cts.CountToString(consumable, value, outOf) : DefaultCount(value, outOf);
+    public static string CountToString(int consumable, long value, IConsumableInfinity infinity) => CountToString(consumable, value, 0, infinity);
 
     public static (TooltipLine, TooltipLineID?) DefaultTooltipLine(IInfinity infinity) => (new(infinity.Mod, infinity.Name, infinity.DisplayName.Value), null);
     public static string DefaultCount(long owned, long value) => owned == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value) : $"{owned}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value)}";
@@ -57,10 +57,10 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
             if (Instance.Config.coloredLines) line!.OverrideColor = infinity.Color;
             line!.Text = value.Infinity == value.Count ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
-                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, CountToString(value.Consumable, value.Infinity, infinity));
+                Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, CountToString(value.Consumable, value.Infinity, infinity.Consumable));
         } else if (Instance.Config.displayRequirement) {
             SetLine();
-            line!.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity)})";
+            line!.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity.Consumable)})";
         }
         if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }

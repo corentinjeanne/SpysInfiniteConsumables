@@ -53,7 +53,7 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
     public static void PreUpdate() {
         if (Main.GlobalTimeWrappedHourly >= s_nextIndexTime) {
             s_nextIndexTime = (s_nextIndexTime + Instance.Config.animationLength) % 3600;
-            s_index = (s_index + 1) % InfinityManager.InfinitiesLCM;
+            s_index = (s_index + 1) % InfinityLoader.InfinitiesLCM;
         }
     }
 
