@@ -47,7 +47,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
         MaterialCategory.NonStackable => Config.NonStackable,
         _ => 0,
     };
-    public sealed override long GetInfinity(int consumable, long count) => (long)(base.GetInfinity(consumable, count) * Config.Multiplier);
+    protected override void ModifyInfinity(Item consumable, ref long infinity) => infinity = (long)(infinity * Config.Multiplier);
 
     protected override MaterialCategory GetCategoryInner(Item item) {
         int type = item.type;
@@ -90,6 +90,6 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
             return;
         }
         long count = PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-        value = value.For(count, requirement);
+        value = value.For(requirement, count);
     }
 }

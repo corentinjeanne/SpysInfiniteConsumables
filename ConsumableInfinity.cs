@@ -50,6 +50,13 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
         return requirement;
     }
 
+    protected sealed override long GetInfinityInner(TConsumable consumable, long count) {
+        long value = 0;
+        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this).Where(i => i.Enabled))
+            value = Math.Min(value, InfinityManager.GetInfinity(consumable, count, infinity));
+        return value;
+    }
+
     public void AddInfinity(Infinity<TConsumable> infinity) {
         _infinities.Add(infinity);
         _orderedInfinities.Add(infinity);

@@ -102,25 +102,25 @@ public sealed class DetectionPlayer : ModPlayer {
         return category != UsableCategory.Unknown;
     }
 
-    public static int FindAmmoType(Player player, int proj) {
+    public static Item FindAmmo(Player player, int proj) {
         foreach (Dictionary<int, int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values) {
-            foreach ((int item, int shoot) in projectiles) if (shoot == proj) return item;
+            foreach ((int item, int shoot) in projectiles) if (shoot == proj) return new(item);
         }
-        foreach (Item item in player.inventory) if (item.shoot == proj) return item.type;
-        return ItemID.None;
+        foreach (Item item in player.inventory) if (item.shoot == proj) return item;
+        return new();
     }
 
-    public static void RefillExplosive(Player player, int projType, int refill) {
-        int owned = player.CountItems(refill);
+    public static void RefillExplosive(Player player, int projType, Item refill) {
+        long owned = player.CountConsumables(refill, ConsumableItem.Instance);
         int used = 0;
         foreach (Projectile proj in Main.projectile)
             if (proj.owner == player.whoAmI && proj.type == projType) used += 1;
 
         if (ShouldRefill(refill, owned, used, Ammo.Instance))
             /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
-            player.GetItem(player.whoAmI, new(refill, used), new(NoText: true));
+            player.GetItem(player.whoAmI, new(refill.type, used), new(NoText: true));
 
-        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => infinity.GetInfinity(refill, owned) == 0 && Usable.Instance.GetInfinity(refill, owned + used) != 0;
+        static bool ShouldRefill(Item refill, long owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, Ammo.Instance) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
     private void HookShootFromCannon(On_Player.orig_ShootFromCannon orig, Player self, int x, int y) {

@@ -45,7 +45,7 @@ public abstract class CurrencyInfinity: Infinity<int, CurrencyCategory>, IConfig
         if (!CustomCurrencyManager.TryGetCurrencySystem(consumable, out var system)) return CurrencyCategory.None;
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
-    public sealed override long GetInfinity(int consumable, long count) => (long)(base.GetInfinity(consumable, count) * GetMultiplier(InfinityManager.GetCategory(consumable, this)));
+    protected sealed override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * GetMultiplier(InfinityManager.GetCategory(consumable, this)));
 }
 
 // TODO PreventItemDuplication

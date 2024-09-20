@@ -27,7 +27,8 @@ public class InfiniteRecipe : ModSystem {
         }
         int g = recipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == type);
         if(g == -1) return;
+        Item item = recipe.requiredItem.Find(i => i.type == type)!;
         long total = PlayerHelper.OwnedItems.GetValueOrDefault(RecipeGroup.recipeGroups[recipe.acceptedGroups[g]].GetGroupFakeItemId(), 0);
-        if (Material.Instance.GetInfinity(type, total) >= amount) amount = 0;
+        if (InfinityManager.GetInfinity(item, total, Material.Instance) >= amount) amount = 0;
     }
 }

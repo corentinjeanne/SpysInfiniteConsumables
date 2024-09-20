@@ -18,7 +18,7 @@ public abstract class CoinInfinity : Infinity<int>, IConfigProvider<CoinRequirem
     public CoinRequirements Config { get; set; } = null!;
 
     protected sealed override long GetRequirementInner(int consumable) => consumable == CurrencyHelper.Coins ? Config.requirement : 0;
-    public sealed override long GetInfinity(int consumable, long count) => (long)(base.GetInfinity(consumable, count) * Config.multiplier);
+    protected sealed override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * Config.multiplier);
 }
 
 public sealed class Nurse : CoinInfinity {

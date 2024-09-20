@@ -50,18 +50,30 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
     protected abstract long GetRequirementInner(TConsumable consumable);
     protected virtual void ModifyRequirement(TConsumable consumable, ref long requirement) { }
 
-    public virtual long GetInfinity(int consumable, long count) {
-        long requirement = InfinityManager.GetRequirement(consumable, this);
-        long infinity = requirement > 0 && count >= requirement ? count : 0;
+    public long GetInfinity(TConsumable consumable, long count) {
+        long infinity = GetInfinityInner(consumable, count);
+        ModifyInfinity(consumable, ref infinity);
         return infinity;
     }
+    protected virtual long GetInfinityInner(TConsumable consumable, long count) {
+        long requirement = InfinityManager.GetRequirement(consumable, this);
+        return requirement > 0 && count >= requirement ? count : 0;
+    }
+    protected virtual void ModifyInfinity(TConsumable consumable, ref long infinity) { }
 
     public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
         if (InfinityDisplays.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
-        foreach(TConsumable consumable in consumables) {
-            InfinityVisibility visibility = (IsConsumable || !Equals(consumable, consumables[0]) || InfinityManager.UsedInfinities(consumable, Consumable).Contains(this)) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
-            InfinityValue infinity = new(Consumable.GetId(consumable), Main.LocalPlayer.CountConsumables(consumable, Consumable), InfinityManager.GetRequirement(consumable, this), Main.LocalPlayer.GetInfinity(consumable, this));
+        for (int i = 0; i < consumables.Count; i++) {
+            TConsumable consumable = consumables[i];
+            InfinityVisibility visibility = i != 0 || InfinityManager.IsUsed(consumable, this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
+            long count = Main.LocalPlayer.CountConsumables(consumable, Consumable);
+            InfinityValue infinity = new(
+                Consumable.GetId(consumable),
+                InfinityManager.GetRequirement(consumable, this),
+                count,
+                InfinityManager.GetInfinity(consumable, count, this)
+            );
             ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
             if (infinity.Requirement <= 0) continue;
             yield return (visibility, infinity);
@@ -120,7 +132,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity, IInfinityBridg
 
     IConsumableBridge IInfinityBridge.Consumable => Consumable;
     long IInfinityBridge.GetRequirement(int consumable) => InfinityManager.GetRequirement(Consumable.ToConsumable(consumable), this);
-    long IInfinityBridge.GetInfinity(Player player, int consumable) => player.GetInfinity(Consumable.ToConsumable(consumable), this);
+    long IInfinityBridge.GetInfinity(int consumable, long count) => InfinityManager.GetInfinity(Consumable.ToConsumable(consumable), count, this);
 }
 
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinityBridge<TCategory> where TCategory: struct, Enum {

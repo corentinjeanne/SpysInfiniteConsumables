@@ -203,7 +203,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
-    // protected override void ModifyInfinity(Player player, Item consumable, ref InfinityValue value) {
+    // protected override void ModifyInfinity(Item consumable, ref InfinityValue value) {
     //     if(!InfinitySettings.Instance.PreventItemDuplication || value.Count <= value.Requirement.Count) return;
     //     if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
     //         extras.Add(this.GetLocalizationKey("TileDuplication"));
