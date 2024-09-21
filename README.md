@@ -155,7 +155,7 @@ Contains various ways to display the infinities of items and their  config.
 
 # Changelog
 
-### v3.2
+### v4.0
 - Added Projectile duplication
 - Changed Grab Bags to be disabled by default
 - Added automatic localization generation

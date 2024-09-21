@@ -6,7 +6,7 @@ using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
-public class ConsumableItem : ConsumableInfinity<Item>, ICountToString { // TODO Better inventory compatibility
+public class ConsumableItem : ConsumableInfinity<Item>, ICountToString {
     public static ConsumableItem Instance = null!;
 
     public sealed override InfinityDefaults Defaults => new() { Color = new(209, 138, 138) };
