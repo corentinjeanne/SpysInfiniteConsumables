@@ -26,17 +26,18 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
     public static void PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale) {
         var displays = InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays).Where(display => display.Value.Infinity > 0).ToArray();
         if (displays.Length == 0) return;
-        var display = displays[s_index % displays.Length];
-        DisplayGlow(spriteBatch, item, position, frame, origin, scale, display.Infinity.Color);
+        float time = Main.GlobalTimeWrappedHourly;
+        if (Instance.Config.offset) time += item.GetHashCode() % 64 / 64f * Instance.Config.animationLength;
+        int index = (int)(time / Instance.Config.animationLength);
+        float progress = time % Instance.Config.animationLength / Instance.Config.animationLength;
+        var display = displays[index % displays.Length];
+        DisplayGlow(spriteBatch, item, position, frame, origin, scale, progress, display.Infinity.Color);
     }
 
-    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, Color color) { //BUG fix color when offset true
+    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, float progress, Color color) {
         Texture2D texture = TextureAssets.Item[item.type].Value;
-        float progress = (s_nextIndexTime - Main.GlobalTimeWrappedHourly) / Instance.Config.animationLength; // 0>1
-        if (Instance.Config.offset) progress = (progress + item.GetHashCode() % 64 / 64f) % 1;
         float distance = (progress <= 0.5f ? progress : (1 - progress)) * 2; // 0>1>0
         color *= Instance.Config.intensity * distance;
-
         if (!Instance.Config.fancyGlow) {
             float scl = 1 + 8 * distance / frame.Width * Instance.Config.scale;
             spriteBatch.Draw(texture, position, frame, color, 0, origin, scale * scl, 0, 0f);
@@ -48,13 +49,4 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
         for (float f = 0f; f < 1f; f += 1 / 4f) spriteBatch.Draw(texture, position + new Vector2(0f, 4f * distance * Instance.Config.scale).RotatedBy((f + progress) * -2 * Math.PI), frame, color, 0, origin, scale, 0, 0f);
     }
 
-    public static void PreUpdate() {
-        if (Main.GlobalTimeWrappedHourly >= s_nextIndexTime) {
-            s_nextIndexTime = (s_nextIndexTime + Instance.Config.animationLength) % 3600;
-            s_index = (s_index + 1) % InfinityLoader.InfinitiesLCM;
-        }
-    }
-
-    private static float s_nextIndexTime = 0;
-    private static int s_index = 0;
 }

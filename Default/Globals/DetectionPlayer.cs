@@ -50,10 +50,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
 
-    public override void PreUpdate() {
-        Glow.PreUpdate();
-        Dots.PreUpdate();
-    }
+    public override void PreUpdate() => Dots.PreUpdate();
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
 
