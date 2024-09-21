@@ -106,6 +106,7 @@ public static class InfinityManager {
         s_debug.Clear();
         if (canDelayClear && s_cacheRefresh > 0) s_delayed = true;
         else {
+            s_delayed = false;
             s_displays.Clear();
             s_cacheRefresh = InfinityDisplays.Instance.CacheRefreshDelay;
         }
