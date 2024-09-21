@@ -67,10 +67,15 @@ public static class InfinityManager {
         return s_displays[(item.type, item.stack, item.prefix)] = displays.AsReadOnly();
     }
 
+    public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
+        => GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity);
+    public static long GetInfinity(this Player player, int consumable, IInfinity infinity)
+        => GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity);
+
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Infinity<TConsumable> infinity)
-        => infinity.Enabled && GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity) >= consumed;
+        => infinity.Enabled && player.GetInfinity(consumable, infinity) >= consumed;
     public static bool HasInfinite(this Player player, int consumable, long consumed, IInfinity infinity)
-        => infinity.Enabled && GetInfinity(consumable, player.CountConsumables(consumable, infinity.Consumable), infinity) >= consumed;
+        => infinity.Enabled && player.GetInfinity(consumable, infinity) >= consumed;
 
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, params Infinity<TConsumable>[] infinities) => player.HasInfinite(consumable, consumed, null, infinities);
     public static bool HasInfinite<TConsumable>(this Player player, TConsumable consumable, long consumed, Func<bool>? retryIfNoneIncluded, params Infinity<TConsumable>[] infinities) {
