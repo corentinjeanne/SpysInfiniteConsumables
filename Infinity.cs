@@ -22,7 +22,7 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     IConsumableInfinity Consumable { get; }
     bool IsConsumable { get; }
 
-    IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item);
+    IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, bool visible);
 
     Color Color { get; set; }
     LocalizedText Label { get; }
@@ -65,7 +65,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
     protected virtual void ModifyInfinity(TConsumable consumable, ref long infinity) { }
 
-    public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item) {
+    public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, bool visible) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
         if (InfinityDisplays.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
         for (int i = 0; i < consumables.Count; i++) {
@@ -75,8 +75,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
             InfinityValue infinity = new(
                 Consumable.GetId(consumable),
                 InfinityManager.GetRequirement(consumable, this),
-                count,
-                InfinityManager.GetInfinity(consumable, count, this)
+                visible ? count : 0,
+                visible ? InfinityManager.GetInfinity(consumable, count, this) : 0
             );
             ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
             if (infinity.Requirement > 0) yield return (visibility, infinity);

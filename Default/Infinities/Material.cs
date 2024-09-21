@@ -80,16 +80,12 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
         Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
         if (material is null) return;
-
         visibility = InfinityVisibility.Exclusive;
-        long requirement = Math.Max(value.Requirement, (int)MathF.Ceiling(material.stack / Config.Multiplier));
 
-        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type);
-        if (group == -1) {
-            value = value with { Requirement = requirement };
-            return;
-        }
-        long count = PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
-        value = value.For(requirement, count);
+        long requirement = Math.Max(value.Requirement, (int)MathF.Ceiling(material.stack / Config.Multiplier));
+        long count = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type) == -1 ?
+            Main.LocalPlayer.CountConsumables(consumable, Consumable) :
+            PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+        value = new(value.Consumable, requirement, count, count >= requirement ? count : 0);
     }
 }

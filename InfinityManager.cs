@@ -50,17 +50,14 @@ public static class InfinityManager {
         foreach (var infinity in InfinityLoader.ConsumableInfinities.Where(i => i.Enabled)) {
             List<InfinityDisplay> subDisplays = [];
             void AddInfinityDisplay(IInfinity infinity) {
-                foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item)) {
+                foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item, visible)) {
                     if (visibility < minVisibility) continue;
                     if (InfinityDisplays.Instance.alternateDisplays && visibility > minVisibility) {
                         displays.Clear();
                         subDisplays.Clear();
                         minVisibility = visibility;
                     }
-                    subDisplays.Add(new(
-                        infinity,
-                        visible ? value : new(value.Consumable, value.Requirement, 0, 0)
-                    ));
+                    subDisplays.Add(new(infinity, value));
                 }
             }
             if (infinity.DisplayedInfinities.HasFlag(DisplayedInfinities.Consumable)) AddInfinityDisplay(infinity);
@@ -128,8 +125,5 @@ public static class InfinityManager {
 
 public enum InfinityVisibility { Hidden, Visible, Exclusive }
 
-public readonly record struct InfinityValue(int Consumable, long Requirement, long Count, long Infinity) {
-    public InfinityValue For(long requirement) => For(requirement, Count);
-    public InfinityValue For(long requirement, long count) => new(Consumable, requirement, count, count >= requirement ? count : 0);
-}
+public readonly record struct InfinityValue(int Consumable, long Requirement, long Count, long Infinity);
 public readonly record struct InfinityDisplay(IInfinity Infinity, InfinityValue Value);
