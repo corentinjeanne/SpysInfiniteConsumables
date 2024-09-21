@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SPIC.Configs;
+using SpikysLib.Collections;
 using Terraria;
+using Terraria.Localization;
 
 namespace SPIC;
 
@@ -88,6 +90,8 @@ public static class InfinityManager {
         return retryIfNoneIncluded is not null && retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
 
+    public static List<LocalizedText> GetDebugInfo(int consumable, IInfinity infinity) => s_debug.GetOrAdd((infinity, consumable), _ => []);
+    public static void AddDebugInfo(int consumable, LocalizedText info, IInfinity infinity) => GetDebugInfo(consumable ,infinity).Add(info);
 
     public static void DecreaseCacheLock() {
         if (s_cacheRefresh > 0) s_cacheRefresh--;
@@ -99,6 +103,7 @@ public static class InfinityManager {
         s_requirements.Clear();
         s_counts.Clear();
         s_infinities.Clear();
+        s_debug.Clear();
         if (canDelayClear && s_cacheRefresh > 0) s_delayed = true;
         else {
             s_displays.Clear();
@@ -114,6 +119,7 @@ public static class InfinityManager {
 
     private readonly static Dictionary<(IInfinity infinity, int consumable), Enum> s_categories = [];
     private readonly static Dictionary<(IInfinity infinity, int consumable), long> s_requirements = [];
+    private readonly static Dictionary<(IInfinity infinity, int consumable), List<LocalizedText>> s_debug = [];
     private readonly static Dictionary<(IConsumableInfinity infinity, int player, int consumable), long> s_counts = [];
     private readonly static Dictionary<(IInfinity infinity, int consumable, long count), long> s_infinities = [];
     private readonly static Dictionary<(int type, int stack, int prefix), ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>>> s_displays = [];

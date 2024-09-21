@@ -220,7 +220,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index < 50 || 58 <= index) return;
 
-        PlaceableCategory category = GetCategory(item);
+        PlaceableCategory category = InfinityManager.GetCategory(item, this);
         if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -10,14 +9,14 @@ public class CustomRequirements<TCount> where TCount : Count {
 }
 
 public interface ICustoms<TConsumable> {
-    Optional<long> GetRequirement(TConsumable consumable);
+    long? GetRequirement(TConsumable consumable);
 }
 
 public sealed class Customs<TConsumable> : ICustoms<TConsumable>, IConfigProvider<CustomRequirements<Count>> {
     public Customs(Infinity<TConsumable> infinity) => Infinity = infinity;
 
-    public Optional<long> GetRequirement(TConsumable consumable)
-        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count? custom) ? new(custom.Value) : default;
+    public long? GetRequirement(TConsumable consumable)
+        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count? custom) ? custom.Value : null;
 
     public CustomRequirements<Count> Config { get; set; } = null!;
     public Infinity<TConsumable> Infinity { get; }
@@ -26,11 +25,11 @@ public sealed class Customs<TConsumable> : ICustoms<TConsumable>, IConfigProvide
 public sealed class Customs<TConsumable, TCategory> : ICustoms<TConsumable>, IConfigProvider<CustomRequirements<Count<TCategory>>> where TCategory : struct, Enum {
     public Customs(Infinity<TConsumable, TCategory> infinity) => Infinity = infinity;
 
-    public Optional<TCategory> GetCategory(TConsumable consumable)
-        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value < 0 ? new(custom.Category) : default;
+    public TCategory? GetCategory(TConsumable consumable)
+        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value < 0 ? custom.Category : null;
 
-    public Optional<long> GetRequirement(TConsumable consumable)
-        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? new(custom.Value) : default;
+    public long? GetRequirement(TConsumable consumable)
+        => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? custom.Value : null;
 
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
         if (!InfinitySettings.Instance.DetectMissingCategories || !Config.customs.TryAdd(Infinity.Consumable.ToDefinition(consumable), new(category)))

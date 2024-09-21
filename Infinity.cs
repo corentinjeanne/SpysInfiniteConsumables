@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using SPIC.Configs;
 using SpikysLib.Configs;
@@ -45,8 +44,10 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     public bool IsConsumable => Consumable == this;
 
     public long GetRequirement(TConsumable consumable) {
-        Optional<long> custom = Customs.GetRequirement(consumable);
-        long requirement = custom.HasValue ? custom.Value : GetRequirementInner(consumable);
+        InfinityManager.GetDebugInfo(Consumable.GetId(consumable), this).Clear();
+        var custom = Customs.GetRequirement(consumable);
+        if (custom.HasValue) InfinityManager.AddDebugInfo(Consumable.GetId(consumable), Language.GetText($"{Localization.Keys.CommonItemTooltips}.Custom"), this);
+        long requirement = custom ?? GetRequirementInner(consumable);
         ModifyRequirement(consumable, ref requirement);
         return requirement;
     }
@@ -140,20 +141,23 @@ public interface IInfinity<TCategory> : IInfinity where TCategory : struct, Enum
 
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinity<TCategory> where TCategory: struct, Enum {
     public TCategory GetCategory(TConsumable consumable) {
-        Optional<TCategory> custom = Customs.GetCategory(consumable);
-        return custom.HasValue ? custom.Value : GetCategoryInner(consumable);
+        var custom = Customs.GetCategory(consumable);
+        return custom ?? GetCategoryInner(consumable);
     }
     protected abstract TCategory GetCategoryInner(TConsumable consumable);
 
     public abstract long GetRequirement(TCategory category);
     protected override long GetRequirementInner(TConsumable consumable) {
-        HashSet<long> categories = [];
-        long requirement = GetRequirement(InfinityManager.GetCategory(consumable, this));
-        while (requirement < 0 && categories.Add(-requirement)) {
-            var category = -requirement;
-            requirement = GetRequirement(Unsafe.As<long, TCategory>(ref category));
+        HashSet<TCategory> categories = [];
+        TCategory category = InfinityManager.GetCategory(consumable, this);
+        while (categories.Add(category)) {
+            InfinityManager.AddDebugInfo(Consumable.GetId(consumable), Mod.GetLocalization($"Configs.{typeof(TCategory).Name}.{category}.Label"), this);
+            long requirement = GetRequirement(category);
+            if (requirement >= 0) return requirement;
+            int c = (int)-requirement;
+            category = Unsafe.As<int, TCategory>(ref c);
         }
-        return requirement;
+        return 0;
     }
 
     protected sealed override ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable, TCategory>(this);

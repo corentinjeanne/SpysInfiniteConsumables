@@ -16,6 +16,11 @@ Tooltip: {
 		Label: Missing Lines Opacity
 		Tooltip: The opacity of lines added to the tooltip
 	}
+
+	displayDebug: {
+		Label: Display Debug Info
+		Tooltip: Display debug info about the requirement
+	}
 }
 
 Glow: {

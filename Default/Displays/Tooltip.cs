@@ -21,6 +21,7 @@ public sealed class TooltipConfig {
     [DefaultValue(true)] public bool displayRequirement = true;
     [DefaultValue(true)] public bool coloredLines = true;
     [DefaultValue(0.75f)] public float missingLinesOpacity = 0.75f;
+    [DefaultValue(false)] public bool displayDebug = false;
 
 }
 
@@ -40,7 +41,6 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
         foreach (var display in InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays)) ModifyTooltips(item, tooltips, display.Value, display.Infinity);
     }
 
-    // TODO category
     public static void ModifyTooltips(Item item, List<TooltipLine> tooltips, InfinityValue value, IInfinity infinity) {
         (TooltipLine lineToFind, TooltipLineID? position) = GetTooltipLine(item, value.Consumable, infinity);
 
@@ -61,6 +61,10 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
         } else if (Instance.Config.displayRequirement) {
             SetLine();
             line!.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity.Consumable)})";
+        }
+        if (Instance.Config.displayDebug) {
+            SetLine();
+            line!.Text += $" ({string.Join(", ", InfinityManager.GetDebugInfo(value.Consumable, infinity))})";
         }
         if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }

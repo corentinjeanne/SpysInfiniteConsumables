@@ -52,10 +52,6 @@ public abstract class CurrencyInfinity: Infinity<int, CurrencyCategory>, IConfig
 public sealed class Shop : CurrencyInfinity {
     public static Shop Instance = null!;
     public sealed override InfinityDefaults Defaults => new() { Color = Colors.CoinGold };
-
-    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        if (Main.npcShop != 0) visibility = InfinityVisibility.Exclusive;
-    }
 }
 
 // TODO PreventItemDuplication

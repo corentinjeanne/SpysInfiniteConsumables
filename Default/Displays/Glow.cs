@@ -32,10 +32,8 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
 
     public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, Color color) { //BUG fix color when offset true
         Texture2D texture = TextureAssets.Item[item.type].Value;
-        float offset = item.GetHashCode() % 64 / 64f;
-
         float progress = (s_nextIndexTime - Main.GlobalTimeWrappedHourly) / Instance.Config.animationLength; // 0>1
-        if (Instance.Config.offset) progress = (progress + offset) % 1;
+        if (Instance.Config.offset) progress = (progress + item.GetHashCode() % 64 / 64f) % 1;
         float distance = (progress <= 0.5f ? progress : (1 - progress)) * 2; // 0>1>0
         color *= Instance.Config.intensity * distance;
 
