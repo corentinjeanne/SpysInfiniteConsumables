@@ -64,7 +64,7 @@ public sealed class DetectionPlayer : ModPlayer {
         Player.statLifeMax2, Player.statManaMax2,
         Player.position,
         Player.extraAccessorySlots, Player.extraAccessory,
-        Utility.CountProjectilesInWorld(), Utility.CountItemsInWorld(),
+        Utility.CountProjectilesInWorld(), Player.CountBuffs(),
         Utility.WorldDifficulty(), Main.invasionType, Utility.GetNPCStats()
     );
 
@@ -74,8 +74,8 @@ public sealed class DetectionPlayer : ModPlayer {
 
         void SaveUsable(UsableCategory category) => Usable.Instance.SaveDetectedCategory(DetectingCategoryOf, category);
 
-        DetectionDataScreenShot data = GetDetectionData();
-        if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
+        if (teleported) SaveUsable(UsableCategory.Tool);
+        else if (TryDetectUsable(_preUseData, GetDetectionData(), out UsableCategory usable)) SaveUsable(usable);
         else if (mustDetect) SaveUsable(UsableCategory.Booster);
         else return false;
         DetectingCategoryOf = null;
@@ -83,16 +83,17 @@ public sealed class DetectionPlayer : ModPlayer {
         return true;
     }
 
-    private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
-        if (data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
+    private static bool TryDetectUsable(DetectionDataScreenShot preUse, DetectionDataScreenShot postUse, out UsableCategory category) {
+        if (postUse.NPCStats.Boss != preUse.NPCStats.Boss || postUse.Invasion != preUse.Invasion) category = UsableCategory.Summoner;
+        else if (postUse.NPCStats.Total != preUse.NPCStats.Total) category = UsableCategory.Critter;
 
-        else if (data.NPCStats.Boss != _preUseData.NPCStats.Boss || data.Invasion != _preUseData.Invasion) category = UsableCategory.Summoner;
-        else if (data.NPCStats.Total != _preUseData.NPCStats.Total) category = UsableCategory.Critter;
+        else if (postUse.MaxLife != preUse.MaxLife || postUse.MaxMana != preUse.MaxMana || postUse.ExtraAccessories != preUse.ExtraAccessories || postUse.DemonHeart != preUse.DemonHeart) category = UsableCategory.Booster;
+        else if (postUse.Difficulty != preUse.Difficulty) category = UsableCategory.Booster;
 
-        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart) category = UsableCategory.Booster;
-        else if (data.Difficulty != _preUseData.Difficulty) category = UsableCategory.Booster;
-
-        else if (teleported || data.Position != _preUseData.Position) category = UsableCategory.Tool;
+        else if (postUse.Position != preUse.Position) category = UsableCategory.Tool;
+        
+        else if (postUse.Buffs != preUse.Buffs) category = UsableCategory.Potion;
+        else if (postUse.Projectiles != preUse.Projectiles) category = UsableCategory.Tool;
 
         else category = UsableCategory.Unknown;
         return category != UsableCategory.Unknown;
@@ -164,4 +165,9 @@ public sealed class DetectionPlayer : ModPlayer {
     public bool usedCannon;
 }
 
-public record struct DetectionDataScreenShot(int MaxLife, int MaxMana, Vector2 Position, int ExtraAccessories, bool DemonHeart, int Projectiles, int ItemCount, int Difficulty, int Invasion, NPCStats NPCStats);
+public record struct DetectionDataScreenShot(
+    int MaxLife, int MaxMana,
+    Vector2 Position,
+    int ExtraAccessories, bool DemonHeart,
+    int Projectiles, int Buffs,
+    int Difficulty, int Invasion, NPCStats NPCStats);
