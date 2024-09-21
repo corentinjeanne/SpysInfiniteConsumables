@@ -47,24 +47,25 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
         TooltipLine? line = tooltips.FindLine(lineToFind.Name);
         if (line is null && Instance.Config.missingLinesOpacity <= 0f) return;
         bool added = false;
-        void SetLine() {
-            if (line is not null) return;
+        TooltipLine GetLine() {
+            if (line is not null) return line;
             added = true;
-            line = tooltips.AddLine(lineToFind, position);
+            return line = tooltips.AddLine(lineToFind, position);
         }
         if (value.Infinity > 0) {
-            SetLine();
+            GetLine();
             if (Instance.Config.coloredLines) line!.OverrideColor = infinity.Color;
             line!.Text = value.Infinity == value.Count ?
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Infinite", line.Text) :
                 Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.PartiallyInfinite", line.Text, CountToString(value.Consumable, value.Infinity, infinity.Consumable));
         } else if (Instance.Config.displayRequirement) {
-            SetLine();
-            line!.Text += $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity.Consumable)})";
+            GetLine().Text += value.Count == 0 ?
+                $" ({CountToString(value.Consumable, value.Requirement, infinity.Consumable)})" :
+                $" ({CountToString(value.Consumable, value.Count, value.Requirement, infinity.Consumable)})";
         }
         if (Instance.Config.displayDebug) {
-            SetLine();
-            line!.Text += $" ({string.Join(", ", InfinityManager.GetDebugInfo(value.Consumable, infinity))})";
+            var values = InfinityManager.GetDebugInfo(value.Consumable, infinity);
+            if (values.Count > 0) GetLine().Text += $" ({string.Join(", ", values)})";
         }
         if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
     }

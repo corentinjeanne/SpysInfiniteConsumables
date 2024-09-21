@@ -8,13 +8,13 @@ using SPIC.Configs;
 
 namespace SPIC.Default.Infinities;
 
-public sealed class JourneySacrificeRequirements {
+public sealed class JourneySacrificeClient {
     [DefaultValue(true)] public bool hideWhenResearched = true;
 }
 
-public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeRequirements>, ITooltipLineDisplay {
+public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeClient>, ITooltipLineDisplay {
     public static JourneySacrifice Instance = null!;
-    public JourneySacrificeRequirements ClientConfig { get; set; } = null!;
+    public JourneySacrificeClient ClientConfig { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public sealed override InfinityDefaults Defaults => new() {

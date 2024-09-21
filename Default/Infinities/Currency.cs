@@ -10,7 +10,6 @@ using SPIC.Default.Presets;
 
 namespace SPIC.Default.Infinities;
 
-// TODO modify displayed cost when infinite
 public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltipLineDisplay {
     public static Currency Instance = null!;
 
