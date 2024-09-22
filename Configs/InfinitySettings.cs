@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -28,17 +29,30 @@ public sealed class InfinitySettings : ModConfig {
 
     // Compatibility version < v4.0
     [JsonProperty] private Dictionary<InfinityDefinition, ConsumableInfinities> Configs { set => ConfigHelper.MoveMember(value is not null, _ => {
-            foreach ((var d, var config) in value!) {
-                if (d.ToString() == "SPIC/Currencies") {
-                    Default.Infinities.Currency.PortConfig(infinities, config);
-                    continue;
-                }
-                InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
-                foreach ((var infinity, var requirements) in config.infinities) requirements.Value["config"] = JObject.FromObject(requirements.Value);
-                infinities.GetOrAdd(def, _ => new(true)).Value["infinities"] = config;
+        foreach ((var d, var config) in value!) {
+            if (d.ToString() == "SPIC/Currencies") {
+                Default.Infinities.Currency.PortConfig(infinities, config);
+                continue;
             }
-        });
-    }
+            InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
+            foreach ((var infinity, var requirements) in config.infinities) {
+                requirements.Value["config"] = JObject.FromObject(requirements.Value);
+                requirements.Value["customs"] = JObject.FromObject(new CustomRequirements<Count>());
+            }
+            CustomRequirements<Count> customs = new();
+            if (config.customs is not null) {
+                foreach((var item, var custom) in config.customs) {
+                    if (custom.Choice == nameof(Custom.Individual)) {
+                        foreach((var infinity, var requirement) in custom.Individual) {
+                            ((JObject)((JObject)config.infinities[infinity].Value["customs"]!)["customs"]!)[item.ToString()] = requirement.Value;
+                        }
+                    } else customs.customs[item] = custom.Global;
+                }
+            }
+            infinities.GetOrAdd(def, _ => new(true)).Value["infinities"] = config;
+            infinities[def].Value["customs"] = customs;
+        }
+    }); }
 
     [OnDeserialized]
     private void OnDeserializedMethod(StreamingContext context) {

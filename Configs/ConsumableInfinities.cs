@@ -49,9 +49,8 @@ public class ConsumableInfinities {
     private PresetDefinition _preset = new();
 
     // Compatibility version < v4.0
-    [JsonProperty] private Dictionary<ItemDefinition, Custom> Customs { set => ConfigHelper.MoveMember(value is not null, _ => {
-
-    }); }
+    [JsonProperty] private Dictionary<ItemDefinition, Custom> Customs { set => customs = value; }
+    internal Dictionary<ItemDefinition, Custom>? customs;
 }
 
 public class ClientConsumableInfinities {
