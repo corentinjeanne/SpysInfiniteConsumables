@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SPIC.Default.Displays;
+using SPIC.Default.Infinities;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
@@ -30,13 +32,29 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(1), Range(0, 9999)] public int displayRefresh;
 
 
-    // TODO Compatibility version < v4.0
-    // [DefaultValue(true)] private bool ShowRequirement { set => ConfigHelper.MoveMember(value != true, _ => {}); }
-    // private bool ShowInfo { set => ConfigHelper.MoveMember(value != false, _ => {}); }
+    // Compatibility version < v4.0
+    [JsonProperty, DefaultValue(true)] private bool ShowRequirement { set => ConfigHelper.MoveMember(value != true, _ => {
+        ((JObject)displays[new(nameof(SPIC), nameof(Tooltip))].Value)[nameof(TooltipConfig.displayRequirement)] = value;
+        ((JObject)displays[new(nameof(SPIC), nameof(Dots))].Value)[nameof(DotsConfig.displayRequirement)] = value;
+    }); }
+    [JsonProperty] private bool ShowInfo { set => ConfigHelper.MoveMember(value != false, _ => {
+        ((JObject)displays[new(nameof(SPIC), nameof(Tooltip))].Value)[nameof(TooltipConfig.displayDebug)] = value;
+    }); }
     [JsonProperty, DefaultValue(true)] private bool ShowExclusiveDisplay { set => ConfigHelper.MoveMember(value != true, _ => exclusiveDisplay = value); }
     [JsonProperty, DefaultValue(true)] private bool ShowAlternateDisplays { set => ConfigHelper.MoveMember(value != true, _ => alternateDisplays = value); }
-    // [JsonProperty] private Dictionary<DisplayDefinition, Toggle<object>> Displays { set => ConfigHelper.MoveMember(value is not null, _ => {}); }
-    // [JsonProperty] private Dictionary<DisplayDefinition, object>? Colors { set => ConfigHelper.MoveMember(value is not null, _ => {}); }
+    [JsonProperty] private Dictionary<InfinityDefinition, GroupColors>? Colors { set => ConfigHelper.MoveMember(value is not null, _ => {
+        foreach((var d, var colors) in value!) {
+            if (d.ToString() == "SPIC/Currencies") {
+                InfinityDefinition currency = new(nameof(SPIC), nameof(Currency));
+                infinities.GetOrAdd(currency, _ => new()).Key = colors.Colors[currency];
+                continue;
+            }
+            Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> dictionary = [];
+            foreach((var infinity, var color) in colors.Colors) dictionary[infinity] = new(color);
+            InfinityDefinition def = d.ToString() == "SPIC/Items" ? new(nameof(SPIC), nameof(ConsumableItem)) : d;
+            infinities.GetOrAdd(def, _ => new(default)).Value["infinities"] = new JObject() { { nameof(ConsumableInfinities.infinities), JObject.FromObject(dictionary) } };
+        }
+    }); }
     [JsonProperty, DefaultValue(CacheStyle.Smart)] private CacheStyle Cache { set => ConfigHelper.MoveMember(value == CacheStyle.None, _ => disableCache = true); }
     [JsonProperty, DefaultValue(1)] private int CacheRefreshDelay { set => ConfigHelper.MoveMember(value != 1, _ => displayRefresh = value); }
 
@@ -46,7 +64,7 @@ public sealed class InfinityDisplay : ModConfig {
     [OnDeserialized]
     private void OnDeserializedMethod(StreamingContext context) {
         foreach (Display display in DisplayLoader.Displays) LoadConfig(display, displays.GetOrAdd(new(display), new Toggle<object>(display.DefaultEnabled) { Value = null! }));
-        foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(infinity.Defaults.Color)));
+        foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(default)));
     }
     public static void LoadConfig(Display display, Toggle<object> config) {
         Type configType = display is IConfigProvider c1 ? c1.ConfigType : typeof(Empty);
@@ -63,8 +81,9 @@ public sealed class InfinityDisplay : ModConfig {
         display.Enabled = config.Key;
     }
     public static void LoadConfig(IInfinity infinity, NestedValue<Color, Dictionary<string, object>> config) {
-        (var oldConfigs, config.Value) = (config.Value, []);
+        if (config.Key == default) config.Key = infinity.Defaults.Color;
         infinity.Color = config.Key;
+        (var oldConfigs, config.Value) = (config.Value, []);
         foreach ((var key, var provider) in _configs.GetValueOrDefault(infinity, [])) {
             Type configType = provider.ConfigType;
             object? oldConfig = oldConfigs.GetValueOrDefault(key, null!);
@@ -72,6 +91,7 @@ public sealed class InfinityDisplay : ModConfig {
                 null => JsonConvert.DeserializeObject("{}", configType, ConfigManager.serializerSettings)!,
                 JToken token => token.ToObject(configType)!,
                 _ => oldConfig
+
             };
             provider.ClientConfig = config.Value[key];
             provider.OnLoadedClient(oldConfig is null);
