@@ -26,7 +26,7 @@ public sealed class TooltipConfig {
     [DefaultValue(false)] public bool displayDebug = false;
 
     // Compatibility version < v4.0
-    [JsonProperty, DefaultValue(true)] public bool AddMissingLines { set => ConfigHelper.MoveMember(value != true, _ => missingLinesOpacity = 0f); }
+    [JsonProperty, DefaultValue(true)] private bool AddMissingLines { set => ConfigHelper.MoveMember(value != true, _ => missingLinesOpacity = 0f); }
 }
 
 public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {

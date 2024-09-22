@@ -20,8 +20,6 @@ public sealed class GlowConfig {
     [DefaultValue(1.2f), Range(0f, 3f), Increment(0.1f)] public float scale = 1.2f;
 
     // Compatibility version < v4.0
-    [JsonProperty, DefaultValue(true)] private bool FancyGlow { set => ConfigHelper.MoveMember(value != true, _ => fancyGlow = value); }
-    [JsonProperty, DefaultValue(0.75f)] private float Intensity { set => ConfigHelper.MoveMember(value != 0.75f, _ => intensity = value); }
     [JsonProperty, DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 2f, _ => length = value); }
 }
 

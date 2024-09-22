@@ -27,7 +27,7 @@ InfinitySettings: {
 			'''
 	}
 
-	Infinities: {
+	infinities: {
 		Label: Infinity Configs
 		Tooltip: ""
 	}
@@ -94,7 +94,7 @@ ConsumableInfinities: {
 			'''
 	}
 
-	UsedInfinities: {
+	usedInfinities: {
 		Label: "[i:486] Used Infinities"
 		Tooltip:
 			'''
@@ -103,7 +103,7 @@ ConsumableInfinities: {
 			'''
 	}
 
-	Infinities: {
+	infinities: {
 		Label: Infinities
 		Tooltip: ""
 	}
@@ -135,7 +135,7 @@ ClientConsumableInfinities: {
 			'''
 	}
 
-	Infinities: {
+	infinities: {
 		Label: Infinities
 		Tooltip: ""
 	}

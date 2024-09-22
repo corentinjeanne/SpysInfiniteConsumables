@@ -23,9 +23,7 @@ public sealed class DotsConfig {
     [DefaultValue(0.5f)] public float missingOpacity = 0.5f;
 
     // Compatibility version < v4.0
-    [JsonProperty, DefaultValue(Corner.BottomRight)] private Corner Start { set => ConfigHelper.MoveMember(value != Corner.BottomRight, _ => start = value); }
-    [JsonProperty, DefaultValue(Direction.Horizontal)] private Direction Direction { set => ConfigHelper.MoveMember(value != Direction.Horizontal, _ => direction = value); }
-    [JsonProperty, DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float GroupTime { set => ConfigHelper.MoveMember(value != 5f, _ => time = value); }
+    [JsonProperty, DefaultValue(5f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 5f, _ => time = value); }
 }
 
 public sealed class Dots : Display, IConfigProvider<DotsConfig> {

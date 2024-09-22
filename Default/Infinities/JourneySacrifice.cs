@@ -1,5 +1,4 @@
 using Terraria;
-using System.ComponentModel;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SpikysLib;
@@ -9,7 +8,7 @@ using SPIC.Configs;
 namespace SPIC.Default.Infinities;
 
 public sealed class JourneySacrificeClient {
-    [DefaultValue(true)] public bool hideWhenResearched = true;
+    public bool hideWhenResearched;
 }
 
 public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeClient>, ITooltipLineDisplay {

@@ -21,6 +21,11 @@ Tooltip: {
 		Label: Display Debug Info
 		Tooltip: Display debug info about the requirement
 	}
+
+	AddMissingLines: {
+		Label: Add Missing Lines
+		Tooltip: ""
+	}
 }
 
 Glow: {
@@ -53,6 +58,11 @@ Glow: {
 
 	scale: {
 		Label: Scale
+		Tooltip: ""
+	}
+
+	length: {
+		Label: length
 		Tooltip: ""
 	}
 }

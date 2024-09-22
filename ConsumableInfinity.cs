@@ -35,7 +35,7 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
 
     public HashSet<Infinity<TConsumable>> UsedInfinities(TConsumable consumable) {
         HashSet<Infinity<TConsumable>> usedInfinities = [];
-        int max = ConsumableInfinities.Config.UsedInfinities;
+        int max = ConsumableInfinities.Config.usedInfinities;
         foreach (Infinity<TConsumable> infinity in _orderedInfinities.Where(i => i.Enabled)) {
             long value = infinity.GetRequirement(consumable);
             if (value <= 0) continue;

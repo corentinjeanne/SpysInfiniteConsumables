@@ -10,19 +10,19 @@ public sealed class ConsumableDefaults : Preset {
     public override int CriteriasCount => 3;
     public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance), new(Infinities.GrabBag.Instance), new(Infinities.Material.Instance), new(Infinities.JourneySacrifice.Instance)];
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.UsedInfinities == 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.usedInfinities == 0;
     public override void ApplyCriterias(ConsumableInfinities config) {
-        (var oldInfinities, config.Infinities) = (config.Infinities, []);
+        (var oldInfinities, config.infinities) = (config.infinities, []);
         foreach (InfinityDefinition def in Order) {
-            config.Infinities.Add(def, oldInfinities[def]);
+            config.infinities.Add(def, oldInfinities[def]);
             oldInfinities.Remove(def);
-            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
         foreach ((var def, var value) in oldInfinities) {
-            config.Infinities.Add(def, value);
-            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
-        config.UsedInfinities = 0;
+        config.usedInfinities = 0;
     }
     public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 }
@@ -33,20 +33,20 @@ public sealed class CurrencyDefaults : Preset {
     public override int CriteriasCount => 3;
     public static InfinityDefinition[] Order => [new(Infinities.Shop.Instance), new(Infinities.Reforging.Instance), new(Infinities.Nurse.Instance), new(Infinities.Purchase.Instance)];
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.UsedInfinities == 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.usedInfinities == 0;
     public override void ApplyCriterias(ConsumableInfinities config) {
-        (var oldInfinities, config.Infinities) = (config.Infinities, []);
+        (var oldInfinities, config.infinities) = (config.infinities, []);
         for (int i = 0; i < Order.Length; i++) {
             InfinityDefinition def = Order[i];
-            config.Infinities.Add(def, oldInfinities[def]);
+            config.infinities.Add(def, oldInfinities[def]);
             oldInfinities.Remove(def);
-            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
         foreach ((var def, var value) in oldInfinities) {
-            config.Infinities.Add(def, value);
-            config.Infinities[def].Key = def.Entity!.Defaults.Enabled;
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
-        config.UsedInfinities = 0;
+        config.usedInfinities = 0;
     }
     public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.Currency;
 }
@@ -56,30 +56,30 @@ public sealed class OneForMany : Preset {
 
     public override bool AppliesTo(IConsumableInfinity infinity) => infinity.Infinities.Count > 1;
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => config.Infinities.Values.Exist(v => v.Key) && config.UsedInfinities == 1;
+    public override bool MeetsCriterias(ConsumableInfinities config) => config.infinities.Values.Exist(v => v.Key) && config.usedInfinities == 1;
     public override void ApplyCriterias(ConsumableInfinities config) {
-        config.UsedInfinities = 1;
-        if (!MeetsCriterias(config)) config.Infinities[0].Key = true;
+        config.usedInfinities = 1;
+        if (!MeetsCriterias(config)) config.infinities[0].Key = true;
     }
 }
 
 public sealed class AllEnabled : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Values.Exist(v => !v.Key) && config.UsedInfinities == 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Values.Exist(v => !v.Key) && config.usedInfinities == 0;
 
     public override void ApplyCriterias(ConsumableInfinities config) {
-        foreach (InfinityDefinition def in config.Infinities.Keys) ((IToggle)config.Infinities[def]!).Key = true;
-        config.UsedInfinities = 0;
+        foreach (InfinityDefinition def in config.infinities.Keys) ((IToggle)config.infinities[def]!).Key = true;
+        config.usedInfinities = 0;
     }
 }
 
 public sealed class AllDisabled : Preset {
     public override int CriteriasCount => 1;
 
-    public override bool MeetsCriterias(ConsumableInfinities config) => !config.Infinities.Values.Exist(v => v.Key);
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Values.Exist(v => v.Key);
     public override void ApplyCriterias(ConsumableInfinities config) {
-        foreach (InfinityDefinition def in config.Infinities.Keys) ((IToggle)config.Infinities[def]!).Key = false;
+        foreach (InfinityDefinition def in config.infinities.Keys) ((IToggle)config.infinities[def]!).Key = false;
     }
 }
 
@@ -92,23 +92,23 @@ public sealed class Classic : Preset {
 
     public override bool MeetsCriterias(ConsumableInfinities config) {
         for (int i = 0; i < Order.Length; i++) {
-            if (!config.Infinities.Keys[i].Equals(Order[i]) || !config.Infinities[i].Key) return false;
+            if (!config.infinities.Keys[i].Equals(Order[i]) || !config.infinities[i].Key) return false;
         }
-        return config.UsedInfinities == 1;
+        return config.usedInfinities == 1;
     }
     public override void ApplyCriterias(ConsumableInfinities config) {
-        (var oldInfinities, config.Infinities) = (config.Infinities, []);
+        (var oldInfinities, config.infinities) = (config.infinities, []);
         for (int i = 0; i < Order.Length; i++) {
             InfinityDefinition def = Order[i];
-            config.Infinities.Add(def, oldInfinities[def]);
+            config.infinities.Add(def, oldInfinities[def]);
             oldInfinities.Remove(def);
-            config.Infinities[def].Key = true;
+            config.infinities[def].Key = true;
         }
         foreach ((var def, var value) in oldInfinities) {
-            config.Infinities.Add(def, value);
-            config.Infinities[def].Key = false;
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = false;
         }
-        config.UsedInfinities = 1;
+        config.usedInfinities = 1;
     }
 }
 
@@ -118,11 +118,11 @@ public sealed class JourneyRequirements : Preset {
     public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 
     public override bool MeetsCriterias(ConsumableInfinities config)
-        => config.Infinities.Keys[0].Equals(new InfinityDefinition(Infinities.JourneySacrifice.Instance)) && config.Infinities[0].Key && config.UsedInfinities == 1;
+        => config.infinities.Keys[0].Equals(new InfinityDefinition(Infinities.JourneySacrifice.Instance)) && config.infinities[0].Key && config.usedInfinities == 1;
     public override void ApplyCriterias(ConsumableInfinities config) {
         InfinityDefinition def = new(Infinities.JourneySacrifice.Instance);
-        config.Infinities.Move(def, 0);
-        config.Infinities[0].Key = true;
-        config.UsedInfinities = 1;
+        config.infinities.Move(def, 0);
+        config.infinities[0].Key = true;
+        config.usedInfinities = 1;
     }
 }

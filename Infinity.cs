@@ -140,10 +140,7 @@ public interface IInfinity<TCategory> : IInfinity where TCategory : struct, Enum
 }
 
 public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, IInfinity<TCategory> where TCategory: struct, Enum {
-    public TCategory GetCategory(TConsumable consumable) {
-        var custom = Customs.GetCategory(consumable);
-        return custom ?? GetCategoryInner(consumable);
-    }
+    public TCategory GetCategory(TConsumable consumable)  => Customs.GetCategory(consumable) ?? GetCategoryInner(consumable);
     protected abstract TCategory GetCategoryInner(TConsumable consumable);
 
     public abstract long GetRequirement(TCategory category);
