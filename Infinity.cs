@@ -67,7 +67,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
 
     public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, bool visible) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
-        if (InfinityDisplays.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
+        if (Configs.InfinityDisplay.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
         for (int i = 0; i < consumables.Count; i++) {
             TConsumable consumable = consumables[i];
             InfinityVisibility visibility = i != 0 || InfinityManager.IsUsed(consumable, this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
@@ -111,7 +111,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
             LanguageHelper.RegisterLocalizationKeysForMembers(config.ConfigType);
         }
         if (obj is IClientConfigProvider clientConfig) {
-            InfinityDisplays.AddConfig(this, key, clientConfig);
+            Configs.InfinityDisplay.AddConfig(this, key, clientConfig);
             LanguageHelper.RegisterLocalizationKeysForMembers(clientConfig.ConfigType);
         }
     }

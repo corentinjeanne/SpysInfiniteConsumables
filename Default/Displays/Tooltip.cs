@@ -7,6 +7,8 @@ using SPIC.Configs;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
+using Newtonsoft.Json;
+using SpikysLib.Configs;
 
 namespace SPIC.Default.Displays;
 
@@ -23,6 +25,8 @@ public sealed class TooltipConfig {
     [DefaultValue(0.75f)] public float missingLinesOpacity = 0.75f;
     [DefaultValue(false)] public bool displayDebug = false;
 
+    // Compatibility version < v4.0
+    [JsonProperty, DefaultValue(true)] public bool AddMissingLines { set => ConfigHelper.MoveMember(value != true, _ => missingLinesOpacity = 0f); }
 }
 
 public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {

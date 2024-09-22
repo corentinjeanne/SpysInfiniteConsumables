@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
-using SpikysLib.Configs;
 using System;
 using SPIC.Configs;
 using Terraria;
@@ -10,6 +9,8 @@ using Terraria.GameContent;
 using ReLogic.Content;
 using Terraria.ModLoader;
 using System.Linq;
+using SpikysLib.Configs;
+using Newtonsoft.Json;
 
 namespace SPIC.Default.Displays;
 
@@ -21,8 +22,10 @@ public sealed class DotsConfig {
     [DefaultValue(1f), Range(0f, 3f), Increment(0.1f)] public float scale = 1f;
     [DefaultValue(0.5f)] public float missingOpacity = 0.5f;
 
-    // Compatibility version < v3.2
-    [DefaultValue(5f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 5f, c => time = value); }
+    // Compatibility version < v4.0
+    [JsonProperty, DefaultValue(Corner.BottomRight)] private Corner Start { set => ConfigHelper.MoveMember(value != Corner.BottomRight, _ => start = value); }
+    [JsonProperty, DefaultValue(Direction.Horizontal)] private Direction Direction { set => ConfigHelper.MoveMember(value != Direction.Horizontal, _ => direction = value); }
+    [JsonProperty, DefaultValue(5f), Range(1f, 10f), Increment(0.1f)] private float GroupTime { set => ConfigHelper.MoveMember(value != 5f, _ => time = value); }
 }
 
 public sealed class Dots : Display, IConfigProvider<DotsConfig> {

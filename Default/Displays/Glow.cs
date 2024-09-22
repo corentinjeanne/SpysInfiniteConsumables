@@ -7,15 +7,22 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent;
 using System.Linq;
+using Newtonsoft.Json;
+using SpikysLib.Configs;
 
 namespace SPIC.Default.Displays;
 
 public sealed class GlowConfig {
     [DefaultValue(true)] public bool fancyGlow = true;
     [DefaultValue(true)] public bool offset = true;
-    [DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] public float animationLength = 2f;
+    [DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] public float length = 2f;
     [DefaultValue(0.75f)] public float intensity = 0.75f;
     [DefaultValue(1.2f), Range(0f, 3f), Increment(0.1f)] public float scale = 1.2f;
+
+    // Compatibility version < v4.0
+    [JsonProperty, DefaultValue(true)] private bool FancyGlow { set => ConfigHelper.MoveMember(value != true, _ => fancyGlow = value); }
+    [JsonProperty, DefaultValue(0.75f)] private float Intensity { set => ConfigHelper.MoveMember(value != 0.75f, _ => intensity = value); }
+    [JsonProperty, DefaultValue(2f), Range(1f, 5f), Increment(0.1f)] private float AnimationLength { set => ConfigHelper.MoveMember(value != 2f, _ => length = value); }
 }
 
 public sealed class Glow : Display, IConfigProvider<GlowConfig> {
@@ -27,9 +34,9 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
         var displays = InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays).Where(display => display.Value.Infinity > 0).ToArray();
         if (displays.Length == 0) return;
         float time = Main.GlobalTimeWrappedHourly;
-        if (Instance.Config.offset) time += item.GetHashCode() % 64 / 64f * Instance.Config.animationLength;
-        int index = (int)(time / Instance.Config.animationLength);
-        float progress = time % Instance.Config.animationLength / Instance.Config.animationLength;
+        if (Instance.Config.offset) time += item.GetHashCode() % 64 / 64f * Instance.Config.length;
+        int index = (int)(time / Instance.Config.length);
+        float progress = time % Instance.Config.length / Instance.Config.length;
         var display = displays[index % displays.Length];
         DisplayGlow(spriteBatch, item, position, frame, origin, scale, progress, display.Infinity.Color);
     }

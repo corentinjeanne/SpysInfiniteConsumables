@@ -18,7 +18,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
     }
     public override void PostSetupContent() {
         InfinitySettings.Instance.Load();
-        InfinityDisplays.Instance.Load();
+        Configs.InfinityDisplay.Instance.Load();
     }
 
     public override void Unload() {        

@@ -42,7 +42,7 @@ public static class InfinityManager {
     public static Infinity<TConsumable> GetUsedInfinity<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => IsUsed(consumable, infinity) ? infinity : infinity.Consumable;
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
-        if (!InfinityDisplays.Instance.DisableCache && s_displays.TryGetValue((item.type, item.stack, item.prefix), out var ds)) return ds;
+        if (!Configs.InfinityDisplay.Instance.disableCache && s_displays.TryGetValue((item.type, item.stack, item.prefix), out var ds)) return ds;
         bool visible = Utility.IsVisibleInInventory(item);
 
         List<ReadOnlyCollection<InfinityDisplay>> displays = [];
@@ -52,7 +52,7 @@ public static class InfinityManager {
             void AddInfinityDisplay(IInfinity infinity) {
                 foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item, visible)) {
                     if (visibility < minVisibility) continue;
-                    if (InfinityDisplays.Instance.alternateDisplays && visibility > minVisibility) {
+                    if (Configs.InfinityDisplay.Instance.alternateDisplays && visibility > minVisibility) {
                         displays.Clear();
                         subDisplays.Clear();
                         minVisibility = visibility;
@@ -110,12 +110,12 @@ public static class InfinityManager {
         else {
             s_delayed = false;
             s_displays.Clear();
-            s_cacheRefresh = InfinityDisplays.Instance.CacheRefreshDelay;
+            s_cacheRefresh = Configs.InfinityDisplay.Instance.displayRefresh;
         }
     }
 
     private static TValue GetOrCache<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> cache) where TKey : notnull
-        => !InfinityDisplays.Instance.DisableCache && dict.TryGetValue(key, out var value) ? value : dict[key] = cache(key);
+        => !Configs.InfinityDisplay.Instance.disableCache && dict.TryGetValue(key, out var value) ? value : dict[key] = cache(key);
 
     private static int s_cacheRefresh;
     private static bool s_delayed;

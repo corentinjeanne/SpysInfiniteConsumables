@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SpikysLib.Collections;
@@ -20,19 +21,19 @@ public sealed class InfinitySettings : ModConfig {
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
-    public Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities {
-        get => _infinities;
-        set {
-            _infinities = value;
-            foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, _infinities.GetOrAdd(new(infinity), DefaultConfig(infinity)));
-        }
-    }
-    private Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> _infinities = [];
+    public Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> infinities = [];
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
     public static InfinitySettings Instance = null!;
 
-    public static Toggle<Dictionary<string, object>> DefaultConfig(IInfinity infinity) => new(infinity.Defaults.Enabled);
+    // TODO Compatibility version < v4.0
+    // private Dictionary<InfinityDefinition, ConsumableInfinities> Configs { set => ConfigHelper.MoveMember(value is not null, _ => {}); }
+
+
+    [OnDeserialized]
+    private void OnDeserializedMethod(StreamingContext context) {
+        foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(infinity.Defaults.Enabled)));
+    }
     public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<string, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
         infinity.Enabled = config.Key;

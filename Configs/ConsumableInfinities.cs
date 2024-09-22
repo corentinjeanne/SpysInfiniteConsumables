@@ -45,6 +45,10 @@ public class ConsumableInfinities {
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))] public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = [];
     
     private PresetDefinition _preset = new();
+
+    // TODO Compatibility version < v4.0
+    // public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = [];
+    // public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
 }
 
 public class ClientConsumableInfinities {
@@ -59,7 +63,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     public void OnLoaded(bool created) {
         Infinity._orderedInfinities.Clear();
         List<IInfinity> toRemove = [];
-        foreach (var infinity in Infinity._infinities) Config.Infinities.GetOrAdd(new(infinity), InfinitySettings.DefaultConfig(infinity));
+        foreach (var infinity in Infinity._infinities) Config.Infinities.GetOrAdd(new(infinity), _ => new(Infinity.Defaults.Enabled));
         foreach ((var key, var value) in Config.Infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
@@ -84,7 +88,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     }
     public void OnLoadedClient(bool created) {
         List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.Infinities.GetOrAdd(new(infinity), InfinityDisplays.DefaultClientConfig(infinity));
+        foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.Infinities.GetOrAdd(new(infinity), _ => new(infinity.Defaults.Color));
         foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<string, object>> value) in ClientConfig.Infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
@@ -92,7 +96,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
                 toRemove.Add(i);
                 continue;
             }
-            InfinityDisplays.LoadConfig(infinity, value);
+            InfinityDisplay.LoadConfig(infinity, value);
         }
         foreach (var infinity in toRemove) ClientConfig.Infinities.Remove(new(infinity));
         if (created) ClientConfig.displayedInfinities = Infinity.ConsumableDefaults.DisplayedInfinities;

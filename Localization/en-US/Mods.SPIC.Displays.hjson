@@ -41,7 +41,7 @@ Glow: {
 		Tooltip: Offset the glow of each items
 	}
 
-	animationLength: {
+	Length: {
 		Label: Animation Length
 		Tooltip: ""
 	}
@@ -77,8 +77,8 @@ Dots: {
 	}
 
 	time: {
-		Label: Consumable time
-		Tooltip: The time each consumable infinity is display before changing to the next
+		Label: Time per Consumable
+		Tooltip: The time each consumable infinities are displayed before changing to the next
 	}
 
 	scale: {

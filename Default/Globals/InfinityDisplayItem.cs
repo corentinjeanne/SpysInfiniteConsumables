@@ -4,7 +4,6 @@ using Terraria.ModLoader;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using SpikysLib;
-using SpikysLib.IL;
 using SPIC.Default.Displays;
 using SPIC.Default.Infinities;
 using MonoMod.Cil;
@@ -22,7 +21,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
         if (Tooltip.Instance.Enabled) Tooltip.ModifyTooltips(item, tooltips);
-        if (Configs.InfinityDisplays.Instance.exclusiveDisplay) ModifyItemPrice(item, tooltips);
+        if (Configs.InfinityDisplay.Instance.exclusiveDisplay) ModifyItemPrice(item, tooltips);
     }
 
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -37,7 +36,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
     private delegate void ModifyNursePriceFn(Player player, NPC npc, int health, bool removeDebuffs, ref int price);
     private static void HookNursePrice(ModifyNursePriceFn orig, Player player, NPC npc, int health, bool removeDebuffs, ref int price) {
         orig(player, npc, health, removeDebuffs, ref price);
-        if (!(!Configs.InfinityDisplays.Instance.exclusiveDisplay || price <= 0 || !player.HasInfinite(CurrencyHelper.Coins, price, Nurse.Instance))) price = 1;
+        if (!(!Configs.InfinityDisplay.Instance.exclusiveDisplay || price <= 0 || !player.HasInfinite(CurrencyHelper.Coins, price, Nurse.Instance))) price = 1;
     }
 
     private delegate bool ReforgePriceFn(Item item, ref int reforgePrice, ref bool canApplyDiscount);
@@ -51,7 +50,7 @@ public sealed class InfinityDisplayItem : GlobalItem {
             price = (int)(price * Main.player[Main.myPlayer].currentShoppingSettings.PriceAdjustment);
             price /= 3;
         }
-        if (Configs.InfinityDisplays.Instance.exclusiveDisplay && price > 0 && Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, price, Reforging.Instance)) reforgePrice = 1;
+        if (Configs.InfinityDisplay.Instance.exclusiveDisplay && price > 0 && Main.LocalPlayer.HasInfinite(CurrencyHelper.Coins, price, Reforging.Instance)) reforgePrice = 1;
         return res;
     }
 

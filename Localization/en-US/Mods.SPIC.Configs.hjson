@@ -33,8 +33,8 @@ InfinitySettings: {
 	}
 }
 
-InfinityDisplays: {
-	DisplayName: Infinities Displays
+InfinityDisplay: {
+	DisplayName: Infinity Display
 
 	Headers: {
 		General: General
@@ -58,26 +58,26 @@ InfinityDisplays: {
 		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
 	}
 
-	Displays: {
+	displays: {
 		Label: Displays
 		Tooltip: ""
 	}
 
-	Infinities: {
+	infinities: {
 		Label: Infinity Configs
 		Tooltip: ""
 	}
 
-	DisableCache: {
+	disableCache: {
 		Label: Disable Cache
 		Tooltip: Just don't
 	}
 
-	CacheRefreshDelay: {
-		Label: Cache Refresh Delay
+	displayRefresh: {
+		Label: Displayed value refresh delay
 		Tooltip:
 			'''
-			Forces a minimum delay (in frames) between each cache refresh
+			Forces a minimum delay (in frames) between each display cache refresh. Only affect displayed values
 			Increase this value if the game lags when your inventory changes extremely quickly
 			May cause visual inconsistencies, especially for large values (>15)
 			'''
