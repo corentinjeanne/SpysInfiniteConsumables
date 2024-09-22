@@ -41,7 +41,7 @@ public sealed class DetectionPlayer : ModPlayer {
         detectionPlayer.DetectingCategoryOf = null;
 
         if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+                && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
             detectionPlayer.PrepareDetection(self.HeldItem);
         orig(self);
         if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
@@ -144,7 +144,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (Configs.InfinitySettings.Instance.PreventItemDuplication) return;
+        else if (Configs.InfinitySettings.Instance.preventItemDuplication) return;
 
         orig(self, type, selItem);
     }

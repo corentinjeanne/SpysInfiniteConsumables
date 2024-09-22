@@ -6,7 +6,7 @@ InfinitySettings: {
 		Infinities: Infinity Configs
 	}
 
-	DetectMissingCategories: {
+	detectMissingCategories: {
 		Label: "[i:1299] Detect missing categories"
 		Tooltip:
 			'''
@@ -15,7 +15,7 @@ InfinitySettings: {
 			'''
 	}
 
-	PreventItemDuplication: {
+	preventItemDuplication: {
 		Label: "[i:3988] Prevent item duplication"
 		Tooltip:
 			'''
@@ -41,11 +41,6 @@ InfinityDisplay: {
 		Displays: Display Configs
 		Infinities: Infinity Configs
 		Performances: Performances
-	}
-
-	groups: {
-		Label: "[i:3093] Show Groups"
-		Tooltip: Displays the infinity of group infinities
 	}
 
 	exclusiveDisplay: {

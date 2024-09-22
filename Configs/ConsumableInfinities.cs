@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using SpikysLib.Collections;
@@ -47,10 +48,10 @@ public class ConsumableInfinities {
     
     private PresetDefinition _preset = new();
 
-    // TODO Compatibility version < v4.0
-    [JsonProperty] private UsedInfinities UsedInfinities {set => ConfigHelper.MoveMember(value is not null, _ => usedInfinities = value!); }
-    // public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> Infinities { get; set; } = [];
-    // public Dictionary<ItemDefinition, Custom> Customs { get; set; } = new();
+    // Compatibility version < v4.0
+    [JsonProperty] private Dictionary<ItemDefinition, Custom> Customs { set => ConfigHelper.MoveMember(value is not null, _ => {
+
+    }); }
 }
 
 public class ClientConsumableInfinities {
@@ -104,4 +105,18 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
         foreach (var infinity in toRemove) ClientConfig.infinities.Remove(new(infinity));
         if (created) ClientConfig.displayedInfinities = Infinity.ConsumableDefaults.DisplayedInfinities;
     }
+}
+
+public sealed class Custom : MultiChoice {
+
+    [Choice] public Count Global { get; set; } = new();
+
+    [Choice] public Dictionary<InfinityDefinition, Count> Individual { get; set; } = new(); // Count | Count<TCategory>
+
+    public bool TryGetIndividial(IInfinity infinity, [MaybeNullWhen(false)] out Count choice) {
+        if (Choice == nameof(Individual)) return Individual.TryGetValue(new(infinity), out choice);
+        choice = default;
+        return false;
+    }
+    public bool TryGetGlobal([MaybeNullWhen(false)] out Count count) => TryGet(nameof(Global), out count);
 }

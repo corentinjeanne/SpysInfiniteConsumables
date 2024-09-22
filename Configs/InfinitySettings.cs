@@ -16,8 +16,8 @@ namespace SPIC.Configs;
 public sealed class InfinitySettings : ModConfig {
 
     [Header("Features")]
-    [DefaultValue(true)] public bool DetectMissingCategories;
-    [DefaultValue(true)] public bool PreventItemDuplication { get; set; }
+    [DefaultValue(true)] public bool detectMissingCategories;
+    [DefaultValue(true)] public bool preventItemDuplication;
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
@@ -26,9 +26,19 @@ public sealed class InfinitySettings : ModConfig {
     public override ConfigScope Mode => ConfigScope.ServerSide;
     public static InfinitySettings Instance = null!;
 
-    // TODO Compatibility version < v4.0
-    // private Dictionary<InfinityDefinition, ConsumableInfinities> Configs { set => ConfigHelper.MoveMember(value is not null, _ => {}); }
-
+    // Compatibility version < v4.0
+    [JsonProperty] private Dictionary<InfinityDefinition, ConsumableInfinities> Configs { set => ConfigHelper.MoveMember(value is not null, _ => {
+            foreach ((var d, var config) in value!) {
+                if (d.ToString() == "SPIC/Currencies") {
+                    Default.Infinities.Currency.PortConfig(infinities, config);
+                    continue;
+                }
+                InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
+                foreach ((var infinity, var requirements) in config.infinities) requirements.Value["config"] = JObject.FromObject(requirements.Value);
+                infinities.GetOrAdd(def, _ => new(true)).Value["infinities"] = config;
+            }
+        });
+    }
 
     [OnDeserialized]
     private void OnDeserializedMethod(StreamingContext context) {

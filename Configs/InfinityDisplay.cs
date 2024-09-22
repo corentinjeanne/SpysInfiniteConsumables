@@ -5,8 +5,6 @@ using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SPIC.Default.Displays;
-using SPIC.Default.Infinities;
 using SpikysLib.Collections;
 using SpikysLib.Configs;
 using SpikysLib.Configs.UI;
@@ -34,25 +32,24 @@ public sealed class InfinityDisplay : ModConfig {
 
     // Compatibility version < v4.0
     [JsonProperty, DefaultValue(true)] private bool ShowRequirement { set => ConfigHelper.MoveMember(value != true, _ => {
-        ((JObject)displays[new(nameof(SPIC), nameof(Tooltip))].Value)[nameof(TooltipConfig.displayRequirement)] = value;
-        ((JObject)displays[new(nameof(SPIC), nameof(Dots))].Value)[nameof(DotsConfig.displayRequirement)] = value;
+        ((JObject)displays[new("SPIC/Tooltip")].Value)["displayRequirement"] = value;
+        ((JObject)displays[new("SPIC/Dots")].Value)["displayRequirement"] = value;
     }); }
     [JsonProperty] private bool ShowInfo { set => ConfigHelper.MoveMember(value != false, _ => {
-        ((JObject)displays[new(nameof(SPIC), nameof(Tooltip))].Value)[nameof(TooltipConfig.displayDebug)] = value;
+        ((JObject)displays[new(nameof(SPIC), nameof(Default.Displays.Tooltip))].Value)[nameof(Default.Displays.TooltipConfig.displayDebug)] = value;
     }); }
     [JsonProperty, DefaultValue(true)] private bool ShowExclusiveDisplay { set => ConfigHelper.MoveMember(value != true, _ => exclusiveDisplay = value); }
     [JsonProperty, DefaultValue(true)] private bool ShowAlternateDisplays { set => ConfigHelper.MoveMember(value != true, _ => alternateDisplays = value); }
     [JsonProperty] private Dictionary<InfinityDefinition, GroupColors>? Colors { set => ConfigHelper.MoveMember(value is not null, _ => {
-        foreach((var d, var colors) in value!) {
+        foreach ((var d, var colors) in value!) {
             if (d.ToString() == "SPIC/Currencies") {
-                InfinityDefinition currency = new(nameof(SPIC), nameof(Currency));
-                infinities.GetOrAdd(currency, _ => new()).Key = colors.Colors[currency];
+                Default.Infinities.Currency.PortClientConfig(infinities, colors);
                 continue;
             }
             Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> dictionary = [];
-            foreach((var infinity, var color) in colors.Colors) dictionary[infinity] = new(color);
-            InfinityDefinition def = d.ToString() == "SPIC/Items" ? new(nameof(SPIC), nameof(ConsumableItem)) : d;
-            infinities.GetOrAdd(def, _ => new(default)).Value["infinities"] = new JObject() { { nameof(ConsumableInfinities.infinities), JObject.FromObject(dictionary) } };
+            foreach ((var infinity, var color) in colors.Colors) dictionary[infinity] = new(color);
+            InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
+            infinities.GetOrAdd(def, _ => new(default)).Value["infinities"] = new ClientConsumableInfinities() { infinities = dictionary };
         }
     }); }
     [JsonProperty, DefaultValue(CacheStyle.Smart)] private CacheStyle Cache { set => ConfigHelper.MoveMember(value == CacheStyle.None, _ => disableCache = true); }

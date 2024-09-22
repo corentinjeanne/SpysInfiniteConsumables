@@ -29,19 +29,19 @@ public sealed class ConsumptionItem : GlobalItem {
                     Ammo.Instance
                 );
             }
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             int tileTarget = Main.tile[Player.tileTargetX, Player.tileTargetY].TileType;
             if (tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
             return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance);
 
         } else if (detectionPlayer.InRightClick) {
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
                 () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
                 GrabBag.Instance, Usable.Instance
             );
         } else { // Hotkey or special right click action
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
                 () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
                 Usable.Instance, GrabBag.Instance

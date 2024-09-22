@@ -7,6 +7,12 @@ using Terraria.ModLoader;
 using Terraria.Localization;
 using SPIC.Configs;
 using SPIC.Default.Presets;
+using System.Collections.Generic;
+using SpikysLib.Configs;
+using Microsoft.Xna.Framework;
+using SpikysLib.Collections;
+using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 
 namespace SPIC.Default.Infinities;
 
@@ -38,4 +44,33 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ?
         ((TooltipLine, TooltipLineID?))(new(Instance.Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) :
         Displays.Tooltip.DefaultTooltipLine(Instance);
+
+    internal static void PortConfig(Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> infinities, ConsumableInfinities config) {
+        InfinityDefinition currency = new("SPIC/Currency");
+        bool enabled = config.infinities[currency].Key;
+        LegacyCurrencyRequirements requirements = JObject.FromObject(config.infinities[currency].Value).ToObject<LegacyCurrencyRequirements>()!;
+        RequirementRequirements coinsRequirements = new() { multiplier = requirements.Coins };
+        CurrencyRequirements currencyRequirements = new() { coinsMultiplier = requirements.Coins, singleMultiplier = requirements.SingleCoin };
+        config.infinities = new() {
+            { new("SPIC/Shop"), new(requirements.Shop, new(){ { "config", currencyRequirements } }) },
+            { new("SPIC/Reforging"), new(requirements.Reforging, new(){ { "config", coinsRequirements } }) },
+            { new("SPIC/Nurse"), new(requirements.Nurse, new(){ { "config", coinsRequirements } }) },
+            { new("SPIC/Purchase"), new(requirements.Others, new(){ { "config", currencyRequirements } }) },
+        };
+        infinities.GetOrAdd(currency, _ => new(enabled)).Value["infinities"] = config;
+    }
+
+    internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> infinities, GroupColors colors) {
+        InfinityDefinition currency = new("SPIC/Currency");
+        infinities.GetOrAdd(currency, _ => new()).Key = colors.Colors[currency];
+    }
+}
+
+public sealed class LegacyCurrencyRequirements {
+    [DefaultValue(1 / 20f)] public float Coins = 1 / 20f;
+    [DefaultValue(1 / 5f)] public float SingleCoin = 1 / 5f;
+    [DefaultValue(true)] public bool Shop = true;
+    [DefaultValue(true)] public bool Nurse = true;
+    [DefaultValue(true)] public bool Reforging = true;
+    [DefaultValue(true)] public bool Others = true;
 }

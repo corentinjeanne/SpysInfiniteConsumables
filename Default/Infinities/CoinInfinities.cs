@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using SPIC.Configs;
 using SpikysLib;
-using Terraria;
-using Terraria.ID;
 
 namespace SPIC.Default.Infinities;
 

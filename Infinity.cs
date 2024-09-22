@@ -161,7 +161,7 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, 
     public new Customs<TConsumable, TCategory> Customs => (Customs<TConsumable, TCategory>)base.Customs;
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
         Dictionary<ItemDefinition, Count<TCategory>> customs = Customs.Config.customs;
-        if (!InfinitySettings.Instance.DetectMissingCategories || !customs.TryAdd(Consumable.ToDefinition(consumable), new Count<TCategory>(category)))
+        if (!InfinitySettings.Instance.detectMissingCategories || !customs.TryAdd(Consumable.ToDefinition(consumable), new Count<TCategory>(category)))
             return false;
 
         InfinityManager.ClearCache();

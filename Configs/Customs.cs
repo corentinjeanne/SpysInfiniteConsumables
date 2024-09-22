@@ -32,7 +32,7 @@ public sealed class Customs<TConsumable, TCategory> : ICustoms<TConsumable>, ICo
         => Config.customs.TryGetValue(Infinity.Consumable.ToDefinition(consumable), out Count<TCategory>? custom) && custom.Value >= 0 ? custom.Value : null;
 
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
-        if (!InfinitySettings.Instance.DetectMissingCategories || !Config.customs.TryAdd(Infinity.Consumable.ToDefinition(consumable), new(category)))
+        if (!InfinitySettings.Instance.detectMissingCategories || !Config.customs.TryAdd(Infinity.Consumable.ToDefinition(consumable), new(category)))
             return false;
         InfinityManager.ClearCache();
         return true;
