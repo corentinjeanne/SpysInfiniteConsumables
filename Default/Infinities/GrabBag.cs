@@ -6,6 +6,8 @@ using Terraria.ModLoader;
 using SpikysLib;
 using SPIC.Default.Displays;
 using System.Collections.Generic;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
@@ -16,6 +18,7 @@ public enum GrabBagCategory {
     TreasureBag,
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> Container = 10;
     public Count<GrabBagCategory> Extractinator = 499;

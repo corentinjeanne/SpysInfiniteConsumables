@@ -47,6 +47,6 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
     }
 
     private static readonly Regex CamelCaseRegex = new("([A-Z])");
-    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Custom)(Client|Category|Requirements)(.*)$""");
-    private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Group)Config(.*)$""");
+    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Infinity)(Category|Requirements|Display)(.*)$""");
+    private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)Config(.*)$""");
 }

@@ -45,22 +45,22 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
         ((TooltipLine, TooltipLineID?))(new(Instance.Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) :
         Displays.Tooltip.DefaultTooltipLine(Instance);
 
-    internal static void PortConfig(Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> infinities, ConsumableInfinities config) {
+    internal static void PortConfig(Dictionary<InfinityDefinition, Toggle<Dictionary<ProviderDefinition, object>>> infinities, ConsumableInfinities config) {
         InfinityDefinition currency = new("SPIC/Currency");
         bool enabled = config.infinities[currency].Key;
         LegacyCurrencyRequirements requirements = JObject.FromObject(config.infinities[currency].Value).ToObject<LegacyCurrencyRequirements>()!;
         RequirementRequirements coinsRequirements = new() { multiplier = requirements.Coins };
         CurrencyRequirements currencyRequirements = new() { coinsMultiplier = requirements.Coins, singleMultiplier = requirements.SingleCoin };
         config.infinities = new() {
-            { new("SPIC/Shop"), new(requirements.Shop, new(){ { "config", currencyRequirements } }) },
-            { new("SPIC/Reforging"), new(requirements.Reforging, new(){ { "config", coinsRequirements } }) },
-            { new("SPIC/Nurse"), new(requirements.Nurse, new(){ { "config", coinsRequirements } }) },
-            { new("SPIC/Purchase"), new(requirements.Others, new(){ { "config", currencyRequirements } }) },
+            { new("SPIC/Shop"), new(requirements.Shop, new(){ { ProviderDefinition.Config, currencyRequirements } }) },
+            { new("SPIC/Reforging"), new(requirements.Reforging, new(){ { ProviderDefinition.Config, coinsRequirements } }) },
+            { new("SPIC/Nurse"), new(requirements.Nurse, new(){ { ProviderDefinition.Config, coinsRequirements } }) },
+            { new("SPIC/Purchase"), new(requirements.Others, new(){ { ProviderDefinition.Config, currencyRequirements } }) },
         };
-        infinities.GetOrAdd(currency, _ => new(enabled)).Value["infinities"] = config;
+        infinities.GetOrAdd(currency, _ => new(enabled)).Value[ProviderDefinition.Infinities] = config;
     }
 
-    internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> infinities, GroupColors colors) {
+    internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities, GroupColors colors) {
         InfinityDefinition currency = new("SPIC/Currency");
         infinities.GetOrAdd(currency, _ => new()).Key = colors.Colors[currency];
     }

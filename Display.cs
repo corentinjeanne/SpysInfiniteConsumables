@@ -26,5 +26,7 @@ public abstract class Display : ModType, IDisplay {
         if (this is IConfigProvider configurable) LanguageHelper.RegisterLocalizationKeysForMembers(configurable.ConfigType);
     }
 
+    public ProviderDefinition ProviderDefinition => ProviderDefinition.Config;
+
     public sealed override void SetupContent() => SetStaticDefaults();
 }

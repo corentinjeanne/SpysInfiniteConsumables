@@ -33,6 +33,7 @@ public sealed class UsedInfinities : MultiChoice<int> {
     public static implicit operator UsedInfinities(int used) => new(used);
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public class ConsumableInfinities {
     [JsonIgnore, ShowDespiteJsonIgnore]
     public PresetDefinition Preset {
@@ -44,7 +45,7 @@ public class ConsumableInfinities {
     }
     public UsedInfinities usedInfinities { get; set; } = 0;
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
-    public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> infinities { get; set; } = [];
+    public OrderedDictionary<InfinityDefinition, Toggle<Dictionary<ProviderDefinition, object>>> infinities { get; set; } = [];
     
     private PresetDefinition _preset = new();
 
@@ -53,15 +54,18 @@ public class ConsumableInfinities {
     internal Dictionary<ItemDefinition, Custom>? customs;
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public class ClientConsumableInfinities {
     [DefaultValue(DisplayedInfinities.Infinities)] public DisplayedInfinities displayedInfinities = DisplayedInfinities.Infinities;
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityClientConfigsWrapper))]
-    public Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> infinities = [];
+    public Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities = [];
 }
 
 public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsumable> Infinity) : IConfigProvider<ConsumableInfinities>, IClientConfigProvider<ClientConsumableInfinities> {
     public ConsumableInfinities Config { get; set; } = null!;
     public ClientConsumableInfinities ClientConfig { get; set; } = null!;
+
+    public ProviderDefinition ProviderDefinition => ProviderDefinition.Infinities;
 
     public void OnLoaded(bool created) {
         Infinity._orderedInfinities.Clear();
@@ -92,7 +96,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     public void OnLoadedClient(bool created) {
         List<IInfinity> toRemove = [];
         foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.infinities.GetOrAdd(new(infinity), _ => new(default));
-        foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<string, object>> value) in ClientConfig.infinities) {
+        foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<ProviderDefinition, object>> value) in ClientConfig.infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
             if (i is not Infinity<TConsumable> infinity || !Infinity._infinities.Contains(infinity)) {

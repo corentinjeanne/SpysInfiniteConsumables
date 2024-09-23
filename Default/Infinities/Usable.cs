@@ -5,6 +5,8 @@ using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
 using System.Collections.Generic;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
@@ -27,6 +29,7 @@ public enum UsableCategory {
     Unknown
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class UsableRequirements {
     public Count<UsableCategory> Weapon = 2 * 999;
     public Count<UsableCategory> Potion = 30;

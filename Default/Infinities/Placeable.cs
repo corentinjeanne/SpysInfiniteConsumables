@@ -8,6 +8,8 @@ using MonoMod.Cil;
 using SPIC.Default.Displays;
 using SpikysLib;
 using Terraria.Localization;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
@@ -41,6 +43,7 @@ public static class PlaceableExtension {
 }
 
 // TODO PreventItemDuplication
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Tile = 999;
     public Count<PlaceableCategory> Ore = 499;

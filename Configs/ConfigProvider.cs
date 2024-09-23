@@ -6,6 +6,7 @@ public interface IConfigProvider {
     Type ConfigType { get; }
     object Config { set; }
     void OnLoaded(bool created) { }
+    ProviderDefinition ProviderDefinition { get; }
 }
 
 public interface IConfigProvider<TConfig> : IConfigProvider where TConfig : new() {
@@ -18,6 +19,7 @@ public interface IClientConfigProvider {
     Type ConfigType { get; }
     object ClientConfig { set; }
     void OnLoadedClient(bool created) { }
+    ProviderDefinition ProviderDefinition { get; }
 }
 
 public interface IClientConfigProvider<TConfig> : IClientConfigProvider where TConfig : new() {

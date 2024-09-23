@@ -78,7 +78,7 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
 
     public override void Load() {
         ConsumableInfinities = new(this);
-        AddConfig(ConsumableInfinities, "infinities");
+        AddConfig(ConsumableInfinities);
         base.Load();
     }
 

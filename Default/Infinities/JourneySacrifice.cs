@@ -4,16 +4,19 @@ using Terraria.ModLoader;
 using SpikysLib;
 using SPIC.Default.Displays;
 using SPIC.Configs;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
-public sealed class JourneySacrificeClient {
+[CustomModConfigItem(typeof(ObjectMembersElement))]
+public sealed class JourneySacrificeDisplay {
     public bool hideWhenResearched;
 }
 
-public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeClient>, ITooltipLineDisplay {
+public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeDisplay>, ITooltipLineDisplay {
     public static JourneySacrifice Instance = null!;
-    public JourneySacrificeClient ClientConfig { get; set; } = null!;
+    public JourneySacrificeDisplay ClientConfig { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public sealed override InfinityDefaults Defaults => new() {

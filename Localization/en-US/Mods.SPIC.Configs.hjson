@@ -188,16 +188,25 @@ Count`1: {
 	}
 }
 
-CustomRequirements`1: {
-	customs: {
-		Label: Customs
-		Tooltip: ""
-	}
+Customs: {
+	DisplayName: Customs
+	Tooltip: ""
+}
+
+Config: {
+	DisplayName: Config
+	Tooltip: ""
+}
+
+Infinities: {
+	DisplayName: Infinities
+	Tooltip: ""
 }
 
 InfinityDefinition.Tooltip: ""
 DisplayDefinition.Tooltip: ""
 PresetDefinition.Tooltip: ""
+ProviderDefinition.Tooltip: ""
 
 DisplayedInfinities: {
 	Tooltip: ""

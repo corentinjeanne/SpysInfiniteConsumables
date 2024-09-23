@@ -1,9 +1,10 @@
 using System.ComponentModel;
 using SPIC.Configs;
 using SpikysLib;
-using Terraria;
+using SpikysLib.Configs.UI;
 using Terraria.GameContent.UI;
 using Terraria.ID;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 public enum CurrencyCategory {
@@ -12,6 +13,7 @@ public enum CurrencyCategory {
     SingleCoin,
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class CurrencyRequirements {
     [DefaultValue(CoinsMultiplier)] public float coinsMultiplier = CoinsMultiplier;
     [DefaultValue(CoinsRequirement)] public int coinsRequirement = CoinsRequirement;

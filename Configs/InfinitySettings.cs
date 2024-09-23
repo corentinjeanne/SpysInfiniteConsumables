@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Metrics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +21,7 @@ public sealed class InfinitySettings : ModConfig {
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]
-    public Dictionary<InfinityDefinition, Toggle<Dictionary<string, object>>> infinities = [];
+    public Dictionary<InfinityDefinition, Toggle<Dictionary<ProviderDefinition, object>>> infinities = [];
 
     public override ConfigScope Mode => ConfigScope.ServerSide;
     public static InfinitySettings Instance = null!;
@@ -36,21 +35,21 @@ public sealed class InfinitySettings : ModConfig {
             }
             InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
             foreach ((var infinity, var requirements) in config.infinities) {
-                requirements.Value["config"] = JObject.FromObject(requirements.Value);
-                requirements.Value["customs"] = JObject.FromObject(new CustomRequirements<Count>());
+                requirements.Value[ProviderDefinition.Config] = JObject.FromObject(requirements.Value);
+                requirements.Value[ProviderDefinition.Customs] = JObject.FromObject(new Dictionary<ItemDefinition, Count>());
             }
-            CustomRequirements<Count> customs = new();
+            Dictionary<ItemDefinition, Count> customs = [];
             if (config.customs is not null) {
                 foreach((var item, var custom) in config.customs) {
                     if (custom.Choice == nameof(Custom.Individual)) {
                         foreach((var infinity, var requirement) in custom.Individual) {
-                            ((JObject)((JObject)config.infinities[infinity].Value["customs"]!)["customs"]!)[item.ToString()] = requirement.Value;
+                            ((JObject)config.infinities[infinity].Value[ProviderDefinition.Customs]!)[item.ToString()] = requirement.Value;
                         }
-                    } else customs.customs[item] = custom.Global;
+                    } else customs[item] = custom.Global;
                 }
             }
-            infinities.GetOrAdd(def, _ => new(true)).Value["infinities"] = config;
-            infinities[def].Value["customs"] = customs;
+            infinities.GetOrAdd(def, _ => new(true)).Value[ProviderDefinition.Infinities] = config;
+            infinities[def].Value[ProviderDefinition.Customs] = customs;
         }
     }); }
 
@@ -58,10 +57,11 @@ public sealed class InfinitySettings : ModConfig {
     private void OnDeserializedMethod(StreamingContext context) {
         foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(infinity.Defaults.Enabled)));
     }
-    public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<string, object>> config) {
+    public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<ProviderDefinition, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);
         infinity.Enabled = config.Key;
-        foreach ((var key, var provider) in _configs.GetValueOrDefault(infinity, [])) {
+        foreach (var provider in _configs.GetValueOrDefault(infinity, [])) {
+            var key = provider.ProviderDefinition;
             Type configType = provider.ConfigType;
             object? oldConfig = oldConfigs.GetValueOrDefault(key, null!);
             config.Value[key] = oldConfig switch {
@@ -73,8 +73,8 @@ public sealed class InfinitySettings : ModConfig {
             provider.OnLoaded(oldConfig is null);
         }
     }
-    public static void AddConfig(IInfinity infinity, string key, IConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));
-    private static readonly Dictionary<IInfinity, List<(string key, IConfigProvider)>> _configs = [];
+    public static void AddConfig(IInfinity infinity, IConfigProvider config) => _configs.GetOrAdd(infinity, []).Add(config);
+    private static readonly Dictionary<IInfinity, List<IConfigProvider>> _configs = [];
 
     public override void OnChanged() {
         if (!Main.gameMenu && Main.netMode != NetmodeID.Server) InfinityManager.ClearCache();

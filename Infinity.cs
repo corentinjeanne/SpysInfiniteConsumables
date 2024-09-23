@@ -99,20 +99,24 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     protected override void InitTemplateInstance() => ConfigHelper.SetInstance(this);
 
     public override void Load() {
-        AddConfig(this, "config");
+        AddConfig(this);
         Customs = CreateCustoms();
-        AddConfig(Customs, "customs");
+        AddConfig(Customs);
     }
     protected virtual ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable>(this);
 
-    protected void AddConfig(object obj, string key) {
+    protected void AddConfig(object obj) {
         if (obj is IConfigProvider config) {
-            InfinitySettings.AddConfig(this, key, config);
+            InfinitySettings.AddConfig(this, config);
             LanguageHelper.RegisterLocalizationKeysForMembers(config.ConfigType);
+            Language.GetOrRegister($"Mods.{config.ProviderDefinition.Mod}.Configs.{config.ProviderDefinition.Name}.DisplayName", () => Utility.PrettyPrintName(config.ProviderDefinition.Name));
+            Language.GetOrRegister($"Mods.{config.ProviderDefinition.Mod}.Configs.{config.ProviderDefinition.Name}.Tooltip", () => "");
         }
         if (obj is IClientConfigProvider clientConfig) {
-            Configs.InfinityDisplay.AddConfig(this, key, clientConfig);
+            Configs.InfinityDisplay.AddConfig(this, clientConfig);
             LanguageHelper.RegisterLocalizationKeysForMembers(clientConfig.ConfigType);
+            Language.GetOrRegister($"Mods.{clientConfig.ProviderDefinition.Mod}.Configs.{clientConfig.ProviderDefinition.Name}.DisplayName", () => Utility.PrettyPrintName(clientConfig.ProviderDefinition.Name));
+            Language.GetOrRegister($"Mods.{clientConfig.ProviderDefinition.Mod}.Configs.{clientConfig.ProviderDefinition.Name}.Tooltip", () => "");
         }
     }
 
@@ -130,6 +134,8 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
 
     public override void Unload() => ConfigHelper.SetInstance(this, true);
+
+    public ProviderDefinition ProviderDefinition => ProviderDefinition.Config;
 
     long IInfinity.GetRequirement(int consumable) => InfinityManager.GetRequirement(Consumable.ToConsumable(consumable), this);
     long IInfinity.GetInfinity(int consumable, long count) => InfinityManager.GetInfinity(Consumable.ToConsumable(consumable), count, this);
@@ -160,7 +166,7 @@ public abstract class Infinity<TConsumable, TCategory> : Infinity<TConsumable>, 
     protected sealed override ICustoms<TConsumable> CreateCustoms() => new Customs<TConsumable, TCategory>(this);
     public new Customs<TConsumable, TCategory> Customs => (Customs<TConsumable, TCategory>)base.Customs;
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
-        Dictionary<ItemDefinition, Count<TCategory>> customs = Customs.Config.customs;
+        Dictionary<ItemDefinition, Count<TCategory>> customs = Customs.Config;
         if (!InfinitySettings.Instance.detectMissingCategories || !customs.TryAdd(Consumable.ToDefinition(consumable), new Count<TCategory>(category)))
             return false;
 

@@ -6,8 +6,11 @@ using Terraria.ModLoader;
 using SpikysLib;
 using SpikysLib.Constants;
 using SPIC.Default.Displays;
+using Terraria.ModLoader.Config;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Default.Infinities;
+
 public enum AmmoCategory {
     None,
     Classic,
@@ -15,6 +18,8 @@ public enum AmmoCategory {
     // Cannon,
     Special
 }
+
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class AmmoRequirements {
     public Count<AmmoCategory> Classic = 4 * 999;
     public Count<AmmoCategory> Special = 999;

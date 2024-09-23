@@ -3,6 +3,7 @@ using Terraria.ID;
 using SpikysLib;
 using SpikysLib.CrossMod;
 using SpikysLib.Collections;
+using System.Text.RegularExpressions;
 
 namespace SPIC;
 
@@ -49,4 +50,6 @@ public static class Utility {
         NPCStats a = new(total, boss);
         return a;
     }
+
+    public static string PrettyPrintName(string name) => Regex.Replace(name, "([A-Z])", " $1").Trim();
 }

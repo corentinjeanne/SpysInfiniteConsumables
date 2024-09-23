@@ -7,6 +7,7 @@ using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using SpikysLib;
 using System;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -20,6 +21,7 @@ public enum MaterialCategory {
 }
 
 // TODO PreventItemDuplication
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class MaterialRequirements {
     public Count<MaterialCategory> Basic = 999;
     public Count<MaterialCategory> Ore = 499;

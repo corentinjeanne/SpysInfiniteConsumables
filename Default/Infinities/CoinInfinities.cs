@@ -1,9 +1,12 @@
 using System.ComponentModel;
 using SPIC.Configs;
 using SpikysLib;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class RequirementRequirements {
     [DefaultValue(CurrencyRequirements.CoinsMultiplier)] public float multiplier = CurrencyRequirements.CoinsMultiplier;
     [DefaultValue(CurrencyRequirements.CoinsRequirement)] public int requirement = CurrencyRequirements.CoinsRequirement;

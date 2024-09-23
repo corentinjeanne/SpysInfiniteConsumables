@@ -18,17 +18,16 @@ public sealed class InfinityDisplay : ModConfig {
     [DefaultValue(true)] public bool alternateDisplays;
 
     [Header("Displays")]
-    [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(EntityDefinitionValueWrapper<,>))]
+    [CustomModConfigItem(typeof(DictionaryValuesElement))]
     public Dictionary<DisplayDefinition, Toggle<object>> displays = [];
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityClientConfigsWrapper))]
-    public Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> infinities = [];
+    public Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities = [];
 
     [Header("Performances")]
     public bool disableCache;
     [DefaultValue(1), Range(0, 9999)] public int displayRefresh;
-
 
     // Compatibility version < v4.0
     [JsonProperty, DefaultValue(true)] private bool ShowRequirement { set => ConfigHelper.MoveMember(value != true, _ => {
@@ -46,10 +45,10 @@ public sealed class InfinityDisplay : ModConfig {
                 Default.Infinities.Currency.PortClientConfig(infinities, colors);
                 continue;
             }
-            Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<string, object>>> dictionary = [];
+            Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> dictionary = [];
             foreach ((var infinity, var color) in colors.Colors) dictionary[infinity] = new(color);
             InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
-            infinities.GetOrAdd(def, _ => new(default)).Value["infinities"] = new ClientConsumableInfinities() { infinities = dictionary };
+            infinities.GetOrAdd(def, _ => new(default)).Value[ProviderDefinition.Infinities] = new ClientConsumableInfinities() { infinities = dictionary };
         }
     }); }
     [JsonProperty, DefaultValue(CacheStyle.Smart)] private CacheStyle Cache { set => ConfigHelper.MoveMember(value == CacheStyle.None, _ => disableCache = true); }
@@ -77,11 +76,12 @@ public sealed class InfinityDisplay : ModConfig {
         }
         display.Enabled = config.Key;
     }
-    public static void LoadConfig(IInfinity infinity, NestedValue<Color, Dictionary<string, object>> config) {
+    public static void LoadConfig(IInfinity infinity, NestedValue<Color, Dictionary<ProviderDefinition, object>> config) {
         if (config.Key == default) config.Key = infinity.Defaults.Color;
         infinity.Color = config.Key;
         (var oldConfigs, config.Value) = (config.Value, []);
-        foreach ((var key, var provider) in _configs.GetValueOrDefault(infinity, [])) {
+        foreach (var provider in _configs.GetValueOrDefault(infinity, [])) {
+            var key = provider.ProviderDefinition;
             Type configType = provider.ConfigType;
             object? oldConfig = oldConfigs.GetValueOrDefault(key, null!);
             config.Value[key] = oldConfig switch {
@@ -94,8 +94,8 @@ public sealed class InfinityDisplay : ModConfig {
             provider.OnLoadedClient(oldConfig is null);
         }
     }
-    public static void AddConfig(IInfinity infinity, string key, IClientConfigProvider config) => _configs.GetOrAdd(infinity, []).Add((key, config));
-    private static readonly Dictionary<IInfinity, List<(string key, IClientConfigProvider)>> _configs = [];
+    public static void AddConfig(IInfinity infinity, IClientConfigProvider config) => _configs.GetOrAdd(infinity, []).Add(config);
+    private static readonly Dictionary<IInfinity, List<IClientConfigProvider>> _configs = [];
 }
 
 [Flags] public enum DisplayedInfinities { Infinities = 0b01, Consumable = 0b10, Both = 0b11 }
