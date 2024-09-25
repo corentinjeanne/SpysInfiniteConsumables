@@ -1,28 +1,32 @@
-using System.ComponentModel;
-using System.Reflection;
+using SPIC.Configs;
 using SpikysLib.Localization;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
-public abstract class Display : ModType, ILocalizedModType {
+public interface IDisplay : ILocalizedModType {
+    bool DefaultEnabled { get; }
+    LocalizedText Label { get; }
+}
 
-    [DefaultValue(true)]
-    public virtual bool Enabled { get; internal set; } = true;
-    public abstract int IconType { get; }
+public abstract class Display : ModType, IDisplay {
+
+    public bool Enabled { get; set; }
+    public virtual bool DefaultEnabled => true;
 
     public string LocalizationCategory => "Displays";
-    public virtual LocalizedText DisplayName => this.GetLocalization("DisplayName", new System.Func<string>(PrettyPrintName));
+    public virtual LocalizedText Label => this.GetLocalization("Label");
 
     protected sealed override void Register() {
         ModTypeLookup<Display>.Register(this);
         DisplayLoader.Register(this);
-        Language.GetOrRegister(this.GetLocalizationKey("DisplayName"), PrettyPrintName);
+        Language.GetOrRegister(this.GetLocalizationKey("Label"), PrettyPrintName);
         Language.GetOrRegister(this.GetLocalizationKey("Tooltip"), () => "");
-        FieldInfo? configField = GetType().GetField("Config", BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public);
-        if (configField is not null) LanguageHelper.RegisterLocalizationKeysForMembers(configField.FieldType);
+        if (this is IConfigProvider configurable) LanguageHelper.RegisterLocalizationKeysForMembers(configurable.ConfigType);
     }
+
+    public ProviderDefinition ProviderDefinition => ProviderDefinition.Config;
 
     public sealed override void SetupContent() => SetStaticDefaults();
 }

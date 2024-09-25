@@ -3,10 +3,10 @@ InfinitySettings: {
 
 	Headers: {
 		Features: Features
-		Configs: Group Configs
+		Infinities: Infinity Configs
 	}
 
-	DetectMissingCategories: {
+	detectMissingCategories: {
 		Label: "[i:1299] Detect missing categories"
 		Tooltip:
 			'''
@@ -15,7 +15,7 @@ InfinitySettings: {
 			'''
 	}
 
-	PreventItemDuplication: {
+	preventItemDuplication: {
 		Label: "[i:3988] Prevent item duplication"
 		Tooltip:
 			'''
@@ -27,140 +27,113 @@ InfinitySettings: {
 			'''
 	}
 
-	Configs: {
-		Label: Configs
+	infinities: {
+		Label: Infinity Configs
 		Tooltip: ""
 	}
 }
 
 InfinityDisplay: {
-	DisplayName: Infinities Display
+	DisplayName: Infinity Display
 
 	Headers: {
 		General: General
-		Displays: Displays
-		Colors: Infinity Colors
+		Displays: Display Configs
+		Infinities: Infinity Configs
 		Performances: Performances
 	}
 
-	Displays: {
+	exclusiveDisplay: {
+		Label: "[i:5075] Exclusive Displays"
+		Tooltip: Only display Infinities relevant to the context (e.g. the only infinity displayed when an item is in an ammo slot is the Ammo Infinity)
+	}
+
+	alternateDisplays: {
+		Label: "[i:4953] Alternate Displays"
+		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
+	}
+
+	displays: {
 		Label: Displays
 		Tooltip: ""
 	}
 
-	ShowInfinities: {
-		Label: "[i:3084] Show Infinities"
+	infinities: {
+		Label: Infinity Configs
 		Tooltip: ""
 	}
 
-	ShowRequirement: {
-		Label: "[i:3102] Show Requirements"
-		Tooltip: ""
+	disableCache: {
+		Label: Disable Cache
+		Tooltip: Just don't
 	}
 
-	ShowInfo: {
-		Label: "[i:393] Show Extra Info"
-		Tooltip: Displays more precise info about the item, such as its category
-	}
-
-	ShowExclusiveDisplay: {
-		Label: "[i:5075] Show Exclusive Displays"
-		Tooltip: Only display Infinities relevant to the context (e.g. only display Ammo infinity in the ammo slots)
-	}
-
-	ShowAlternateDisplays: {
-		Label: "[i:4953] Show Alternate Displays"
-		Tooltip: Displays the infinity of consumables consumed by the item (e.g. ammos, baits, etc)
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
-
-	Colors: {
-		Label: Colors
-		Tooltip: ""
-	}
-
-	Cache: {
-		Label: Cache
+	displayRefresh: {
+		Label: Displayed value refresh delay
 		Tooltip:
 			'''
-			Type /spiccache in-game to see the cached values
-			Performances: Optimal performances, large cache (~10kB). Will not recompute any value
-			Smart: Great performances, small cache (~3kB). May recompute some values
-			None: Horrendous performances, no cache. Just don't
-			'''
-	}
-
-	CacheRefreshDelay: {
-		Label: Cache Refresh Delay
-		Tooltip:
-			'''
-			Forces a minimum delay (in frames) between each cache refresh
+			Forces a minimum delay (in frames) between each display cache refresh. Only affect displayed values
 			Increase this value if the game lags when your inventory changes extremely quickly
 			May cause visual inconsistencies, especially for large values (>15)
 			'''
 	}
-
-	Info: {
-		Label: "[i:4344] Update Info"
-		Tooltip: "{$Mods.SPIC.Chat.Info}"
-	}
-
-	Changelog: {
-		Label: "[i:509] Changelog"
-		Tooltip: "{$Mods.SPIC.Chat.Changelog}"
-	}
 }
 
-GroupConfig: {
-	Headers: {
-		Infinities: Enabled Infinities
-		Configs: Infinity Configs
-		Customs: Custom Requirements
-	}
-
+ConsumableInfinities: {
 	Preset: {
 		Label: Active Preset
-		Tooltip: ""
+		Tooltip:
+			'''
+			The preset inferred from your group settings.
+			Click to select a preset and apply it.
+			'''
 	}
 
-	Infinities: {
-		Label: Enabled Infinities
-		Tooltip: ""
-	}
-
-	UsedInfinities: {
+	usedInfinities: {
 		Label: "[i:486] Used Infinities"
 		Tooltip:
 			'''
 			The maximum number of Infinities taken into account directly, uses the order bellow from top to bottom.
-			Infinities that are not used take the minimum used infinity as their value.
+			Unused infinities take the minimum used infinity as their value.
 			'''
 	}
 
-	Configs: {
-		Label: Configs
+	infinities: {
+		Label: Infinities
 		Tooltip: ""
 	}
-
-	Customs: {
-		Label: "[i:1913] Customs"
-		Tooltip: Replace the requirements of items by a global requirement or individual ones per infinity
-	}
-
-	Tooltip: ""
 }
 
-GroupColors: {
-	Colors: {
-		Label: Colors
+UsedInfinities: {
+	Tooltip: ""
+
+	All: {
+		Label: All
 		Tooltip: ""
 	}
 
-	Tooltip: ""
+	Maximum: {
+		Label: Maximum
+		Tooltip: ""
+	}
+}
+
+ClientConsumableInfinities: {
+	displayedInfinities: {
+		Label: Displayed Infinities
+		Tooltip:
+			'''
+			The infinities that are displayed with the displays above
+			{$Mods.SPIC.Configs.DisplayedInfinities.Infinities.Label}: Only display the used infinities
+			{$Mods.SPIC.Configs.DisplayedInfinities.Consumable.Label}: Only display the consumable infinity
+			{$Mods.SPIC.Configs.DisplayedInfinities.Both.Label}:  Display this consumable infinity and its used infinities 
+			'''
+	}
+
+	infinities: {
+		Label: Infinities
+		Tooltip: ""
+	}
 }
 
 Version: {
@@ -192,20 +165,6 @@ Version: {
 	}
 }
 
-Custom: {
-	Global: {
-		Label: Global
-		Tooltip: ""
-	}
-
-	Individual: {
-		Label: Individual
-		Tooltip: ""
-	}
-
-	Tooltip: ""
-}
-
 Count: {
 	Disabled: {
 		Label: Disabled
@@ -213,54 +172,48 @@ Count: {
 	}
 
 	Amount: {
-		Label: Amount
+		Label: Count
 		Tooltip: ""
 	}
 
 	Tooltip: ""
 }
 
-ModGroupDefinition.Tooltip: ""
-MetaGroupDefinition.Tooltip: ""
-
-PresetDefinition: {
-	Tooltip: {
-		Label: Tooltip
-		Tooltip: ""
-	}
-
-	AllowNull: {
-		Label: Allow Null
-		Tooltip: ""
-	}
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
-}
-
-ModConsumableDefinition.Tooltip: ""
-
-InfinityDefinition: {
+Count`1: {
 	Tooltip: ""
 
-	DisplayName: {
-		Label: Display Name
+	Category: {
+		Label: Category
 		Tooltip: ""
 	}
 }
 
-GroupDefinition: {
+Customs: {
+	DisplayName: Customs
 	Tooltip: ""
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
 }
 
-Text.Tooltip: ""
+Config: {
+	DisplayName: Config
+	Tooltip: ""
+}
+
+Infinities: {
+	DisplayName: Infinities
+	Tooltip: ""
+}
+
+InfinityDefinition.Tooltip: ""
+DisplayDefinition.Tooltip: ""
+PresetDefinition.Tooltip: ""
+ProviderDefinition.Tooltip: ""
+
+DisplayedInfinities: {
+	Tooltip: ""
+	Infinities.Label: Infinities
+	Consumable.Label: Consumable
+	Both.Label: Both
+}
 
 Corner: {
 	Tooltip: ""
@@ -274,81 +227,4 @@ Direction: {
 	Tooltip: ""
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
-}
-
-CacheStyle: {
-	Tooltip: ""
-	None.Label: None
-	Smart.Label: Smart (Recommended)
-	Performances.Label: Performances
-}
-
-UsedInfinities: {
-	Tooltip: ""
-
-	All: {
-		Label: All
-		Tooltip: ""
-	}
-
-	Used: {
-		Label: Used
-		Tooltip: ""
-	}
-}
-
-GlowStyle: {
-	Tooltip: ""
-	Off.Label: Off
-	Simple.Label: Simple
-	Fancy.Label: Fancy
-}
-
-DisplayDefinition: {
-	Tooltip: ""
-
-	DisplayName: {
-		Label: Display Name
-		Tooltip: ""
-	}
-}
-
-Definition`1: {
-	Tooltip: {
-		Label: Tooltip
-		Tooltip: ""
-	}
-
-	AllowNull: {
-		Label: Allow Null
-		Tooltip: ""
-	}
-}
-
-InfinityDictionary: {
-	Tooltip: ""
-
-	Order: {
-		Label: Order
-		Tooltip: ""
-	}
-
-	Enabled: {
-		Label: Enabled
-		Tooltip: ""
-	}
-
-	Configs: {
-		Label: Configs
-		Tooltip: ""
-	}
-}
-
-Count`1: {
-	Tooltip: ""
-
-	Category: {
-		Label: Category
-		Tooltip: ""
-	}
 }

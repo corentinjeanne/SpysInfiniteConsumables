@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
+using SPIC.Configs;
 using SpikysLib;
 using SpikysLib.Configs;
 using SpikysLib.Localization;
-using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
@@ -16,24 +16,13 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
         LanguageHelper.ModifyKey += s => InfinityRoutingRegex.Replace(s, "Mods.SPIC.Infinities.$1$3");
         LanguageHelper.ModifyKey += s => DisplayRoutingRegex.Replace(s, "Mods.SPIC.Displays.$1$2");
     }
-
-    public override void Load() {
-        FullInfinity.RegisterExtraLocalization<System.Enum>((infinity, category) => infinity.Mod.GetLocalization($"Configs.{category.GetType().Name}.{category}.Label").Value);
-        FullInfinity.RegisterExtraLocalization<LocalizedText>((infinity, text) => text.Value);
-        FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => CamelCaseRegex.Replace(str, " $1").Trim()).Value);
-    }
-
     public override void PostSetupContent() {
-        Configs.Presets.PresetLoader.SetupPresets();
+        InfinitySettings.Instance.Load();
         Configs.InfinityDisplay.Instance.Load();
-        Configs.InfinitySettings.Instance.Load();
     }
 
-    public override void Unload() {
-        FullInfinity.ClearExtraLocs();
-        
-        InfinityManager.Unload();
-        Configs.Presets.PresetLoader.Unload();
+    public override void Unload() {        
+        InfinityLoader.Unload();
         Instance = null!;
     }
 
@@ -47,7 +36,7 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
                 string mod = parts[0];
                 string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityManager.GetInfinity(mod, name)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityLoader.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
             Logger.Error("The type of one of the arguments was incorrect", cast);
@@ -58,6 +47,6 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
     }
 
     private static readonly Regex CamelCaseRegex = new("([A-Z])");
-    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(Category|Requirements)(.*)$""");
-    private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Group)Config(.*)$""");
+    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Infinity)(Category|Requirements|Display)(.*)$""");
+    private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)Config(.*)$""");
 }

@@ -28,14 +28,14 @@ public sealed class SpicPlayer : ModPlayer {
         InGameNotificationsTracker.AddNotification(new InGameNotification(Mod, line, new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Bug"), Colors.RarityAmber)) { timeLeft = 15 * 60 });
     }
 
+    public override void PreUpdate() => InfinityManager.DecreaseCacheLock();
+    
     private static void HookRecipe_FindRecipes(On_Recipe.orig_FindRecipes orig, bool canDelayCheck) {
         if (canDelayCheck) {
             orig(canDelayCheck);
             return;
         }
-        InfinityManager.ClearInfinities();
+        InfinityManager.ClearCache();
         orig(canDelayCheck);
     }
-
-    public override void PreUpdate() => InfinityManager.DecreaseCacheLock();
 }

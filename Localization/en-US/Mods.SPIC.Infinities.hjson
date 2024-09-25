@@ -1,21 +1,18 @@
-Items: {
-	DisplayName: Items
+ConsumableItem: {
+	DisplayName: Item
+	Label: "[i:42] {$Mods.SPIC.Infinities.ConsumableItem.DisplayName}"
 	Tooltip: Allows consumable items to be infinite
-}
-
-Currencies: {
-	DisplayName: Currencies
-	Tooltip: Allows currency items to be infinite
 }
 
 Ammo: {
 	DisplayName: Ammunition
+	Label: "[i:3103] {$Mods.SPIC.Infinities.Ammo.DisplayName}"
 	Tooltip: Items fired by a weapon
 	None.Label: None
 
 	Classic: {
 		Label: Classic Ammo
-		Tooltip: Arrows, Bullets, Rockets or Darts
+		Tooltip: Arrows, Bullets, Rockets and Darts
 	}
 
 	Special: {
@@ -26,44 +23,36 @@ Ammo: {
 
 Currency: {
 	DisplayName: Currency
-	Tooltip: Items used in NPC shops
+	Label: "[i:3817] {$Mods.SPIC.Infinities.Currency.DisplayName}"
+	Tooltip: Items used for trading
 	None.Label: None
 	Coins.Label: Coins
 	SingleCoin.Label: Single Coin
 
-	CoinsMultiplier: {
-		Label: Coins infinity Multiplier
+	coinsMultiplier: {
+		Label: Coins Multiplier
 		Tooltip: Currency with more than one item
 	}
 
-	SingleCoinMultiplier: {
-		Label: Single Coin infinity Multiplier
+	coinsRequirement: {
+		Label: Coins Requirement
+		Tooltip: Currency with more than one item
+	}
+
+	singleMultiplier: {
+		Label: Single Coin Multiplier
 		Tooltip: Currency composed of a single item
 	}
 
-	Shop: {
-		Label: NPC Shop
-		Tooltip: ""
-	}
-
-	Nurse: {
-		Label: Nurse Healing
-		Tooltip: ""
-	}
-
-	Reforging: {
-		Label: Item Reforging
-		Tooltip: ""
-	}
-
-	Others: {
-		Label: Others
-		Tooltip: ""
+	singleRequirement: {
+		Label: Single Coin Requirement
+		Tooltip: Currency composed of a single item
 	}
 }
 
 GrabBag: {
 	DisplayName: Grab Bag
+	Label: "[i:4782] {$Mods.SPIC.Infinities.GrabBag.DisplayName}"
 	Tooltip: Item dropping other items when opened
 	None.Label: None
 
@@ -85,6 +74,7 @@ GrabBag: {
 
 JourneySacrifice: {
 	DisplayName: Journey Sacrifice
+	Label: "[i:2890] {$Mods.SPIC.Infinities.JourneySacrifice.DisplayName}"
 	Tooltip:
 		'''
 		Journey mode research
@@ -100,6 +90,7 @@ JourneySacrifice: {
 
 Material: {
 	DisplayName: Material
+	Label: "[i:398] {$Mods.SPIC.Infinities.Material.DisplayName}"
 	Tooltip: Items used in crafting
 	None.Label: None
 
@@ -136,13 +127,14 @@ Material: {
 
 Placeable: {
 	DisplayName: Placeable
+	Label: "[i:3061] {$Mods.SPIC.Infinities.Placeable.DisplayName}"
 	Tooltip: Items placed in the world
 	TileDuplication: Exact Infinity
 	None.Label: None
 
 	Tile: {
-		Label: Tile
-		Tooltip: Blocks and Walls
+		Label: Block or Wall
+		Tooltip: ""
 	}
 
 	Torch: {
@@ -188,6 +180,7 @@ Placeable: {
 
 Usable: {
 	DisplayName: Usable
+	Label: "[i:3104] {$Mods.SPIC.Infinities.Usable.DisplayName}"
 	Tooltip: Items vanishing upon use
 	None.Label: None
 
@@ -226,4 +219,49 @@ Usable: {
 	}
 
 	Unknown.Label: Tool?
+}
+
+Custom: {
+	customs: {
+		Label: Customs
+		Tooltip: Overrides the requirement of the selected consumables
+	}
+
+	Tooltip: ""
+}
+
+Requirement: {
+	multiplier: {
+		Label: Multiplier
+		Tooltip: ""
+	}
+
+	requirement: {
+		Label: Requirement
+		Tooltip: ""
+	}
+}
+
+Nurse: {
+	DisplayName: Nurse Healing
+	Label: "[i:58] {$Mods.SPIC.Infinities.Nurse.DisplayName}"
+	Tooltip: ""
+}
+
+Purchase: {
+	DisplayName: Purchase
+	Label: "[i:1978] {$Mods.SPIC.Infinities.Purchase.DisplayName}"
+	Tooltip: ""
+}
+
+Reforging: {
+	DisplayName: Item Reforging
+	Label: "[i:407] {$Mods.SPIC.Infinities.Reforging.DisplayName}"
+	Tooltip: ""
+}
+
+Shop: {
+	DisplayName: NPC Shop
+	Label: "[i:73] {$Mods.SPIC.Infinities.Shop.DisplayName}"
+	Tooltip: ""
 }

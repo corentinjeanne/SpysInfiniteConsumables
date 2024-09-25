@@ -14,37 +14,37 @@ public sealed class ConsumptionItem : GlobalItem {
         if (detectionPlayer.InItemCheck) {
             if (item != player.HeldItem) { // Wands
                 return !player.HasInfinite(item, 1,
-                    () => player.HeldItem.damage != 0 ? InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance) : InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Tile, Placeable.Instance),
+                    () => player.HeldItem.damage != 0 ? Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special) : Placeable.Instance.SaveDetectedCategory(item, PlaceableCategory.Tile),
                     Placeable.Instance, Ammo.Instance
                 );
             }
             if (detectionPlayer.usedCannon) { // Cannons
                 return !player.HasInfinite(item, 1,
                     () => {
-                        if (!InfinityManager.SaveDetectedCategory(item, AmmoCategory.Special, Ammo.Instance)) return false;
+                        if (!Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special)) return false;
                         UsableCategory usableCategory = InfinityManager.GetCategory(item, Usable.Instance);
-                        if (usableCategory == UsableCategory.Tool || usableCategory == UsableCategory.Unknown) InfinityManager.SaveDetectedCategory(item, UsableCategory.None, Usable.Instance);
+                        if (usableCategory == UsableCategory.Tool || usableCategory == UsableCategory.Unknown) Usable.Instance.SaveDetectedCategory(item, UsableCategory.None);
                         return true;
                     },
                     Ammo.Instance
                 );
             }
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             int tileTarget = Main.tile[Player.tileTargetX, Player.tileTargetY].TileType;
             if (tileTarget == TileID.Extractinator || tileTarget == TileID.ChlorophyteExtractinator) return !player.HasInfinite(item, 1, Usable.Instance, GrabBag.Instance);
             return !player.HasInfinite(item, 1, Usable.Instance, Placeable.Instance);
 
         } else if (detectionPlayer.InRightClick) {
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
-                () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance),
+                () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
                 GrabBag.Instance, Usable.Instance
             );
         } else { // Hotkey or special right click action
-            if (Configs.InfinitySettings.Instance.DetectMissingCategories) detectionPlayer.TryDetectCategory(true);
+            if (Configs.InfinitySettings.Instance.detectMissingCategories) detectionPlayer.TryDetectCategory(true);
             return !player.HasInfinite(item, 1,
-                () => InfinityManager.SaveDetectedCategory(item, GrabBagCategory.Container, GrabBag.Instance)
-                , Usable.Instance, GrabBag.Instance
+                () => GrabBag.Instance.SaveDetectedCategory(item, GrabBagCategory.Container),
+                Usable.Instance, GrabBag.Instance
             );
         }
     }

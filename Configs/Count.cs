@@ -36,19 +36,19 @@ public class Count : MultiChoice<int> {
     public static bool operator !=(Count a, Count b) => !(a == b);
 }
 
-public class Count<TCategory> : Count where TCategory : struct, System.Enum {
+public class Count<TCategory> : Count where TCategory : struct, Enum {
     public Count() : base() { }
     public Count(int value) : base(value) { }
-    public Count(TCategory category) : base(-System.Convert.ToInt32(category)) { }
+    public Count(TCategory category) : base(-Convert.ToInt32(category)) { }
 
     [Choice] public TCategory Category { get; set; } = default;
 
     public override int Value {
-        get => Choice == nameof(Category) ? -System.Convert.ToInt32(Category) : base.Value;
+        get => Choice == nameof(Category) ? -Convert.ToInt32(Category) : base.Value;
         set {
             if (value < 0) {
                 Choice = nameof(Category);
-                Category = System.Enum.Parse<TCategory>((-value).ToString());
+                Category = Enum.Parse<TCategory>((-value).ToString());
             } else base.Value = value;
         }
     }

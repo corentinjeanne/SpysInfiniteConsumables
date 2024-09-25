@@ -1,15 +1,38 @@
 Tooltip: {
-	AddMissingLines: {
-		Label: Add Missing Lines
-		Tooltip: Add lines on which should be displayed infinities if they are not present
+	Label: "[i:171] Tooltip"
+	Tooltip: Display the requirement and infinity of items in their tooltip
+
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
 	}
 
-	DisplayName: Tooltip
-	Tooltip: Display the requirement and infinity of items in their tooltip
+	coloredLines: {
+		Label: Colored Lines
+		Tooltip: Colors tooltip lines where the item is infinite
+	}
+
+	missingLinesOpacity: {
+		Label: Missing Lines Opacity
+		Tooltip: The opacity of lines added to the tooltip
+	}
+
+	displayDebug: {
+		Label: Display Debug Info
+		Tooltip: Display debug info about the requirement
+	}
+
+	AddMissingLines: {
+		Label: Add Missing Lines
+		Tooltip: ""
+	}
 }
 
 Glow: {
-	FancyGlow: {
+	Label: "[i:75] Glow"
+	Tooltip: Adds a glow around infinite items
+
+	fancyGlow: {
 		Label: Fancy Glow
 		Tooltip:
 			'''
@@ -18,36 +41,63 @@ Glow: {
 			'''
 	}
 
-	Intensity: {
-		Label: Intensity
-		Tooltip: ""
+	offset: {
+		Label: Offset
+		Tooltip: Offset the glow of each items
 	}
 
-	AnimationLength: {
+	Length: {
 		Label: Animation Length
 		Tooltip: ""
 	}
 
-	DisplayName: Glow
-	Tooltip: Adds a glow around infinite items
+	intensity: {
+		Label: Intensity
+		Tooltip: ""
+	}
+
+	scale: {
+		Label: Scale
+		Tooltip: ""
+	}
+
+	length: {
+		Label: length
+		Tooltip: ""
+	}
 }
 
 Dots: {
-	Start: {
+	Label: "[i:3629] Dots"
+	Tooltip: Display the infinity of items on their inventory slots with dots
+
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
+	}
+
+	start: {
 		Label: First Dot position
 		Tooltip: ""
 	}
 
-	Direction: {
+	direction: {
 		Label: Direction
 		Tooltip: ""
 	}
 
-	GroupTime: {
-		Label: Group time
-		Tooltip: The time each infinity group is display before changing to the next group
+	time: {
+		Label: Time per Consumable
+		Tooltip: The time each consumable infinities are displayed before changing to the next
 	}
 
-	DisplayName: Dots
-	Tooltip: Display the infinity of items on their inventory slots with dots
+	scale: {
+		Label: Scale
+		Tooltip: ""
+	}
+
+	missingOpacity: {
+		Label: Missing Opacity
+		Tooltip: The opacity of the part of the dot representing the requirement
+	}
 }

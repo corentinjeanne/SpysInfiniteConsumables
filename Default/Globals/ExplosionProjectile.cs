@@ -15,21 +15,23 @@ namespace SPIC.Default.Globals {
         public override void Unload() => ClearExploded();
 
         public override void OnSpawn(Projectile projectile, IEntitySource source) {
-            if (projectile.noDropItem || source is not EntitySource_ItemUse_WithAmmo spawn || !Configs.InfinitySettings.Instance.PreventItemDuplication) return;
-            if (!spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) || proj != projectile.type) ammoType = DetectionPlayer.FindAmmoType(spawn.Player, projectile.type);
-            if (spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance)) projectile.noDropItem = true;
+            if (!projectile.noDropItem && source is EntitySource_ItemUse_WithAmmo spawn
+            && ((spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) && proj == projectile.type) ?
+                    spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance) :
+                    spawn.Player.HasInfinite(DetectionPlayer.FindAmmo(spawn.Player, projectile.type), 1, Ammo.Instance))) {
+                projectile.noDropItem = true;
+            }
         }
 
         private static void Explode(Projectile proj) {
-            if (proj.owner < 0 || _explodedProjTypes.Contains(proj.type) || !Configs.InfinitySettings.Instance.DetectMissingCategories) return;
-            _explodedProjTypes.Add(proj.type);
+            if (proj.owner < 0 || !Configs.InfinitySettings.Instance.detectMissingCategories || !_explodedProjTypes.Add(proj.type)) return;
 
-            int type = DetectionPlayer.FindAmmoType(Main.player[proj.owner], proj.type);
+            Item item = DetectionPlayer.FindAmmo(Main.player[proj.owner], proj.type);
 
-            AmmoCategory ammo = InfinityManager.GetCategory(type, Ammo.Instance);
+            AmmoCategory ammo = InfinityManager.GetCategory(item, Ammo.Instance);
             // UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
             if (ammo != AmmoCategory.None && ammo != AmmoCategory.Special) {
-                if (InfinityManager.SaveDetectedCategory(new(type), AmmoCategory.Special, Ammo.Instance)) DetectionPlayer.RefilExplosive(Main.player[proj.owner], proj.type, type);
+                if (Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special)) DetectionPlayer.RefillExplosive(Main.player[proj.owner], proj.type, item);
             }
             // else if(usable != UsableCategory.None && usable != UsableCategory.Tool){
             //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);

@@ -1,117 +1,128 @@
-using System.Collections.Specialized;
 using SPIC.Configs;
-using SPIC.Configs.Presets;
-using SpikysLib.Configs;
 using SpikysLib.Collections;
-using Terraria;
+using SpikysLib.Configs;
 
 namespace SPIC.Default.Presets;
 
-public sealed class Defaults : Preset {
+public sealed class ConsumableDefaults : Preset {
+    public static ConsumableDefaults Instance = null!;
+    
     public override int CriteriasCount => 3;
+    public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance), new(Infinities.GrabBag.Instance), new(Infinities.Material.Instance), new(Infinities.JourneySacrifice.Instance)];
 
-    public override bool MeetsCriterias(GroupConfig config) {
-        foreach ((InfinityDefinition def, INestedValue value) in config.Infinities.Items<InfinityDefinition, INestedValue>()) {
-            if ((bool)value.Key != InfinityManager.GetInfinity(def.Mod, def.Name)?.DefaultEnabled()) return false;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.usedInfinities == 0;
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        (var oldInfinities, config.infinities) = (config.infinities, []);
+        foreach (InfinityDefinition def in Order) {
+            config.infinities.Add(def, oldInfinities[def]);
+            oldInfinities.Remove(def);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
-        return config.UsedInfinities == 0;
-    }
-    public override void ApplyCriterias(GroupConfig config) {
-        foreach (InfinityDefinition def in config.Infinities.Keys) {
-            if(!def.IsUnloaded) ((INestedValue)config.Infinities[def]!).Key = InfinityManager.GetInfinity(def.Mod, def.Name)!.DefaultEnabled();
+        foreach ((var def, var value) in oldInfinities) {
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
         }
-        config.UsedInfinities = 0;
+        config.usedInfinities = 0;
     }
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
+}
+
+public sealed class CurrencyDefaults : Preset {
+    public static CurrencyDefaults Instance = null!;
+    
+    public override int CriteriasCount => 3;
+    public static InfinityDefinition[] Order => [new(Infinities.Shop.Instance), new(Infinities.Reforging.Instance), new(Infinities.Nurse.Instance), new(Infinities.Purchase.Instance)];
+
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Exist(kvp => kvp.Value.Key != kvp.Key.Entity?.Defaults.Enabled) && config.usedInfinities == 0;
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        (var oldInfinities, config.infinities) = (config.infinities, []);
+        for (int i = 0; i < Order.Length; i++) {
+            InfinityDefinition def = Order[i];
+            config.infinities.Add(def, oldInfinities[def]);
+            oldInfinities.Remove(def);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
+        }
+        foreach ((var def, var value) in oldInfinities) {
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = def.Entity!.Defaults.Enabled;
+        }
+        config.usedInfinities = 0;
+    }
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.Currency;
 }
 
 public sealed class OneForMany : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool AppliesToGroup(IGroup group) => group.Infinities.Count > 1;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity.Infinities.Count > 1;
 
-    public override bool MeetsCriterias(GroupConfig config) {
-        foreach (INestedValue value in config.Infinities.Values) {
-            if ((bool)value.Key) return config.UsedInfinities == 1;
-        }
-        return false;
-    }
-    public override void ApplyCriterias(GroupConfig config) {
-        config.UsedInfinities = 1;
-        if(!MeetsCriterias(config)) ((INestedValue)config.Infinities[0]!).Key = true;
+    public override bool MeetsCriterias(ConsumableInfinities config) => config.infinities.Values.Exist(v => v.Key) && config.usedInfinities == 1;
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        config.usedInfinities = 1;
+        if (!MeetsCriterias(config)) config.infinities[0].Key = true;
     }
 }
 
 public sealed class AllEnabled : Preset {
     public override int CriteriasCount => 2;
 
-    public override bool MeetsCriterias(GroupConfig config) {
-        foreach (INestedValue value in config.Infinities.Values) if (!(bool)value.Key) return false;
-        return config.UsedInfinities == 0;
-    }
-    
-    public override void ApplyCriterias(GroupConfig config) {
-        foreach (InfinityDefinition def in config.Infinities.Keys) ((INestedValue)config.Infinities[def]!).Key = true;
-        config.UsedInfinities = 0;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Values.Exist(v => !v.Key) && config.usedInfinities == 0;
+
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        foreach (InfinityDefinition def in config.infinities.Keys) ((IToggle)config.infinities[def]!).Key = true;
+        config.usedInfinities = 0;
     }
 }
 
 public sealed class AllDisabled : Preset {
     public override int CriteriasCount => 1;
 
-    public override bool MeetsCriterias(GroupConfig config) {
-        foreach (INestedValue value in config.Infinities.Values) if ((bool)value.Key) return false;
-        return true;
-    }
-
-    public override void ApplyCriterias(GroupConfig config) {
-        foreach (InfinityDefinition def in config.Infinities.Keys) ((INestedValue)config.Infinities[def]!).Key = false;
+    public override bool MeetsCriterias(ConsumableInfinities config) => !config.infinities.Values.Exist(v => v.Key);
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        foreach (InfinityDefinition def in config.infinities.Keys) ((IToggle)config.infinities[def]!).Key = false;
     }
 }
 
 public sealed class Classic : Preset {
 
-    public static Infinity<Item>[] Order => [Infinities.Usable.Instance, Infinities.Ammo.Instance, Infinities.Placeable.Instance];
+    public static InfinityDefinition[] Order => [new(Infinities.Usable.Instance), new(Infinities.Ammo.Instance), new(Infinities.Placeable.Instance)];
     public override int CriteriasCount => 3;
 
-    public override bool AppliesToGroup(IGroup group) => group is Infinities.Items;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 
-    public override bool MeetsCriterias(GroupConfig config) {
-        int i = 0;
-        foreach ((InfinityDefinition def, INestedValue value) in config.Infinities.Items<InfinityDefinition, INestedValue>()){
-            if (i < Order.Length ? (!def.Equals(new InfinityDefinition(Order[i])) || !(bool)value.Key) : (bool)value.Key) return false;
-            i++;
-        }
-        return config.UsedInfinities == 1;
-    }
-    public override void ApplyCriterias(GroupConfig config) {
-        (OrderedDictionary oldInfs, config.Infinities) = (config.Infinities, new());
+    public override bool MeetsCriterias(ConsumableInfinities config) {
         for (int i = 0; i < Order.Length; i++) {
-            InfinityDefinition def = new(Order[i]);
-            ((INestedValue)oldInfs[def]!).Key = true;
-            config.Infinities.Add(def, oldInfs[def]);
-            oldInfs.Remove(def);
+            if (!config.infinities.Keys[i].Equals(Order[i]) || !config.infinities[i].Key) return false;
         }
-        foreach ((InfinityDefinition def, INestedValue value) in oldInfs.Items<InfinityDefinition, INestedValue>()) {
-            ((INestedValue)oldInfs[def]!).Key = false;
-            config.Infinities.Add(def, value);
+        return config.usedInfinities == 1;
+    }
+    public override void ApplyCriterias(ConsumableInfinities config) {
+        (var oldInfinities, config.infinities) = (config.infinities, []);
+        for (int i = 0; i < Order.Length; i++) {
+            InfinityDefinition def = Order[i];
+            config.infinities.Add(def, oldInfinities[def]);
+            oldInfinities.Remove(def);
+            config.infinities[def].Key = true;
         }
-        config.UsedInfinities = 1;
+        foreach ((var def, var value) in oldInfinities) {
+            config.infinities.Add(def, value);
+            config.infinities[def].Key = false;
+        }
+        config.usedInfinities = 1;
     }
 }
 
 public sealed class JourneyRequirements : Preset {
     public override int CriteriasCount => 3;
 
-    public override bool AppliesToGroup(IGroup group) => group is Infinities.Items;
+    public override bool AppliesTo(IConsumableInfinity infinity) => infinity is Infinities.ConsumableItem;
 
-    public override bool MeetsCriterias(GroupConfig config) {
+    public override bool MeetsCriterias(ConsumableInfinities config)
+        => config.infinities.Keys[0].Equals(new InfinityDefinition(Infinities.JourneySacrifice.Instance)) && config.infinities[0].Key && config.usedInfinities == 1;
+    public override void ApplyCriterias(ConsumableInfinities config) {
         InfinityDefinition def = new(Infinities.JourneySacrifice.Instance);
-        return config.Infinities[0] == def && ((bool)((INestedValue)config.Infinities[def]!).Key) && config.UsedInfinities == 1;
-    }
-    public override void ApplyCriterias(GroupConfig config) {
-        InfinityDefinition def = new(Infinities.JourneySacrifice.Instance);
-        config.Infinities.Move(def, 0);
-        ((INestedValue)config.Infinities[def]!).Key = true;
-        config.UsedInfinities = 1;
+        config.infinities.Move(def, 0);
+        config.infinities[0].Key = true;
+        config.usedInfinities = 1;
     }
 }
