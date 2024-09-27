@@ -23,15 +23,11 @@ public class InfiniteWorld : ModSystem {
     }
     public bool IsInfinite(int x, int y, TileType type) {
         (int chunkID, int i, int offset) = GetChunkIndex(x, y, 2);
-        if (!_infiniteTiles.TryGetValue(chunkID, out int[]? chunk)) return false;
-        return (chunk[i] & (byte)type << offset) != 0;
+        return _infiniteTiles.TryGetValue(chunkID, out int[]? chunk) && (chunk[i] & (byte)type << offset) != 0;
     }
-    public bool ClearInfinite(int x, int y, TileType type) {
+    public void ClearInfinite(int x, int y, TileType type) {
         (int chunkID, int i, int offset) = GetChunkIndex(x, y, 2);
-        if (!_infiniteTiles.TryGetValue(chunkID, out int[]? chunk)) return false;
-        bool value = (chunk[i] & ((byte)type << offset)) != 0;
-        chunk[i] &= ~((byte)type << offset);
-        return value;
+        if (_infiniteTiles.TryGetValue(chunkID, out int[]? chunk)) chunk[i] &= ~((byte)type << offset);
     }
 
     private static (int chunkID, int index, int offset) GetChunkIndex(int x, int y, int bits) {

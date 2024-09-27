@@ -11,6 +11,7 @@ using Terraria.Localization;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
 using System.ComponentModel;
+using SpikysLib.Configs;
 
 namespace SPIC.Default.Infinities;
 
@@ -54,11 +55,17 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Bucket = 10;
     public Count<PlaceableCategory> Seed = 20;
     public Count<PlaceableCategory> Paint = 999;
-    [DefaultValue(true)] public bool preventItemDuplication = true;
+    public Toggle<PreventItemDuplication> preventItemDuplication = new(true);
+}
+
+public sealed class PreventItemDuplication {
+    [DefaultValue(true)] public bool allowMisc = true;
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
     public static Placeable Instance = null!;
+
+    public static bool PreventItemDuplication => Instance.Enabled && Instance.Config.preventItemDuplication;
     public PlaceableRequirements Config { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 

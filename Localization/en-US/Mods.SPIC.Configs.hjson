@@ -216,3 +216,12 @@ Direction: {
 	Vertical.Label: Vertical
 	Horizontal.Label: Horizontal
 }
+
+PreventItemDuplication: {
+	Tooltip: ""
+
+	allowMisc: {
+		Label: Allow Secondary Drops
+		Tooltip: Allow herbs, woods, buckets or secondary tile drops to be dropped even if the tile is infinite
+	}
+}
