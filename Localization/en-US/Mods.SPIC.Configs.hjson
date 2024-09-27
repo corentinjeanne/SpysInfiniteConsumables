@@ -15,18 +15,6 @@ InfinitySettings: {
 			'''
 	}
 
-	preventItemDuplication: {
-		Label: "[i:3988] Prevent item duplication"
-		Tooltip:
-			'''
-			Prevent infinite entities to drop items, be picked up or any action that would result a real item been created 
-			For example:
-			Infinite Tiles won't drop items
-			Infinite Critters will turn into smoke when caught
-			Infinite Buckets won't fill or empty on use
-			'''
-	}
-
 	infinities: {
 		Label: Infinity Configs
 		Tooltip: ""

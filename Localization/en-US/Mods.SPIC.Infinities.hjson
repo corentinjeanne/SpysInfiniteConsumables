@@ -176,6 +176,11 @@ Placeable: {
 		Label: Paint or Coating
 		Tooltip: ""
 	}
+
+	preventItemDuplication: {
+		Label: Prevent tile duplication
+		Tooltip: Tiles placed with an infinite item will not drop their item when destroyed
+	}
 }
 
 Usable: {

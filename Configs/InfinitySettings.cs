@@ -17,7 +17,6 @@ public sealed class InfinitySettings : ModConfig {
 
     [Header("Features")]
     [DefaultValue(true)] public bool detectMissingCategories;
-    [DefaultValue(true)] public bool preventItemDuplication;
 
     [Header("Infinities")]
     [CustomModConfigItem(typeof(DictionaryValuesElement)), KeyValueWrapper(typeof(InfinityConfigsWrapper))]

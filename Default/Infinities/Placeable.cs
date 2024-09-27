@@ -10,6 +10,7 @@ using SpikysLib;
 using Terraria.Localization;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
+using System.ComponentModel;
 
 namespace SPIC.Default.Infinities;
 
@@ -42,7 +43,6 @@ public static class PlaceableExtension {
     public static bool IsMisc(this PlaceableCategory category) => category != PlaceableCategory.None && !category.IsCommonTile() && !category.IsFurniture();
 }
 
-// TODO PreventItemDuplication
 [CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Tile = 999;
@@ -54,6 +54,7 @@ public sealed class PlaceableRequirements {
     public Count<PlaceableCategory> Bucket = 10;
     public Count<PlaceableCategory> Seed = 20;
     public Count<PlaceableCategory> Paint = 999;
+    [DefaultValue(true)] public bool preventItemDuplication = true;
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
@@ -196,7 +197,11 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         PaintRoller
     }
 
-    public static WandType GetWandType(Item item) => item switch { { tileWand: not -1 } => WandType.Tile, { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire, { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush, { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
+    public static WandType GetWandType(Item item) => item switch {
+        Item { tileWand: not -1 } => WandType.Tile,
+        Item { type: ItemID.Wrench or ItemID.BlueWrench or ItemID.GreenWrench or ItemID.YellowWrench or ItemID.MulticolorWrench or ItemID.WireKite } => WandType.Wire,
+        Item { type: ItemID.Paintbrush or ItemID.SpectrePaintbrush } => WandType.PaintBrush,
+        Item { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
@@ -209,13 +214,7 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
     // }
 
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
-        Item? ammo = GetWandType(item) switch {
-            WandType.Tile => Main.LocalPlayer.FindItemRaw(item.tileWand),
-            WandType.Wire => Main.LocalPlayer.FindItemRaw(ItemID.Wire),
-            WandType.PaintBrush or WandType.PaintRoller => Main.LocalPlayer.PickPaint(),
-            WandType.Flexible => item.GetFlexibleTileWand().TryGetPlacementOption(Main.LocalPlayer, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
-            _ => null
-        };
+        Item? ammo = GetAmmo(Main.LocalPlayer, item);
         if (ammo is not null) displayed.Add(ammo);
     }
 
@@ -226,4 +225,12 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         PlaceableCategory category = InfinityManager.GetCategory(item, this);
         if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;
     }
+
+    public static Item? GetAmmo(Player player, Item item) => GetWandType(item) switch {
+        WandType.Tile => player.FindItemRaw(item.tileWand),
+        WandType.Wire => player.FindItemRaw(ItemID.Wire),
+        WandType.PaintBrush or WandType.PaintRoller => player.PickPaint(),
+        WandType.Flexible => item.GetFlexibleTileWand().TryGetPlacementOption(player, Player.FlexibleWandRandomSeed, Player.FlexibleWandCycleOffset, out _, out Item i) ? i : null,
+        _ => null
+    };
 }

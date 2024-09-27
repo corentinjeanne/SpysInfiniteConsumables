@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SpikysLib.Configs;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Configs;
@@ -32,6 +33,7 @@ public sealed class Customs<TConsumable, TCategory> : ICustoms<TConsumable>, ICo
     public bool SaveDetectedCategory(TConsumable consumable, TCategory category) {
         if (!InfinitySettings.Instance.detectMissingCategories || !Config.TryAdd(Infinity.Consumable.ToDefinition(consumable), new(category)))
             return false;
+        InfinitySettings.Instance.Save();
         InfinityManager.ClearCache();
         return true;
     }
