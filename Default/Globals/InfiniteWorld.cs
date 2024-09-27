@@ -17,7 +17,7 @@ public class InfiniteWorld : ModSystem {
 
     public void SetInfinite(int x, int y, TileType type) => _infiniteTiles.Add((x, y, type));
     public bool IsInfinite(int x, int y, TileType type) => _infiniteTiles.Contains((x, y, type));
-    public void ClearInfinite(int x, int y, TileType type) => _infiniteTiles.Remove((x, y, type));
+    public bool ClearInfinite(int x, int y, TileType type) => _infiniteTiles.Remove((x, y, type));
 
     public override void LoadWorldData(TagCompound tag) { }
     public override void SaveWorldData(TagCompound tag) { }

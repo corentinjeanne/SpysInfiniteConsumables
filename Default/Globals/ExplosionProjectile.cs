@@ -12,16 +12,21 @@ namespace SPIC.Default.Globals {
             On_Projectile.ExplodeTiles += HookExplodeTiles;
             On_Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
         }
+
         public override void Unload() => ClearExploded();
 
         public override void OnSpawn(Projectile projectile, IEntitySource source) {
-            if (!projectile.noDropItem && source is EntitySource_ItemUse_WithAmmo spawn
-            && ((spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) && proj == projectile.type) ?
-                    spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance) :
-                    spawn.Player.HasInfinite(DetectionPlayer.FindAmmo(spawn.Player, projectile.type), 1, Ammo.Instance))) {
+            if (!projectile.noDropItem && source is IEntitySource_WithStatsFromItem spawn && (InfiniteAmmo(projectile, spawn) || InfiniteConsumable(spawn)))
                 projectile.noDropItem = true;
-            }
         }
+
+        private static bool InfiniteConsumable(IEntitySource_WithStatsFromItem spawn)
+            => spawn.Player.HasInfinite(spawn.Item, 1, Usable.Instance);
+
+        private static bool InfiniteAmmo(Projectile projectile, IEntitySource_WithStatsFromItem spawn)
+            => (spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) && proj == projectile.type) ?
+                    spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance) :
+                    spawn.Player.HasInfinite(DetectionPlayer.FindAmmo(spawn.Player, projectile.type), 1, Ammo.Instance);
 
         private static void Explode(Projectile proj) {
             if (proj.owner < 0 || !Configs.InfinitySettings.Instance.detectMissingCategories || !_explodedProjTypes.Add(proj.type)) return;
@@ -34,7 +39,7 @@ namespace SPIC.Default.Globals {
                 if (Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special)) DetectionPlayer.RefillExplosive(Main.player[proj.owner], proj.type, item);
             }
             // else if(usable != UsableCategory.None && usable != UsableCategory.Tool){
-            //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefilExplosive(proj.type, type);
+            //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefillExplosive(proj.type, type);
             // }
         }
 
@@ -53,8 +58,7 @@ namespace SPIC.Default.Globals {
 
 
         public static void ClearExploded() => _explodedProjTypes.Clear();
-        private static readonly System.Collections.Generic.HashSet<int> _explodedProjTypes = new();
-
+        private static readonly System.Collections.Generic.HashSet<int> _explodedProjTypes = [];
     }
 
 }

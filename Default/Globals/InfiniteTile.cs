@@ -6,7 +6,7 @@ using Terraria.ObjectData;
 
 namespace SPIC.Globals;
 
-// TODO multipler
+// TODO multiplayer
 public class SPICTile : GlobalTile {
 
     public static (int topLeftX, int topLeftY) GetTopLeft(int centerX, int centerY, int type, int style) {
@@ -43,9 +43,7 @@ public class SPICTile : GlobalTile {
         if (!Placeable.Instance.Config.preventItemDuplication) return true;
         var world = InfiniteWorld.Instance;
         (i, j) = GetTopLeft(i, j);
-        var res = !world.IsInfinite(i, j, TileType.Block);
-        world.ClearInfinite(i, j, TileType.Block);
-        return res;
+        return !world.ClearInfinite(i, j, TileType.Block);
     }
 }
 
@@ -69,8 +67,6 @@ public class SPICWall : GlobalWall {
     public override bool Drop(int i, int j, int type, ref int dropType) {
         if (!Placeable.Instance.Config.preventItemDuplication) return true;
         var world = InfiniteWorld.Instance;
-        var res = !world.IsInfinite(i, j, TileType.Wall);
-        world.ClearInfinite(i, j, TileType.Wall);
-        return res;
+        return !world.ClearInfinite(i, j, TileType.Wall);
     }
 }
