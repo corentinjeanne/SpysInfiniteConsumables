@@ -18,6 +18,7 @@ public class InfiniteTile : GlobalTile {
         On_WorldGen.ReplaceTIle_DoActualReplacement += HookReplaceTIle_DoActualReplacement;
         On_WorldGen.KillTile_DropItems += HookDropItems;
         On_WorldGen.KillTile_GetItemDrops += HookNoSecondaryDrop;
+        On_WorldGen.SpawnFallingBlockProjectile += HookFallingSand;
         On_WorldGen.KillTile += HookKillTile;
         MonoModHooks.Add(typeof(TileLoader).GetMethod(nameof(TileLoader.Drop)), HookDrop);
         MonoModHooks.Add(typeof(TileLoader).GetMethod(nameof(TileLoader.GetItemDrops)), HookNoSecondaryDropModded);
@@ -106,7 +107,14 @@ public class InfiniteTile : GlobalTile {
         orig(i, j, fail, effectOnly, noItem);
         if (!Main.tile[i, j].HasTile) InfiniteWorld.Instance.ClearInfinite(i, j, TileType.Block);
     }
-
+    private bool HookFallingSand(On_WorldGen.orig_SpawnFallingBlockProjectile orig, int i, int j, Tile tileCache, Tile tileTopCache, Tile tileBottomCache, int type) {
+        var world = InfiniteWorld.Instance;
+        if (world.contextPlayer is not null && Main.myPlayer == world.contextPlayer.whoAmI && Player.tileTargetX == i && Player.tileTargetY == j) PlaceInfinite(i, j, TileType.Block);
+        
+        bool res = orig(i, j, tileCache, tileTopCache, tileBottomCache, type);
+        if (res) world.ClearInfinite(i, j, TileType.Block);
+        return res;
+    }
     private static bool _dropOnlyItemMiscDrop;
 }
 

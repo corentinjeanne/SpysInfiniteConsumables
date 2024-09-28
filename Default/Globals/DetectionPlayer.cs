@@ -6,15 +6,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using SPIC.Default.Displays;
-using SPIC.Globals;
 
 namespace SPIC.Default.Globals;
 
 public sealed class DetectionPlayer : ModPlayer {
-
-    public bool InItemCheck { get; private set; }
-    public bool InRightClick { get; private set; }
-
 
     public override void Load() {
         On_ItemSlot.RightClick_ItemArray_int_int += HookRightClick;
@@ -38,7 +33,9 @@ public sealed class DetectionPlayer : ModPlayer {
         InItemCheck = true;
         usedCannon = false;
         DetectingCategoryOf = null;
-        InfiniteWorld.Instance.contextPlayer = Player;
+        var world = InfiniteWorld.Instance;
+        world.contextPlayer = Player;
+        if (Player.whoAmI == Main.myPlayer) aimedAtInfiniteTile = world.IsInfinite(Player.tileTargetX, Player.tileTargetY, TileType.Block);
 
         if ((Player.itemAnimation > 0 || !Player.JustDroppedAnItem && Player.ItemTimeIsZero)
                 && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(Player.HeldItem, Usable.Instance) == UsableCategory.Unknown)
@@ -49,6 +46,7 @@ public sealed class DetectionPlayer : ModPlayer {
         if (DetectingCategoryOf is not null) TryDetectCategory();
         InItemCheck = false;
         InfiniteWorld.Instance.contextPlayer = null;
+        aimedAtInfiniteTile = false;
     }
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
@@ -164,8 +162,11 @@ public sealed class DetectionPlayer : ModPlayer {
     public Item? DetectingCategoryOf;
     private DetectionDataScreenShot _preUseData;
 
+    public bool InItemCheck { get; private set; }
+    public bool InRightClick { get; private set; }
     public bool teleported;
     public bool usedCannon;
+    public bool aimedAtInfiniteTile;
 }
 
 public record struct DetectionDataScreenShot(

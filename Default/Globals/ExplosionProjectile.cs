@@ -2,11 +2,15 @@
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using Terraria.DataStructures;
-using SPIC.Globals;
+using Terraria.ID;
 
 namespace SPIC.Default.Globals {
 
     public sealed class ExplosionProjectile : GlobalProjectile {
+
+        public override bool InstancePerEntity => true;
+
+        public bool infiniteFallingTile;
 
         public override void Load() {
             On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
@@ -22,9 +26,19 @@ namespace SPIC.Default.Globals {
         }
         public override void PostAI(Projectile projectile) => InfiniteWorld.Instance.contextProjectile = null;
 
+        public override bool PreKill(Projectile projectile, int timeLeft) {
+            InfiniteWorld.Instance.contextProjectile = projectile;
+            return true;
+        }
+        public override void OnKill(Projectile projectile, int timeLeft) => InfiniteWorld.Instance.contextProjectile = null;
+
         public override void OnSpawn(Projectile projectile, IEntitySource source) {
-            if (!projectile.noDropItem && source is IEntitySource_WithStatsFromItem spawn && (InfiniteAmmo(projectile, spawn) || InfiniteConsumable(spawn)))
-                projectile.noDropItem = true;
+            if (projectile.noDropItem) return;
+            if (source is IEntitySource_WithStatsFromItem spawn && (InfiniteAmmo(projectile, spawn) || InfiniteConsumable(spawn) || IsInfiniteDirt(spawn))
+            || source is EntitySource_TileBreak tileBreak && InfiniteWorld.Instance.IsInfinite(tileBreak.TileCoords.X, tileBreak.TileCoords.Y, TileType.Block)) {
+                if (projectile.aiStyle == ProjAIStyleID.FallingTile) infiniteFallingTile = true;
+                else projectile.noDropItem = true;
+            }
         }
 
         private static bool InfiniteConsumable(IEntitySource_WithStatsFromItem spawn)
@@ -34,6 +48,9 @@ namespace SPIC.Default.Globals {
             => (spawn.Player.PickAmmo(spawn.Player.HeldItem, out int proj, out _, out _, out _, out int ammoType, true) && proj == projectile.type) ?
                     spawn.Player.HasInfinite(ammoType, 1, Ammo.Instance) :
                     spawn.Player.HasInfinite(DetectionPlayer.FindAmmo(spawn.Player, projectile.type), 1, Ammo.Instance);
+
+        private static bool IsInfiniteDirt(IEntitySource_WithStatsFromItem spawn)
+            => spawn.Item.type == ItemID.DirtRod && spawn.Player.GetModPlayer<DetectionPlayer>().aimedAtInfiniteTile;
 
         private static void Explode(Projectile proj) {
             if (proj.owner < 0 || !Configs.InfinitySettings.Instance.detectMissingCategories || !_explodedProjTypes.Add(proj.type)) return;

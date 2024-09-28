@@ -35,7 +35,7 @@ public class InfiniteWorld : ModSystem {
             Item item = contextPlayer.HeldItem;
             if (Main.LocalPlayer.HasInfinite(Placeable.GetAmmo(contextPlayer, item) ?? item, 1, Placeable.Instance)) return true;
         } else if (contextProjectile is not null) {
-            if (contextProjectile.noDropItem) return true;
+            if (contextProjectile.noDropItem || contextProjectile.GetGlobalProjectile<ExplosionProjectile>().infiniteFallingTile) return true;
         }
         return false;
     }
