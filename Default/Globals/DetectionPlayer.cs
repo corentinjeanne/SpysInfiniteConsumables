@@ -38,7 +38,7 @@ public sealed class DetectionPlayer : ModPlayer {
         InItemCheck = true;
         usedCannon = false;
         DetectingCategoryOf = null;
-        InfiniteTile.contextPlayer = Player;
+        InfiniteWorld.Instance.contextPlayer = Player;
 
         if ((Player.itemAnimation > 0 || !Player.JustDroppedAnItem && Player.ItemTimeIsZero)
                 && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(Player.HeldItem, Usable.Instance) == UsableCategory.Unknown)
@@ -48,7 +48,7 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void PostItemCheck() {
         if (DetectingCategoryOf is not null) TryDetectCategory();
         InItemCheck = false;
-        InfiniteTile.contextPlayer = null;
+        InfiniteWorld.Instance.contextPlayer = null;
     }
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();

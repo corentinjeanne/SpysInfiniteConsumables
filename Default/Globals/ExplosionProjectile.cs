@@ -17,10 +17,10 @@ namespace SPIC.Default.Globals {
         public override void Unload() => ClearExploded();
 
         public override bool PreAI(Projectile projectile) {
-            InfiniteTile.contextProjectile = projectile;
+            InfiniteWorld.Instance.contextProjectile = projectile;
             return true;
         }
-        public override void PostAI(Projectile projectile) => InfiniteTile.contextProjectile = null;
+        public override void PostAI(Projectile projectile) => InfiniteWorld.Instance.contextProjectile = null;
 
         public override void OnSpawn(Projectile projectile, IEntitySource source) {
             if (!projectile.noDropItem && source is IEntitySource_WithStatsFromItem spawn && (InfiniteAmmo(projectile, spawn) || InfiniteConsumable(spawn)))
