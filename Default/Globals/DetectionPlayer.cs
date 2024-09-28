@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using SPIC.Default.Displays;
+using SPIC.Globals;
 
 namespace SPIC.Default.Globals;
 
@@ -16,7 +17,6 @@ public sealed class DetectionPlayer : ModPlayer {
 
 
     public override void Load() {
-        On_Player.ItemCheck_Inner += HookItemCheck_Inner;
         On_ItemSlot.RightClick_ItemArray_int_int += HookRightClick;
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
@@ -34,18 +34,21 @@ public sealed class DetectionPlayer : ModPlayer {
         return self.HasInfinite(customCurrency, price, infinity) || orig(self, price, customCurrency);
     }
 
-    private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
-        DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
-        detectionPlayer.InItemCheck = true;
-        detectionPlayer.usedCannon = false;
-        detectionPlayer.DetectingCategoryOf = null;
+    public override bool PreItemCheck() {
+        InItemCheck = true;
+        usedCannon = false;
+        DetectingCategoryOf = null;
+        InfiniteTile.contextPlayer = Player;
 
-        if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
-            detectionPlayer.PrepareDetection(self.HeldItem);
-        orig(self);
-        if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
-        detectionPlayer.InItemCheck = false;
+        if ((Player.itemAnimation > 0 || !Player.JustDroppedAnItem && Player.ItemTimeIsZero)
+                && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(Player.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+            PrepareDetection(Player.HeldItem);
+        return true;
+    }
+    public override void PostItemCheck() {
+        if (DetectingCategoryOf is not null) TryDetectCategory();
+        InItemCheck = false;
+        InfiniteTile.contextPlayer = null;
     }
 
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
