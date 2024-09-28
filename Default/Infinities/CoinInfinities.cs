@@ -2,6 +2,7 @@ using System.ComponentModel;
 using SPIC.Configs;
 using SpikysLib;
 using SpikysLib.Configs.UI;
+using Terraria;
 using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
@@ -20,6 +21,11 @@ public abstract class CoinInfinity : Infinity<int>, IConfigProvider<RequirementR
 
     protected sealed override long GetRequirementInner(int consumable) => consumable == CurrencyHelper.Coins ? Config.requirement : 0;
     protected sealed override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * Config.multiplier);
+
+    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
+    }
 }
 
 public sealed class Nurse : CoinInfinity {

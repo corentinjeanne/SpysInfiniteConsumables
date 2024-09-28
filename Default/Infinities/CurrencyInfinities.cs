@@ -2,6 +2,7 @@ using System.ComponentModel;
 using SPIC.Configs;
 using SpikysLib;
 using SpikysLib.Configs.UI;
+using Terraria;
 using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
@@ -48,6 +49,11 @@ public abstract class CurrencyInfinity: Infinity<int, CurrencyCategory>, IConfig
         return system.ValuePerUnit().Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
     }
     protected sealed override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * GetMultiplier(InfinityManager.GetCategory(consumable, this)));
+
+    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
+        if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
+    }
 }
 
 // TODO PreventItemDuplication
