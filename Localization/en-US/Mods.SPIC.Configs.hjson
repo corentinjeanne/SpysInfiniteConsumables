@@ -220,7 +220,7 @@ Direction: {
 PreventItemDuplication: {
 	Tooltip: ""
 
-	allowMisc: {
+	allowMiscDrops: {
 		Label: Allow Secondary Drops
 		Tooltip: Allow herbs, woods, buckets or secondary tile drops to be dropped even if the tile is infinite
 	}

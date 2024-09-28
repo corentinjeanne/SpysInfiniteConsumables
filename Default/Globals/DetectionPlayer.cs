@@ -144,7 +144,7 @@ public sealed class DetectionPlayer : ModPlayer {
 
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (Placeable.PreventItemDuplication && !Placeable.Instance.Config.preventItemDuplication.Value.allowMisc) return;
+        else if (Placeable.PreventItemDuplication && !Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops) return;
 
         orig(self, type, selItem);
     }

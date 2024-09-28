@@ -59,7 +59,7 @@ public sealed class PlaceableRequirements {
 }
 
 public sealed class PreventItemDuplication {
-    [DefaultValue(true)] public bool allowMisc = true;
+    [DefaultValue(true)] public bool allowMiscDrops = true;
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
@@ -211,14 +211,6 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         Item { type: ItemID.PaintRoller or ItemID.SpectrePaintRoller } => WandType.PaintRoller,
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
-
-    // protected override void ModifyInfinity(Item consumable, ref InfinityValue value) {
-    //     if(!InfinitySettings.Instance.PreventItemDuplication || value.Count <= value.Requirement.Count) return;
-    //     if(consumable.createTile != -1 || consumable.createWall != -1 || IsWandAmmo(consumable.type, out int _) || (consumable.FitsAmmoSlot() && consumable.mech)) {
-    //         extras.Add(this.GetLocalizationKey("TileDuplication"));
-    //         infinity = 0;
-    //     }
-    // }
 
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
         Item? ammo = GetAmmo(Main.LocalPlayer, item);

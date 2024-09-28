@@ -16,28 +16,27 @@ public class SPICTile : GlobalTile {
         On_WorldGen.KillTile_DropItems += HookDropItems;
         On_WorldGen.KillTile_GetItemDrops += HookNoSecondaryDrop;
         On_WorldGen.KillTile += HookKillTile;
+        MonoModHooks.Add(typeof(TileLoader).GetMethod(nameof(TileLoader.Drop)), HookDrop);
         MonoModHooks.Add(typeof(TileLoader).GetMethod(nameof(TileLoader.GetItemDrops)), HookNoSecondaryDropModded);
         MonoModHooks.Add(typeof(PlantLoader).GetMethod(nameof(PlantLoader.ShakeTree)), HookShakeTree);
     }
 
+    public static readonly int[] HerbsID = [TileID.MatureHerbs, TileID.BloomingHerbs];
     public static bool IsATree(int type) => type switch {
         TileID.Trees or TileID.PalmTree or TileID.VanityTreeSakura or TileID.VanityTreeYellowWillow or TileID.TreeAsh => true,
         >= TileID.TreeAmethyst and <= TileID.TreeAmber => true,
         _ => false
     };
 
-    private static readonly int[] HerbsID = [TileID.MatureHerbs, TileID.BloomingHerbs];
-    private static bool _noSecondaryDrops;
-
     public static (int topLeftX, int topLeftY) GetUsedTile(int centerX, int centerY, int type, int style) => GetUsedTile(centerX, centerY, TileObjectData.GetTileData(type, style));
     public static (int topLeftX, int topLeftY) GetUsedTile(int tileX, int tileY) => GetUsedTile(tileX, tileY, TileObjectData.GetTileData(Main.tile[tileX, tileY]));
-    public static (int topLeftX, int topLeftY) GetUsedTile(int x, int y, TileObjectData? data) {
+    public static (int topLeftX, int topLeftY) GetUsedTile(int x, int y, TileObjectData? data) { // Bottom left
         if (IsATree(Main.tile[x, y].TileType)) {
             WorldGen.GetTreeBottom(x, y, out int botX, out int botY);
-            return (botX, botY-2);
+            return (botX, botY-1);
         }
         if (data is null) return (x, y);
-        return (x - Main.tile[x, y].TileFrameX % (18 * data.Width) / 18, y - Main.tile[x, y].TileFrameY % (18 * data.Height) / 18);
+        return (x - Main.tile[x, y].TileFrameX % (18 * data.Width) / 18, y - Main.tile[x, y].TileFrameY % (18 * data.Height) / 18 + data.Height-1);
     }
 
     public override void PlaceInWorld(int i, int j, int type, Item item) {
@@ -57,33 +56,44 @@ public class SPICTile : GlobalTile {
 
     private void HookDropItems(On_WorldGen.orig_KillTile_DropItems orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops, bool includeAllModdedLargeObjectDrops) {
         (int i, int j) = GetUsedTile(x, y);
-        if (Placeable.PreventItemDuplication && Placeable.Instance.Config.preventItemDuplication.Value.allowMisc
-            && (IsATree(tileCache.TileType) || HerbsID.Contains(tileCache.TileType)) && InfiniteWorld.Instance.IsInfinite(i, j, TileType.Block)) _noSecondaryDrops = true;
+        if (Placeable.PreventItemDuplication && InfiniteWorld.Instance.IsInfinite(i, j, TileType.Block)) _dropOnlyItemMiscDrop = true;
         orig(x, y, tileCache, includeLargeObjectDrops, includeAllModdedLargeObjectDrops);
-        _noSecondaryDrops = false;
+        _dropOnlyItemMiscDrop = false;
     }
-    
-    public override bool CanDrop(int i, int j, int type) {
-        (i, j) = GetUsedTile(i, j);
-        return !Placeable.PreventItemDuplication || _noSecondaryDrops || !InfiniteWorld.Instance.IsInfinite(i, j, TileType.Block);
+    public delegate bool DropFn(int i, int j, int type, bool includeLargeObjectDrops = true);
+    private static bool HookDrop(DropFn orig, int i, int j, int type, bool includeLargeObjectDrops = true) {
+        if (!Placeable.PreventItemDuplication) return orig(i, j, type, includeLargeObjectDrops);
+
+        (int x, int y) = GetUsedTile(i, j);
+        bool canDrop = !InfiniteWorld.Instance.IsInfinite(x, y, TileType.Block);
+        return Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops ?
+            (orig(i, j, type, includeLargeObjectDrops) && (_dropOnlyItemMiscDrop || canDrop)) :
+            (canDrop && orig(i, j, type, includeLargeObjectDrops));
     }
 
     private static void HookNoSecondaryDrop(On_WorldGen.orig_KillTile_GetItemDrops orig, int x, int y, Tile tileCache, out int dropItem, out int dropItemStack, out int secondaryItem, out int secondaryItemStack, bool includeLargeObjectDrops) {
-        orig(x, y, tileCache, out dropItem, out dropItemStack, out secondaryItem, out secondaryItemStack, includeLargeObjectDrops);
-        if (_noSecondaryDrops) secondaryItem = ItemID.None;
+        if (!_dropOnlyItemMiscDrop) {
+            orig(x, y, tileCache, out dropItem, out dropItemStack, out secondaryItem, out secondaryItemStack, includeLargeObjectDrops);
+            return;
+        }
+        secondaryItem = ItemID.None; secondaryItemStack = 0;
+        if (IsATree(tileCache.TileType) || HerbsID.Contains(tileCache.TileType)) orig(x, y, tileCache, out dropItem, out dropItemStack, out _, out _, includeLargeObjectDrops);
+        else (dropItem, dropItemStack) = (ItemID.None, 0);
     }
     public delegate void GetItemDropsFn(int x, int y, Tile tileCache, bool includeLargeObjectDrops = false, bool includeAllModdedLargeObjectDrops = false);
     public static void HookNoSecondaryDropModded(GetItemDropsFn orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops = false, bool includeAllModdedLargeObjectDrops = false) {
-        if (!_noSecondaryDrops) orig(x, y, tileCache, includeLargeObjectDrops, includeAllModdedLargeObjectDrops);
+        if (!_dropOnlyItemMiscDrop) orig(x, y, tileCache, includeLargeObjectDrops, includeAllModdedLargeObjectDrops);
     }
     public delegate bool ShakeTreeFn(int x, int y, int type, ref bool createLeaves);
     public static bool HookShakeTree(ShakeTreeFn orig, int x, int y, int type, ref bool createLeaves)
-        => (_noSecondaryDrops || !InfiniteWorld.Instance.IsInfinite(x, y - 2, TileType.Block)) && orig(x, y, type, ref createLeaves);
+        => (_dropOnlyItemMiscDrop || !InfiniteWorld.Instance.IsInfinite(x, y - 2, TileType.Block)) && orig(x, y, type, ref createLeaves);
 
     private void HookKillTile(On_WorldGen.orig_KillTile orig, int i, int j, bool fail, bool effectOnly, bool noItem) {
         orig(i, j, fail, effectOnly, noItem);
         if (!Main.tile[i, j].HasTile) InfiniteWorld.Instance.ClearInfinite(i, j, TileType.Block);
     }
+
+    private static bool _dropOnlyItemMiscDrop;
 }
 
 public class SPICWall : GlobalWall {
