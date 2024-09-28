@@ -36,7 +36,7 @@ namespace SPIC.Default.Globals {
             if (projectile.noDropItem) return;
             if (source is IEntitySource_WithStatsFromItem spawn && (InfiniteAmmo(projectile, spawn) || InfiniteConsumable(spawn) || IsInfiniteDirt(spawn))
             || source is EntitySource_TileBreak tileBreak && InfiniteWorld.Instance.IsInfinite(tileBreak.TileCoords.X, tileBreak.TileCoords.Y, TileType.Block)) {
-                if (projectile.aiStyle == ProjAIStyleID.FallingTile) infiniteFallingTile = true;
+                if (projectile.aiStyle == ProjAIStyleID.FallingTile) infiniteFallingTile = true; // TODO multiplayer
                 else projectile.noDropItem = true;
             }
         }

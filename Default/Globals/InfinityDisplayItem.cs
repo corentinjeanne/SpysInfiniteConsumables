@@ -25,12 +25,12 @@ public sealed class InfinityDisplayItem : GlobalItem {
     }
 
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        if (!Main.gameMenu && Glow.Instance.Enabled) Glow.PreDrawInInventory(item, spriteBatch, position, frame, origin, scale);
+        if (!Main.gameMenu && !Main.ingameOptionsWindow && Glow.Instance.Enabled) Glow.PreDrawInInventory(item, spriteBatch, position, frame, origin, scale);
         return true;
     }
 
     public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        if (!Main.gameMenu && Dots.Instance.Enabled) Dots.PostDrawInInventory(item, spriteBatch, position);
+        if (!Main.gameMenu && !Main.ingameOptionsWindow && Dots.Instance.Enabled) Dots.PostDrawInInventory(item, spriteBatch, position);
     }
 
     private delegate void ModifyNursePriceFn(Player player, NPC npc, int health, bool removeDebuffs, ref int price);

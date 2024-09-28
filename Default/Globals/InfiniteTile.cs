@@ -9,7 +9,6 @@ using System;
 
 namespace SPIC.Globals;
 
-// TODO multiplayer
 public class InfiniteTile : GlobalTile {
 
     public override void Load() {

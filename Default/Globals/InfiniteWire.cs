@@ -38,7 +38,7 @@ public class InfiniteWire : GlobalTile {
         if (!hasWire(tile) || !Placeable.PreventItemDuplication || !world.IsInfinite(i, j, wire)) return orig(i, j);
         SoundEngine.PlaySound(SoundID.Dig, new(i * 16, j * 16));
         unset(tile);
-        for (int k = 0; k < 5; k++) Dust.NewDust(new((float)(i * 16), (float)(j * 16)), 16, 16, 50);
+        for (int k = 0; k < 5; k++) Dust.NewDust(new(i * 16, j * 16), 16, 16, DustID.Adamantite);
         return true;
     }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using SPIC.Default.Infinities;
 using SpikysLib.Collections;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -26,14 +27,14 @@ public enum WireType : byte {
 
 public class InfiniteWorld : ModSystem {
     public static InfiniteWorld Instance => ModContent.GetInstance<InfiniteWorld>();
-   
+
     public Player? contextPlayer = null;
     public Projectile? contextProjectile = null;
 
     public bool IsInfinitePlacementContext() {
         if (contextPlayer is not null) {
             Item item = contextPlayer.HeldItem;
-            if (Main.LocalPlayer.HasInfinite(Placeable.GetAmmo(contextPlayer, item) ?? item, 1, Placeable.Instance)) return true;
+            if (contextPlayer.HasInfinite(Placeable.GetAmmo(contextPlayer, item) ?? item, 1, Placeable.Instance)) return true;
         } else if (contextProjectile is not null) {
             if (contextProjectile.noDropItem || contextProjectile.GetGlobalProjectile<ExplosionProjectile>().infiniteFallingTile) return true;
         }
@@ -65,6 +66,20 @@ public class InfiniteWorld : ModSystem {
         j = Math.DivRem(j * bits, BitsPerIndex, out int offset);
         // based on Tile.TileId calculation
         return (cornerY + cornerX * Main.tile.Height, j + i * 2 * ChunkSize / BitsPerIndex, offset);
+    }
+
+    public override void Load() {
+        On_MessageBuffer.GetData += HookNetPlayerContext;
+    }
+
+    private void HookNetPlayerContext(On_MessageBuffer.orig_GetData orig, MessageBuffer self, int start, int length, out int messageType) {
+        if (Main.netMode != NetmodeID.Server || Main.gameMenu) {
+            orig(self, start, length, out messageType);
+            return;
+        }
+        contextPlayer = Main.player[self.whoAmI];
+        orig(self, start, length, out messageType);
+        contextPlayer = null;
     }
 
     public override void SaveWorldData(TagCompound tag) {
