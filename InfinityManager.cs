@@ -36,10 +36,10 @@ public static class InfinityManager {
     public static long GetInfinity(int consumable, long count, IInfinity infinity)
         => s_infinities.TryGetValue((infinity, consumable, count), out var value) ? value : infinity.GetInfinity(consumable, count);
     
-    public static IReadOnlySet<Infinity<TConsumable>> UsedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
-        => infinity.UsedInfinities(consumable);
-    public static bool IsUsed<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => infinity.IsConsumable || UsedInfinities(consumable, infinity.Consumable).Contains(infinity);
-    public static Infinity<TConsumable> GetUsedInfinity<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => IsUsed(consumable, infinity) ? infinity : infinity.Consumable;
+    public static IReadOnlySet<IInfinity> UnusedInfinities<TConsumable>(TConsumable consumable, ConsumableInfinity<TConsumable> infinity)
+        => s_usedInfinites.GetOrCache((infinity, infinity.GetId(consumable)), _ => infinity.UnusedInfinities(consumable));
+    public static bool IsUnused<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => UnusedInfinities(consumable, infinity.Consumable).Contains(infinity);
+    public static Infinity<TConsumable> GetUsedInfinity<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => IsUnused(consumable, infinity) ? infinity.Consumable : infinity;
 
     public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
         if (!Configs.InfinityDisplay.Instance.disableCache && s_displays.TryGetValue((item.type, item.stack, item.prefix), out var ds)) return ds;
@@ -102,6 +102,7 @@ public static class InfinityManager {
 
     public static void ClearCache(bool canDelayClear = true) {
         s_categories.Clear();
+        s_usedInfinites.Clear();
         s_requirements.Clear();
         s_counts.Clear();
         s_infinities.Clear();
@@ -121,6 +122,7 @@ public static class InfinityManager {
     private static bool s_delayed;
 
     private readonly static Dictionary<(IInfinity infinity, int consumable), Enum> s_categories = [];
+    private readonly static Dictionary<(IConsumableInfinity infinity, int consumable), IReadOnlySet<IInfinity>> s_usedInfinites = [];
     private readonly static Dictionary<(IInfinity infinity, int consumable), long> s_requirements = [];
     private readonly static Dictionary<(IInfinity infinity, int consumable), List<LocalizedText>> s_debug = [];
     private readonly static Dictionary<(IConsumableInfinity infinity, int player, int consumable), long> s_counts = [];

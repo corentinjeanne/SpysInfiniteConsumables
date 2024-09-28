@@ -70,7 +70,7 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
         if (Configs.InfinityDisplay.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
         for (int i = 0; i < consumables.Count; i++) {
             TConsumable consumable = consumables[i];
-            InfinityVisibility visibility = i != 0 || InfinityManager.IsUsed(consumable, this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
+            InfinityVisibility visibility = i != 0 || !InfinityManager.IsUnused(consumable, this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
             long count = Main.LocalPlayer.CountConsumables(consumable, Consumable);
             InfinityValue infinity = new(
                 Consumable.GetId(consumable),

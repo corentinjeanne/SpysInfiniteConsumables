@@ -33,28 +33,31 @@ public abstract class ConsumableInfinity<TConsumable> : Infinity<TConsumable>, I
     public abstract long CountConsumables(Player player, TConsumable consumable);
     public abstract ItemDefinition ToDefinition(TConsumable consumable);
 
-    public HashSet<Infinity<TConsumable>> UsedInfinities(TConsumable consumable) {
-        HashSet<Infinity<TConsumable>> usedInfinities = [];
+    public IReadOnlySet<IInfinity> UnusedInfinities(TConsumable consumable) {
+        HashSet<IInfinity> unusedInfinities = [];
+        int used = 0;
         int max = ConsumableInfinities.Config.usedInfinities;
         foreach (Infinity<TConsumable> infinity in _orderedInfinities.Where(i => i.Enabled)) {
             long value = infinity.GetRequirement(consumable);
             if (value <= 0) continue;
-            usedInfinities.Add(infinity);
-            if (usedInfinities.Count == max) break;
+            if (max == 0 || used < max) used++;
+            else unusedInfinities.Add(infinity);
         }
-        return usedInfinities;
+        return unusedInfinities;
     }
 
     protected sealed override long GetRequirementInner(TConsumable consumable) {
         long requirement = 0;
-        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this))
+        var unused = InfinityManager.UnusedInfinities(consumable, this);
+        foreach (Infinity<TConsumable> infinity in _orderedInfinities.Where(i => i.Enabled && !unused.Contains(i)))
             requirement = Math.Max(requirement, InfinityManager.GetRequirement(consumable, infinity));
         return requirement;
     }
 
     protected sealed override long GetInfinityInner(TConsumable consumable, long count) {
         long value = long.MaxValue;
-        foreach (Infinity<TConsumable> infinity in InfinityManager.UsedInfinities(consumable, this))
+        var unused = InfinityManager.UnusedInfinities(consumable, this);
+        foreach (Infinity<TConsumable> infinity in _orderedInfinities.Where(i => i.Enabled && !unused.Contains(i) && InfinityManager.GetRequirement(consumable, i) > 0))
             value = Math.Min(value, InfinityManager.GetInfinity(consumable, count, infinity));
         return value == long.MaxValue ? 0 : value;
     }
