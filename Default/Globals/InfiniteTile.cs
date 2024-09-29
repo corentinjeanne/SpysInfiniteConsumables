@@ -43,34 +43,37 @@ public class InfiniteTile : GlobalTile {
         return (x - Main.tile[x, y].TileFrameX % (18 * data.Width) / 18, y - Main.tile[x, y].TileFrameY % (18 * data.Height) / 18 + data.Height-1);
     }
 
-    internal static void PlaceInfinite(int usedI, int usedJ, TileType type) {
+    internal static void PlaceInfinite(int usedI, int usedJ, TileFlags type) {
         var world = InfiniteWorld.Instance;
-        if (world.IsInfinitePlacementContext()) world.SetInfinite(usedI, usedJ, type);
+        if (world.IsInfinitePlacementContext()) {
+            world.SetInfinite(usedI, usedJ, type);
+            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfinite.GetPacket(usedI, usedJ, type, 0).Send();
+        }
     }
     private static bool HookPlaceTile(On_WorldGen.orig_PlaceTile orig, int i, int j, int Type, bool mute, bool forced, int plr, int style) {
         if (!orig(i, j, Type, mute, forced, plr, style)) return false;
         if (!Placeable.PreventItemDuplication) return true;
         (i, j) = GetUsedTile(i, j, Type, style);
-        PlaceInfinite(i, j, TileType.Block);
+        PlaceInfinite(i, j, TileFlags.Block);
         return true;
     }
     private static bool HookPlaceObject(On_TileObject.orig_Place orig, TileObject toBePlaced) {
         if (!orig(toBePlaced)) return false;
         if (!Placeable.PreventItemDuplication) return true;
         (int i, int j) = GetUsedTile(toBePlaced);
-        PlaceInfinite(i, j, TileType.Block);
+        PlaceInfinite(i, j, TileFlags.Block);
         return true;
     }
     private static void HookReplaceTIle_DoActualReplacement(On_WorldGen.orig_ReplaceTIle_DoActualReplacement orig, ushort targetType, int targetStyle, int topLeftX, int topLeftY, Tile t) {
         (int i, int j) = GetUsedTile(topLeftX, topLeftY, targetType, targetStyle);
-        InfiniteWorld.Instance.ClearInfinite(i, j, TileType.Block);
+        InfiniteWorld.Instance.ClearInfinite(i, j, TileFlags.Block);
         orig(targetType, targetStyle, topLeftX, topLeftY, t);
-        if (Placeable.PreventItemDuplication) PlaceInfinite(i, j, TileType.Block);
+        if (Placeable.PreventItemDuplication) PlaceInfinite(i, j, TileFlags.Block);
     }
 
     private static void HookDropItems(On_WorldGen.orig_KillTile_DropItems orig, int x, int y, Tile tileCache, bool includeLargeObjectDrops, bool includeAllModdedLargeObjectDrops) {
         (int i, int j) = GetUsedTile(x, y);
-        if (Placeable.PreventItemDuplication && InfiniteWorld.Instance.IsInfinite(i, j, TileType.Block)) _dropOnlyItemMiscDrop = true;
+        if (Placeable.PreventItemDuplication && InfiniteWorld.Instance.IsInfinite(i, j, TileFlags.Block)) _dropOnlyItemMiscDrop = true;
         orig(x, y, tileCache, includeLargeObjectDrops, includeAllModdedLargeObjectDrops);
         _dropOnlyItemMiscDrop = false;
     }
@@ -79,7 +82,7 @@ public class InfiniteTile : GlobalTile {
         if (!Placeable.PreventItemDuplication) return orig(i, j, type, includeLargeObjectDrops);
 
         (int x, int y) = GetUsedTile(i, j);
-        bool canDrop = !InfiniteWorld.Instance.IsInfinite(x, y, TileType.Block);
+        bool canDrop = !InfiniteWorld.Instance.IsInfinite(x, y, TileFlags.Block);
         return Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops ?
             (orig(i, j, type, includeLargeObjectDrops) && (_dropOnlyItemMiscDrop || canDrop)) :
             (canDrop && orig(i, j, type, includeLargeObjectDrops));
@@ -99,19 +102,21 @@ public class InfiniteTile : GlobalTile {
         if (!_dropOnlyItemMiscDrop) orig(x, y, tileCache, includeLargeObjectDrops, includeAllModdedLargeObjectDrops);
     }
     public delegate bool ShakeTreeFn(int x, int y, int type, ref bool createLeaves);
-    public static bool HookShakeTree(ShakeTreeFn orig, int x, int y, int type, ref bool createLeaves)
-        => (!Placeable.PreventItemDuplication || Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops || !InfiniteWorld.Instance.IsInfinite(x, y - 1, TileType.Block)) && orig(x, y, type, ref createLeaves);
+    public static bool HookShakeTree(ShakeTreeFn orig, int x, int y, int type, ref bool createLeaves) {
+        (int i, int j) = GetUsedTile(x, y);
+        return (!Placeable.PreventItemDuplication || Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops || !InfiniteWorld.Instance.IsInfinite(i, j, TileFlags.Block)) && orig(x, y, type, ref createLeaves);
+    }
 
     private void HookKillTile(On_WorldGen.orig_KillTile orig, int i, int j, bool fail, bool effectOnly, bool noItem) {
         orig(i, j, fail, effectOnly, noItem);
-        if (!Main.tile[i, j].HasTile) InfiniteWorld.Instance.ClearInfinite(i, j, TileType.Block);
+        if (!Main.tile[i, j].HasTile) InfiniteWorld.Instance.ClearInfinite(i, j, TileFlags.Block);
     }
     private bool HookFallingSand(On_WorldGen.orig_SpawnFallingBlockProjectile orig, int i, int j, Tile tileCache, Tile tileTopCache, Tile tileBottomCache, int type) {
         var world = InfiniteWorld.Instance;
-        if (world.contextPlayer is not null && Main.myPlayer == world.contextPlayer.whoAmI && Player.tileTargetX == i && Player.tileTargetY == j) PlaceInfinite(i, j, TileType.Block);
+        if (world.contextPlayer is not null && Main.myPlayer == world.contextPlayer.whoAmI && Player.tileTargetX == i && Player.tileTargetY == j) PlaceInfinite(i, j, TileFlags.Block);
         
         bool res = orig(i, j, tileCache, tileTopCache, tileBottomCache, type);
-        if (res) world.ClearInfinite(i, j, TileType.Block);
+        if (res) world.ClearInfinite(i, j, TileFlags.Block);
         return res;
     }
     private static bool _dropOnlyItemMiscDrop;
@@ -126,20 +131,20 @@ public class InfiniteWall : GlobalWall {
 
     private static void HookPlaceWall(On_WorldGen.orig_PlaceWall orig, int i, int j, int type, bool mute) {
         orig(i, j, type, mute);
-        if (Main.tile[i, j].WallType == type && Placeable.PreventItemDuplication) InfiniteTile.PlaceInfinite(i, j, TileType.Wall);
+        if (Main.tile[i, j].WallType == type && Placeable.PreventItemDuplication) InfiniteTile.PlaceInfinite(i, j, TileFlags.Wall);
     }
     private static bool HookReplaceWall(On_WorldGen.orig_ReplaceWall orig, int x, int y, ushort targetWall) {
         bool res = orig(x, y, targetWall);
-        InfiniteWorld.Instance.ClearInfinite(x, y, TileType.Wall);
+        InfiniteWorld.Instance.ClearInfinite(x, y, TileFlags.Wall);
         if (!res) return false;
-        if (Placeable.PreventItemDuplication) InfiniteTile.PlaceInfinite(x, y, TileType.Wall);
+        if (Placeable.PreventItemDuplication) InfiniteTile.PlaceInfinite(x, y, TileFlags.Wall);
         return true;
     }
 
-    public override bool Drop(int i, int j, int type, ref int dropType) => !Placeable.PreventItemDuplication || !InfiniteWorld.Instance.IsInfinite(i, j, TileType.Wall);
+    public override bool Drop(int i, int j, int type, ref int dropType) => !Placeable.PreventItemDuplication || !InfiniteWorld.Instance.IsInfinite(i, j, TileFlags.Wall);
 
     private void HookKillWall(On_WorldGen.orig_KillWall orig, int i, int j, bool fail) {
         orig(i, j, fail);
-        if (Main.tile[i, j].WallType == WallID.None) InfiniteWorld.Instance.ClearInfinite(i, j, TileType.Wall);
+        if (Main.tile[i, j].WallType == WallID.None) InfiniteWorld.Instance.ClearInfinite(i, j, TileFlags.Wall);
     }
 }

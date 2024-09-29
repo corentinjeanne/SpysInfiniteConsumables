@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.RegularExpressions;
 using SPIC.Configs;
 using SpikysLib;
@@ -20,6 +21,8 @@ public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
         InfinitySettings.Instance.Load();
         Configs.InfinityDisplay.Instance.Load();
     }
+
+    public override void HandlePacket(BinaryReader reader, int whoAmI) => PacketHandlerLoader.Handle(this, reader, whoAmI);
 
     public override void Unload() {        
         InfinityLoader.Unload();

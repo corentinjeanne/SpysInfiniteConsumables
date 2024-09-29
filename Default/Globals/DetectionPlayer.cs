@@ -34,8 +34,10 @@ public sealed class DetectionPlayer : ModPlayer {
         usedCannon = false;
         DetectingCategoryOf = null;
         var world = InfiniteWorld.Instance;
-        world.contextPlayer = Player;
-        if (Player.whoAmI == Main.myPlayer) aimedAtInfiniteTile = world.IsInfinite(Player.tileTargetX, Player.tileTargetY, TileType.Block);
+        if (Player.whoAmI == Main.myPlayer) {
+            world.contextPlayer = Player;
+            aimedAtInfiniteTile = world.IsInfinite(Player.tileTargetX, Player.tileTargetY, TileFlags.Block);
+        }
 
         if ((Player.itemAnimation > 0 || !Player.JustDroppedAnItem && Player.ItemTimeIsZero)
                 && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(Player.HeldItem, Usable.Instance) == UsableCategory.Unknown)
