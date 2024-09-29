@@ -52,7 +52,7 @@ public sealed class PlaceableRequirements {
 
 public sealed class PreventItemDuplication {
     [DefaultValue(true)] public bool allowMiscDrops = true;
-    [DefaultValue(true)] public bool infiniteTooltip = true;
+    public bool infiniteTooltip;
 }
 
 public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
