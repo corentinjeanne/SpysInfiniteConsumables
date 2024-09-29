@@ -57,7 +57,7 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
             { new("SPIC/Nurse"), new(requirements.Nurse, new(){ { ProviderDefinition.Config, coinsRequirements } }) },
             { new("SPIC/Purchase"), new(requirements.Others, new(){ { ProviderDefinition.Config, currencyRequirements } }) },
         };
-        infinities.GetOrAdd(currency, _ => new(enabled)).Value[ProviderDefinition.Infinities] = config;
+        infinities.GetOrAdd(currency, () => new(enabled)).Value[ProviderDefinition.Infinities] = config;
     }
     
     protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
@@ -67,7 +67,7 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
 
     internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities, GroupColors colors) {
         InfinityDefinition currency = new("SPIC/Currency");
-        infinities.GetOrAdd(currency, _ => new()).Key = colors.Colors[currency];
+        infinities.GetOrAdd(currency, () => new()).Key = colors.Colors[currency];
     }
 }
 

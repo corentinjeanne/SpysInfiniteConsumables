@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using SPIC.Default.Displays;
+using SPIC.Globals;
 
 namespace SPIC.Default.Globals;
 
@@ -54,6 +55,22 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
 
     public override void PreUpdate() => Dots.PreUpdate();
+
+    public override void PostUpdate() {
+        if (Player.whoAmI == Main.myPlayer) DisplayInfiniteTile();
+    }
+
+    private static void DisplayInfiniteTile() {
+        var world = InfiniteWorld.Instance;
+        (int i, int j) = InfiniteTile.GetUsedTile(Player.tileTargetX, Player.tileTargetY);
+        TileFlags tile = world.GetInfinity(i, j, TileFlags.All);
+        WireFlags wire = world.GetInfinity(i, j, WireFlags.All);
+        List<string> parts = [];
+        if (tile != TileFlags.None) parts.Add(tile.ToString());
+        if (wire != WireFlags.None) parts.Add(wire.ToString());
+
+        if (parts.Count > 0) Main.instance.MouseText($"Infinite {string.Join(", ", parts)}");
+    }
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
 

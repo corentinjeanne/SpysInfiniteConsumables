@@ -48,7 +48,7 @@ public sealed class InfinityDisplay : ModConfig {
             Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> dictionary = [];
             foreach ((var infinity, var color) in colors.Colors) dictionary[infinity] = new(color);
             InfinityDefinition def = d.ToString() == "SPIC/Items" ? new("SPIC/ConsumableItem") : d;
-            infinities.GetOrAdd(def, _ => new(default)).Value[ProviderDefinition.Infinities] = new ClientConsumableInfinities() { infinities = dictionary };
+            infinities.GetOrAdd(def, () => new(default)).Value[ProviderDefinition.Infinities] = new ClientConsumableInfinities() { infinities = dictionary };
         }
     }); }
     [JsonProperty, DefaultValue(CacheStyle.Smart)] private CacheStyle Cache { set => ConfigHelper.MoveMember(value == CacheStyle.None, _ => disableCache = true); }
@@ -60,7 +60,7 @@ public sealed class InfinityDisplay : ModConfig {
     [OnDeserialized]
     private void OnDeserializedMethod(StreamingContext context) {
         foreach (Display display in DisplayLoader.Displays) LoadConfig(display, displays.GetOrAdd(new(display), new Toggle<object>(display.DefaultEnabled) { Value = null! }));
-        foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(default)));
+        foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), () => new(default)));
     }
     public static void LoadConfig(Display display, Toggle<object> config) {
         Type configType = display is IConfigProvider c1 ? c1.ConfigType : typeof(Empty);

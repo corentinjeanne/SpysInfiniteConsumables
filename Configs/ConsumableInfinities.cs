@@ -70,7 +70,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     public void OnLoaded(bool created) {
         Infinity._orderedInfinities.Clear();
         List<IInfinity> toRemove = [];
-        foreach (var infinity in Infinity._infinities) Config.infinities.GetOrAdd(new(infinity), _ => new(Infinity.Defaults.Enabled));
+        foreach (var infinity in Infinity._infinities) Config.infinities.GetOrAdd(new(infinity), () => new(Infinity.Defaults.Enabled));
         foreach ((var key, var value) in Config.infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;
@@ -95,7 +95,7 @@ public class ConsumableInfinitiesProvider<TConsumable>(ConsumableInfinity<TConsu
     }
     public void OnLoadedClient(bool created) {
         List<IInfinity> toRemove = [];
-        foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.infinities.GetOrAdd(new(infinity), _ => new(default));
+        foreach (Infinity<TConsumable> infinity in Infinity._orderedInfinities) ClientConfig.infinities.GetOrAdd(new(infinity), () => new(default));
         foreach ((InfinityDefinition key, NestedValue<Color, Dictionary<ProviderDefinition, object>> value) in ClientConfig.infinities) {
             IInfinity? i = key.Entity;
             if (i is null) continue;

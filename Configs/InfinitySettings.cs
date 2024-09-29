@@ -47,14 +47,14 @@ public sealed class InfinitySettings : ModConfig {
                     } else customs[item] = custom.Global;
                 }
             }
-            infinities.GetOrAdd(def, _ => new(true)).Value[ProviderDefinition.Infinities] = config;
+            infinities.GetOrAdd(def, () => new(true)).Value[ProviderDefinition.Infinities] = config;
             infinities[def].Value[ProviderDefinition.Customs] = customs;
         }
     }); }
 
     [OnDeserialized]
     private void OnDeserializedMethod(StreamingContext context) {
-        foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), _ => new(infinity.Defaults.Enabled)));
+        foreach (IConsumableInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), () => new(infinity.Defaults.Enabled)));
     }
     public static void LoadConfig(IInfinity infinity, Toggle<Dictionary<ProviderDefinition, object>> config) {
         (var oldConfigs, config.Value) = (config.Value, []);

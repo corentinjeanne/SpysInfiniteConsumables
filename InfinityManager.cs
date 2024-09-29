@@ -92,7 +92,7 @@ public static class InfinityManager {
         return retryIfNoneIncluded is not null && retryIfNoneIncluded() && player.HasInfinite(consumable, consumed, infinities);
     }
 
-    public static List<LocalizedText> GetDebugInfo(int consumable, IInfinity infinity) => s_debug.GetOrAdd((infinity, consumable), _ => []);
+    public static List<LocalizedText> GetDebugInfo(int consumable, IInfinity infinity) => s_debug.GetOrAdd((infinity, consumable), () => []);
     public static void AddDebugInfo(int consumable, LocalizedText info, IInfinity infinity) => GetDebugInfo(consumable ,infinity).Add(info);
 
     public static void DecreaseCacheLock() {
