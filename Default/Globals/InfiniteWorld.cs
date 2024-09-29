@@ -6,11 +6,11 @@ using SpikysLib.Collections;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-
 namespace SPIC.Default.Globals;
 
 [Flags]
 public enum TileFlags : byte {
+    None  = 0,
     Block = 0b01,
     Wall  = 0b10,
     All   = 0b11,
@@ -18,6 +18,7 @@ public enum TileFlags : byte {
 
 [Flags]
 public enum WireFlags : byte {
+    None  = 0,
     Red      = 0b00001,
     Blue     = 0b00010,
     Green    = 0b00100,
@@ -47,13 +48,13 @@ public class InfiniteWorld : ModSystem {
     public void SetInfinite(int x, int y, WireFlags flags) => SetInfinite(x, y, (int)flags, _infiniteWires, WireBits);
     private static void SetInfinite(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
         (int chunkId, int i, int offset) = GetChunkIndex(x, y, bits);
-        data.GetOrAdd(chunkId, new int[ChunkSize * ChunkSize * bits / BitsPerIndex])[i] |= flags << offset;
+        data.GetOrAdd(chunkId, () => new int[ChunkSize * ChunkSize * bits / BitsPerIndex])[i] |= flags << offset;
     }
-    public bool IsInfinite(int x, int y, TileFlags flags) => GetInfinite(x, y, flags) != 0;
-    public bool IsInfinite(int x, int y, WireFlags flags) => GetInfinite(x, y, flags) != 0;
-    public TileFlags GetInfinite(int x, int y, TileFlags flags = TileFlags.All) => (TileFlags)GetInfinite(x, y, (int)flags, _infiniteTiles, TileBits);
-    public WireFlags GetInfinite(int x, int y, WireFlags flags = WireFlags.All) => (WireFlags)GetInfinite(x, y, (int)flags, _infiniteWires, WireBits);
-    private static int GetInfinite(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
+    public bool IsInfinite(int x, int y, TileFlags flags) => GetInfinity(x, y, flags) != TileFlags.None;
+    public bool IsInfinite(int x, int y, WireFlags flags) => GetInfinity(x, y, flags) != WireFlags.None;
+    public TileFlags GetInfinity(int x, int y, TileFlags flags = TileFlags.All) => (TileFlags)GetInfinity(x, y, (int)flags, _infiniteTiles, TileBits);
+    public WireFlags GetInfinity(int x, int y, WireFlags flags = WireFlags.All) => (WireFlags)GetInfinity(x, y, (int)flags, _infiniteWires, WireBits);
+    private static int GetInfinity(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
         (int chunkId, int i, int offset) = GetChunkIndex(x, y, bits);
         return data.TryGetValue(chunkId, out int[]? chunk) ? (chunk[i] >> offset) & flags : 0;
     }
@@ -70,7 +71,7 @@ public class InfiniteWorld : ModSystem {
         int cornerY = Math.DivRem(y, ChunkSize, out int j) * ChunkSize;
         j = Math.DivRem(j * bits, BitsPerIndex, out int offset);
         // based on Tile.TileId calculation
-        return (cornerY + cornerX * Main.tile.Height, j + i * 2 * ChunkSize / BitsPerIndex, offset);
+        return (cornerY + cornerX * Main.tile.Height, j + i * bits * ChunkSize / BitsPerIndex, offset);
     }
 
     public override void SaveWorldData(TagCompound tag) {
