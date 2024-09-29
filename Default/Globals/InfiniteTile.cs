@@ -100,7 +100,7 @@ public class InfiniteTile : GlobalTile {
     }
     public delegate bool ShakeTreeFn(int x, int y, int type, ref bool createLeaves);
     public static bool HookShakeTree(ShakeTreeFn orig, int x, int y, int type, ref bool createLeaves)
-        => !(Placeable.PreventItemDuplication && Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops && InfiniteWorld.Instance.IsInfinite(x, y - 1, TileType.Block)) && orig(x, y, type, ref createLeaves);
+        => (!Placeable.PreventItemDuplication || Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops || !InfiniteWorld.Instance.IsInfinite(x, y - 1, TileType.Block)) && orig(x, y, type, ref createLeaves);
 
     private void HookKillTile(On_WorldGen.orig_KillTile orig, int i, int j, bool fail, bool effectOnly, bool noItem) {
         orig(i, j, fail, effectOnly, noItem);
