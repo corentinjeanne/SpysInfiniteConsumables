@@ -1,4 +1,4 @@
-﻿using Terraria;
+using Terraria;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using Terraria.DataStructures;
@@ -58,13 +58,9 @@ namespace SPIC.Default.Globals {
             Item item = DetectionPlayer.FindAmmo(Main.player[proj.owner], proj.type);
 
             AmmoCategory ammo = InfinityManager.GetCategory(item, Ammo.Instance);
-            // UsableCategory usable = InfinityManager.GetCategory(type, Usable.Instance);
             if (ammo != AmmoCategory.None && ammo != AmmoCategory.Special) {
                 if (Ammo.Instance.SaveDetectedCategory(item, AmmoCategory.Special)) DetectionPlayer.RefillExplosive(Main.player[proj.owner], proj.type, item);
             }
-            // else if(usable != UsableCategory.None && usable != UsableCategory.Tool){
-            //     if(InfinityManager.SaveDetectedCategory(new(type), UsableCategory.Tool, Usable.Instance)) detectionPlayer.RefillExplosive(proj.type, type);
-            // }
         }
 
         private void HookExplodeCrackedTiles(On_Projectile.orig_ExplodeCrackedTiles orig, Projectile self, Microsoft.Xna.Framework.Vector2 compareSpot, int radius, int minI, int maxI, int minJ, int maxJ) {

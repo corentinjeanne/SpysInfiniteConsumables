@@ -19,18 +19,10 @@ public enum PlaceableCategory {
     None,
 
     Tile,
-    // Block,
-    // Wall,
     Torch,
     Ore,
 
     Furniture,
-    // LightSource,
-    // Container,
-    // Functional,
-    // CraftingStation,
-    // Decoration,
-    // MusicBox,
 
     Wiring,
     Mechanical,
@@ -104,14 +96,10 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
 
     public override long GetRequirement(PlaceableCategory category) => category switch {
         PlaceableCategory.Tile => Config.Tile,
-        // PlaceableCategory.Block or PlaceableCategory.Wall => Config.Tile,
         PlaceableCategory.Wiring => Config.Wiring,
         PlaceableCategory.Torch => Config.Torch,
         PlaceableCategory.Ore => Config.Ore,
         PlaceableCategory.Furniture => Config.Furniture,
-        // PlaceableCategory.LightSource or PlaceableCategory.Functional or PlaceableCategory.Decoration
-        //         or PlaceableCategory.Container or PlaceableCategory.CraftingStation or PlaceableCategory.MusicBox
-        //     => Config.Furniture,
         PlaceableCategory.Bucket => Config.Bucket,
         PlaceableCategory.Mechanical => Config.Mechanical,
         PlaceableCategory.Seed => Config.Seed,
@@ -151,30 +139,6 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         if (item.createWall != -1) return PlaceableCategory.Tile;
 
         return PlaceableCategory.None;
-
-        // if(item.XMasDeco()) return PlaceableCategory.Decoration;
-        // if (item.createTile != -1) {
-        //     int tileType = item.createTile;
-        //     if (item.accessory) return PlaceableCategory.MusicBox;
-        //     if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Block;
-        //     if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || ItemID.Sets.GrassSeeds[item.type]) return PlaceableCategory.Seed;
-        //     if (Main.tileContainer[tileType]) return PlaceableCategory.Container;
-        //     if (item.mech) return PlaceableCategory.Mechanical;
-        //     if (Main.tileFrameImportant[tileType]) {
-        //         bool GoodTile(int t) => t == tileType;
-        //         if (TileID.Sets.Torch[tileType]) return PlaceableCategory.Torch;
-        //         if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTorch, GoodTile)) return PlaceableCategory.LightSource;
-        //         if (System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsChair, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsDoor, GoodTile) || System.Array.Exists(TileID.Sets.RoomNeeds.CountsAsTable, GoodTile))
-        //             return PlaceableCategory.Functional;
-        //         if (Systems.InfiniteRecipe.CraftingStations.Contains(tileType)) return PlaceableCategory.CraftingStation;
-        //         if (TileID.Sets.HasOutlines[tileType]) return PlaceableCategory.Functional;
-        //         return PlaceableCategory.Decoration;
-        //     }
-        //     if (Main.tileSpelunker[tileType] || ItemID.Sets.ExtractinatorMode[item.type] != -1) return PlaceableCategory.Ore;
-        //     return PlaceableCategory.Block;
-        // }
-        // if (item.createWall != -1) return PlaceableCategory.Wall;
-        // return PlaceableCategory.None;
     }
 
     private static readonly Dictionary<int, int> s_wandAmmos = []; // ammoType, wandType

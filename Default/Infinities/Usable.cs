@@ -15,15 +15,10 @@ public enum UsableCategory {
 
     Weapon,
     Potion,
-    // Recovery,
-    // Buff,
     Booster,
-    // PlayerBooster,
-    // WorldBooster,
 
     Summoner, // TODO Fargo's summons
     Critter,
-    // Explosive,
     Tool,
 
     Unknown
@@ -50,13 +45,9 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<Usa
     public override long GetRequirement(UsableCategory category) => category switch {
         UsableCategory.Weapon => Config.Weapon,
         UsableCategory.Potion => Config.Potion,
-        // UsableCategory.Recovery => Infinities.GetInstance).Potion),
-        // UsableCategory.Buff => Infinities.GetInstance).Potion),
         UsableCategory.Booster => Config.Booster,
-        // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => Infinities.GetInstance).Booster),
         UsableCategory.Summoner => Config.Summoner,
         UsableCategory.Critter => Config.Critter,
-        // UsableCategory.Explosive => Infinities.GetInstance).Tool),
         UsableCategory.Tool or UsableCategory.Unknown => Config.Tool,
         _ => 0,
     };
@@ -88,7 +79,6 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<Usa
         if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Potion;
         if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Potion;
 
-        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
         if (item.hairDye != -1) return UsableCategory.Booster;

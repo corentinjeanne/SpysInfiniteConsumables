@@ -53,7 +53,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<G
             return GrabBagCategory.Container;
         }
         if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Extractinator;
-        return GrabBagCategory.None; // GrabBagCategory.Unknown;
+        return GrabBagCategory.None;
     }
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
