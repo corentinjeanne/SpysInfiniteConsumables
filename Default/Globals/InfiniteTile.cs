@@ -47,7 +47,7 @@ public class InfiniteTile : GlobalTile {
         var world = InfiniteWorld.Instance;
         if (world.IsInfinitePlacementContext()) {
             world.SetInfinite(usedI, usedJ, type);
-            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfinite.GetPacket(usedI, usedJ, type, 0).Send();
+            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfiniteTile.GetPacket(usedI, usedJ, type).Send();
         }
     }
     private static bool HookPlaceTile(On_WorldGen.orig_PlaceTile orig, int i, int j, int Type, bool mute, bool forced, int plr, int style) {

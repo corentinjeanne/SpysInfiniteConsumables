@@ -26,7 +26,7 @@ public class InfiniteWire : GlobalTile {
         var world = InfiniteWorld.Instance;
         if (world.IsInfinitePlacementContext()) {
             world.SetInfinite(i, j, wire);
-            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfinite.GetPacket(i, j, 0, wire).Send();
+            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfiniteTile.GetPacket(i, j, wire).Send();
         }
     }
 

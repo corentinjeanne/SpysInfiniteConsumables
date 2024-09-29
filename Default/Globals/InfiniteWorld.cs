@@ -4,7 +4,6 @@ using System.Linq;
 using SPIC.Default.Infinities;
 using SpikysLib.Collections;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -14,6 +13,7 @@ namespace SPIC.Default.Globals;
 public enum TileFlags : byte {
     Block = 0b01,
     Wall  = 0b10,
+    All   = 0b11,
 }
 
 [Flags]
@@ -23,6 +23,7 @@ public enum WireFlags : byte {
     Green    = 0b00100,
     Yellow   = 0b01000,
     Actuator = 0b10000,
+    All      = 0b11111,
 }
 
 public class InfiniteWorld : ModSystem {
@@ -42,23 +43,26 @@ public class InfiniteWorld : ModSystem {
         return false;
     }
 
-    public void SetInfinite(int x, int y, TileFlags flags) => SetInfinite(x, y, _infiniteTiles, (int)flags, 2);
-    public void SetInfinite(int x, int y, WireFlags flags) => SetInfinite(x, y, _infiniteWires, (int)flags, 8);
-    private static void SetInfinite(int x, int y, Dictionary<int, int[]> data, int flags, int bits) {
+    public void SetInfinite(int x, int y, TileFlags flags) => SetInfinite(x, y, (int)flags, _infiniteTiles, TileBits);
+    public void SetInfinite(int x, int y, WireFlags flags) => SetInfinite(x, y, (int)flags, _infiniteWires, WireBits);
+    private static void SetInfinite(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
         (int chunkId, int i, int offset) = GetChunkIndex(x, y, bits);
         data.GetOrAdd(chunkId, new int[ChunkSize * ChunkSize * bits / BitsPerIndex])[i] |= flags << offset;
     }
-    public bool IsInfinite(int x, int y, TileFlags flags) => IsInfinite(x, y, _infiniteTiles, (int)flags, 2);
-    public bool IsInfinite(int x, int y, WireFlags flags) => IsInfinite(x, y, _infiniteWires, (int)flags, 8);
-    private static bool IsInfinite(int x, int y, Dictionary<int, int[]> data, int value, int bits) {
+    public bool IsInfinite(int x, int y, TileFlags flags) => GetInfinite(x, y, flags) != 0;
+    public bool IsInfinite(int x, int y, WireFlags flags) => GetInfinite(x, y, flags) != 0;
+    public TileFlags GetInfinite(int x, int y, TileFlags flags = TileFlags.All) => (TileFlags)GetInfinite(x, y, (int)flags, _infiniteTiles, TileBits);
+    public WireFlags GetInfinite(int x, int y, WireFlags flags = WireFlags.All) => (WireFlags)GetInfinite(x, y, (int)flags, _infiniteWires, WireBits);
+    private static int GetInfinite(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
         (int chunkId, int i, int offset) = GetChunkIndex(x, y, bits);
-        return data.TryGetValue(chunkId, out int[]? chunk) && (chunk[i] & (value << offset)) != 0;
+        return data.TryGetValue(chunkId, out int[]? chunk) ? (chunk[i] >> offset) & flags : 0;
     }
-    public void ClearInfinite(int x, int y, TileFlags flags) => ClearInfinite(x, y, _infiniteTiles, (int)flags, 2);
-    public void ClearInfinite(int x, int y, WireFlags flags) => ClearInfinite(x, y, _infiniteWires, (int)flags, 8);
-    private static void ClearInfinite(int x, int y, Dictionary<int, int[]> data, int value, int bits) {
+
+    public void ClearInfinite(int x, int y, TileFlags flags) => ClearInfinite(x, y, (int)flags, _infiniteTiles, TileBits);
+    public void ClearInfinite(int x, int y, WireFlags flags) => ClearInfinite(x, y, (int)flags, _infiniteWires, WireBits);
+    private static void ClearInfinite(int x, int y, int flags, Dictionary<int, int[]> data, int bits) {
         (int chunkId, int i, int offset) = GetChunkIndex(x, y, bits);
-        if (data.TryGetValue(chunkId, out int[]? chunk)) chunk[i] &= ~(value << offset);
+        if (data.TryGetValue(chunkId, out int[]? chunk)) chunk[i] &= ~(flags << offset);
     }
 
     private static (int chunkId, int index, int offset) GetChunkIndex(int x, int y, int bits) {
@@ -85,6 +89,9 @@ public class InfiniteWorld : ModSystem {
         _infiniteTiles.Clear();
         _infiniteWires.Clear();
     }
+
+    public const int TileBits = 2;
+    public const int WireBits = 8;
 
     private Dictionary<int, int[]> _infiniteTiles = [];
     private Dictionary<int, int[]> _infiniteWires = [];
