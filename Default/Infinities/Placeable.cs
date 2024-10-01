@@ -121,13 +121,13 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         if (item.PaintOrCoating) return PlaceableCategory.Paint;
         if (!item.consumable && ItemID.Sets.AlsoABuildingItem[item.type] && ItemID.Sets.IsLavaImmuneRegardlessOfRarity[item.type] && item.maxStack != 1) return PlaceableCategory.Bucket;
         if (item.FitsAmmoSlot() && item.mech) return PlaceableCategory.Wiring;
-
         if (!wand && (!item.consumable || item.useStyle == ItemUseStyleID.None)) return PlaceableCategory.None;
 
         if (item.XMasDeco()) return PlaceableCategory.Furniture;
 
         if (item.createTile != -1) {
             int tileType = item.createTile;
+            if (TileID.Sets.Torch[tileType]) return PlaceableCategory.Torch;
             if (item.accessory) return PlaceableCategory.Furniture;
             if (TileID.Sets.Platforms[tileType]) return PlaceableCategory.Tile;
             if (Main.tileAlch[tileType] || TileID.Sets.CommonSapling[tileType] || ItemID.Sets.GrassSeeds[item.type]) return PlaceableCategory.Seed;

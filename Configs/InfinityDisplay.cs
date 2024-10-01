@@ -58,7 +58,7 @@ public sealed class InfinityDisplay : ModConfig {
     public static InfinityDisplay Instance = null!;
 
     [OnDeserialized]
-    private void OnDeserializedMethod(StreamingContext context) {
+    private void OnDeserialized(StreamingContext context) {
         foreach (Display display in DisplayLoader.Displays) LoadConfig(display, displays.GetOrAdd(new(display), new Toggle<object>(display.DefaultEnabled) { Value = null! }));
         foreach (IInfinity infinity in InfinityLoader.ConsumableInfinities) LoadConfig(infinity, infinities.GetOrAdd(new(infinity), () => new(default)));
     }

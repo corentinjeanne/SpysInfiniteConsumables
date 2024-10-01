@@ -5,21 +5,18 @@
 
 Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of [Infinities](#infinities) for all sorts of consumables (usable, placeable, materials and more) each with their own sub-categories.
+There are a wide variety of [Infinities](#infinities) for all sorts of consumables (usable, placeable, materials and more) each with their own categories.
 
 ## Highly Customizable
 
-Edit the [Infinity Settings](#infinity-settings) config to modify the behavior of the mod!
+Edit the [Infinity Settings](#infinity-settings) config to modify the behavior of the mod.
 Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
 ## No item duplication
 
-***WORK IN PROGRESS, WILL CHANGE IN THE FUTURE***
+Tiles, NPCs or projectiles created with an infinite consumable wont drop their items on death.
 
-Infinite NPCs will turn to smoke on pickup.
-Placeable items will consume items above their infinity.
-
-## Easel see the Infinities of an item
+## Easily see the Infinities of an item
 
 The Infinities of every item can be displayed in various ways:
 
@@ -156,13 +153,14 @@ Contains various ways to display the infinities of items and their  config.
 # Changelog
 
 ### v4.0
-- Added Projectile duplication
-- Changed Grab Bags to be disabled by default
-- Added automatic localization generation
-- Moved Definition and CustomDictionaryElement to Spiky's Lib
+- Reworked tile duplication
+- Reworked the way the mod works internally
+- Added settings to the Display config
 - Added loads of tooltips
 - Simplified notification
 - Added Version config
+- Moved Definition and CustomDictionaryElement to Spiky's Lib
+- Added automatic localization generation
 - Updated to Spiky's lib v1.2
 - Fixed bugs with preset
 

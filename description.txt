@@ -2,23 +2,21 @@
 
 Collect enough a consumable item to make it infinite!
 Depending of the item, this requirement may vary.
-There are a wide variety of Infinities for all sorts of consumables (usable, placeable, materials and more) each with their own sub-categories.
+There are a wide variety of Infinities for all sorts of consumables (usable, placeable, materials and more) each with their own categories.
 
 
 ---------- Highly Customizable ----------
 
-Edit the 'Infinity Settings' config to modify the behavior of the mod!
+Edit the 'Infinity Settings' config to modify the behavior of the mod.
 Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
 
 ---------- No item duplication ----------
 
-***WORK IN PROGRESS, WILL CHANGE IN THE FUTURE***
-Infinite NPCs will turn to smoke on pickup.
-Placeable items will consume items above their infinity.
+Tiles, NPCs or projectiles created with an infinite consumable wont drop their items on death.
 
 
----------- Easel see the Infinities of an item ----------
+---------- Easily see the Infinities of an item ----------
 
 The Infinities of every item can be displayed in various ways: 
  - With colored tooltip lines. This can also be used to display extra information about the item such as its requirement or category.

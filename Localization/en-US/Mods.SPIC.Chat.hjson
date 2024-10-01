@@ -10,13 +10,14 @@ Summary: Finished Prevent Item Duplication and added loads of tooltip to the con
 Details: ""
 Changelog:
 	'''
-	- Added Projectile duplication
-	- Changed Grab Bags to be disabled by default
-	- Added automatic localization generation
-	- Moved Definition and CustomDictionaryElement to Spiky's Lib
+	- Reworked tile duplication
+	- Reworked the way the mod works internally
+	- Added settings to the Display config
 	- Added loads of tooltips
 	- Simplified notification
 	- Added Version config
+	- Moved Definition and CustomDictionaryElement to Spiky's Lib
+	- Added automatic localization generation
 	- Updated to Spiky's lib v1.2
 	- Fixed bugs with preset
 	'''
