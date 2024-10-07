@@ -17,7 +17,7 @@ public enum UsableCategory {
     Potion,
     Booster,
 
-    Summoner, // TODO Fargo's summons
+    Summoner,
     Critter,
     Tool,
 

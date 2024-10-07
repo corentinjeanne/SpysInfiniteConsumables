@@ -6,12 +6,22 @@ ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
 Version: "4.0"
-Summary: Finished Prevent Item Duplication and added loads of tooltip to the configs
-Details: ""
+Summary: Tile duplication is finally working and the configs
+Details:
+	'''
+	After 3+ years of work (and 3 complete reworks), SPIC is finally finished!
+	Thank you for downloading and using this over-engineered mod of mine.
+
+	This is (probably) the last major update this mod will have.
+	I will still maintain the mod and release patches when needed but I implemented everything I planned to.
+
+	Small sidenote, I you are a mod developer and want to add new Infinities there's an API you can use the create Infinities, Presets and Displays.
+	'''
 Changelog:
 	'''
 	- Reworked tile duplication
 	- Reworked the way the mod works internally
+	- Updated icon
 	- Added settings to the Display config
 	- Added loads of tooltips
 	- Simplified notification

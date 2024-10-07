@@ -56,7 +56,6 @@ public abstract class CurrencyInfinity: Infinity<int, CurrencyCategory>, IConfig
     }
 }
 
-// TODO PreventItemDuplication
 public sealed class Shop : CurrencyInfinity {
     public static Shop Instance = null!;
     public sealed override InfinityDefaults Defaults => new() { Color = Colors.CoinGold };

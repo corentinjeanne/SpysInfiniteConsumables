@@ -20,7 +20,6 @@ public enum MaterialCategory {
     NonStackable
 }
 
-// TODO PreventItemDuplication
 [CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class MaterialRequirements {
     public Count<MaterialCategory> Basic = 999;
