@@ -181,6 +181,11 @@ Placeable: {
 		Label: Prevent tile duplication
 		Tooltip: Tiles placed with an infinite item will not drop their item when destroyed
 	}
+
+	infiniteTooltip: {
+		Label: Display infinite tiles
+		Tooltip: Adds a mouse tooltip when hovering infinite tiles, walls or wires
+	}
 }
 
 Usable: {

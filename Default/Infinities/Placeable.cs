@@ -50,16 +50,21 @@ public sealed class PlaceableRequirements {
     public Toggle<PreventItemDuplication> preventItemDuplication = new(true);
 }
 
-public sealed class PreventItemDuplication {
-    [DefaultValue(true)] public bool allowMiscDrops = true;
+[CustomModConfigItem(typeof(ObjectMembersElement))]
+public sealed class PlaceableDisplay {
     public bool infiniteTooltip;
 }
 
-public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, ITooltipLineDisplay {
+public sealed class PreventItemDuplication {
+    [DefaultValue(true)] public bool allowMiscDrops = true;
+}
+
+public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvider<PlaceableRequirements>, IClientConfigProvider<PlaceableDisplay>, ITooltipLineDisplay {
     public static Placeable Instance = null!;
 
     public static bool PreventItemDuplication => Instance.Enabled && Instance.Config.preventItemDuplication;
     public PlaceableRequirements Config { get; set; } = null!;
+    public PlaceableDisplay ClientConfig { get; set; } = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
     public sealed override InfinityDefaults Defaults => new() { Color = Colors.RarityAmber };

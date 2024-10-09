@@ -224,9 +224,4 @@ PreventItemDuplication: {
 		Label: Allow Secondary Drops
 		Tooltip: Allow herbs, woods, buckets or secondary tile drops to be dropped even if the tile is infinite
 	}
-
-	infiniteTooltip: {
-		Label: Display infinite tiles
-		Tooltip: Adds a mouse tooltip when hovering infinite tiles, walls or wires
-	}
 }
