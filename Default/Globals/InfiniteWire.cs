@@ -1,6 +1,7 @@
 using System;
 using SPIC.Default.Globals;
 using SPIC.Default.Infinities;
+using SPIC.Default.Packets;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -25,8 +26,8 @@ public class InfiniteWire : GlobalTile {
     private static void PlaceInfinite(int i, int j, WireFlags wire) {
         var world = InfiniteWorld.Instance;
         if (world.IsInfinitePlacementContext()) {
+            if (Main.netMode != NetmodeID.SinglePlayer) SetInfiniteTileHandler.GetPacket(i, j, wire).Send();
             world.SetInfinite(i, j, wire);
-            if (Main.netMode != NetmodeID.SinglePlayer) Packets.SetInfiniteTile.GetPacket(i, j, wire).Send();
         }
     }
 

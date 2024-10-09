@@ -3,10 +3,10 @@ using SPIC.Default.Globals;
 using SpikysLib;
 using Terraria.ModLoader;
 
-namespace SPIC.Packets;
+namespace SPIC.Default.Packets;
 
-public sealed class SetInfiniteTile : ModPacketHandler {
-    public static SetInfiniteTile Instance = null!;
+public sealed class SetInfiniteTileHandler : ModPacketHandler {
+    public static SetInfiniteTileHandler Instance = null!;
 
     public static ModPacket GetPacket(int x, int y, TileFlags tile) => GetPacket(x, y, true, (byte)tile);
     public static ModPacket GetPacket(int x, int y, WireFlags wire) => GetPacket(x, y, false, (byte)wire);
