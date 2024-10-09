@@ -57,7 +57,7 @@ public sealed class DetectionPlayer : ModPlayer {
     public override void PreUpdate() => Dots.PreUpdate();
 
     public override void PostUpdate() {
-        if (Player.whoAmI == Main.myPlayer && Placeable.PreventItemDuplication && Placeable.Instance.Config.preventItemDuplication.Value.infiniteTooltip) DisplayInfiniteTile();
+        if (Player.whoAmI == Main.myPlayer && Placeable.PreventItemDuplication && Placeable.Instance.Config.preventItemDuplication.Value.infiniteTooltip && !Main.mapFullscreen) DisplayInfiniteTile();
     }
 
     private static void DisplayInfiniteTile() {

@@ -34,7 +34,6 @@ public class InfiniteWorld : ModSystem {
     public Projectile? contextProjectile;
 
     public bool IsInfinitePlacementContext() {
-        SpysInfiniteConsumables.Instance.Logger.Debug($"Context check (netMode={Main.netMode})");
         if (contextPlayer is not null) {
             Item item = contextPlayer.HeldItem;
             if (contextPlayer.HasInfinite(Placeable.GetAmmo(contextPlayer, item) ?? item, 1, Placeable.Instance)) return true;
@@ -84,7 +83,7 @@ public class InfiniteWorld : ModSystem {
         if (tag.TryGet(InfiniteTilesKey, out TagCompound[] infiniteTiles))
             _infiniteTiles = new(infiniteTiles.Select(tag => new KeyValuePair<int, int[]>(tag.Get<int>("key"), tag.Get<int[]>("value"))));
         if (tag.TryGet(InfiniteWiresKey, out TagCompound[] infiniteWires))
-            _infiniteWires = new(infiniteTiles.Select(tag => new KeyValuePair<int, int[]>(tag.Get<int>("key"), tag.Get<int[]>("value"))));
+            _infiniteWires = new(infiniteWires.Select(tag => new KeyValuePair<int, int[]>(tag.Get<int>("key"), tag.Get<int[]>("value"))));
     }
     public override void OnWorldUnload() {
         _infiniteTiles.Clear();
