@@ -25,7 +25,9 @@ public sealed class SpicPlayer : ModPlayer {
         Configs.Version.Instance.lastPlayedVersion = Mod.Version.ToString();
         Configs.Version.Instance.Save();
 
-        InGameNotificationsTracker.AddNotification(new InGameNotification(Mod, line, new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Bug"), Colors.RarityAmber)) { timeLeft = 15 * 60 });
+        if (Language.GetText($"{Localization.Keys.Chat}.Summary").Value.Length != 0) {
+            InGameNotificationsTracker.AddNotification(new InGameNotification(Mod, line, new LocalizedLine(Language.GetText($"{Localization.Keys.Chat}.Bug"), Colors.RarityAmber)) { timeLeft = 15 * 60 });
+        }
     }
 
     public override void PreUpdate() => InfinityManager.DecreaseCacheLock();

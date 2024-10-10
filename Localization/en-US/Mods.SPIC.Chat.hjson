@@ -1,12 +1,12 @@
 Download: Thank you for downloading {$Mods.SPIC.Chat.ModName}! Make sure to adjust the configs before playing
-Update: "{$Mods.SPIC.Chat.ModNameShort} was updated to v{$Mods.SPIC.Chat.Version}! View the [c/05c8ff:{$Mods.SPIC.Configs.Version.DisplayName}] config for more details"
+Update: "{$Mods.SPIC.Chat.Summary}. View the [c/05c8ff:{$Mods.SPIC.Configs.Version.DisplayName}] config for more details"
 Bug: If you found a bug, please report it on the [c/05c8ff:{$Mods.SPIC.Chat.Workshop}] or the [c/05c8ff:{$Mods.SPIC.Chat.Homepage}]
 ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
 Version: "4.0"
-Summary: Tile duplication is finally working and the configs
+Summary: Tile duplication is finally working and the configs received some love
 Details:
 	'''
 	After 3+ years of work (and 3 complete reworks), SPIC is finally finished!
