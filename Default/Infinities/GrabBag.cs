@@ -8,6 +8,7 @@ using SPIC.Default.Displays;
 using System.Collections.Generic;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
+using System.ComponentModel;
 
 namespace SPIC.Default.Infinities;
 
@@ -25,10 +26,16 @@ public sealed class GrabBagRequirements {
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<GrabBagRequirements>, ITooltipLineDisplay {
+[CustomModConfigItem(typeof(ObjectMembersElement))]
+public sealed class GrabBagDisplay {
+    [DefaultValue(true)] public bool reuseTooltip = true;
+}
+
+public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<GrabBagRequirements>, IClientConfigProvider<GrabBagDisplay>, ITooltipLineDisplay {
     public static GrabBag Instance = null!;
     public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance; 
     public GrabBagRequirements Config { get; set; } = null!;
+    public GrabBagDisplay ClientConfig { get; set; } = null!;
 
     public sealed override InfinityDefaults Defaults => new(){
         Enabled = false,
@@ -57,7 +64,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<G
     }
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
-        => (new(Instance.Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", Instance.DisplayName.Value), TooltipLineID.Tooltip);
+        => ClientConfig.reuseTooltip ? (new(Instance.Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", Instance.DisplayName.Value), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
     
     protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
         Item? key = item.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;

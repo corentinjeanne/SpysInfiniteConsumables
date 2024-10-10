@@ -70,6 +70,15 @@ GrabBag: {
 		Label: Treasure Bag
 		Tooltip: ""
 	}
+
+	reuseTooltip: {
+		Label: Reuse Item Tooltip
+		Tooltip:
+			'''
+			Display requirement at the end of the 1st tooltip line instead of a dedicated one
+			Works fine for vanilla items but may look strange for some modded item
+			'''
+	}
 }
 
 JourneySacrifice: {
