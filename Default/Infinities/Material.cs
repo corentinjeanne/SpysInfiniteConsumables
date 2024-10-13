@@ -1,16 +1,16 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
-
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
-using System.Collections.Generic;
 using System.ComponentModel;
-using SpikysLib.Extensions;
 using SPIC.Default.Displays;
+using Terraria.ModLoader;
+using SpikysLib;
+using System;
+using SpikysLib.Configs.UI;
 
 namespace SPIC.Default.Infinities;
+
 public enum MaterialCategory {
     None,
     Basic,
@@ -20,42 +20,37 @@ public enum MaterialCategory {
     NonStackable
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class MaterialRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Basic")]
     public Count<MaterialCategory> Basic = 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Ore")]
     public Count<MaterialCategory> Ore = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.Placeable.Furniture")]
     public Count<MaterialCategory> Furniture = 20;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Miscellaneous")]
     public Count<MaterialCategory> Miscellaneous = 50;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.NonStackable")]
     public Count<MaterialCategory> NonStackable = 2;
-    [LabelKey($"${Localization.Keys.Infinities}.Material.Multiplier.Label"), TooltipKey($"${Localization.Keys.Infinities}.Material.Multiplier.Tooltip")]
     [DefaultValue(0.5f), Range(0.01f, 1f)] public float Multiplier = 0.5f;
 }
 
-public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDisplay {
-
-    public override Group<Item> Group => Items.Instance;
+public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider<MaterialRequirements>, ITooltipLineDisplay{
     public static Material Instance = null!;
-    public static MaterialRequirements Config = null!;
-
-
-    public override int IconType => ItemID.TinkerersWorkshop;
-    public override bool Enabled { get; set; } = false;
-    public override Color Color { get; set; } = new Color(254, 126, 229, 255); // Nebula
-
-    public override Requirement GetRequirement(MaterialCategory category) => category switch {
-        MaterialCategory.Basic => new(Config.Basic, Config.Multiplier),
-        MaterialCategory.Ore => new(Config.Ore, Config.Multiplier),
-        MaterialCategory.Furniture => new(Config.Furniture, Config.Multiplier),
-        MaterialCategory.Miscellaneous => new(Config.Miscellaneous, Config.Multiplier),
-        MaterialCategory.NonStackable => new(Config.NonStackable, Config.Multiplier),
-        _ => Requirement.None,
+    public MaterialRequirements Config { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
+    
+    public sealed override InfinityDefaults Defaults => new() {
+        Enabled = false,
+        Color = new(254, 126, 229)
     };
 
-    public override MaterialCategory GetCategory(Item item) {
+    public override long GetRequirement(MaterialCategory category) => category switch {
+        MaterialCategory.Basic => Config.Basic,
+        MaterialCategory.Ore => Config.Ore,
+        MaterialCategory.Furniture => Config.Furniture,
+        MaterialCategory.Miscellaneous => Config.Miscellaneous,
+        MaterialCategory.NonStackable => Config.NonStackable,
+        _ => 0,
+    };
+    protected override void ModifyInfinity(Item consumable, ref long infinity) => infinity = (long)(infinity * Config.Multiplier);
+
+    protected override MaterialCategory GetCategoryInner(Item item) {
         int type = item.type;
         switch (type) {
         case ItemID.FallenStar: return MaterialCategory.Miscellaneous;
@@ -66,7 +61,7 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
 
         if (item.maxStack == 1) return MaterialCategory.NonStackable;
 
-        PlaceableCategory placeable = Placeable.Instance.GetCategory(item);
+        PlaceableCategory placeable = InfinityManager.GetCategory(item, Placeable.Instance);
 
         if (placeable.IsFurniture()) return MaterialCategory.Furniture;
         if (placeable == PlaceableCategory.Ore) return MaterialCategory.Ore;
@@ -79,19 +74,19 @@ public sealed class Material : Infinity<Item, MaterialCategory>, ITooltipLineDis
         return MaterialCategory.Miscellaneous;
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "Material", Lang.tip[36].Value), TooltipLineID.Material);
 
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
         if (Main.numAvailableRecipes == 0 || (Main.CreativeMenu.Enabled && !Main.CreativeMenu.Blocked) || Main.InReforgeMenu || Main.LocalPlayer.tileEntityAnchor.InUse || Main.hidePlayerCraftingMenu) return;
         Recipe selectedRecipe = Main.recipe[Main.availableRecipe[Main.focusRecipe]];
         Item? material = selectedRecipe.requiredItem.Find(i => i.IsSimilar(item));
         if (material is null) return;
-
         visibility = InfinityVisibility.Exclusive;
-        requirement = requirement.ForInfinity(material.stack, 1);
 
-        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
-        if (group == -1) return;
-        count = PlayerExtensions.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+        long requirement = Math.Max(value.Requirement, (int)MathF.Ceiling(material.stack / Config.Multiplier));
+        long count = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type) == -1 ?
+            Main.LocalPlayer.CountConsumables(consumable, Consumable) :
+            PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+        value = new(value.Consumable, requirement, count, count >= requirement ? count : 0);
     }
 }

@@ -1,0 +1,46 @@
+ConsumableDefaults: {
+	DisplayName: Defaults
+	Tooltip: ""
+}
+
+CurrencyDefaults: {
+	DisplayName: Defaults
+	Tooltip: ""
+}
+
+OneForMany: {
+	DisplayName: One For Many
+	Tooltip:
+		'''
+		The requirement of an item is the one of the 1st infinity applicable
+		The other (unused) infinites will be infinite if the used one is.
+		'''
+}
+
+AllEnabled: {
+	DisplayName: All Enabled
+	Tooltip: All infinites are enabled and used
+}
+
+AllDisabled: {
+	DisplayName: All Disabled
+	Tooltip: All infinites are disabled
+}
+
+Classic: {
+	DisplayName: Classic
+	Tooltip:
+		'''
+		Follows a 'standard' behavior
+		Only one requirement per item and few Infinities enabled
+		'''
+}
+
+JourneyRequirements: {
+	DisplayName: Journey Requirements
+	Tooltip:
+		'''
+		Items use their research cost as their requirement
+		Works outside of Journey mode
+		'''
+}

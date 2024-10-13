@@ -1,40 +1,35 @@
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader.Config;
-using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
-using System.Collections.Generic;
-using System.ComponentModel;
+using SpikysLib;
 using SPIC.Default.Displays;
-using SpikysLib.Extensions;
+using SPIC.Configs;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
-public enum JourneyCategory { NotConsumable, Consumable }
-
-public sealed class JourneySacrificeSettings {
-    [LabelKey($"${Localization.Keys.Infinities}.JourneySacrifice.Sacrifices")]
-    [DefaultValue(true)] public bool hideWhenResearched = true;
+[CustomModConfigItem(typeof(ObjectMembersElement))]
+public sealed class JourneySacrificeDisplay {
+    public bool hideWhenResearched;
 }
 
-public sealed class JourneySacrifice : Infinity<Item>, ITooltipLineDisplay {
-
-    public override Group<Item> Group => Items.Instance;
+public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<JourneySacrificeDisplay>, ITooltipLineDisplay {
     public static JourneySacrifice Instance = null!;
-    public static JourneySacrificeSettings Config = null!;
+    public JourneySacrificeDisplay ClientConfig { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
+    public sealed override InfinityDefaults Defaults => new() {
+        Enabled = false,
+        Color = Colors.JourneyMode
+    };
 
-    public override int IconType => ItemID.GoldBunny;
-    public override bool Enabled { get; set; } = false;
-    public override Color Color { get; set; } = Colors.JourneyMode;
+    protected override long GetRequirementInner(Item item) => item.ResearchUnlockCount;
 
-    public override Requirement GetRequirement(Item item, List<object> extras) => new(item.ResearchUnlockCount);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, "JourneyResearch", this.GetLocalizedValue("Tooltip")), TooltipLineID.JourneyResearch);
-
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
-        if (Main.LocalPlayer.difficulty != PlayerDifficultyID.Creative && Instance.Group.Config.UsedInfinities == 0) visibility = InfinityVisibility.Hidden;
-        if(Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
-        else if(Config.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
+        else if (ClientConfig.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
     }
 }

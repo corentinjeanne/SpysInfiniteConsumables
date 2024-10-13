@@ -1,13 +1,12 @@
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader.Config;
-
 using SPIC.Configs;
-using Microsoft.Xna.Framework;
-using Terraria.ModLoader;
-using System.Collections.Generic;
-using SpikysLib.Extensions;
 using SPIC.Default.Displays;
+using Terraria.ModLoader;
+using SpikysLib;
+using System.Collections.Generic;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
 
 namespace SPIC.Default.Infinities;
 
@@ -16,69 +15,50 @@ public enum UsableCategory {
 
     Weapon,
     Potion,
-    // Recovery,
-    // Buff,
     Booster,
-    // PlayerBooster,
-    // WorldBooster,
 
-    Summoner, // TODO Fargo's summons
+    Summoner,
     Critter,
-    // Explosive,
     Tool,
 
     Unknown
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class UsableRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Weapon")]
     public Count<UsableCategory> Weapon = 2 * 999;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Potion")]
     public Count<UsableCategory> Potion = 30;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Booster")]
     public Count<UsableCategory> Booster = 5;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Summoner")]
     public Count<UsableCategory> Summoner = 3;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Critter")]
     public Count<UsableCategory> Critter = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.Usable.Tool")]
     public Count<UsableCategory> Tool = 99;
 }
 
 
-public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay {
-
-    public override Group<Item> Group => Items.Instance;
+public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<UsableRequirements>, ITooltipLineDisplay {
     public static Usable Instance = null!;
-    public static UsableRequirements Config = null!;
+    public UsableRequirements Config { get; set; } = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance;
 
+    public sealed override InfinityDefaults Defaults => new() { Color = new(136, 226, 255) };
 
-    public override int IconType => ItemID.EndlessMusketPouch;
-    public override Color Color { get; set; } = new Color(136, 226, 255, 255); // Stardust
+    public override long GetRequirement(UsableCategory category) => category switch {
+        UsableCategory.Weapon => Config.Weapon,
+        UsableCategory.Potion => Config.Potion,
+        UsableCategory.Booster => Config.Booster,
+        UsableCategory.Summoner => Config.Summoner,
+        UsableCategory.Critter => Config.Critter,
+        UsableCategory.Tool or UsableCategory.Unknown => Config.Tool,
+        _ => 0,
+    };
 
-    public override Requirement GetRequirement(UsableCategory category) {
-        return category switch {
-            UsableCategory.Weapon => new(Config.Weapon),
-            UsableCategory.Potion => new(Config.Potion),
-            // UsableCategory.Recovery => new(Config.Potion),
-            // UsableCategory.Buff => new(Config.Potion),
-            UsableCategory.Booster => new(Config.Booster),
-            // UsableCategory.PlayerBooster or UsableCategory.WorldBooster => new(Config.Booster),
-            UsableCategory.Summoner => new(Config.Summoner),
-            UsableCategory.Critter => new(Config.Critter),
-            // UsableCategory.Explosive => new(Config.Tool),
-            UsableCategory.Tool or UsableCategory.Unknown => new(Config.Tool),
-            _ => Requirement.None,
-        };
-    }
-
-    public override UsableCategory GetCategory(Item item) {
+    protected override UsableCategory GetCategoryInner(Item item) {
 
         if (!item.consumable || item.Placeable()) return UsableCategory.None;
 
-        // Vanilla inconsitancies or special items
+        // Vanilla inconsistencies or special items
         switch (item.type) {
-        case ItemID.Geode: return UsableCategory.None; // Grabbag
+        case ItemID.Geode: return UsableCategory.None; // Grab bag
         case ItemID.FallenStar: return UsableCategory.None; // usable
         case ItemID.PirateMap or ItemID.EmpressButterfly: return UsableCategory.Summoner; // sorting priority
         case ItemID.LihzahrdPowerCell or ItemID.DD2ElderCrystal: return UsableCategory.Summoner; // ItemUseStyleID.None
@@ -99,7 +79,6 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
         if (item.buffType != 0 && item.buffTime != 0) return UsableCategory.Potion;
         if (item.healLife > 0 || item.healMana > 0 || item.potion) return UsableCategory.Potion;
 
-        // if (ItemID.Sets.ItemsThatCountAsBombsForDemolitionistToSpawn[item.type]) return UsableCategory.Explosive;
         if (item.shoot != ProjectileID.None) return UsableCategory.Tool;
 
         if (item.hairDye != -1) return UsableCategory.Booster;
@@ -108,17 +87,17 @@ public sealed class Usable : Infinity<Item, UsableCategory>, ITooltipLineDisplay
     }
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) {
-        if (displayed == item.type) return (new(Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
-        return (new(Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
+        if (displayed == item.type) return (new(Instance.Mod, "Consumable", Lang.tip[35].Value), TooltipLineID.Consumable);
+        return (new(Instance.Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    public override void ModifyDisplay(Player player, Item item, Item consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+        Item? ammo = item.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
+        if (ammo is not null) displayed.Add(ammo);
+    }
+
+    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
-    }
-
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? item = consumable.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
-        if (item is not null) displayed.Add(item);
     }
 }

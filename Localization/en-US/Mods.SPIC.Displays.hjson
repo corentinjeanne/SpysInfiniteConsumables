@@ -1,18 +1,103 @@
 Tooltip: {
-	DisplayName: Item Tooltip
-	AddMissingLines: Add Missing Lines
+	Label: "[i:171] Tooltip"
+	Tooltip: Display the requirement and infinity of items in their tooltip
+
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
+	}
+
+	coloredLines: {
+		Label: Colored Lines
+		Tooltip: Colors tooltip lines where the item is infinite
+	}
+
+	missingLinesOpacity: {
+		Label: Missing Lines Opacity
+		Tooltip: The opacity of lines added to the tooltip
+	}
+
+	displayDebug: {
+		Label: Display Debug Info
+		Tooltip: Display debug info about the requirement
+	}
+
+	AddMissingLines: {
+		Label: Add Missing Lines
+		Tooltip: ""
+	}
 }
 
 Glow: {
-	DisplayName: Item Glow
-	FancyGlow: Fancy Glow
-	Intensity: Intensity
-	AnimationLength: Animation Length
+	Label: "[i:75] Glow"
+	Tooltip: Adds a glow around infinite items
+
+	fancyGlow: {
+		Label: Fancy Glow
+		Tooltip:
+			'''
+			Improves the appearance of the glow
+			Could cause a small amount of lag
+			'''
+	}
+
+	offset: {
+		Label: Offset
+		Tooltip: Offset the glow of each items
+	}
+
+	Length: {
+		Label: Animation Length
+		Tooltip: ""
+	}
+
+	intensity: {
+		Label: Intensity
+		Tooltip: ""
+	}
+
+	scale: {
+		Label: Scale
+		Tooltip: ""
+	}
+
+	length: {
+		Label: length
+		Tooltip: ""
+	}
 }
 
 Dots: {
-	DisplayName: Inventory Dots
-	Start: First Dot
-	Direction: Direction
-	AnimationLength: Animation Length
+	Label: "[i:3629] Dots"
+	Tooltip: Display the infinity of items on their inventory slots with dots
+
+	displayRequirement: {
+		Label: Display Requirement
+		Tooltip: Display the requirements of the item at the end of the lines
+	}
+
+	start: {
+		Label: First Dot position
+		Tooltip: ""
+	}
+
+	direction: {
+		Label: Direction
+		Tooltip: ""
+	}
+
+	time: {
+		Label: Time per Consumable
+		Tooltip: The time each consumable infinities are displayed before changing to the next
+	}
+
+	scale: {
+		Label: Scale
+		Tooltip: ""
+	}
+
+	missingOpacity: {
+		Label: Missing Opacity
+		Tooltip: The opacity of the part of the dot representing the requirement
+	}
 }

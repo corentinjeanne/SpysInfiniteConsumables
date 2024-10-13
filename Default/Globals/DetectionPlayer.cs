@@ -5,18 +5,14 @@ using Terraria.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SPIC.Default.Infinities;
-using SpikysLib.Extensions;
+using SPIC.Default.Displays;
+using SPIC.Globals;
 
 namespace SPIC.Default.Globals;
 
 public sealed class DetectionPlayer : ModPlayer {
 
-    public bool InItemCheck { get; private set; }
-    public bool InRightClick { get; private set; }
-
-
     public override void Load() {
-        On_Player.ItemCheck_Inner += HookItemCheck_Inner;
         On_ItemSlot.RightClick_ItemArray_int_int += HookRightClick;
         On_Player.PutItemInInventoryFromItemUsage += HookPutItemInInventory;
         On_Player.Teleport += HookTeleport;
@@ -26,37 +22,61 @@ public sealed class DetectionPlayer : ModPlayer {
     }
 
     private bool HookPayCurrency(On_Player.orig_PayCurrency orig, Player self, long price, int customCurrency) {
-        bool enabled;
-        if(Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) enabled = Currency.Config.Nurse;
-        else if (Main.InReforgeMenu) enabled = Currency.Config.Reforging;
-        else if (Main.npcShop != 0) enabled = Currency.Config.Shop;
-        else enabled = Currency.Config.Others;
-        return enabled && self.HasInfinite(customCurrency, price, Currency.Instance) || orig(self, price, customCurrency);
+        Infinity<int> infinity;
+        if (Main.npc[Main.player[Main.myPlayer].talkNPC].type == NPCID.Nurse) infinity = Nurse.Instance;
+        else if (Main.InReforgeMenu) infinity = Reforging.Instance;
+        else if (Main.npcShop != 0) infinity = Shop.Instance;
+        else infinity = Purchase.Instance;
+        return self.HasInfinite(customCurrency, price, infinity) || orig(self, price, customCurrency);
     }
 
-    private static void HookItemCheck_Inner(On_Player.orig_ItemCheck_Inner orig, Player self) {
-        DetectionPlayer detectionPlayer = self.GetModPlayer<DetectionPlayer>();
-        detectionPlayer.InItemCheck = true;
-        detectionPlayer.UsedCannon = false;
-        detectionPlayer.DetectingCategoryOf = null;
+    public override bool PreItemCheck() {
+        InItemCheck = true;
+        usedCannon = false;
+        DetectingCategoryOf = null;
+        var world = InfiniteWorld.Instance;
+        if (Player.whoAmI == Main.myPlayer) {
+            world.contextPlayer = Player;
+            aimedAtInfiniteTile = world.IsInfinite(Player.tileTargetX, Player.tileTargetY, TileFlags.Block);
+        }
 
-        if ((self.itemAnimation > 0 || !self.JustDroppedAnItem && self.ItemTimeIsZero)
-                && Configs.InfinitySettings.Instance.DetectMissingCategories && InfinityManager.GetCategory(self.HeldItem, Usable.Instance) == UsableCategory.Unknown)
-            detectionPlayer.PrepareDetection(self.HeldItem);
-        orig(self);
-        if (detectionPlayer.DetectingCategoryOf is not null) detectionPlayer.TryDetectCategory();
-        detectionPlayer.InItemCheck = false;
+        if ((Player.itemAnimation > 0 || !Player.JustDroppedAnItem && Player.ItemTimeIsZero)
+                && Configs.InfinitySettings.Instance.detectMissingCategories && InfinityManager.GetCategory(Player.HeldItem, Usable.Instance) == UsableCategory.Unknown)
+            PrepareDetection(Player.HeldItem);
+        return true;
+    }
+    public override void PostItemCheck() {
+        if (DetectingCategoryOf is not null) TryDetectCategory();
+        InItemCheck = false;
+        InfiniteWorld.Instance.contextPlayer = null;
+        aimedAtInfiniteTile = false;
     }
 
-    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearInfinities();
+    public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) => InfinityManager.ClearCache();
+
+    public override void PreUpdate() => Dots.PreUpdate();
+
+    public override void PostUpdate() {
+        if (Player.whoAmI == Main.myPlayer && Placeable.PreventItemDuplication && Placeable.Instance.ClientConfig.infiniteTooltip && !Main.mapFullscreen) DisplayInfiniteTile();
+    }
+
+    private static void DisplayInfiniteTile() {
+        var world = InfiniteWorld.Instance;
+        (int i, int j) = InfiniteTile.GetUsedTile(Player.tileTargetX, Player.tileTargetY);
+        TileFlags tile = world.GetInfinity(i, j, TileFlags.All);
+        WireFlags wire = world.GetInfinity(i, j, WireFlags.All);
+        List<string> parts = [];
+        if (tile != TileFlags.None) parts.Add(tile.ToString());
+        if (wire != WireFlags.None) parts.Add(wire.ToString());
+
+        if (parts.Count > 0) Main.instance.MouseText($"Infinite {string.Join(", ", parts)}");
+    }
 
     public override void OnEnterWorld() => ExplosionProjectile.ClearExploded();
 
-    public override void PreUpdate() => InfinityDisplayItem.IncrementCounters();
-
-    public void PrepareDetection(Item item){
+    public void PrepareDetection(Item item) {
         DetectingCategoryOf = item;
-        Teleported = false;
+        teleported = false;
         _preUseData = GetDetectionData();
     }
 
@@ -64,7 +84,7 @@ public sealed class DetectionPlayer : ModPlayer {
         Player.statLifeMax2, Player.statManaMax2,
         Player.position,
         Player.extraAccessorySlots, Player.extraAccessory,
-        Utility.CountProjectilesInWorld(), Utility.CountItemsInWorld(),
+        Utility.CountProjectilesInWorld(), Player.CountBuffs(),
         Utility.WorldDifficulty(), Main.invasionType, Utility.GetNPCStats()
     );
 
@@ -72,10 +92,10 @@ public sealed class DetectionPlayer : ModPlayer {
     public bool TryDetectCategory(bool mustDetect = false) {
         if (DetectingCategoryOf is null) return false;
 
-        void SaveUsable(UsableCategory category) => InfinityManager.SaveDetectedCategory(DetectingCategoryOf, category, Usable.Instance);
+        void SaveUsable(UsableCategory category) => Usable.Instance.SaveDetectedCategory(DetectingCategoryOf, category);
 
-        DetectionDataScreenShot data = GetDetectionData();
-        if (TryDetectUsable(data, out UsableCategory usable)) SaveUsable(usable);
+        if (teleported) SaveUsable(UsableCategory.Tool);
+        else if (TryDetectUsable(_preUseData, GetDetectionData(), out UsableCategory usable)) SaveUsable(usable);
         else if (mustDetect) SaveUsable(UsableCategory.Booster);
         else return false;
         DetectingCategoryOf = null;
@@ -83,48 +103,49 @@ public sealed class DetectionPlayer : ModPlayer {
         return true;
     }
 
-    private bool TryDetectUsable(DetectionDataScreenShot data, out UsableCategory category) {
-        if(data.Projectiles != _preUseData.Projectiles) category = UsableCategory.Tool;
+    private static bool TryDetectUsable(DetectionDataScreenShot preUse, DetectionDataScreenShot postUse, out UsableCategory category) {
+        if (postUse.NPCStats.Boss != preUse.NPCStats.Boss || postUse.Invasion != preUse.Invasion) category = UsableCategory.Summoner;
+        else if (postUse.NPCStats.Total != preUse.NPCStats.Total) category = UsableCategory.Critter;
 
-        else if (data.NPCStats.Boss != _preUseData.NPCStats.Boss || data.Invasion != _preUseData.Invasion) category = UsableCategory.Summoner;
-        else if (data.NPCStats.Total != _preUseData.NPCStats.Total) category = UsableCategory.Critter;
+        else if (postUse.MaxLife != preUse.MaxLife || postUse.MaxMana != preUse.MaxMana || postUse.ExtraAccessories != preUse.ExtraAccessories || postUse.DemonHeart != preUse.DemonHeart) category = UsableCategory.Booster;
+        else if (postUse.Difficulty != preUse.Difficulty) category = UsableCategory.Booster;
 
-        else if (data.MaxLife != _preUseData.MaxLife || data.MaxMana != _preUseData.MaxMana || data.ExtraAccessories != _preUseData.ExtraAccessories || data.DemonHeart != _preUseData.DemonHeart) category = UsableCategory.Booster;
-        else if (data.Difficulty != _preUseData.Difficulty) category = UsableCategory.Booster;
-
-        else if (Teleported || data.Position != _preUseData.Position) category = UsableCategory.Tool;
+        else if (postUse.Position != preUse.Position) category = UsableCategory.Tool;
+        
+        else if (postUse.Buffs != preUse.Buffs) category = UsableCategory.Potion;
+        else if (postUse.Projectiles != preUse.Projectiles) category = UsableCategory.Tool;
 
         else category = UsableCategory.Unknown;
         return category != UsableCategory.Unknown;
     }
 
-    public int FindPotentialExplosivesType(int proj) {
+    public static Item FindAmmo(Player player, int proj) {
         foreach (Dictionary<int, int> projectiles in AmmoID.Sets.SpecificLauncherAmmoProjectileMatches.Values) {
-            foreach ((int item, int shoot) in projectiles) if (shoot == proj) return item;
+            foreach ((int item, int shoot) in projectiles) if (shoot == proj) return new(item);
         }
-        foreach (Item item in Player.inventory) if (item.shoot == proj) return item.type;
-        return ItemID.None;
+        foreach (Item item in player.inventory) if (item.shoot == proj) return item;
+        return new();
     }
 
-    public void RefilExplosive(int projType, int refill) {
-        int owned = Player.CountItems(refill);
+    public static void RefillExplosive(Player player, int projType, Item refill) {
+        long owned = player.CountConsumables(refill, ConsumableItem.Instance);
         int used = 0;
         foreach (Projectile proj in Main.projectile)
-            if (proj.owner == Player.whoAmI && proj.type == projType) used += 1;
+            if (proj.owner == player.whoAmI && proj.type == projType) used += 1;
 
         if (ShouldRefill(refill, owned, used, Ammo.Instance))
-                /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
-            Player.GetItem(Player.whoAmI, new(refill, used), new(NoText: true));
+            /* || (InfinityManager.GetCategory(refill, Usable.Instance) == UsableCategory.Explosive && ShouldRefill(refill, owned, used, Usable.Instance))*/
+            player.GetItem(player.whoAmI, new(refill.type, used), new(NoText: true));
 
-        static bool ShouldRefill(int refill, int owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, infinity) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
+        static bool ShouldRefill(Item refill, long owned, int used, Infinity<Item> infinity) => InfinityManager.GetInfinity(refill, owned, Ammo.Instance) == 0 && InfinityManager.GetInfinity(refill, owned + used, Usable.Instance) != 0;
     }
 
     private void HookShootFromCannon(On_Player.orig_ShootFromCannon orig, Player self, int x, int y) {
         orig(self, x, y);
-        self.GetModPlayer<DetectionPlayer>().UsedCannon = true;
+        self.GetModPlayer<DetectionPlayer>().usedCannon = true;
     }
 
-    private static void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot){
+    private static void HookRightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot) {
         DetectionPlayer detectionPlayer = Main.LocalPlayer.GetModPlayer<DetectionPlayer>();
         detectionPlayer.InRightClick = true;
         orig(inv, context, slot);
@@ -132,38 +153,44 @@ public sealed class DetectionPlayer : ModPlayer {
     }
 
     private static void HookPutItemInInventory(On_Player.orig_PutItemInInventoryFromItemUsage orig, Player self, int type, int selItem) {
-        if (selItem < 0){
+        if (selItem < 0) {
             orig(self, type, selItem);
             return;
         }
 
         Item item = self.inventory[selItem];
 
-        Configs.InfinitySettings settings = Configs.InfinitySettings.Instance;
-        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) InfinityManager.SaveDetectedCategory(item, PlaceableCategory.Bucket, Placeable.Instance);
-        
+        if (InfinityManager.GetCategory(item, Placeable.Instance) == PlaceableCategory.None) Placeable.Instance.SaveDetectedCategory(item, PlaceableCategory.Bucket);
+
         item.stack++;
         if (!self.HasInfinite(item, 1, Placeable.Instance)) item.stack--;
-        else if (settings.PreventItemDuplication) return;
+        else if (Placeable.PreventItemDuplication && !Placeable.Instance.Config.preventItemDuplication.Value.allowMiscDrops) return;
 
         orig(self, type, selItem);
     }
 
     private static void HookSpawn(On_Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
         orig(self, context);
-        self.GetModPlayer<DetectionPlayer>().Teleported = true;
+        self.GetModPlayer<DetectionPlayer>().teleported = true;
     }
     private static void HookTeleport(On_Player.orig_Teleport orig, Player self, Vector2 newPos, int Style = 0, int extraInfo = 0) {
         orig(self, newPos, Style, extraInfo);
-        self.GetModPlayer<DetectionPlayer>().Teleported = true;
+        self.GetModPlayer<DetectionPlayer>().teleported = true;
     }
-
 
     public Item? DetectingCategoryOf;
     private DetectionDataScreenShot _preUseData;
 
-    public bool Teleported { get; set; }
-    public bool UsedCannon { get; set; }
+    public bool InItemCheck { get; private set; }
+    public bool InRightClick { get; private set; }
+    public bool teleported;
+    public bool usedCannon;
+    public bool aimedAtInfiniteTile;
 }
 
-public record struct DetectionDataScreenShot(int MaxLife, int MaxMana, Vector2 Position, int ExtraAccessories, bool DemonHeart, int Projectiles, int ItemCount, int Difficulty, int Invasion, NPCStats NPCStats);
+public record struct DetectionDataScreenShot(
+    int MaxLife, int MaxMana,
+    Vector2 Position,
+    int ExtraAccessories, bool DemonHeart,
+    int Projectiles, int Buffs,
+    int Difficulty, int Invasion, NPCStats NPCStats);

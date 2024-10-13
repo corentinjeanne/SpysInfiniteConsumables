@@ -1,63 +1,81 @@
+using SpikysLib;
+using Terraria;
 using Terraria.ModLoader.Config;
 using Terraria.ID;
-using Microsoft.Xna.Framework;
-using Terraria;
-using System.Collections.Generic;
+using SPIC.Default.Displays;
 using Terraria.ModLoader;
 using Terraria.Localization;
+using SPIC.Configs;
+using SPIC.Default.Presets;
+using System.Collections.Generic;
+using SpikysLib.Configs;
+using Microsoft.Xna.Framework;
+using SpikysLib.Collections;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
-using SPIC.Default.Displays;
-using SpikysLib.Extensions;
 
 namespace SPIC.Default.Infinities;
 
-public enum CurrencyCategory {
-    None,
-    Coins,
-    SingleCoin,
-}
-
-public sealed class CurrencyRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Currency.Coins")]
-    [DefaultValue(1/20f)] public float Coins = 1/20f;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Multiplier"), LabelArgs($"${Localization.Keys.Infinities}.Currency.SingleCoin")]
-    [DefaultValue(1/5f)] public float SingleCoin = 1/5f;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Shop")]
-    [DefaultValue(true)] public bool Shop = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Nurse")]
-    [DefaultValue(true)] public bool Nurse = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Reforging")]
-    [DefaultValue(true)] public bool Reforging = true;
-    [LabelKey($"${Localization.Keys.Infinities}.Currency.Others")]
-    [DefaultValue(true)] public bool Others = true;
-}
-
-public sealed class Currency : Infinity<int, CurrencyCategory>, ITooltipLineDisplay {
-
-    public override Group<int> Group => Currencies.Instance;
+public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltipLineDisplay {
     public static Currency Instance = null!;
-    public static CurrencyRequirements Config = null!;
 
-    public override int IconType => ItemID.LuckyCoin;
-    public override bool Enabled { get; set; } = false;
-    public override Color Color { get; set; } = Colors.CoinGold;
-
-    public override Requirement GetRequirement(CurrencyCategory category) => category switch {
-        CurrencyCategory.Coins => new(10000, Config.Coins),
-        CurrencyCategory.SingleCoin => new(20, Config.SingleCoin),
-        _ => Requirement.None
+    public sealed override InfinityDefaults Defaults => new() {
+        Enabled = false,
+        Color = Colors.CoinGold
+    };
+    public sealed override ConsumableDefaults ConsumableDefaults => new() {
+        Preset = CurrencyDefaults.Instance,
+        DisplayedInfinities = DisplayedInfinities.Consumable
     };
 
-    public override CurrencyCategory GetCategory(int currency) {
-        if (currency == SpikysLib.Currencies.Coins) return CurrencyCategory.Coins;
-        if (!SpikysLib.Currencies.CustomCurrencies.Contains(currency)) return CurrencyCategory.None;
-        return SpikysLib.Currencies.CurrencySystems(currency).Values.Count == 1 ? CurrencyCategory.SingleCoin : CurrencyCategory.Coins;
+    public override int GetId(int consumable) => consumable;
+    public override int ToConsumable(int id) => id;
+    public override int ToConsumable(Item item) => item.CurrencyType();
+    public override ItemDefinition ToDefinition(int consumable) => new(CurrencyHelper.LowestValueType(consumable));
+
+    public override long CountConsumables(Player player, int consumable) => player.CountCurrency(consumable, true, true);
+
+    public string CountToString(int consumable, long value, long outOf) {
+        if (outOf == 0) return CurrencyHelper.PriceText(consumable, value);
+        if (InfinityManager.GetCategory(consumable, Shop.Instance) == CurrencyCategory.SingleCoin) return $"{value}/{CurrencyHelper.PriceText(consumable, outOf)}";
+        return $"{CurrencyHelper.PriceText(consumable, value)}/{CurrencyHelper.PriceText(consumable, outOf)}";
     }
 
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ? ((TooltipLine, TooltipLineID?))(new(Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) : Tooltip.DefaultTooltipLine(this);
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => displayed == CustomCurrencyID.DefenderMedals ?
+        ((TooltipLine, TooltipLineID?))(new(Instance.Mod, "Tooltip0", Language.GetTextValue("ItemTooltip.DefenderMedal")), TooltipLineID.Tooltip) :
+        Displays.Tooltip.DefaultTooltipLine(Instance);
 
-    public override void ModifyDisplay(Player player, Item item, int consumable, ref Requirement requirement, ref long count, List<object> extras, ref InfinityVisibility visibility) {
+    internal static void PortConfig(Dictionary<InfinityDefinition, Toggle<Dictionary<ProviderDefinition, object>>> infinities, ConsumableInfinities config) {
+        InfinityDefinition currency = new("SPIC/Currency");
+        bool enabled = config.infinities[currency].Key;
+        LegacyCurrencyRequirements requirements = JObject.FromObject(config.infinities[currency].Value).ToObject<LegacyCurrencyRequirements>()!;
+        RequirementRequirements coinsRequirements = new() { multiplier = requirements.Coins };
+        CurrencyRequirements currencyRequirements = new() { coinsMultiplier = requirements.Coins, singleMultiplier = requirements.SingleCoin };
+        config.infinities = new() {
+            { new("SPIC/Shop"), new(requirements.Shop, new(){ { ProviderDefinition.Config, currencyRequirements } }) },
+            { new("SPIC/Reforging"), new(requirements.Reforging, new(){ { ProviderDefinition.Config, coinsRequirements } }) },
+            { new("SPIC/Nurse"), new(requirements.Nurse, new(){ { ProviderDefinition.Config, coinsRequirements } }) },
+            { new("SPIC/Purchase"), new(requirements.Others, new(){ { ProviderDefinition.Config, currencyRequirements } }) },
+        };
+        infinities.GetOrAdd(currency, () => new(enabled)).Value[ProviderDefinition.Infinities] = config;
+    }
+    
+    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
         int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
         if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
     }
+
+    internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities, GroupColors colors) {
+        InfinityDefinition currency = new("SPIC/Currency");
+        infinities.GetOrAdd(currency, () => new()).Key = colors.Colors[currency];
+    }
+}
+
+public sealed class LegacyCurrencyRequirements {
+    [DefaultValue(1 / 20f)] public float Coins = 1 / 20f;
+    [DefaultValue(1 / 5f)] public float SingleCoin = 1 / 5f;
+    [DefaultValue(true)] public bool Shop = true;
+    [DefaultValue(true)] public bool Nurse = true;
+    [DefaultValue(true)] public bool Reforging = true;
+    [DefaultValue(true)] public bool Others = true;
 }

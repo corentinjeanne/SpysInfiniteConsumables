@@ -1,11 +1,33 @@
-Download: Thank you for downloading {$Mods.SPIC.Chat.ModName}! Make sure to view and adjust the configs before playing
-Update: "{$Mods.SPIC.Chat.ModNameShort} was updated to v{$Mods.SPIC.Chat.Version}! View the Update section in the [c/05c8ff:{$Mods.SPIC.Configs.InfinityDisplay.DisplayName}] config to learn more about the update"
+Download: Thank you for downloading {$Mods.SPIC.Chat.ModName}! Make sure to adjust the configs before playing
+Update: "{$Mods.SPIC.Chat.Summary}. View the [c/05c8ff:{$Mods.SPIC.Configs.Version.DisplayName}] config for more details"
 Bug: If you found a bug, please report it on the [c/05c8ff:{$Mods.SPIC.Chat.Workshop}] or the [c/05c8ff:{$Mods.SPIC.Chat.Homepage}]
 ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: 3.1.1.3
-Info: Fixed some bugs
-Important: ""
-Changelog: - Fixed material groups consuming when infinite
+Version: "4.0"
+Summary: Tile duplication is finally working and the configs received some love
+Details:
+	'''
+	After 3+ years of work (and 3 complete reworks), SPIC is finally finished!
+	Thank you for downloading and using this over-engineered mod of mine.
+
+	This is (probably) the last major update this mod will have.
+	I will still maintain the mod and release patches when needed but I implemented everything I planned to.
+
+	Small sidenote, I you are a mod developer and want to add new Infinities there's an API you can use the create Infinities, Presets and Displays.
+	'''
+Changelog:
+	'''
+	- Reworked tile duplication
+	- Reworked the way the mod works internally
+	- Updated icon
+	- Added settings to the Display config
+	- Added loads of tooltips
+	- Simplified notification
+	- Added Version config
+	- Moved Definition and CustomDictionaryElement to Spiky's Lib
+	- Added automatic localization generation
+	- Updated to Spiky's lib v1.2
+	- Fixed bugs with preset
+	'''

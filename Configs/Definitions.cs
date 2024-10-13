@@ -1,69 +1,73 @@
-using SPIC.Configs.Presets;
 using System.Linq;
+using System.ComponentModel;
+using SpikysLib;
 using Newtonsoft.Json;
-using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
+using Terraria.Localization;
+using System.Collections.Generic;
 
-namespace SPIC.Configs.UI;
+namespace SPIC.Configs;
 
-public sealed class PresetDefinition : Definition<PresetDefinition> {
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
+public sealed class PresetDefinition : EntityDefinition<PresetDefinition, Preset> {
     public PresetDefinition() : base() { }
     public PresetDefinition(string key) : base(key) { }
     public PresetDefinition(string mod, string name) : base(mod, name) { }
+    public PresetDefinition(Preset preset) : this(preset.Mod.Name, preset.Name) { }
 
-    public override int Type => PresetLoader.GetPreset(Mod, Name) is null ? -1 : 1;
+    public override Preset? Entity => PresetLoader.GetPreset(Mod, Name);
+
     public override bool AllowNull => true;
 
-    public override string DisplayName => PresetLoader.GetPreset(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
-    public override string? Tooltip => PresetLoader.GetPreset(Mod, Name)?.GetLocalization("Tooltip").Value;
+    [JsonIgnore] public IConsumableInfinity? Consumable { get; set; }
 
-    [JsonIgnore] public IGroup? Filter { get; set; }
-    
-    public override PresetDefinition[] GetValues() => (Filter?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
+    public override PresetDefinition[] GetValues() => (Consumable?.Presets ?? PresetLoader.Presets).Select(preset => new PresetDefinition(preset.Mod.Name, preset.Name)).ToArray();
 }
 
-public sealed class GroupDefinition : Definition<GroupDefinition> {
-    public GroupDefinition() : base(){}
-    public GroupDefinition(string fullName) : base(fullName) {}
-    public GroupDefinition(IGroup group) : base(group.Mod.Name, group.Name) {}
-
-    public override int Type => InfinityManager.GetGroup(Mod, Name) is null ? -1 : 1;
-
-    public override string DisplayName => InfinityManager.GetGroup(Mod, Name)?.DisplayName.Value ?? base.DisplayName;
-
-    public override GroupDefinition[] GetValues() => InfinityManager.Groups.Select(consumable => new GroupDefinition(consumable)).ToArray();
-}
-
-public sealed class InfinityDefinition : Definition<InfinityDefinition> {
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
+public sealed class InfinityDefinition : EntityDefinition<InfinityDefinition, IInfinity> {
     public InfinityDefinition() : base() { }
     public InfinityDefinition(string fullName) : base(fullName) { }
     public InfinityDefinition(string mod, string name) : base(mod, name) { }
     public InfinityDefinition(IInfinity infinity) : this(infinity.Mod.Name, infinity.Name) { }
 
-    public override int Type => InfinityManager.GetInfinity(Mod, Name) is null ? -1 : 1;
+    public override IInfinity? Entity => InfinityLoader.GetInfinity(Mod, Name);
 
-    [JsonIgnore] public IGroup? Filter { get; set; }
+    public override string DisplayName => Entity?.Label.Value ?? base.DisplayName;
 
-    public override string DisplayName { get {
-        IInfinity? infinity = InfinityManager.GetInfinity(Mod, Name);
-        return infinity is not null ? $"[i:{infinity.IconType}] {infinity.DisplayName}" : base.DisplayName;
-    } }
-
-    public override InfinityDefinition[] GetValues() => (Filter?.Infinities ?? InfinityManager.Infinities).Select(intinity => new InfinityDefinition(intinity)).ToArray();
+    public override InfinityDefinition[] GetValues() => InfinityLoader.Infinities.Select(infinity => new InfinityDefinition(infinity)).ToArray();
 }
 
-public sealed class DisplayDefinition : Definition<DisplayDefinition> {
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
+public sealed class DisplayDefinition : EntityDefinition<DisplayDefinition, Display> {
     public DisplayDefinition() : base() { }
     public DisplayDefinition(string fullName) : base(fullName) { }
     public DisplayDefinition(string mod, string name) : base(mod, name) { }
+    public DisplayDefinition(Display entity) : this(entity.Mod.Name, entity.Name) { }
 
-    public override int Type => DisplayLoader.GetDisplay(Mod, Name) is null ? -1 : 1;
+    public override Display? Entity => DisplayLoader.GetDisplay(Mod, Name);
 
-    [JsonIgnore] public IGroup? Filter { get; set; }
-
-    public override string DisplayName { get {
-        Display? display = DisplayLoader.GetDisplay(Mod, Name);
-        return display is not null ? $"[i:{display.IconType}] {display.DisplayName}" : base.DisplayName;
-    } }
+    public override string DisplayName => Entity?.Label.Value ?? base.DisplayName;
 
     public override DisplayDefinition[] GetValues() => DisplayLoader.Displays.Select(display => new DisplayDefinition(display.Mod.Name, display.Name)).ToArray();
+}
+
+[TypeConverter("SPIC.IO.ToFromStringConverterFix")]
+public sealed class ProviderDefinition : EntityDefinition, IEntityDefinition {
+    public ProviderDefinition() : base() { }
+    public ProviderDefinition(string fullName) : base(fullName) { }
+    public ProviderDefinition(string mod, string name) : base(mod, name) { }
+    public override int Type => 1;
+
+    [JsonIgnore] public override string DisplayName => Language.GetTextValue($"Mods.{Mod}.Configs.{Name}.DisplayName");
+    [JsonIgnore] public string? Tooltip => Language.GetTextValue($"Mods.{Mod}.Configs.{Name}.Tooltip");
+
+    public static ProviderDefinition Config => new("SPIC/Config");
+    public static ProviderDefinition Customs => new("SPIC/Customs");
+    public static ProviderDefinition Infinities => new("SPIC/Infinities");
+
+    public static ProviderDefinition FromString(string s) => new(s);
+
+    bool IEntityDefinition.AllowNull => true;
+    IList<IEntityDefinition> IEntityDefinition.GetValues() => [];
 }

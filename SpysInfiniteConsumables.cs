@@ -1,36 +1,31 @@
+using System.IO;
 using System.Text.RegularExpressions;
-using SpikysLib.Extensions;
-using Terraria.Localization;
+using SPIC.Configs;
+using SpikysLib;
+using SpikysLib.Configs;
+using SpikysLib.Localization;
 using Terraria.ModLoader;
 
 namespace SPIC;
 
-public sealed class SpysInfiniteConsumables : Mod {
+public sealed class SpysInfiniteConsumables : Mod, IPreLoadMod {
 
     public static SpysInfiniteConsumables Instance { get; private set; } = null!;
 
-    public override void Load() => Instance = this;
-
+    public void PreLoadMod() {
+        Instance = this;
+        LanguageHelper.ModifyKey += s => InfinityRoutingRegex.Replace(s, "Mods.SPIC.Infinities.$1$3");
+        LanguageHelper.ModifyKey += s => DisplayRoutingRegex.Replace(s, "Mods.SPIC.Displays.$1$2");
+    }
     public override void PostSetupContent() {
-        FullInfinity.RegisterExtraLocalization<System.Enum>((infinity, category) => infinity.GetLocalization(category.ToString(), () => Regex.Replace(category.ToString(), "([A-Z])", " $1").Trim()).Value);
-        FullInfinity.RegisterExtraLocalization<LocalizedText>((infinity, text) => text.Value);
-        FullInfinity.RegisterExtraLocalization<string>((infinity, str) => Language.GetOrRegister(str, () => Regex.Replace(str, "([A-Z])", " $1").Trim()).Value);
-        
-        Configs.Presets.PresetLoader.SetupPresets();
-        if(Configs.InfinityDisplay.Instance.version.Length != 0) {
-            Configs.InfinityDisplay.Instance.PortConfig();
-            Configs.InfinitySettings.Instance.PortConfig();
-        } else {
-            Configs.InfinityDisplay.Instance.Load();
-            Configs.InfinitySettings.Instance.Load();
-        }
+        InfinitySettings.Instance.Load();
+        Configs.InfinityDisplay.Instance.Load();
     }
 
-    public override void Unload() {
-        FullInfinity.ClearExtraLocs();
-        
-        InfinityManager.Unload();
-        Configs.Presets.PresetLoader.Unload();
+    public override void HandlePacket(BinaryReader reader, int whoAmI) => PacketHandlerLoader.Handle(this, reader, whoAmI);
+
+    public override void Unload() {        
+        InfinityLoader.Unload();
         Instance = null!;
     }
 
@@ -44,14 +39,17 @@ public sealed class SpysInfiniteConsumables : Mod {
                 string mod = parts[0];
                 string name = parts[0];
 
-                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityManager.GetInfinity(mod, name)!);
+                return InfinityManager.HasInfinite(Terraria.Main.player[playerID], consumable, consumed, (dynamic)InfinityLoader.GetInfinity(mod, name)!);
             }
         }catch(System.InvalidCastException cast){
-            Logger.Error("The type of one of the arguments was incorect", cast);
+            Logger.Error("The type of one of the arguments was incorrect", cast);
         }catch(System.Exception error){
-            Logger.Error("The call failled", error);
+            Logger.Error("The call failed", error);
         }
         return base.Call();
     }
-}
 
+    private static readonly Regex CamelCaseRegex = new("([A-Z])");
+    private static readonly Regex InfinityRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)(?<!Infinity)(Category|Requirements|Display)(.*)$""");
+    private static readonly Regex DisplayRoutingRegex = new("""^Mods\.SPIC\.Configs\.(\w+)Config(.*)$""");
+}

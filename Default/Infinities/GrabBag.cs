@@ -1,15 +1,16 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.GameContent.ItemDropRules;
-using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 using SPIC.Configs;
-using SpikysLib.Extensions;
-using System.Collections.Generic;
+using Terraria.ModLoader;
+using SpikysLib;
 using SPIC.Default.Displays;
+using System.Collections.Generic;
+using SpikysLib.Configs.UI;
+using Terraria.ModLoader.Config;
+using System.ComponentModel;
 
-namespace SPIC.Default.Infinities; 
+namespace SPIC.Default.Infinities;
 
 public enum GrabBagCategory {
     None,
@@ -18,35 +19,37 @@ public enum GrabBagCategory {
     TreasureBag,
 }
 
+[CustomModConfigItem(typeof(ObjectMembersElement))]
 public sealed class GrabBagRequirements {
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Container")]
     public Count<GrabBagCategory> Container = 10;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.Extractinator")]
     public Count<GrabBagCategory> Extractinator = 499;
-    [LabelKey($"${Localization.Keys.Infinities}.GrabBag.TreasureBag")]
     public Count<GrabBagCategory> TreasureBag = 3;
 }
 
-public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDisplay {
+[CustomModConfigItem(typeof(ObjectMembersElement))]
+public sealed class GrabBagDisplay {
+    [DefaultValue(true)] public bool reuseTooltip = true;
+}
 
-    public override Group<Item> Group => Items.Instance;
+public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<GrabBagRequirements>, IClientConfigProvider<GrabBagDisplay>, ITooltipLineDisplay {
     public static GrabBag Instance = null!;
-    public static GrabBagRequirements Config = null!;
+    public override ConsumableInfinity<Item> Consumable => ConsumableItem.Instance; 
+    public GrabBagRequirements Config { get; set; } = null!;
+    public GrabBagDisplay ClientConfig { get; set; } = null!;
 
-
-    public override int IconType => ItemID.FairyQueenBossBag;
-    public override Color Color { get; set; } = Colors.RarityDarkPurple;
-
-    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", DisplayName.Value), TooltipLineID.Tooltip);
-
-    public override Requirement GetRequirement(GrabBagCategory bag) => bag switch {
-        GrabBagCategory.Container => new(Config.Container),
-        GrabBagCategory.TreasureBag => new(Config.TreasureBag),
-        GrabBagCategory.Extractinator => new(Config.Extractinator),
-        _ => Requirement.None,
+    public sealed override InfinityDefaults Defaults => new(){
+        Enabled = false,
+        Color = Colors.RarityDarkPurple
     };
 
-    public override GrabBagCategory GetCategory(Item item) {
+    public override long GetRequirement(GrabBagCategory bag) => bag switch {
+        GrabBagCategory.Container => Config.Container,
+        GrabBagCategory.TreasureBag => Config.TreasureBag,
+        GrabBagCategory.Extractinator => Config.Extractinator,
+        _ => 0,
+    };
+
+    protected override GrabBagCategory GetCategoryInner(Item item) {
         switch (item.type) {
         case ItemID.Geode: return GrabBagCategory.Container;
         }
@@ -57,11 +60,14 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, ITooltipLineDispl
             return GrabBagCategory.Container;
         }
         if(ItemID.Sets.ExtractinatorMode[item.type] != -1) return GrabBagCategory.Extractinator;
-        return GrabBagCategory.None; // GrabBagCategory.Unknown;
+        return GrabBagCategory.None;
     }
 
-    public override void ModifyDisplayedConsumables(Item consumable, List<Item> displayed) {
-        Item? key = consumable.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
+    public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
+        => ClientConfig.reuseTooltip ? (new(Instance.Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", Instance.DisplayName.Value), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
+    
+    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+        Item? key = item.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
         if (key is not null) displayed.Add(key);
     }
 }
