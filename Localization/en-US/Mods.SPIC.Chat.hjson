@@ -5,8 +5,8 @@ ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: "4.0"
-Summary: Tile duplication is finally working and the configs received some love
+Version: 4.0.0.1
+Summary: ""
 Details:
 	'''
 	After 3+ years of work (and 3 complete reworks), SPIC is finally finished!
@@ -17,17 +17,4 @@ Details:
 
 	Small sidenote, I you are a mod developer and want to add new Infinities there's an API you can use the create Infinities, Presets and Displays.
 	'''
-Changelog:
-	'''
-	- Reworked tile duplication
-	- Reworked the way the mod works internally
-	- Updated icon
-	- Added settings to the Display config
-	- Added loads of tooltips
-	- Simplified notification
-	- Added Version config
-	- Moved Definition and CustomDictionaryElement to Spiky's Lib
-	- Added automatic localization generation
-	- Updated to Spiky's lib v1.2
-	- Fixed bugs with preset
-	'''
+Changelog: - Fixed group materials count

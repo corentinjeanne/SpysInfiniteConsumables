@@ -113,6 +113,9 @@ This config contains various ways to display the infinities of items and their d
 
 ## Changelog
 
+### v4.0.0.1
+- Fixed group materials count
+
 ### v4.0
 - Reworked tile duplication
 - Reworked the way the mod works internally

@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using SpikysLib;
 using System;
 using SpikysLib.Configs.UI;
+using System.Collections.Generic;
 
 namespace SPIC.Default.Infinities;
 
@@ -84,9 +85,10 @@ public sealed class Material : Infinity<Item, MaterialCategory>, IConfigProvider
         visibility = InfinityVisibility.Exclusive;
 
         long requirement = Math.Max(value.Requirement, (int)MathF.Ceiling(material.stack / Config.Multiplier));
-        long count = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == consumable.type) == -1 ?
+        int group = selectedRecipe.acceptedGroups.FindIndex(g => RecipeGroup.recipeGroups[g].IconicItemId == item.type);
+        long count = group == -1 ?
             Main.LocalPlayer.CountConsumables(consumable, Consumable) :
-            PlayerHelper.OwnedItems[RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[0]].GetGroupFakeItemId()];
+            PlayerHelper.OwnedItems.GetValueOrDefault(RecipeGroup.recipeGroups[selectedRecipe.acceptedGroups[group]].GetGroupFakeItemId());
         value = new(value.Consumable, requirement, count, count >= requirement ? count : 0);
     }
 }
