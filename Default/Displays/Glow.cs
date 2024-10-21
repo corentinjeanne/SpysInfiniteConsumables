@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using System.Linq;
 using Newtonsoft.Json;
 using SpikysLib.Configs;
+using SPIC.Default.Globals;
 
 namespace SPIC.Default.Displays;
 
@@ -28,21 +29,23 @@ public sealed class Glow : Display, IConfigProvider<GlowConfig> {
 
     public GlowConfig Config { get; set; } = null!;
 
-    public static void PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Vector2 origin, float scale) {
-        var displays = InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays).Where(display => display.Value.Infinity > 0).ToArray();
+    public static void PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Vector2 origin, float scale) {
+        var displays = InfinityManager.GetDisplayedInfinities(item, InfinityDisplayItem.drawItemIconParams.Context).SelectMany(displays => displays).Where(display => display.Value.Infinity > 0).ToArray();
         if (displays.Length == 0) return;
         float time = Main.GlobalTimeWrappedHourly;
         if (Instance.Config.offset) time += item.GetHashCode() % 64 / 64f * Instance.Config.length;
         int index = (int)(time / Instance.Config.length);
         float progress = time % Instance.Config.length / Instance.Config.length;
         var display = displays[index % displays.Length];
-        DisplayGlow(spriteBatch, item, position, frame, origin, scale, progress, display.Infinity.Color);
+        DisplayGlow(spriteBatch, item, position, frame, drawColor, origin, scale, progress, display.Infinity.Color, InfinityDisplayItem.drawItemIconParams.Scale);
     }
 
-    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Vector2 origin, float scale, float progress, Color color) {
+    public static void DisplayGlow(SpriteBatch spriteBatch, Item item, Vector2 position, Rectangle frame, Color drawColor, Vector2 origin, float scale, float progress, Color color, float slotScale) {
         Texture2D texture = TextureAssets.Item[item.type].Value;
         float distance = (progress <= 0.5f ? progress : (1 - progress)) * 2; // 0>1>0
         color *= Instance.Config.intensity * distance;
+        color = color.MultiplyRGBA(drawColor);
+        distance *= slotScale;
         if (!Instance.Config.fancyGlow) {
             float scl = 1 + 8 * distance / frame.Width * Instance.Config.scale;
             spriteBatch.Draw(texture, position, frame, color, 0, origin, scale * scl, 0, 0f);

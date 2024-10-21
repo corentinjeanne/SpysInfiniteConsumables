@@ -5,6 +5,8 @@
 - Updated Spiky's lib dependency to v1.3
 - Fixed group materials count
 - Fixed tooltip line opacity been ignored
+- Fixed Glow and Dots scaling
+- Fixed infinities been displayed in places they shouldn't be
 
 ## v4.0
 - Reworked tile duplication

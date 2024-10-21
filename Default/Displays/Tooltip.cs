@@ -42,7 +42,7 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
     public static string DefaultCount(long owned, long value) => owned == 0 ? Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value) : $"{owned}/{Language.GetTextValue($"{Localization.Keys.CommonItemTooltips}.Count", value)}";
 
     public static void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        foreach (var display in InfinityManager.GetDisplayedInfinities(item).SelectMany(displays => displays)) ModifyTooltips(item, tooltips, display.Value, display.Infinity);
+        foreach (var display in InfinityManager.GetDisplayedInfinities(item, item.tooltipContext).SelectMany(displays => displays)) ModifyTooltips(item, tooltips, display.Value, display.Infinity);
     }
 
     public static void ModifyTooltips(Item item, List<TooltipLine> tooltips, InfinityValue value, IInfinity infinity) {

@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using System.Linq;
 using SpikysLib.Configs;
 using Newtonsoft.Json;
+using SPIC.Default.Globals;
 
 namespace SPIC.Default.Displays;
 
@@ -36,7 +37,7 @@ public sealed class Dots : Display, IConfigProvider<DotsConfig> {
     }
 
     public static void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position) {
-        var displays = InfinityManager.GetDisplayedInfinities(item);
+        var displays = InfinityManager.GetDisplayedInfinities(item, InfinityDisplayItem.drawItemIconParams.Context);
         if (displays.Count == 0) return;
         
         Vector2 cornerDirection = Instance.Config.start switch {
@@ -46,9 +47,10 @@ public sealed class Dots : Display, IConfigProvider<DotsConfig> {
             Corner.BottomLeft or _ => new(-1, 1),
         };
 
-        float scale = Instance.Config.scale * Main.inventoryScale;
+        float slotScale = InfinityDisplayItem.drawItemIconParams.Scale;
+        float scale = Instance.Config.scale * slotScale;
         Vector2 dotSize = new Vector2(_dotsTexture.Height()) * scale;
-        position += (TextureAssets.InventoryBack.Value.Size() / 2f * Main.inventoryScale - dotSize*1.2f) * cornerDirection;
+        position += (TextureAssets.InventoryBack.Value.Size() / 2f * slotScale - dotSize*1.2f) * cornerDirection;
         Vector2 dotDelta = dotSize * (Instance.Config.direction == Direction.Vertical ? new Vector2(0, -cornerDirection.Y) : new Vector2(-cornerDirection.X, 0));
 
         foreach (var display in displays[s_index % displays.Count].Where(d => d.Value.Count > 0)) {

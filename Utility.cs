@@ -1,9 +1,7 @@
 using Terraria;
 using Terraria.ID;
-using SpikysLib;
-using SpikysLib.CrossMod;
-using SpikysLib.Collections;
 using System.Text.RegularExpressions;
+using Terraria.UI;
 
 namespace SPIC;
 
@@ -22,17 +20,6 @@ public static class Utility {
         foreach (Projectile proj in Main.projectile) if (proj.active) p++;
         return p;
     }
-
-    public static bool IsSimilar(this Item a, Item b, bool loose = true) => loose ? !a.IsNotSameTypePrefixAndStack(b) : a == b;
-
-    public static bool IsVisibleInInventory(Item item, bool loose = true) {
-        Player player = Main.LocalPlayer;
-        return Main.mouseItem.IsSimilar(item, loose)
-            || player.inventory.Exist(i => i.IsSimilar(item, loose))
-            || (player.InChest(out var chest) && chest.Exist(i => i.IsSimilar(item, loose)))
-            || (MagicStorageIntegration.Enabled && MagicStorageIntegration.Contains(item));
-    }
-
 
     public static bool XMasDeco(this Item item) => ItemID.StarTopper1 <= item.type && item.type <= ItemID.BlueAndYellowLights;
     public static bool Placeable(this Item item) => item.XMasDeco() || item.createTile != -1 || item.createWall != -1;
