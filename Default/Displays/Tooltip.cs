@@ -53,8 +53,9 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
         bool added = false;
         TooltipLine GetLine() {
             if (line is not null) return line;
+            tooltips.AddLine(lineToFind, position);
             added = true;
-            return line = tooltips.AddLine(lineToFind, position);
+            return line = lineToFind;
         }
         if (value.Infinity > 0) {
             GetLine();
@@ -71,6 +72,6 @@ public sealed class Tooltip : Display, IConfigProvider<TooltipConfig> {
             var values = InfinityManager.GetDebugInfo(value.Consumable, infinity);
             if (values.Count > 0) GetLine().Text += $" ({string.Join(", ", values)})";
         }
-        if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * 0.75f;
+        if (added) line!.OverrideColor = (line.OverrideColor ?? Color.White) * Instance.Config.missingLinesOpacity;
     }
 }
