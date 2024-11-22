@@ -17,9 +17,10 @@ Details:
 
 	Small sidenote, I you are a mod developer and want to add new Infinities there's an API you can use the create Infinities, Presets and Displays.
 	'''
-Changelog: 
+Changelog:
 	'''
 	- Updated Spiky's lib dependency to v1.3
+	- Fixed Infinite Materials not working with Quality od Terraria
 	- Fixed group materials count
 	- Fixed tooltip line opacity been ignored
 	- Fixed Glow and Dots scaling
