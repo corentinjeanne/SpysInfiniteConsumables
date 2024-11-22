@@ -3,6 +3,7 @@
 
 ## v4.0.0.1
 - Updated Spiky's lib dependency to v1.3
+- Fixed Infinite Materials not working with Quality od Terraria
 - Fixed group materials count
 - Fixed tooltip line opacity been ignored
 - Fixed Glow and Dots scaling
