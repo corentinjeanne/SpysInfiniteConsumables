@@ -8,15 +8,18 @@ using SPIC.Default.Displays;
 using SPIC.Default.Infinities;
 using MonoMod.Cil;
 using System;
+using Terraria.UI;
 
 namespace SPIC.Default.Globals;
 
+public readonly record struct DrawItemIconParams(int Context, float Scale);
 public sealed class InfinityDisplayItem : GlobalItem {
 
     public override void Load() {
         MonoModHooks.Add(typeof(PlayerLoader).GetMethod(nameof(PlayerLoader.ModifyNursePrice)), HookNursePrice);
         MonoModHooks.Add(typeof(ItemLoader).GetMethod(nameof(ItemLoader.ReforgePrice)), HookReforgePrice);
         IL_Main.DrawHairWindow += ILFakeHairPrice;
+        On_ItemSlot.DrawItemIcon += HookDrawItemContext;
     }
 
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
@@ -24,8 +27,16 @@ public sealed class InfinityDisplayItem : GlobalItem {
         if (Configs.InfinityDisplay.Instance.exclusiveDisplay) ModifyItemPrice(item, tooltips);
     }
 
+    public static DrawItemIconParams drawItemIconParams = new(-1, 1);
+    private static float HookDrawItemContext(On_ItemSlot.orig_DrawItemIcon orig, Item item, int context, SpriteBatch spriteBatch, Vector2 screenPositionForItemCenter, float scale, float sizeLimit, Color environmentColor) {
+        (DrawItemIconParams prevParams, drawItemIconParams) = (drawItemIconParams, new(context, scale));
+        var finalScale = orig(item, context, spriteBatch, screenPositionForItemCenter, scale, sizeLimit, environmentColor);
+        drawItemIconParams = prevParams;
+        return finalScale;
+    }
+
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-        if (!Main.gameMenu && !Main.ingameOptionsWindow && Glow.Instance.Enabled) Glow.PreDrawInInventory(item, spriteBatch, position, frame, origin, scale);
+        if (!Main.gameMenu && !Main.ingameOptionsWindow && Glow.Instance.Enabled) Glow.PreDrawInInventory(item, spriteBatch, position, frame, drawColor, origin, scale);
         return true;
     }
 

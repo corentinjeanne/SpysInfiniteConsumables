@@ -22,7 +22,7 @@ public interface IInfinity : ILocalizedModType, ILoadable {
     IConsumableInfinity Consumable { get; }
     bool IsConsumable { get; }
 
-    IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, bool visible);
+    IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, int context, bool visible);
 
     Color Color { get; set; }
     LocalizedText Label { get; }
@@ -65,9 +65,9 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
     }
     protected virtual void ModifyInfinity(TConsumable consumable, ref long infinity) { }
 
-    public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, bool visible) {
+    public IEnumerable<(InfinityVisibility visibility, InfinityValue value)> GetDisplayedInfinities(Item item, int context, bool visible) {
         List<TConsumable> consumables = [Consumable.ToConsumable(item)];
-        if (Configs.InfinityDisplay.Instance.alternateDisplays) ModifyDisplayedConsumables(item, ref consumables);
+        if (Configs.InfinityDisplay.Instance.alternateDisplays) ModifyDisplayedConsumables(item, context, ref consumables);
         for (int i = 0; i < consumables.Count; i++) {
             TConsumable consumable = consumables[i];
             InfinityVisibility visibility = i != 0 || !InfinityManager.IsUnused(consumable, this) ? InfinityVisibility.Visible : InfinityVisibility.Hidden;
@@ -78,12 +78,12 @@ public abstract class Infinity<TConsumable> : ModType, IInfinity {
                 visible ? count : 0,
                 visible ? InfinityManager.GetInfinity(consumable, count, this) : 0
             );
-            ModifyDisplayedInfinity(item, consumable, ref visibility, ref infinity);
+            ModifyDisplayedInfinity(item, context, consumable, ref visibility, ref infinity);
             if (infinity.Requirement > 0) yield return (visibility, infinity);
         }
     }
-    protected virtual void ModifyDisplayedConsumables(Item item, ref List<TConsumable> consumables) { }
-    protected virtual void ModifyDisplayedInfinity(Item item, TConsumable consumable, ref InfinityVisibility visibility, ref InfinityValue value) { }
+    protected virtual void ModifyDisplayedConsumables(Item item, int context, ref List<TConsumable> consumables) { }
+    protected virtual void ModifyDisplayedInfinity(Item item, int context, TConsumable consumable, ref InfinityVisibility visibility, ref InfinityValue value) { }
 
     public ICustoms<TConsumable> Customs { get; private set; } = null!;
 

@@ -12,6 +12,7 @@ using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
 using System.ComponentModel;
 using SpikysLib.Configs;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -182,14 +183,13 @@ public sealed class Placeable : Infinity<Item, PlaceableCategory>, IConfigProvid
         _ => item.GetFlexibleTileWand() is not null ? WandType.Flexible : WandType.None
     };
 
-    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+    protected override void ModifyDisplayedConsumables(Item item, int context, ref List<Item> displayed) {
         Item? ammo = GetAmmo(Main.LocalPlayer, item);
         if (ammo is not null) displayed.Add(ammo);
     }
 
-    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index < 50 || 58 <= index) return;
+    protected override void ModifyDisplayedInfinity(Item item, int context, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context != ItemSlot.Context.InventoryAmmo) return;
 
         PlaceableCategory category = InfinityManager.GetCategory(item, this);
         if (category == PlaceableCategory.Wiring || category == PlaceableCategory.Paint || IsWandAmmo(item.type, out _)) visibility = InfinityVisibility.Exclusive;

@@ -66,7 +66,7 @@ public sealed class GrabBag : Infinity<Item, GrabBagCategory>, IConfigProvider<G
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed)
         => ClientConfig.reuseTooltip ? (new(Instance.Mod, item.type == ItemID.LockBox && item.type != displayed ? "Tooltip1" : "Tooltip0", Instance.DisplayName.Value), TooltipLineID.Tooltip) : Displays.Tooltip.DefaultTooltipLine(this);
     
-    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+    protected override void ModifyDisplayedConsumables(Item item, int context, ref List<Item> displayed) {
         Item? key = item.type == ItemID.LockBox ? Main.LocalPlayer.FindItemRaw(ItemID.GoldenKey) : null ;
         if (key is not null) displayed.Add(key);
     }

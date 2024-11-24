@@ -8,6 +8,7 @@ using SpikysLib.Constants;
 using SPIC.Default.Displays;
 using Terraria.ModLoader.Config;
 using SpikysLib.Configs.UI;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -55,13 +56,12 @@ public sealed class Ammo : Infinity<Item, AmmoCategory>, IConfigProvider<AmmoReq
         if (requirement > consumable.maxStack) requirement = consumable.maxStack;
     }
 
-    protected override void ModifyDisplayedConsumables(Item consumable, ref List<Item> displayed) {
+    protected override void ModifyDisplayedConsumables(Item consumable, int context, ref List<Item> displayed) {
         Item? ammo = consumable.useAmmo > AmmoID.None ? Main.LocalPlayer.ChooseAmmo(consumable) : null;
         if (ammo is not null) displayed.Add(ammo);
     }
 
-    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (InventorySlots.Coins.Start <= index && index < InventorySlots.Ammo.End) visibility = InfinityVisibility.Exclusive;
+    protected override void ModifyDisplayedInfinity(Item item, int context, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context == ItemSlot.Context.InventoryAmmo) visibility = InfinityVisibility.Exclusive;
     }
 }

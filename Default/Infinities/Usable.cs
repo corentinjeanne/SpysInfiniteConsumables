@@ -7,6 +7,7 @@ using SpikysLib;
 using System.Collections.Generic;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -91,13 +92,12 @@ public sealed class Usable : Infinity<Item, UsableCategory>, IConfigProvider<Usa
         return (new(Instance.Mod, "PoleConsumes", Lang.tip[52].Value + Lang.GetItemName(displayed)), TooltipLineID.WandConsumes);
     }
 
-    protected override void ModifyDisplayedConsumables(Item item, ref List<Item> displayed) {
+    protected override void ModifyDisplayedConsumables(Item item, int context, ref List<Item> displayed) {
         Item? ammo = item.fishingPole > 0 ? Main.LocalPlayer.PickBait() : null;
         if (ammo is not null) displayed.Add(ammo);
     }
 
-    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (index >= 53 && 58 > index && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
+    protected override void ModifyDisplayedInfinity(Item item, int context, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context == ItemSlot.Context.InventoryAmmo && InfinityManager.GetCategory(item, this) == UsableCategory.Critter) visibility = InfinityVisibility.Exclusive;
     }
 }

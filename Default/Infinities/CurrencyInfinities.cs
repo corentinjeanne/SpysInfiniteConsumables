@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader.Config;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 public enum CurrencyCategory {
@@ -50,9 +51,8 @@ public abstract class CurrencyInfinity: Infinity<int, CurrencyCategory>, IConfig
     }
     protected sealed override void ModifyInfinity(int consumable, ref long infinity) => infinity = (long)(infinity * GetMultiplier(InfinityManager.GetCategory(consumable, this)));
 
-    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
+    protected override void ModifyDisplayedInfinity(Item item, int context, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context == ItemSlot.Context.InventoryCoin) visibility = InfinityVisibility.Exclusive;
     }
 }
 

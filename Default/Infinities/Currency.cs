@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 using SpikysLib.Collections;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -60,9 +61,8 @@ public sealed class Currency : ConsumableInfinity<int>, ICountToString, ITooltip
         infinities.GetOrAdd(currency, () => new(enabled)).Value[ProviderDefinition.Infinities] = config;
     }
     
-    protected override void ModifyDisplayedInfinity(Item item, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        int index = System.Array.FindIndex(Main.LocalPlayer.inventory, 0, i => i.IsSimilar(item));
-        if (50 <= index && index < 54) visibility = InfinityVisibility.Exclusive;
+    protected override void ModifyDisplayedInfinity(Item item, int context, int consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context == ItemSlot.Context.InventoryCoin) visibility = InfinityVisibility.Exclusive;
     }
 
     internal static void PortClientConfig(Dictionary<InfinityDefinition, NestedValue<Color, Dictionary<ProviderDefinition, object>>> infinities, GroupColors colors) {

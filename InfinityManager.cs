@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SPIC.Configs;
+using SpikysLib;
 using SpikysLib.Collections;
 using Terraria;
 using Terraria.Localization;
@@ -41,16 +42,16 @@ public static class InfinityManager {
     public static bool IsUnused<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => UnusedInfinities(consumable, infinity.Consumable).Contains(infinity);
     public static Infinity<TConsumable> GetUsedInfinity<TConsumable>(TConsumable consumable, Infinity<TConsumable> infinity) => IsUnused(consumable, infinity) ? infinity.Consumable : infinity;
 
-    public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item) {
-        if (!Configs.InfinityDisplay.Instance.disableCache && s_displays.TryGetValue((item.type, item.stack, item.prefix), out var ds)) return ds;
-        bool visible = Utility.IsVisibleInInventory(item);
+    public static ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>> GetDisplayedInfinities(Item item, int context) {
+        if (!Configs.InfinityDisplay.Instance.disableCache && s_displays.TryGetValue((item.type, context), out var ds)) return ds;
+        bool visible = ItemHelper.IsInventoryContext(context);
 
         List<ReadOnlyCollection<InfinityDisplay>> displays = [];
         InfinityVisibility minVisibility = InfinityVisibility.Visible;
         foreach (var infinity in InfinityLoader.ConsumableInfinities.Where(i => i.Enabled)) {
             List<InfinityDisplay> subDisplays = [];
             void AddInfinityDisplay(IInfinity infinity) {
-                foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item, visible)) {
+                foreach ((var visibility, var value) in infinity.GetDisplayedInfinities(item, context, visible)) {
                     if (visibility < minVisibility) continue;
                     if (Configs.InfinityDisplay.Instance.alternateDisplays && visibility > minVisibility) {
                         displays.Clear();
@@ -64,7 +65,7 @@ public static class InfinityManager {
             if (infinity.DisplayedInfinities.HasFlag(DisplayedInfinities.Infinities)) foreach (IInfinity i in infinity.Infinities.Where(i => i.Enabled)) AddInfinityDisplay(i);
             if (subDisplays.Count > 0) displays.Add(subDisplays.AsReadOnly());
         }
-        return s_displays[(item.type, item.stack, item.prefix)] = displays.AsReadOnly();
+        return s_displays[(item.type, context)] = displays.AsReadOnly();
     }
 
     public static long GetInfinity<TConsumable>(this Player player, TConsumable consumable, Infinity<TConsumable> infinity)
@@ -127,7 +128,7 @@ public static class InfinityManager {
     private readonly static Dictionary<(IInfinity infinity, int consumable), List<LocalizedText>> s_debug = [];
     private readonly static Dictionary<(IConsumableInfinity infinity, int player, int consumable), long> s_counts = [];
     private readonly static Dictionary<(IInfinity infinity, int consumable, long count), long> s_infinities = [];
-    private readonly static Dictionary<(int type, int stack, int prefix), ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>>> s_displays = [];
+    private readonly static Dictionary<(int type, int context), ReadOnlyCollection<ReadOnlyCollection<InfinityDisplay>>> s_displays = [];
 }
 
 public enum InfinityVisibility { Hidden, Visible, Exclusive }

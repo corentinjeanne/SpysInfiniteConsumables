@@ -5,8 +5,8 @@ ModName: Spy's Infinite Consumables
 ModNameShort: SPIC
 Homepage: homepage
 Workshop: Steam Workshop page
-Version: "4.0"
-Summary: Tile duplication is finally working and the configs received some love
+Version: 4.0.0.1
+Summary: ""
 Details:
 	'''
 	After 3+ years of work (and 3 complete reworks), SPIC is finally finished!
@@ -19,15 +19,10 @@ Details:
 	'''
 Changelog:
 	'''
-	- Reworked tile duplication
-	- Reworked the way the mod works internally
-	- Updated icon
-	- Added settings to the Display config
-	- Added loads of tooltips
-	- Simplified notification
-	- Added Version config
-	- Moved Definition and CustomDictionaryElement to Spiky's Lib
-	- Added automatic localization generation
-	- Updated to Spiky's lib v1.2
-	- Fixed bugs with preset
+	- Updated Spiky's lib dependency to v1.3
+	- Fixed Infinite Materials not working with Quality od Terraria
+	- Fixed group materials count
+	- Fixed tooltip line opacity been ignored
+	- Fixed Glow and Dots scaling
+	- Fixed infinities been displayed in places they shouldn't be
 	'''

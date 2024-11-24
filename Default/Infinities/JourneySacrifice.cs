@@ -6,6 +6,7 @@ using SPIC.Default.Displays;
 using SPIC.Configs;
 using SpikysLib.Configs.UI;
 using Terraria.ModLoader.Config;
+using Terraria.UI;
 
 namespace SPIC.Default.Infinities;
 
@@ -28,8 +29,8 @@ public sealed class JourneySacrifice : Infinity<Item>, IClientConfigProvider<Jou
 
     public (TooltipLine, TooltipLineID?) GetTooltipLine(Item item, int displayed) => (new(Instance.Mod, "JourneyResearch", Instance.GetLocalizedValue("TooltipLine")), TooltipLineID.JourneyResearch);
 
-    protected override void ModifyDisplayedInfinity(Item item, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
-        if (Main.CreativeMenu.GetItemByIndex(0).IsSimilar(item)) visibility = InfinityVisibility.Exclusive;
+    protected override void ModifyDisplayedInfinity(Item item, int context, Item consumable, ref InfinityVisibility visibility, ref InfinityValue value) {
+        if (context == ItemSlot.Context.CreativeSacrifice) visibility = InfinityVisibility.Exclusive;
         else if (ClientConfig.hideWhenResearched && Main.LocalPlayerCreativeTracker.ItemSacrifices.GetSacrificeCount(item.type) == item.ResearchUnlockCount) visibility = InfinityVisibility.Hidden;
     }
 }
