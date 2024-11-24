@@ -4,7 +4,7 @@ Depending of the item, this requirement may vary.
 There are a wide variety of Infinities for all sorts of consumables (usable, peaceable, materials and more) each with their own categories.
 
 [h2]Highly Customizable[/h2]
-Edit the [Infinity Settings](#infinity-settings) config to modify the behavior of the mod.
+Edit the Infinity Settings config to modify the behavior of the mod.
 Toggle on/off certain Infinities, change the requirement of item or even set custom ones.
 
 [h2]No item duplication[/h2]
