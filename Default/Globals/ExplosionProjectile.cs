@@ -3,6 +3,8 @@ using Terraria.ModLoader;
 using SPIC.Default.Infinities;
 using Terraria.DataStructures;
 using Terraria.ID;
+using MonoMod.Cil;
+using SpikysLib.IL;
 
 namespace SPIC.Default.Globals {
 
@@ -16,6 +18,7 @@ namespace SPIC.Default.Globals {
             On_Projectile.Kill_DirtAndFluidProjectiles_RunDelegateMethodPushUpForHalfBricks += HookKill_DirtAndFluid;
             On_Projectile.ExplodeTiles += HookExplodeTiles;
             On_Projectile.ExplodeCrackedTiles += HookExplodeCrackedTiles;
+            IL_Projectile.Kill += ILKillSandNoDrop;
         }
 
         public override void Unload() => ClearExploded();
@@ -46,6 +49,32 @@ namespace SPIC.Default.Globals {
             if (spawn.Player.HasInfinite(spawn.Player.ChooseAmmo(spawn.Item) ?? spawn.Item, 1, Ammo.Instance)) return true;
             if (spawn.Item.type == ItemID.DirtRod && spawn.Player.GetModPlayer<DetectionPlayer>().aimedAtInfiniteTile) return true;
             return false;
+        }
+
+        private static void ILKillSandNoDrop(ILContext il) {
+            // if (!this.noDropItem) {
+            //     ...
+            //     else if (this.aiStyle == 10) {
+            //          int num1027 = 0; // TileType
+            //          int num1028 = 2; // ItemType
+            //          ProjectileID.Sets.FallingBlockTileItemInfo data = ProjectileID.Sets.FallingBlockTileItem[this.type];
+            //          <getTileItemType>
+            //          ++ if (infinite) itemType = ItemId.None;
+            //          value14 = Main.tile[num1025, num1026];
+            //          if (!value14.active() && num1027 >= 0) <tryPlaceTileType>
+            //          else <dropItemType>
+            //     }
+            // }
+            ILCursor cursor = new(il);
+            cursor.GotoNext(i => i.MatchLdsfld(Reflection.ProjectileID.Sets.FallingBlockTileItem));
+            cursor.FindPrevLoc(out var c, out var itemType, i => i.Previous.MatchLdcI4(2), 1630);
+            c.FindPrevLoc(out _, out int tileType, i => i.Previous.MatchLdcI4(0), itemType-1);
+            cursor.GotoNext(i => i.MatchLdloc(tileType));
+            cursor.GotoPrev(MoveType.AfterLabel, i => i.MatchLdsflda(Reflection.Main.tile));
+
+            cursor.EmitLdarg0().EmitLdloc(itemType);
+            cursor.EmitDelegate((Projectile self, int itemType) => self.GetGlobalProjectile<ExplosionProjectile>().infiniteFallingTile ? ItemID.None : itemType);
+            cursor.EmitStloc(itemType);
         }
 
         private static void Explode(Projectile proj) {

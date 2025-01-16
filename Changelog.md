@@ -1,6 +1,10 @@
 
 # SPIC Changelog
 
+## v4.0.0.2
+- Fixed falling blocks dropping items when landing on background objects
+- Fixed falling blocks infinite data not been cleared when falling when placed
+
 ## v4.0.0.1
 - Updated Spiky's lib dependency to v1.3
 - Fixed Infinite Materials not working with Quality od Terraria

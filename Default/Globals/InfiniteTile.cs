@@ -46,7 +46,7 @@ public class InfiniteTile : GlobalTile {
 
     internal static void PlaceInfinite(int usedI, int usedJ, TileFlags type) {
         var world = InfiniteWorld.Instance;
-        if (world.IsInfinitePlacementContext()) {
+        if (Main.tile[usedI, usedJ].HasTile && world.IsInfinitePlacementContext()) {
             if (Main.netMode != NetmodeID.SinglePlayer) SetInfiniteTileHandler.GetPacket(usedI, usedJ, type).Send();
             world.SetInfinite(usedI, usedJ, type);
         }
